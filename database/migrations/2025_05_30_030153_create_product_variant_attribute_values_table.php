@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('attribute_value_id')->constrained('attribute_values')->onDelete('cascade'); // Khóa ngoại đến attribute_values(id) [cite: 20]
             $table->timestamps(); // Thời gian tạo và cập nhật [cite: 20]
             // Đảm bảo mỗi cặp variant-attribute_value là duy nhất
-            $table->unique(['product_variant_id', 'attribute_value_id']);
+            $table->unique(['product_variant_id', 'attribute_value_id'], 'pvav_variant_value_unique');
         });
     }
 
