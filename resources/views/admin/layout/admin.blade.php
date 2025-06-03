@@ -1,6 +1,7 @@
 {{-- filepath: resources/views/layouts/admin.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>@yield('title', 'Admin Dashboard')</title>
@@ -17,6 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     @stack('head')
 </head>
+
 <body>
     <div id="wrapper">
         <div id="page">
@@ -30,7 +32,13 @@
                 <div class="section-content-right">
                     @include('admin.partials.header')
                     <div class="main-content">
-                        @yield('content')
+                        <!-- main-content-wrap -->
+                        <div class="main-content-inner">
+                            <!-- main-content-wrap -->
+                            <div class="main-content-wrap">
+                                @yield('content')
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -62,4 +70,5 @@
     <script src="{{ asset('js/main.js') }}"></script>
     @stack('scripts')
 </body>
+
 </html>
