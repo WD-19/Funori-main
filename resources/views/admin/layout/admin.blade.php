@@ -23,11 +23,7 @@
     <div id="wrapper">
         <div id="page">
             <div class="layout-wrap">
-                <div id="preload" class="preload-container">
-                    <div class="preloading">
-                        <span></span>
-                    </div>
-                </div>
+
                 @include('admin.partials.sidebar')
                 <div class="section-content-right">
                     @include('admin.partials.header')
