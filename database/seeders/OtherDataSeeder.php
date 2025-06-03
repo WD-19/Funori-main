@@ -25,25 +25,9 @@ class OtherDataSeeder extends Seeder
         Page::factory(15)->create(); // Tạo 15 trang/bài blog
         ContactSubmission::factory(20)->create(); // Tạo 20 liên hệ
 
-        // Tạo giỏ hàng và các mục giỏ hàng
-        Cart::factory(5)->create()->each(function ($cart) {
-            CartItem::factory(rand(1, 4))->create([
-                'cart_id' => $cart->id,
-                'product_id' => Product::inRandomOrder()->first()->id,
-                'product_variant_id' => Product::inRandomOrder()->first()->variants()->inRandomOrder()->first()->id ?? null,
-            ]);
-        });
 
-        // Tạo wishlist items
-        \App\Models\Wishlist::all()->each(function ($wishlist) {
-            $products = Product::inRandomOrder()->take(rand(1, 5))->get();
-            foreach ($products as $product) {
-                WishlistItem::factory()->create([
-                    'wishlist_id' => $wishlist->id,
-                    'product_id' => $product->id,
-                ]);
-            }
-        });
+
+
 
         // Liên kết promotions với sản phẩm và danh mục cụ thể (nếu có)
         Promotion::all()->each(function ($promotion) {
