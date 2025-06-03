@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             PaymentMethodSeeder::class,
             ShippingMethodSeeder::class,
             OrderSeeder::class, // Orders cần Users, PaymentMethods, ShippingMethods
-            OtherDataSeeder::class, // Các dữ liệu còn lại
+            OtherDataSeeder::class,
+            ProductVariantAttributeValueSeeder::class, // Các dữ liệu còn lại
         ]);
     }
 }

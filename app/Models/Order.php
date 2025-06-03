@@ -46,7 +46,6 @@ class Order extends Model
         'order_status' => 'string', // Enum
     ];
 
-    // Relationships
     public function user()
     {
         return $this->belongsTo(User::class);

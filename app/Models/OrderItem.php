@@ -20,11 +20,10 @@ class OrderItem extends Model
     ];
 
     protected $casts = [
-        'variant_attributes' => 'array', // Dùng 'json' hoặc 'array' tùy thuộc vào kiểu dữ liệu bạn đã chọn
+        'variant_attributes' => 'array',
         'subtotal' => 'decimal:2',
     ];
 
-    // Relationships
     public function order()
     {
         return $this->belongsTo(Order::class);

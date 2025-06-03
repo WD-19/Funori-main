@@ -13,7 +13,6 @@ class Attribute extends Model
         'name',
     ];
 
-    // Relationships
     public function values()
     {
         return $this->hasMany(AttributeValue::class);

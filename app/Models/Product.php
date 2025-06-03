@@ -26,10 +26,9 @@ class Product extends Model
     protected $casts = [
         'regular_price' => 'decimal:2',
         'is_featured' => 'boolean',
-        'status' => 'string', // Enum
+        'status' => 'string', 
     ];
 
-    // Relationships
     public function category()
     {
         return $this->belongsTo(Category::class);

@@ -11,14 +11,13 @@ class PromotionCategory extends Pivot
 
     protected $table = 'promotion_category';
 
-    public $timestamps = false; // Tương tự PromotionProduct
+    public $timestamps = false;
 
     protected $fillable = [
         'promotion_id',
         'category_id',
     ];
 
-    // Relationships
     public function promotion()
     {
         return $this->belongsTo(Promotion::class);

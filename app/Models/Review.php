@@ -23,7 +23,6 @@ class Review extends Model
         'status' => 'string', // Enum
     ];
 
-    // Relationships
     public function user()
     {
         return $this->belongsTo(User::class);

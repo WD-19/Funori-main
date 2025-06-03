@@ -14,7 +14,6 @@ class AttributeValue extends Model
         'value',
     ];
 
-    // Relationships
     public function attribute()
     {
         return $this->belongsTo(Attribute::class);

@@ -23,12 +23,11 @@ class Page extends Model
     ];
 
     protected $casts = [
-        'page_type' => 'string', // Enum
-        'status' => 'string', // Enum
+        'page_type' => 'string', 
+        'status' => 'string', 
         'published_at' => 'datetime',
     ];
 
-    // Relationships
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');

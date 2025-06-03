@@ -20,7 +20,6 @@ class ProductVariant extends Model
         'price_modifier' => 'decimal:2',
     ];
 
-    // Relationships
     public function product()
     {
         return $this->belongsTo(Product::class);

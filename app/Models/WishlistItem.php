@@ -14,9 +14,8 @@ class WishlistItem extends Model
         'product_id',
     ];
 
-    public $timestamps = false; // Bảng này chỉ có created_at, không có updated_at
+    public $timestamps = false;
 
-    // Relationships
     public function wishlist()
     {
         return $this->belongsTo(Wishlist::class);

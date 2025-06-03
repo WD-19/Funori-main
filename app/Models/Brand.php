@@ -17,7 +17,6 @@ class Brand extends Model
         'is_active',
     ];
 
-    // Relationships
     public function products()
     {
         return $this->hasMany(Product::class);

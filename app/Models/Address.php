@@ -18,7 +18,6 @@ class Address extends Model
         'is_default',
     ];
 
-    // Relationships
     public function user()
     {
         return $this->belongsTo(User::class);

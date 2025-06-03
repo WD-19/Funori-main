@@ -9,9 +9,9 @@ class OrderPromotion extends Model
 {
     use HasFactory;
 
-    protected $table = 'order_promotion'; // Tên bảng nếu không theo quy ước
+    protected $table = 'order_promotion'; 
 
-    public $timestamps = false; // Bảng này chỉ có created_at, không có updated_at
+    public $timestamps = false; 
 
     protected $fillable = [
         'order_id',

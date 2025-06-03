@@ -21,7 +21,6 @@ class CartItem extends Model
         'price_at_addition' => 'decimal:2',
     ];
 
-    // Relationships
     public function cart()
     {
         return $this->belongsTo(Cart::class);

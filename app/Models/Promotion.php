@@ -37,7 +37,6 @@ class Promotion extends Model
         'applies_to' => 'string', // Enum
     ];
 
-    // Relationships
     public function products()
     {
         return $this->belongsToMany(Product::class, 'promotion_product', 'promotion_id', 'product_id');

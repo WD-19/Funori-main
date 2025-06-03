@@ -21,10 +21,9 @@ class ContactSubmission extends Model
     ];
 
     protected $casts = [
-        'status' => 'string', // Enum
+        'status' => 'string', 
     ];
 
-    // Relationships
     public function repliedBy()
     {
         return $this->belongsTo(User::class, 'replied_by');
