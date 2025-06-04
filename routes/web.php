@@ -17,4 +17,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
     Route::resource('users', UserController::class);
+
 });
