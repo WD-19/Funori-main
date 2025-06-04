@@ -5,11 +5,16 @@
 @section('content')
 <div class="container mt-4">
     <h2 class="mb-4">Danh sách danh mục</h2>
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="table-light">
                 <tr>
-                    <th>ID</th>
                     <th>Tên danh mục</th>
                     <th>Danh mục cha</th>
                     <th>Trạng thái</th>
@@ -20,7 +25,6 @@
             <tbody>
                 @foreach($categories as $category)
                     <tr>
-                        <td>{{ $category->id }}</td>
                         <td>
                             <strong>{{ str_repeat('*', $category->depth ?? 0) }}{{ $category->name }}</strong>
                         </td>
@@ -37,7 +41,6 @@
                     </tr>
                     @foreach ($category->children as $child)
                         <tr>
-                            <td>{{ $child->id }}</td>
                             <td>
                                 <strong>{{ str_repeat('*', $child->depth ?? 1) }}{{ $child->name }}</strong>
                             </td>

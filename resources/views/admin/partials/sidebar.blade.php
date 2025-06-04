@@ -51,7 +51,7 @@
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="new-category.html" class="">
+                                <a href="{{ route('admin.categories.create') }}" class="">
                                     <div class="text">New category</div>
                                 </a>
                             </li>
