@@ -59,16 +59,20 @@
                                                 <div class="body-title">Role</div>
                                             </li>
                                             <li>
+                                                <div class="body-title">Created At</div>
+                                            </li>
+                                            <li>
                                                 <div class="body-title">Action</div>
                                             </li>
                                         </ul>
-                                        @foreach ($users as $user )
+                                        
+                                        <ul class="flex flex-column">
+                                            @foreach ($users as $user )
                                             
-                                            <ul class="flex flex-column">
                                                 <li class="wg-product item-row">
                                                     <div class="name flex-grow">
                                                         <div class="image">
-                                                            <img src="images/products/product-1.jpg" alt="">
+                                                            <img src="{{ Storage::URL($user->avatar_url) }}" alt="">
                                                         </div>
                                                         <div>
                                                             <div class="title">
@@ -81,6 +85,7 @@
                                                     <div class="body-text">{{ $user->email }}</div>
                                                     <div class="body-text">{{ $user->account_status }}</div>
                                                     <div class="body-text">{{ $user->role }}</div>
+                                                    <div class="body-text">{{ $user->created_at->format('d-m-Y') }}</div>
                                                     <div class="list-icon-function">
                                                         <div class="item eye">
                                                             <i class="icon-eye"></i>
@@ -94,13 +99,14 @@
                                                     </div>
                                                 </li>
                                               
-                                            </ul>
                                          @endforeach
+                                    </ul>
+
 
                                     </div>
                                   <div class="pagination-wrapper">
                                         {{ $users->links() }}
-                                    </div>
+                                  </div>
                                 </div>
                                 <!-- /all-user -->
                             </div>
