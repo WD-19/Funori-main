@@ -14,4 +14,10 @@ class UserController
         return view('admin.users.index', compact('users'));
 
    }
+
+   public function create()
+   {
+      $users = User::all();
+      return view('admin.users.create', compact('users'));
+   }
 }

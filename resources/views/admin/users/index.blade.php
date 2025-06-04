@@ -39,7 +39,7 @@
                                                 </div>
                                             </form>
                                         </div>
-                                        <a class="tf-button style-1 w208" href="add-new-user.html"><i class="icon-plus"></i>Add new</a>
+                                        <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}"><i class="icon-plus"></i>Add new</a>
                                     </div>
                                     <div class="wg-table table-all-user">
                                         <ul class="table-title flex gap20 mb-14">
