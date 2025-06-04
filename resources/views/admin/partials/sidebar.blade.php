@@ -113,7 +113,7 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="all-user.html" class="">
+                                <a href="{{ route('admin.users.index') }}" class="">
                                     <div class="text">All user</div>
                                 </a>
                             </li>
