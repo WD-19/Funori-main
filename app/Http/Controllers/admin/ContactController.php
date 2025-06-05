@@ -31,7 +31,7 @@ class ContactController
         }
 
         $contacts = $query->orderByDesc('created_at')->paginate(10)->appends($request->all());
-        return view('admin.contact.index', compact('contacts'));
+        return view('admin.contacts.index', compact('contacts'));
     }
     /**
      * Show the form for creating a new resource.
@@ -65,7 +65,7 @@ class ContactController
         // Tìm sản phẩm theo ID
         $contacts = ContactSubmission::findOrFail($id);
 
-        return view('admin.contact.edit', compact('contacts'));
+        return view('admin.contacts.edit', compact('contacts'));
     }
 
     /**
@@ -95,7 +95,7 @@ class ContactController
         $contact->replied_by = $request->replied_by;
         $contact->save();
 
-        return redirect()->route('admin.contact.index')->with('success', 'Cập nhật liên hệ thành công!');
+        return redirect()->route('admin.contacts.index')->with('success', 'Cập nhật liên hệ thành công!');
     }
 
     /**
@@ -106,7 +106,7 @@ class ContactController
         $contact = ContactSubmission::findOrFail($id);
         $contact->delete();
 
-        return redirect()->route('admin.contact.index')->with('success', 'Contact deleted successfully!');
+        return redirect()->route('admin.contacts.index')->with('success', 'Contact deleted successfully!');
     }
 
     public function export()
