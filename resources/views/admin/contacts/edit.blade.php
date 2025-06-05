@@ -13,7 +13,7 @@
                     </li>
                     <li><i class="icon-chevron-right"></i></li>
                     <li>
-                        <a href="{{ route('admin.contact.index') }}">
+                        <a href="{{ route('admin.contacts.index') }}">
                             <div class="text-tiny">Contact</div>
                         </a>
                     </li>
@@ -24,7 +24,7 @@
                 </ul>
             </div>
             <!-- form-edit-contact -->
-            <form class="form-edit-contact" method="POST" action="{{ route('admin.contact.update', $contacts->id) }}">
+            <form class="form-edit-contact" method="POST" action="{{ route('admin.contacts.update', $contacts->id) }}">
                 @csrf
                 @method('PUT')
                 <div class="wg-box mb-30">
@@ -83,7 +83,7 @@
                 </div>
                 <div class="cols gap10">
                     <button class="tf-button w380" type="submit">Update Contact</button>
-                    <a href="{{ route('admin.contact.index') }}" class="tf-button style-3 w380">Cancel</a>
+                    <a href="{{ route('admin.contacts.index') }}" class="tf-button style-3 w380">Cancel</a>
                 </div>
             </form>
             <!-- /form-edit-contact -->
