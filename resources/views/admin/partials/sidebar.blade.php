@@ -33,7 +33,7 @@
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="add-product.html" class="">
+                                <a href="{{ route('admin.products.create') }}" class="">
                                     <div class="text">Add Product</div>
                                 </a>
                             </li>
