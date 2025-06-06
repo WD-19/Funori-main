@@ -87,7 +87,7 @@
                     <li class="wg-product item-row gap20">
                         <div class="name">
                             <div class="image">
-                                <img src="{{ $product->images->first()->image_url ?? asset('images/no-image.png') }}" alt="">
+                                <img src="{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}" alt="">
                             </div>
                             <div class="title line-clamp-2 mb-0">
                                 <a href="#" class="body-text">{{ $product->name }}</a>
