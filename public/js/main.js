@@ -39,7 +39,7 @@
 
   var menuleft = function () {
     if ($('div').hasClass('section-menu-left')) {
-      var bt =$(".section-menu-left").find(".has-children");
+      var bt = $(".section-menu-left").find(".has-children");
       bt.on("click", function () {
         var args = { duration: 200 };
         if ($(this).hasClass("active")) {
@@ -52,30 +52,30 @@
           $(this).addClass("active");
         }
       });
-      $('.sub-menu-item').on('click', function(event){
+      $('.sub-menu-item').on('click', function (event) {
         event.stopPropagation();
       });
     }
   };
 
-  var tabs = function(){
-    $('.widget-tabs').each(function(){
-        $(this).find('.widget-content-tab').children().hide();
-        $(this).find('.widget-content-tab').children(".active").show();
-        $(this).find('.widget-menu-tab').find('li').on('click',function(){
-            var liActive = $(this).index();
-            var contentActive=$(this).siblings().removeClass('active').parents('.widget-tabs').find('.widget-content-tab').children().eq(liActive);
-            contentActive.addClass('active').fadeIn("slow");
-            contentActive.siblings().removeClass('active');
-            $(this).addClass('active').parents('.widget-tabs').find('.widget-content-tab').children().eq(liActive).siblings().hide();
-        });
+  var tabs = function () {
+    $('.widget-tabs').each(function () {
+      $(this).find('.widget-content-tab').children().hide();
+      $(this).find('.widget-content-tab').children(".active").show();
+      $(this).find('.widget-menu-tab').find('li').on('click', function () {
+        var liActive = $(this).index();
+        var contentActive = $(this).siblings().removeClass('active').parents('.widget-tabs').find('.widget-content-tab').children().eq(liActive);
+        contentActive.addClass('active').fadeIn("slow");
+        contentActive.siblings().removeClass('active');
+        $(this).addClass('active').parents('.widget-tabs').find('.widget-content-tab').children().eq(liActive).siblings().hide();
+      });
     });
   };
 
-  $('ul.dropdown-menu.has-content').on('click', function(event){
+  $('ul.dropdown-menu.has-content').on('click', function (event) {
     event.stopPropagation();
   });
-  $('.button-close-dropdown').on('click', function(){
+  $('.button-close-dropdown').on('click', function () {
     $(this).closest('.dropdown').find('.dropdown-toggle').removeClass('show');
     $(this).closest('.dropdown').find('.dropdown-menu').removeClass('show');
   });
@@ -86,7 +86,7 @@
     })
   }
 
-  var showpass = function() {
+  var showpass = function () {
     $(".show-pass").on("click", function () {
       $(this).toggleClass("active");
       var input = $(this).parents(".password").find(".password-input");
@@ -116,39 +116,43 @@
     }
   }
 
-  var box_search=function(){
-        
-    $(document).on('click',function(e){
-      var clickID=e.target.id;if((clickID!=='s')){
-          $('.box-content-search').removeClass('active');
-      }});
-    $(document).on('click',function(e){
-        var clickID=e.target.class;if((clickID!=='a111')){
-            $('.show-search').removeClass('active');
-    }});
-        
-    $('.show-search').on('click',function(event){
-      event.stopPropagation();}
+  var box_search = function () {
+
+    $(document).on('click', function (e) {
+      var clickID = e.target.id; if ((clickID !== 's')) {
+        $('.box-content-search').removeClass('active');
+      }
+    });
+    $(document).on('click', function (e) {
+      var clickID = e.target.class; if ((clickID !== 'a111')) {
+        $('.show-search').removeClass('active');
+      }
+    });
+
+    $('.show-search').on('click', function (event) {
+      event.stopPropagation();
+    }
     );
-    $('.search-form').on('click',function(event){
-      event.stopPropagation();}
+    $('.search-form').on('click', function (event) {
+      event.stopPropagation();
+    }
     );
-    var input =  $('.header-dashboard').find('.form-search').find('input');
-    input.on('input', function() {
+    var input = $('.header-dashboard').find('.form-search').find('input');
+    input.on('input', function () {
       if ($(this).val().trim() !== '') {
         $('.box-content-search').addClass('active');
       } else {
         $('.box-content-search').removeClass('active');
       }
     });
-   
+
   }
 
   var preloader = function () {
     setTimeout(function () {
-    $("#preload").fadeOut("slow", function () {
+      $("#preload").fadeOut("slow", function () {
         $(this).remove();
-    });
+      });
     }, 300);
   };
 
@@ -191,25 +195,35 @@
   };
 
   var uploadfile = function () {
-    if ($("#myFile").length) {
-        document
-            .getElementById("myFile")
-            .addEventListener("change", function (event) {
-                var file = event.target.files[0];
-                var reader = new FileReader();
+    let countImg = 2;
 
-                reader.onload = function (e) {
-                    var imgElement = document.getElementById("myFile-input");
-                    imgElement.src = e.target.result;
-                    imgElement.classList.add("has-img");
-                };
+    for (let i = 1; i <= countImg; i++) {
+      let fileInputId = i === 1 ? "myFile" : `myFile${i}`;
+      let imgId = i === 1 ? "myFile-input" : `myFile-input${i}`;
 
-                if (file) {
-                    reader.readAsDataURL(file);
-                }
-            });
+      let fileInput = document.getElementById(fileInputId);
+      let imgPreview = document.getElementById(imgId);
+      let imgEdit = document.querySelector('.img-edit');
+      if (fileInput && imgPreview) {
+        fileInput.addEventListener("change", function (event) {
+          var file = event.target.files[0];
+          var reader = new FileReader();
+
+          reader.onload = function (e) {
+            // dùng biến imgPreview bên ngoài, không lấy qua id trong callback
+            imgPreview.src = e.target.result;
+            imgPreview.classList.add("has-img");
+            imgEdit.classList.add('d-none');
+          };
+
+          if (file) {
+            reader.readAsDataURL(file);
+          }
+        });
       }
+    }
   };
+
 
   // Dom Ready
   $(function () {
@@ -226,7 +240,7 @@
     flatAccordion(".flat-accordion1");
     uploadfile();
     preloader();
-    
+
   });
 
 })(jQuery);

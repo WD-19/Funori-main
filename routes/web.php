@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\admin\BannerController;
+use App\Http\Controllers\admin\BrandController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,4 +17,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
+    Route::resource('banners', BannerController::class);
+    Route::resource('brands', BrandController::class);
 });

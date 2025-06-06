@@ -211,6 +211,27 @@
       }
   };
 
+    var uploadfile2 = function () {
+    if ($("#myFile2").length) {
+        document
+            .getElementById("myFile2")
+            .addEventListener("change", function (event) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var imgElement = document.getElementById("myFile2-input");
+                    imgElement.src = e.target.result;
+                    imgElement.classList.add("has-img");
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+      }
+  };
+
   // Dom Ready
   $(function () {
     selectImages();
@@ -225,6 +246,7 @@
     flatAccordion(".flat-accordion");
     flatAccordion(".flat-accordion1");
     uploadfile();
+    uploadfile2();
     preloader();
     
   });

@@ -10,6 +10,7 @@
             <a href="index.html">
                 <div class="text-tiny">Dashboard</div>
             </a>
+            
         </li>
         <li>
             <i class="icon-chevron-right"></i>
