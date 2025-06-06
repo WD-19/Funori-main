@@ -6,7 +6,8 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
 use Illuminate\Support\Facades\Route;
-Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.index');
     })->name('dashboard');
