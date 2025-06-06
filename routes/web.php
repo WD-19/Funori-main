@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ContactController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('admin.index');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -15,4 +16,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
+    Route::resource('contacts', ContactController::class);
 });
