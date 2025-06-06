@@ -119,17 +119,6 @@
             document.getElementById('slug').value = slug;
         });
 
-        // Hiển thị ảnh xem trước khi chọn file mới
-        document.getElementById('image_url').addEventListener('change', function(event) {
-            const [file] = event.target.files;
-            if (file) {
-                const preview = document.getElementById('image_url-preview');
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
-                // Ẩn ảnh cũ nếu có
-                const oldImg = document.getElementById('old-image');
-                if (oldImg) oldImg.style.display = 'none';
-            }
-        });
+        // Hiển thị ảnh xem trước khi tải lên
     </script>
 @endsection

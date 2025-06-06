@@ -48,7 +48,7 @@ class CategoryController
 
         Category::create([
             'name' => $request->name,
-            'slug' => $request->slug ?: \Str::slug($request->name),
+            'slug' => $request->slug ?: Str::slug($request->name),
             'parent_id' => $request->parent_id,
             'description' => $request->description,
             'image_url' => $imagePath,
@@ -97,8 +97,8 @@ class CategoryController
 
         if ($request->hasFile('image_url')) {
             // Xóa ảnh cũ nếu có
-            if ($category->image_url && \Storage::disk('public')->exists($category->image_url)) {
-                \Storage::disk('public')->delete($category->image_url);
+            if ($category->image_url && Storage::disk('public')->exists($category->image_url)) {
+                Storage::disk('public')->delete($category->image_url);
             }
             // Lưu ảnh mới
             $imagePath = $request->file('image_url')->store('uploads/categories', 'public');
@@ -106,7 +106,7 @@ class CategoryController
 
         $category->update([
             'name' => $request->name,
-            'slug' => $request->slug ?: \Str::slug($request->name),
+            'slug' => $request->slug ?: Str::slug($request->name),
             'parent_id' => $request->parent_id,
             'description' => $request->description,
             'image_url' => $imagePath,
