@@ -1,14 +1,22 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Models\AttributeValue;
 use App\Models\Attribute;
 use Illuminate\Http\Request;
 
-class AttributeController {
-    public function index()
+class AttributeController
+{
+    public function index(Request $request)
     {
-        $attributes = AttributeValue::with('attribute')->paginate(20);
+        $query = AttributeValue::with('attribute');
+        if ($request->filled('name')) {
+            $query->whereHas('attribute', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->name . '%');
+            })->orWhere('value', 'like', '%' . $request->name . '%');
+        }
+        $attributes = $query->paginate(20)->appends($request->all());
         return view('admin.attributes.index', compact('attributes'));
     }
     public function create()

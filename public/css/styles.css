@@ -2904,6 +2904,7 @@ form input[type=color] {
   border-radius: 12px;
   color: var(--Surface-2);
   margin-bottom: 0;
+  background-color: var(--Surface-3);
 }
 form textarea::placeholder,
 form input[type=text]::placeholder,
@@ -4128,7 +4129,7 @@ select option {
   width: 122px;
 }
 .wg-table.table-product-list > * {
-  min-width: 1492px;
+  min-width: 1900px;
 }
 .wg-table.table-product-list .wg-product,
 .wg-table.table-product-list ul.table-title {
