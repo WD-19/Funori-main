@@ -101,18 +101,8 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="oder-list.html" class="">
+                                <a href="{{  route('admin.orders.index') }}" class="">
                                     <div class="text">Order list</div>
-                                </a>
-                            </li>
-                            <li class="sub-menu-item">
-                                <a href="oder-detail.html" class="">
-                                    <div class="text">Order detail</div>
-                                </a>
-                            </li>
-                            <li class="sub-menu-item">
-                                <a href="oder-tracking.html" class="">
-                                    <div class="text">Order tracking</div>
                                 </a>
                             </li>
                         </ul>
