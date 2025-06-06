@@ -42,10 +42,27 @@
                                         <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}"><i class="icon-plus"></i>Add new</a>
                                     </div>
                                     <div class="wg-table table-all-user">
+                                        @php
+                                            function sortIcon($field) {
+                                                $currentSort = request('sort');
+                                                $currentOrder = request('order');
+                                                $isSorted = $currentSort === $field;
+                                                $isAsc = $currentOrder === 'asc';
+                                                $nextOrder = ($isSorted && $isAsc) ? 'desc' : 'asc';
+                                                $arrow = $isSorted ? ($isAsc ? '▲' : '▼') : '⇅';
+                                                $color = $isSorted ? '#4F8CFF' : '#aaa';
+                                                $url = request()->fullUrlWithQuery(['sort' => $field, 'order' => $nextOrder]);
+
+                                                return '<a href="' . $url . '" style="margin-left: 6px; color: ' . $color . ';">' . $arrow . '</a>';
+                                            }
+                                        @endphp
+
                                         <ul class="table-title flex gap20 mb-14">
                                             <li>
-                                                <div class="body-title">User</div>
-                                            </li>    
+                                                <div class="body-title">
+                                                    User {!! sortIcon('full_name') !!}
+                                                </div>
+                                            </li>
                                             <li>
                                                 <div class="body-title">Phone</div>
                                             </li>
@@ -59,20 +76,23 @@
                                                 <div class="body-title">Role</div>
                                             </li>
                                             <li>
-                                                <div class="body-title">Created At</div>
+                                                <div class="body-title">
+                                                    Created At {!! sortIcon('created_at') !!}
+                                                </div>
                                             </li>
                                             <li>
                                                 <div class="body-title">Action</div>
                                             </li>
                                         </ul>
+
                                         
                                         <ul class="flex flex-column">
                                             @foreach ($users as $user )
                                             
                                                 <li class="wg-product item-row">
                                                     <div class="name flex-grow">
-                                                        <div class="image">
-                                                            <img src="{{ Storage::URL($user->avatar_url) }}" alt="">
+                                                       <div class="image">
+                                                            <img src="{{ asset($user->avatar_url ? $user->avatar_url : 'images/images.jpg') }}" alt="" style="width:38px;height:38px;object-fit:cover;border-radius:50%;">
                                                         </div>
                                                         <div>
                                                             <div class="title">
@@ -83,15 +103,45 @@
                                                     </div>
                                                     <div class="body-text">{{ $user->phone_number }}</div>
                                                     <div class="body-text">{{ $user->email }}</div>
-                                                    <div class="body-text">{{ $user->account_status }}</div>
-                                                    <div class="body-text">{{ $user->role }}</div>
+                                                    <div>
+                                                        <div class="block-tracking bg-1 fw-7"
+                                                            @if($user->account_status == 'active')
+                                                                style="color: #28a745;"
+                                                            @elseif($user->account_status == 'isactive')
+                                                                style="color: #ffc107;"
+                                                            @elseif($user->account_status == 'banned')
+                                                                style="color: #dc3545;"
+                                                            @else
+                                                                style="color: #333;"
+                                                            @endif
+                                                        >
+                                                            {{ $user->account_status }}
+                                                        </div>
+                                                    </div>
+                                                     <div>
+                                                        <div class="block-tracking bg-1 fw-7"
+                                                            @if($user->role == 'admin')
+                                                                style="color: #007bff;"
+                                                            @elseif($user->role == 'user')
+                                                                style="color: #17a2b8;"
+                                                            @elseif($user->role == 'moderator')
+                                                                style="color: #6f42c1;"
+                                                            @else
+                                                                style="color: #333;"
+                                                            @endif
+                                                        >
+                                                            {{ $user->role }}
+                                                        </div>
+                                                    </div>
                                                     <div class="body-text">{{ $user->created_at->format('d-m-Y') }}</div>
                                                     <div class="list-icon-function">
                                                         <div class="item eye">
-                                                            <i class="icon-eye"></i>
+                                                            <a style="color:orange " href="{{ route('admin.users.show', $user->id) }}"> <i class="icon-eye"></i></a>
                                                         </div>
                                                         <div class="item edit">
-                                                            <i class="icon-edit-3"></i>
+                                                            <a style="color: green" href="{{ route('admin.users.edit', $user->id) }}"> <i class="icon-edit-3"></i></a>
+
+                                                           
                                                         </div>
                                                         <div class="item trash">
                                                             <i class="icon-trash-2"></i>

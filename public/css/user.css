@@ -36,3 +36,39 @@
     margin-bottom: 30px;
 }
 /* ...existing code... */
+
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+#resetPasswordIcon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+.password-input {
+    padding-right: 40px !important;
+}
+
+.status-select.status-active {
+    color: #fff;
+    background: #28a745;
+}
+.status-select.status-isactive {
+    color: #333;
+    background: #ffc107;
+}
+.status-select.status-banned {
+    color: #fff;
+    background: #dc3545;
+}
+.status-select.status-default {
+    color: #333;
+    background: #e9ecef;
+}
