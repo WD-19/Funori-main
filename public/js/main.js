@@ -108,16 +108,16 @@
     }
   }
 
-  var icon_function = function () {
-    if ($('div').hasClass("list-icon-function")) {
-      $(".list-icon-function .trash").on("click", function (e) {
-        $(this).parents(".item-row").remove();
-      })
-    }
-  }
+//   var icon_function = function () {
+//     if ($('div').hasClass("list-icon-function")) {
+//       $(".list-icon-function .trash").on("click", function (e) {
+//         $(this).parents(".item-row").remove();
+//       })
+//     }
+//   }
 
   var box_search=function(){
-        
+
     $(document).on('click',function(e){
       var clickID=e.target.id;if((clickID!=='s')){
           $('.box-content-search').removeClass('active');
@@ -126,7 +126,7 @@
         var clickID=e.target.class;if((clickID!=='a111')){
             $('.show-search').removeClass('active');
     }});
-        
+
     $('.show-search').on('click',function(event){
       event.stopPropagation();}
     );
@@ -141,7 +141,7 @@
         $('.box-content-search').removeClass('active');
       }
     });
-   
+
   }
 
   var preloader = function () {
@@ -226,7 +226,7 @@
     flatAccordion(".flat-accordion1");
     uploadfile();
     preloader();
-    
+
   });
 
 })(jQuery);
