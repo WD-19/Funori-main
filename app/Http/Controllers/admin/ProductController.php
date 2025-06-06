@@ -61,7 +61,6 @@ class ProductController
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
             'regular_price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
             'short_description' => 'required|string|max:255',
             'description' => 'nullable|string',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -74,7 +73,6 @@ class ProductController
             'category_id' => $validated['category_id'],
             'brand_id' => $validated['brand_id'],
             'regular_price' => $validated['regular_price'],
-            'stock_quantity' => $validated['stock_quantity'],
             'short_description' => $validated['short_description'],
             'description' => $request->description,
         ]);

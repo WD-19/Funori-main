@@ -77,10 +77,6 @@
             <div class="body-title mb-10">Price <span class="tf-color-1">*</span></div>
             <input type="number" name="regular_price" min="0" step="0.01" required>
         </fieldset>
-        <fieldset class="stock">
-            <div class="body-title mb-10">Stock <span class="tf-color-1">*</span></div>
-            <input type="number" name="stock_quantity" min="0" required>
-        </fieldset>
         <fieldset class="short_description">
             <div class="body-title mb-10">Short Description <span class="tf-color-1">*</span></div>
             <textarea name="short_description" maxlength="255" required></textarea>
