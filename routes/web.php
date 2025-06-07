@@ -4,8 +4,8 @@ use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\admin\ReviewController;
 use Illuminate\Support\Facades\Route;
-
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
@@ -15,6 +15,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
     Route::resource('contacts', ContactController::class);
+    Route::resource('reviews', ReviewController::class);
 
     // Quản lý đơn hàng
     // (1) Xem danh sách đơn hàng, hỗ trợ filter theo trạng thái, tìm kiếm
