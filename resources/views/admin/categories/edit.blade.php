@@ -58,7 +58,6 @@
                                 <input type="file" id="image_url" name="image_url"
                                     class="@error('image_url') is-invalid @enderror" accept="image/*">
                             </label>
-                            {{-- Ảnh cũ --}}
                         </div>
                         @error('image_url')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
@@ -66,6 +65,7 @@
                     </div>
                 </fieldset>
                 
+                {{-- Ảnh cũ --}}
                 @if ($category->image_url)
                     <div id="old-image-wrap" style="text-align:center;">
                         <div style="font-size:13px; color:#888;">Ảnh hiện tại</div>

@@ -10,16 +10,16 @@ class Page extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title',
-        'slug',
-        'content',
-        'author_id',
-        'page_type',
-        'status',
-        'meta_title',
-        'meta_description',
-        'featured_image_url',
-        'published_at',
+        'title', // Tiêu đề trang
+        'slug',     
+        'content', // Nội dung trang
+        'author_id', // Khóa ngoại đến users id
+        'page_type', // Loại trang 
+        'status', // trạng thái
+        'meta_title', // Thẻ meta title SEO
+        'meta_description', // Thẻ meta description SEO
+        'featured_image_url', // Ảnh đại diện cho bài blog
+        'published_at', // Thời gian xuất bản
     ];
 
     protected $casts = [
