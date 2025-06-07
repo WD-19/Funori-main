@@ -75,6 +75,9 @@
                         <div class="body-title">Stock</div>
                     </li>
                     <li>
+                        <div class="body-title">Status</div>
+                    </li>
+                    <li>
                         <div class="body-title">Start date</div>
                     </li>
                     <li>
@@ -87,7 +90,7 @@
                     <li class="wg-product item-row gap20">
                         <div class="name">
                             <div class="image">
-                                <img src="{{ $product->images->first()->image_url ?? asset('images/no-image.png') }}" alt="">
+                                <img src="{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}" alt="">
                             </div>
                             <div class="title line-clamp-2 mb-0">
                                 <a href="#" class="body-text">{{ $product->name }}</a>
@@ -106,15 +109,26 @@
                             {{ $product->category->name ?? 'N/A' }}
                         </div>
                         <div class="body-text text-main-dark mt-4">
-                            {{ $product->stock_quantity }}
+                            {{ $product->variants->sum('stock_quantity') }}
                         </div>
 
                         <div>
-                            @if($product->stock_quantity > 0)
+                            @if($product->variants->sum('stock_quantity') > 0)
                             <div class="block-available bg-1 fw-7">In Stock</div>
                             @else
                             <div class="block-stock bg-1 fw-7">Out of stock</div>
                             @endif
+                        </div>
+                        <div>
+                            <form method="POST" action="{{ route('admin.products.update', $product->id) }}" style="display:inline;">
+                                @csrf
+                                @method('PUT')
+                                <select name="status" onchange="this.form.submit()" style="min-width:110px;">
+                                    <option value="published" {{ $product->status == 'published' ? 'selected' : '' }}>Published</option>
+                                    <option value="draft" {{ $product->status == 'draft' ? 'selected' : '' }}>Draft</option>
+                                    <option value="archived" {{ $product->status == 'archived' ? 'selected' : '' }}>Archived</option>
+                                </select>
+                            </form>
                         </div>
                         <div class="body-text text-main-dark mt-4">
                             {{ $product->created_at ? $product->created_at->format('m/d/Y') : '' }}
@@ -126,7 +140,7 @@
                             <div class="item edit">
                                 <a href="{{ route('admin.products.edit', $product->id) }}"><i class="icon-edit-3"></i></a>
                             </div>
-                            <div class="item trash">
+                            <!-- <div class="item trash">
                                 <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
                                     @csrf
                                     @method('DELETE')
@@ -134,7 +148,7 @@
                                         <i class="icon-trash-2"></i>
                                     </button>
                                 </form>
-                            </div>
+                            </div> -->
                         </div>
                     </li>
                     @endforeach
