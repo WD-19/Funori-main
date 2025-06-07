@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('short_description')->nullable(); // Mô tả ngắn (nullable) [cite: 10]
             $table->longText('description'); // Mô tả chi tiết sản phẩm [cite: 10]
             $table->decimal('regular_price', 15, 2); // Giá gốc (giá thị trường) [cite: 10]
-            $table->unsignedInteger('stock_quantity'); // Số lượng tồn kho (nếu không quản lý theo variant) [cite: 10]
+            $table->unsignedInteger('stock_quantity')->nullable(); // Số lượng tồn kho (nếu không quản lý theo variant) [cite: 10]
             $table->foreignId('category_id')->constrained('categories')->onDelete('restrict'); // Khóa ngoại đến categories(id) [cite: 10]
             $table->foreignId('brand_id')->nullable()->constrained('brands')->onDelete('set null'); // Khóa ngoại đến brands(id) (nullable) [cite: 10]
             $table->enum('status', ['published', 'draft', 'archived', 'out_of_stock'])->default('draft'); // Trạng thái sản phẩm (mặc định: 'draft') [cite: 10]

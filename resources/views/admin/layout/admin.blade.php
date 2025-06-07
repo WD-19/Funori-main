@@ -14,8 +14,13 @@
     <link rel="stylesheet" href="{{ asset('font/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('icon/style.css') }}">
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="apple-touch-icon-precomposed" href="{{ asset('images/favicon.png') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{{ asset('css/user.css') }}">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
     @stack('head')
 </head>
 
@@ -32,15 +37,26 @@
                         <div class="main-content-inner">
                             <!-- main-content-wrap -->
                             <div class="main-content-wrap">
+                                @if (session('success'))
+                                    <x-alert type="success">
+                                        {{ session('success') }}
+                                    </x-alert>
+                                @endif
+
+                                @if (session('error'))
+                                    <x-alert type="danger">
+                                        {{ session('error') }}
+                                    </x-alert>
+                                @endif
                                 @yield('content')
                             </div>
                         </div>
                     </div>
+                    @include('admin.partials.footer')
                 </div>
             </div>
         </div>
     </div>
-    @include('admin.partials.footer')
     <!-- JS -->
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
