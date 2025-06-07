@@ -7,10 +7,15 @@ use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã 
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use Illuminate\Support\Facades\Route;
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+Route::get('/', function () {
+    return view('admin.index');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.index');
     })->name('dashboard');
@@ -34,12 +39,12 @@ use Illuminate\Support\Facades\Route;
 
     Route::resource('categories', CategoryController::class);
     Route::resource('contacts', ContactController::class);
-
+    Route::resource('reviews', ReviewController::class);
 
     // Quản lý user
-    
+
     Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
-    
+
     Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
 
     Route::get('users/{user}/order-history', [UserController::class, 'orderHistory'])->name('users.orderHistory');
@@ -85,4 +90,3 @@ use Illuminate\Support\Facades\Route;
     Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
         ->name('orders.printShipping');
 });
-
