@@ -140,12 +140,12 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="#" class="">
+                                <a href="{{ route('admin.pages.index') }}" class="">
                                     <div class="text">Page list</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="#" class="">
+                                <a href="{{ route('admin.pages.create') }}" class="">
                                     <div class="text">Add New Page</div>
                                 </a>
                             </li>

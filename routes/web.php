@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã 
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('categories', CategoryController::class);
     Route::resource('contacts', ContactController::class);
+    Route::resource('pages', PageController::class);
     Route::resource('reviews', ReviewController::class);
 
     // Quản lý user
