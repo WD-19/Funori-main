@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Review;
 
 class ReviewController
@@ -16,7 +17,8 @@ class ReviewController
         $reviews = Review::with(['product', 'user', 'orderItem'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-        return view('admin.reviews.index', compact('reviews'));
+        $orders = \App\Models\Order::all(['id', 'order_code']);
+        return view('admin.reviews.index', compact('reviews', 'orders'));
     }
 
     /**

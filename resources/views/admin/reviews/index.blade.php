@@ -61,19 +61,22 @@
                 <div class="wg-table table-all-category">
                     <ul class="table-title flex gap20 mb-14">
                         <li>
-                            <div class="body-title">Order ID</div>
+                            <div class="body-title">Order Code</div>
                         </li>
                         <li>
-                            <div class="body-title">Product ID</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Product Variant ID</div>
+                            <div class="body-title">User Name</div>
                         </li>
                         <li>
                             <div class="body-title">Product Name</div>
                         </li>
                         <li>
-                            <div class="body-title">Variant Attribute</div>
+                            <div class="body-title">Rating</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Comment</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Status</div>
                         </li>
                         <li>
                             <div class="body-title">Quantity</div>
@@ -82,49 +85,62 @@
                             <div class="body-title">Subtotal</div>
                         </li>
                         <li>
-                            <div class="body-title">Created At</div>
-                        </li>
-                        <li>
                             <div class="body-title">Action</div>
                         </li>
                     </ul>
                     <ul class="flex flex-column">
                         @foreach ($reviews as $value)
                             <li class="wg-product item-row gap20">
+                                {{-- Order Code --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    {{ $value->order_id }}
+                                    @php
+                                        $order = $orders->firstWhere('id', $value->order_id);
+                                    @endphp
+                                    {{ $order ? $order->order_code : $value->order_id }}
                                 </div>
+                                {{-- User Name --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    {{ $value->product_id }}
+                                    {{ $value->user->full_name ? $value->user->full_name : $value->user->full_name ?? $value->user->id }}
                                 </div>
+                                {{-- Product Name --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    {{ $value->product_variant_id ?? 'N/A' }}
+                                    {{ $value->product ? $value->product->name : $value->product_name ?? $value->product_id }}
                                 </div>
+                                {{-- Rating --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    {{ $value->product ? $value->product->name : $value->product_id }}
+                                    <span class="badge" style="background: #ffc107; color: #111; font-weight: bold;">
+                                        ★ {{ $value->rating ?? 'N/A' }}
+                                    </span>
                                 </div>
+                                {{-- Comment --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    @if ($value->variant_attributes)
-                                        @php $attrs = is_array($value->variant_attributes) ? $value->variant_attributes : json_decode($value->variant_attributes, true); @endphp
-                                        @foreach ($attrs as $key => $val)
-                                            <span>{{ $key }}: {{ $val }}</span>
-                                            @if (!$loop->last)
-                                                ,
-                                            @endif
-                                        @endforeach
-                                    @else
-                                        N/A
-                                    @endif
+                                    (View Detail)
                                 </div>
+                                {{-- Status --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    {{ $value->quantity }}
+                                    @php
+                                        $status = strtolower($value->status ?? '');
+                                        $statusColor = match ($status) {
+                                            'approved' => '#28a745',
+                                            'pending' => '#ffc107',
+                                            'rejected' => '#dc3545',
+                                            default => '#6c757d',
+                                        };
+                                    @endphp
+                                    <span class="badge"
+                                        style="background: {{ $statusColor }}; color: #fff; font-weight: bold;">
+                                        {{ ucfirst($value->status ?? 'N/A') }}
+                                    </span>
                                 </div>
+                                {{-- Quantity --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    {{ number_format($value->subtotal, 2) }}
+                                    {{ $value->orderItem->quantity ?? 'N/A' }}
                                 </div>
+                                {{-- Subtotal --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    {{ $value->created_at ? \Carbon\Carbon::parse($value->created_at)->format('d-m-Y H:i') : '' }}
+                                    {{ isset($value->orderItem->subtotal) ? number_format($value->orderItem->subtotal, 2) : 'N/A' }}
                                 </div>
+                                {{-- Action --}}
                                 <div class="list-icon-function">
                                     <div class="item edit">
                                         <a href="{{ route('admin.reviews.edit', $value->id) }}"><i
