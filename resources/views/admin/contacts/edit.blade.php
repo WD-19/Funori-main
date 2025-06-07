@@ -66,7 +66,7 @@
                         $admins = \App\Models\User::where('role', 'admin')->get();
                     @endphp
                     <fieldset class="replied_by">
-                        <div class="body-title mb-10">Replied By (Admin)</div>
+                        <div class="body-title mb-10">Replied By (Admin)*</div>
                         <select name="replied_by">
                             <option value="">-- Select Admin --</option>
                             @foreach($admins as $admin)
