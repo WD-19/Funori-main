@@ -2,6 +2,24 @@
 
 @section('title', 'Danh sách sản phẩm')
 
+@once
+    <style>
+        .wg-table {
+            overflow: auto !important;
+            height: 350px;
+        }
+
+        .wg-table.table-product-list .wg-product>*:nth-child(1),
+        .wg-table.table-product-list ul.table-title>*:nth-child(1){
+            width: 150px !important;
+        }
+        .wg-product .image{
+            width: 100px !important;
+            height: 100px !important;
+        }
+    </style>
+@endonce
+
 @section('content')
     <div class="main-content-inner">
         <!-- main-content-wrap -->
@@ -52,110 +70,94 @@
                     <a class="tf-button style-1 w208" href="{{ route('admin.banners.create') }}"><i
                             class="icon-plus"></i>Add new</a>
                 </div>
-                <div class="wg-table table-banner-list">
+                <div class="wg-table table-product-list">
                     <ul class="table-title flex gap20 mb-14">
-                        <table class="table table-striped table-borderless">
-                            <tr>
-                                <td>
-                                    <div class="body-title">Title</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Image_url</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">tdnk_url</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Description</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Position</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Order</div>
-                                </td>
+                        <li>
+                            <div class="body-title">Title</div>
+                        </li>
+                        <li>
+                            <div class="body-title">image_url</div>
+                        </li>
+                        <li>
+                            <div class="body-title">link_url</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Description</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Position</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Order</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Is_active</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Start_date</div>
+                        </li>
+                        <li>
+                            <div class="body-title">End date</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Created_at</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Updated_at</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Action</div>
+                        </li>
+                    </ul>
+                    <ul class="flex flex-column">
+                        @foreach ($banners as $banner)
+                            <li class="wg-product item-row gap20">
+                                <div class="body-text text-main-dark mt-4">{{ $banner->title }}</div>
+                                <div class="name">
+                                    <div class="image">
+                                        <img src="{{ asset('/storage/' . $banner->image_url) }}" alt="">
+                                    </div>
+                                    {{-- <div class="title line-clamp-2 mb-0">
+                                        <a href="#" class="body-text">Dog Food, Chicken &amp; Chicken Liver
+                                            Recipe...</a>
+                                    </div> --}}
+                                </div>
+                                <div class="body-text text-main-dark mt-4">{{ $banner->link_url }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $banner->description }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $banner->position }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $banner->order }}</div>
+                                <div class="body-text text-main-dark mt-4">
+                                    {{ $banner->is_active == 1 ? 'Kích hoạt' : 'Chưa kích hoạt' }}
+                                </div>
 
-                                <td>
-                                    <div class="body-title">Start_date</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">End date</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Is_active</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Created_at</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Updated_at</div>
-                                </td>
-                                <td colspan="2">
-                                    <div class="body-title">Action</div>
-                                </td>
-                            </tr>
-                            @foreach ($banners as $banner)
-                                <tr>
-                                    <td class="">
-                                        {{ $banner->title }}
-                                    </td>
-                                    <td class="">
+                                <div class="body-text text-main-dark mt-4">{{ $banner->start_date }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $banner->end_date }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $banner->created_at }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $banner->updated_at }}</div>
 
-                                        <img src="{{ asset('storage/' . $banner->image_url) }} " alt="">
-
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->link_url }}
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->description }}
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->position }}
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->order }}
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->start_date }}
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->end_date }}
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->is_active == 1 ? 'Đã kích hoạt' : 'Chưa kích hoạt' }}
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->created_at }}
-                                    </td>
-                                    <td class="">
-                                        {{ $banner->updated_at }}
-                                    </td>
-                                    {{-- <td class="item eye">
+                                <div class="list-icon-function">
+                                    {{-- <div class="item eye">
                                         <a href="{{ route('admin.banners.show', $banner->id) }}"><i
                                                 class="icon-eye"></i></a>
-                                    </td> --}}
-                                    <td class="item edit">
+                                    </div> --}}
+                                    <div class="item edit">
                                         <a href="{{ route('admin.banners.edit', $banner->id) }}"><i
-                                                class="icon-edit-3"></i></a>
-                                    </td>
-                                    <td class="item trash">
+                                                class="icon-edit"></i></a>
+                                    </div>
+                                    <div class="item trash">
                                         <form action="{{ route('admin.banners.destroy', $banner->id) }}" method="POST"
                                             onsubmit="return confirm('Are you sure?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" style="background:transparent;border:none;padding:0;">
-                                                <i class="icon-trash-2"></i>
+                                                <i class="icon-trash"></i>
                                             </button>
                                         </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </table>
-
-
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
                     </ul>
-
                 </div>
                 <div class="divider"></div>
                 <div class="flex items-center justify-between flex-wrap gap10">
@@ -189,6 +191,7 @@
                         </li>
                     </ul>
                 </div>
+
             </div>
         </div>
     </div>

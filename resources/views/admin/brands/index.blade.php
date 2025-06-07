@@ -2,6 +2,25 @@
 
 @section('title', 'Danh sách nhãn hàng')
 
+@once
+    <style>
+        .wg-table {
+            overflow: auto !important;
+            height: 350px;
+        }
+
+        .wg-table.table-product-list .wg-product>*:nth-child(1),
+        .wg-table.table-product-list ul.table-title>*:nth-child(1) {
+            width: 150px !important;
+        }
+
+        .wg-product .image {
+            width: 100px !important;
+            height: 100px !important;
+        }
+    </style>
+@endonce
+
 @section('content')
     <div class="main-content-inner">
         <!-- main-content-wrap -->
@@ -49,72 +68,61 @@
                             </div>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="{{ route('admin.brands.create') }}"><i
-                            class="icon-plus"></i>Add new</a>
+                    <a class="tf-button style-1 w208" href="{{ route('admin.brands.create') }}"><i class="icon-plus"></i>Add
+                        new</a>
                 </div>
                 <div class="wg-table table-brand-list">
                     <ul class="table-title flex gap20 mb-14">
-                        <table class="table table-striped table-borderless">
-                            <tr>
-                                <td>
-                                    <div class="body-title">Name</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Slug</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Logo_url</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Description</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Is_active</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Created_at</div>
-                                </td>
-                                <td>
-                                    <div class="body-title">Updated_at</div>
-                                </td>
-                                <td colspan="2">
-                                    <div class="body-title">Action</div>
-                                </td>
-                            </tr>
-                            @foreach ($brands as $brand)
-                                <tr>
-                                    <td class="">
-                                        {{ $brand->name }}
-                                    </td>
-                                    <td class="">
-                                        {{ $brand->slug }}
-                                    </td>
-                                    <td class="">
-
-                                        <img src="{{ asset('storage/' . $brand->logo_url) }} " alt="">
-
-                                    </td>
-                                    <td class="">
-                                        {{ $brand->description }}
-                                    </td>
-                                    <td class="">
-                                        {{ $brand->is_active == 1 ? 'Đã kích hoạt' : 'Chưa kích hoạt' }}
-                                    </td>
-                                    <td class="">
-                                        {{ $brand->created_at }}
-                                    </td>
-                                    <td class="">
-                                        {{ $brand->updated_at }}
-                                    </td>
-                                    {{-- <td class="item eye">
-                                        <a href="{{ route('admin.brands.show', $brand->id) }}"><i
-                                                class="icon-eye"></i></a>
-                                    </td> --}}
-                                    <td class="item edit">
+                        <li>
+                            <div class="body-title">Name</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Slug</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Logo_url</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Description</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Is_active</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Created_at</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Updated_at</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Action</div>
+                        </li>
+                    </ul>
+                    <ul class="flex flex-column">
+                        @foreach ($brands as $brand)
+                            <li class="wg-product item-row gap20">
+                                <div class="body-text text-main-dark mt-4">{{ $brand->name }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $brand->slug }}</div>
+                                <div class="name">
+                                    <div class="image">
+                                        <img src="{{ asset('storage/' . $brand->logo_url) }}" alt="">
+                                    </div>
+                                </div>
+                                <div class="body-text text-main-dark mt-4">{{ $brand->description }}</div>
+                                <div class="body-text text-main-dark mt-4">
+                                    {{ $brand->is_active == 1 ? 'Đã kích hoạt' : 'Chưa kích hoạt' }}
+                                </div>
+                                <div class="body-text text-main-dark mt-4">{{ $brand->created_at }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $brand->updated_at }}</div>
+                                <div class="list-icon-function">
+                                    {{-- <div class="item eye">
+                        <a href="{{ route('admin.brands.show', $brand->id) }}"><i class="icon-eye"></i></a>
+                    </div> --}}
+                                    <div class="item edit">
                                         <a href="{{ route('admin.brands.edit', $brand->id) }}"><i
                                                 class="icon-edit-3"></i></a>
-                                    </td>
-                                    <td class="item trash">
+                                    </div>
+                                    <div class="item trash">
                                         <form action="{{ route('admin.brands.destroy', $brand->id) }}" method="POST"
                                             onsubmit="return confirm('Are you sure?');">
                                             @csrf
@@ -123,15 +131,13 @@
                                                 <i class="icon-trash-2"></i>
                                             </button>
                                         </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </table>
-
-
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
                     </ul>
-
                 </div>
+
                 <div class="divider"></div>
                 <div class="flex items-center justify-between flex-wrap gap10">
                     <div class="text-tiny">
