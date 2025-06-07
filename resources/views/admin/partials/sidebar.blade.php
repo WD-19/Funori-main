@@ -39,6 +39,24 @@
                             </li>
                         </ul>
                     </li>
+                      <li class="menu-item has-children">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="fas fa-tools"></i></div>
+                            <div class="text">Method</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{route('admin.payment_methods.index') }}" class="">
+                                    <div class="text">Payment Method</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{route('admin.shipping_methods.index')}}" class="">
+                                    <div class="text">Shipping Method</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-layers"></i></div>
@@ -57,6 +75,7 @@
                             </li>
                         </ul>
                     </li>
+
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
