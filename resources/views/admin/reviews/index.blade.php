@@ -5,7 +5,7 @@
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>Contact List</h3>
+                <h3>Reviews List</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="index.html">
@@ -17,14 +17,14 @@
                     </li>
                     <li>
                         <a href="#">
-                            <div class="text-tiny">Contact</div>
+                            <div class="text-tiny">Reviews</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Contact List</div>
+                        <div class="text-tiny">Reviews List</div>
                     </li>
                 </ul>
             </div>
@@ -34,18 +34,18 @@
                     <div class="wg-filter flex-grow">
                         <form class="form-search flex gap10" method="GET">
                             <fieldset class="name">
-                                <input type="text" placeholder="Search name or email..." name="keyword"
+                                <input type="text" placeholder="Search user or product..." name="keyword"
                                     value="{{ request('keyword') }}">
                             </fieldset>
                             <fieldset>
                                 <select name="status">
                                     <option value="">All Status</option>
-                                    <option value="new" {{ request('status') == 'new' ? 'selected' : '' }}>New</option>
-                                    <option value="read" {{ request('status') == 'read' ? 'selected' : '' }}>Read</option>
-                                    <option value="replied" {{ request('status') == 'replied' ? 'selected' : '' }}>Replied
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
                                     </option>
-                                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>
-                                        Resolved</option>
+                                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
+                                        Approved</option>
+                                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
+                                        Rejected</option>
                                 </select>
                             </fieldset>
                             <div class="button-submit">
@@ -55,7 +55,7 @@
                     </div>
                     <a class="tf-button style-1 w208" href="#">
                         {{-- <a class="tf-button style-1 w208" href="{{ route('admin.reviews.export') }}"> --}}
-                        <i class="icon-file-text"></i>Export all order
+                        <i class="icon-file-text"></i>Export all reviews
                     </a>
                 </div>
                 <div class="wg-table table-all-category">
@@ -94,9 +94,11 @@
                                 {{-- Order Code --}}
                                 <div class="body-text text-main-dark mt-4">
                                     @php
-                                        $order = $orders->firstWhere('id', $value->order_id);
+                                        // Lấy order_id từ orderItem (nếu có quan hệ)
+                                        $orderId = $value->orderItem->order_id ?? null;
+                                        $order = $orders->firstWhere('id', $orderId);
                                     @endphp
-                                    {{ $order ? $order->order_code : $value->order_id }}
+                                    {{ $order ? $order->order_code : $orderId ?? 'N/A' }}
                                 </div>
                                 {{-- User Name --}}
                                 <div class="body-text text-main-dark mt-4">
@@ -142,23 +144,108 @@
                                 </div>
                                 {{-- Action --}}
                                 <div class="list-icon-function">
-                                    <div class="item edit">
-                                        <a href="{{ route('admin.reviews.edit', $value->id) }}"><i
-                                                class="icon-edit-3"></i></a>
+                                    <div class="list-icon-function">
+                                        <div class="item eye" data-bs-toggle="modal"
+                                            data-bs-target="#quickViewModal{{ $value->id }}">
+                                            <i class="icon-eye"></i>
+                                        </div>
+                                        <!-- Modal Chi tiết liên hệ -->
+                                        <div class="modal fade" id="quickViewModal{{ $value->id }}" tabindex="-1"
+                                            aria-labelledby="quickViewLabel{{ $value->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content shadow-lg rounded-4 border-0"
+                                                    style="font-size: 16px;">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h3 class="modal-title fw-bold mb-0 text-light"
+                                                            id="quickViewLabel{{ $value->id }}">
+                                                            <i class="bi bi-info-circle me-2"></i>Contact Details
+                                                        </h3>
+                                                        <button type="button" class="btn-close btn-close-white"
+                                                            data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                                    </div>
+                                                    <div class="modal-body px-5 py-4">
+                                                        <div class="row gy-3">
+                                                            <div class="col-sm-6">
+                                                                <strong>Email:</strong>
+                                                                <div class="text-muted">{{ $value->email }}</div>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <strong>Name:</strong>
+                                                                <div class="text-muted">{{ $value->name }}</div>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <strong>Phone:</strong>
+                                                                <div class="text-muted">{{ $value->phone }}</div>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <strong>Subject:</strong>
+                                                                <div class="text-muted">{{ $value->subject }}</div>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <strong>Message:</strong>
+                                                                <div
+                                                                    class="border rounded p-3 bg-light text-secondary fst-italic">
+                                                                    {{ $value->message ?? '(No content)' }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12">
+                                                                <strong>Admin Reply:</strong>
+                                                                <div
+                                                                    class="border rounded p-3 bg-light text-secondary fst-italic">
+                                                                    {{ $value->admin_reply ?? '(No content)' }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <strong>Status:</strong>
+                                                                <span
+                                                                    class="badge fs-6
+                            @if ($value->status == 'new') bg-primary
+                            @elseif($value->status == 'read') bg-warning text-dark
+                            @elseif($value->status == 'replied') bg-info text-dark
+                            @elseif($value->status == 'resolved') bg-success
+                            @else bg-secondary @endif">
+                                                                    {{ ucfirst($value->status) }}
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <strong>Created At:</strong>
+                                                                <div class="text-muted">
+                                                                    {{ $value->created_at->format('d-m-Y H:i') }}</div>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <strong>Replied By:</strong>
+                                                                <div class="text-muted">
+                                                                    @if ($value->replied_by)
+                                                                        {{ \App\Models\User::find($value->replied_by)->full_name ?? 'Unknown' }}
+                                                                    @else
+                                                                        Unknown
+                                                                    @endif
+                                                                    {{-- {{ $value->replied_by ?? 'Chưa có' }} --}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="item edit">
+                                            <a href="{{ route('admin.reviews.edit', $value->id) }}"><i
+                                                    class="icon-edit-3"></i></a>
+                                        </div>
+                                        <div class="item trash">
+                                            <form action="{{ route('admin.reviews.destroy', $value->id) }}"
+                                                method="POST" style="display:inline;"
+                                                onsubmit="return confirm('Are you sure you want to delete this review?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
+                                                    <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
-                                    <div class="item trash">
-                                        <form action="{{ route('admin.reviews.destroy', $value->id) }}" method="POST"
-                                            style="display:inline;"
-                                            onsubmit="return confirm('Are you sure you want to delete this review?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
-                                                <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
                             </li>
                         @endforeach
                     </ul>
