@@ -3,13 +3,14 @@
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.index');
     })->name('dashboard');
@@ -29,8 +30,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
+    Route::resource('users', UserController::class);
+
     Route::resource('categories', CategoryController::class);
     Route::resource('contacts', ContactController::class);
+
+
+    // Quản lý user
+    
+    Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
+    
+    Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+
+    Route::get('users/{user}/order-history', [UserController::class, 'orderHistory'])->name('users.orderHistory');
 
     // Quản lý đơn hàng
     // (1) Xem danh sách đơn hàng, hỗ trợ filter theo trạng thái, tìm kiếm
