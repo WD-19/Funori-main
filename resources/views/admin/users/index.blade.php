@@ -150,11 +150,6 @@
                                     <div class="item edit">
                                         <a style="color: green" href="{{ route('admin.users.edit', $user->id) }}"> <i
                                                 class="icon-edit-3"></i></a>
-
-
-                                    </div>
-                                    <div class="item trash">
-                                        <i class="icon-trash-2"></i>
                                     </div>
                                 </div>
                             </li>

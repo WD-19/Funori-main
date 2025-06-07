@@ -3,12 +3,12 @@
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
-use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -35,6 +35,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
+    Route::resource('users', UserController::class);
+
     Route::resource('categories', CategoryController::class);
     Route::resource('contacts', ContactController::class);
     Route::resource('reviews', ReviewController::class);

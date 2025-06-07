@@ -149,7 +149,7 @@
                                             data-bs-target="#quickViewModal{{ $value->id }}">
                                             <i class="icon-eye"></i>
                                         </div>
-                                        <!-- Modal Chi tiết liên hệ -->
+                                        <!-- Modal Quick View Review -->
                                         <div class="modal fade" id="quickViewModal{{ $value->id }}" tabindex="-1"
                                             aria-labelledby="quickViewLabel{{ $value->id }}" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -158,7 +158,7 @@
                                                     <div class="modal-header bg-primary text-white">
                                                         <h3 class="modal-title fw-bold mb-0 text-light"
                                                             id="quickViewLabel{{ $value->id }}">
-                                                            <i class="bi bi-info-circle me-2"></i>Contact Details
+                                                            <i class="bi bi-info-circle me-2"></i>Review Details
                                                         </h3>
                                                         <button type="button" class="btn-close btn-close-white"
                                                             data-bs-dismiss="modal" aria-label="Đóng"></button>
@@ -166,61 +166,74 @@
                                                     <div class="modal-body px-5 py-4">
                                                         <div class="row gy-3">
                                                             <div class="col-sm-6">
-                                                                <strong>Email:</strong>
-                                                                <div class="text-muted">{{ $value->email }}</div>
+                                                                <strong>Order Code:</strong>
+                                                                <div class="text-muted">
+                                                                    @php
+                                                                        $orderId = $value->orderItem->order_id ?? null;
+                                                                        $order = $orders->firstWhere('id', $orderId);
+                                                                    @endphp
+                                                                    {{ $order ? $order->order_code : $orderId ?? 'N/A' }}
+                                                                </div>
                                                             </div>
                                                             <div class="col-sm-6">
-                                                                <strong>Name:</strong>
-                                                                <div class="text-muted">{{ $value->name }}</div>
+                                                                <strong>User:</strong>
+                                                                <div class="text-muted">
+                                                                    {{ $value->user->full_name ?? 'Unknown' }}
+                                                                </div>
                                                             </div>
                                                             <div class="col-sm-6">
-                                                                <strong>Phone:</strong>
-                                                                <div class="text-muted">{{ $value->phone }}</div>
+                                                                <strong>Product:</strong>
+                                                                <div class="text-muted">
+                                                                    {{ $value->product->name ?? $value->product_name ?? 'Unknown' }}
+                                                                </div>
                                                             </div>
                                                             <div class="col-sm-6">
-                                                                <strong>Subject:</strong>
-                                                                <div class="text-muted">{{ $value->subject }}</div>
+                                                                <strong>Quantity:</strong>
+                                                                <div class="text-muted">
+                                                                    {{ $value->orderItem->quantity ?? 'N/A' }}
+                                                                </div>
                                                             </div>
-                                                            <div class="col-12">
-                                                                <strong>Message:</strong>
-                                                                <div
-                                                                    class="border rounded p-3 bg-light text-secondary fst-italic">
-                                                                    {{ $value->message ?? '(No content)' }}
+                                                            <div class="col-sm-6">
+                                                                <strong>Subtotal:</strong>
+                                                                <div class="text-muted">
+                                                                    {{ isset($value->orderItem->subtotal) ? number_format($value->orderItem->subtotal, 2) : 'N/A' }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <strong>Rating:</strong>
+                                                                <div class="text-muted">
+                                                                    <span class="badge"
+                                                                        style="background: #ffc107; color: #111; font-weight: bold;">
+                                                                        ★ {{ $value->rating ?? 'N/A' }}
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                             <div class="col-12">
-                                                                <strong>Admin Reply:</strong>
-                                                                <div
-                                                                    class="border rounded p-3 bg-light text-secondary fst-italic">
-                                                                    {{ $value->admin_reply ?? '(No content)' }}
+                                                                <strong>Comment:</strong>
+                                                                <div class="border rounded p-3 bg-light text-secondary fst-italic">
+                                                                    {{ $value->comment ?? '(No comment)' }}
                                                                 </div>
                                                             </div>
                                                             <div class="col-sm-6">
                                                                 <strong>Status:</strong>
-                                                                <span
-                                                                    class="badge fs-6
-                            @if ($value->status == 'new') bg-primary
-                            @elseif($value->status == 'read') bg-warning text-dark
-                            @elseif($value->status == 'replied') bg-info text-dark
-                            @elseif($value->status == 'resolved') bg-success
-                            @else bg-secondary @endif">
-                                                                    {{ ucfirst($value->status) }}
+                                                                @php
+                                                                    $status = strtolower($value->status ?? '');
+                                                                    $statusColor = match ($status) {
+                                                                        'approved' => '#28a745',
+                                                                        'pending' => '#ffc107',
+                                                                        'rejected' => '#dc3545',
+                                                                        default => '#6c757d',
+                                                                    };
+                                                                @endphp
+                                                                <span class="badge"
+                                                                    style="background: {{ $statusColor }}; color: #fff; font-weight: bold;">
+                                                                    {{ ucfirst($value->status ?? 'N/A') }}
                                                                 </span>
                                                             </div>
                                                             <div class="col-sm-6">
                                                                 <strong>Created At:</strong>
                                                                 <div class="text-muted">
-                                                                    {{ $value->created_at->format('d-m-Y H:i') }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Replied By:</strong>
-                                                                <div class="text-muted">
-                                                                    @if ($value->replied_by)
-                                                                        {{ \App\Models\User::find($value->replied_by)->full_name ?? 'Unknown' }}
-                                                                    @else
-                                                                        Unknown
-                                                                    @endif
-                                                                    {{-- {{ $value->replied_by ?? 'Chưa có' }} --}}
+                                                                    {{ $value->created_at->format('d-m-Y H:i') }}
                                                                 </div>
                                                             </div>
                                                         </div>
