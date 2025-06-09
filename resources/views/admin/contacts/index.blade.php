@@ -54,7 +54,7 @@
                         </form>
                     </div>
                     <a class="tf-button style-1 w208" href="#">
-                    {{-- <a class="tf-button style-1 w208" href="{{ route('admin.contacts.export') }}"> --}}
+                        {{-- <a class="tf-button style-1 w208" href="{{ route('admin.contacts.export') }}"> --}}
                         <i class="icon-file-text"></i>Export all order
                     </a>
                 </div>
@@ -209,7 +209,7 @@
                                         <a href="{{ route('admin.contacts.edit', $value->id) }}"><i
                                                 class="icon-edit-3"></i></a>
                                     </div>
-                                    <div class="item trash">
+                                    {{-- <div class="item trash">
                                         <form action="{{ route('admin.contacts.destroy', $value->id) }}" method="POST"
                                             style="display:inline;"
                                             onsubmit="return confirm('Are you sure you want to delete this contacts?');">
@@ -220,7 +220,7 @@
                                                 <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
                                             </button>
                                         </form>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </li>
                         @endforeach
