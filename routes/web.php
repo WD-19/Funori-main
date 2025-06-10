@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -91,4 +92,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // (9) In phiếu giao hàng
     Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
         ->name('orders.printShipping');
+
+
+
+
+    // Login và Register
+   
 });
+
+
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+
+    Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
