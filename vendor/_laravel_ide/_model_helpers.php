@@ -2851,10 +2851,14 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $previous_status
      * @property string|null $cancellation_reason
+     * @property string|null $returned_at
      * @property \Illuminate\Support\Carbon|null $cancelled_at
      * @property \Illuminate\Support\Carbon|null $delivered_at
-     * @property \Illuminate\Support\Carbon $ordered_at
+     * @property string|null $shipped_at
+     * @property string|null $processing_at
+     * @property \Illuminate\Support\Carbon|null $ordered_at
      * @property string|null $admin_note
      * @property string|null $customer_note
      * @property string $order_status
@@ -2899,9 +2903,13 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCustomerNote($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereAdminNote($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereOrderedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereProcessingAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereDeliveredAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCancelledAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereReturnedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCancellationReason($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order wherePreviousStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order newModelQuery()
@@ -4482,7 +4490,7 @@ namespace App\Models {
      * @property string $status
      * @property int|null $brand_id
      * @property int $category_id
-     * @property int $stock_quantity
+     * @property int|null $stock_quantity
      * @property decimal:2 $regular_price
      * @property string $description
      * @property string|null $short_description
