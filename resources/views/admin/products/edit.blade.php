@@ -109,6 +109,7 @@
                         @endforeach
                     </select>
                     @endforeach
+                    <input type="text" name="variants[{{ $i }}][size]" value="{{ old('variants.'.$i.'.size', $variant->size ?? '') }}" placeholder="Kích thước (ví dụ: 120x60x75 cm)">
                     <input type="number" name="variants[{{ $i }}][price_modifier]" value="{{ $variant->price_modifier }}" placeholder="Giá chênh lệch" step="0.01">
                     <input type="number" name="variants[{{ $i }}][stock_quantity]" value="{{ $variant->stock_quantity }}" placeholder="Kho" min="0">
                     <select name="variants[{{ $i }}][image_id]">
@@ -223,6 +224,7 @@ $imageOptions .= '<option value="'.$img->id.'">Ảnh #'.$img->id.'</option>';
             let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${variantIndex}]`);
             variantDiv.innerHTML = `
             ${selects}
+            <input type="text" name="variants[${variantIndex}][size]" placeholder="Kích thước (ví dụ: 120x60x75 cm)">
             <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01">
             <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0">
             <select name="variants[${variantIndex}][image_id]">

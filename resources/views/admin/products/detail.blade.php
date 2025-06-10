@@ -89,6 +89,7 @@
                                         </td>
                                         <td>{{ $variant->stock_quantity ?? '-' }}</td>
                                         <td>
+                                            <td>{{ $variant->size ?? '-' }}</td>
                                             @if(isset($variant->attributeValues) && count($variant->attributeValues))
                                                 @foreach($variant->attributeValues as $attrVal)
                                                     <span class="badge bg-info text-dark me-1">{{ $attrVal->attribute->name }}: {{ $attrVal->value }}</span>
