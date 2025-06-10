@@ -70,4 +70,16 @@ class Order extends Model
     {
         return $this->belongsToMany(Promotion::class, 'order_promotion')->withPivot('discount_applied');
     }
+
+    public static function getAllowedStatusTransitions(): array
+    {
+        return [
+            'pending_confirmation' => ['processing', 'cancelled'],
+            'processing'           => ['shipped', 'cancelled'],
+            'shipped'              => ['delivered', 'cancelled'],
+            'delivered'            => ['returned'],
+            'returned'             => [],
+            'cancelled'            => [],
+        ];
+    }
 }
