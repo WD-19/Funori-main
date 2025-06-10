@@ -52,11 +52,11 @@
                             </div>
                         </div>
                     </div>
+                    @include('admin.partials.footer')
                 </div>
             </div>
         </div>
     </div>
-    @include('admin.partials.footer')
     <!-- JS -->
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
