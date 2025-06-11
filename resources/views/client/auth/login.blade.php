@@ -51,10 +51,19 @@
                                 <span class="">Sign in with Facebook</span>
                             </a>
                         </div>
-                        <form class="form-login flex flex-column gap22 w-full" action="https://themesflat.co/html/ecomus/admin-ecomus/index.html">
+                        @if ($errors->any())
+                            <div class="alert alert-danger" style="color: red; margin-bottom: 16px;">
+                                {{ $errors->first() }}
+                            </div>
+                        @endif
+                        <form class="form-login flex flex-column gap22 w-full" action="{{ route('client.login') }}" method="POST">
+                            @csrf
                             <fieldset class="email">
                                 <div class="body-title mb-10 text-white">Email address <span class="tf-color-1">*</span></div>
-                                <input class="flex-grow" type="email" placeholder="Enter your email address" name="email" tabindex="0" value="" aria-required="true" required="">
+                                <input class="flex-grow" type="email" placeholder="Enter your email address" name="email" tabindex="0" value="" aria-required="true" >
+                                    @error('email')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
                             </fieldset>
                             <fieldset class="password">
                                 <div class="body-title mb-10 text-white">Password <span class="tf-color-1">*</span></div>
@@ -63,6 +72,9 @@
                                     <i class="icon-eye view"></i>
                                     <i class="icon-eye-off hide"></i>
                                 </span>
+                                @error('password')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </fieldset>
                             <div class="flex justify-between items-center">
                                 <div class="flex gap10">

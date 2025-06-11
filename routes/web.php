@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\client\auth\LoginController;
+;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -100,9 +102,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
    
 });
 
+  Route::prefix('client')->name('client.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('client.index');
+    })->name('dashboard');
 
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-
-    Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+});
