@@ -5,11 +5,11 @@
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>Contact List</h3>
+                <h3>Danh sách liên hệ</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="index.html">
-                            <div class="text-tiny">Dashboard</div>
+                            <div class="text-tiny">Trang chủ</div>
                         </a>
                     </li>
                     <li>
@@ -17,14 +17,14 @@
                     </li>
                     <li>
                         <a href="#">
-                            <div class="text-tiny">Contact</div>
+                            <div class="text-tiny">Liên hệ</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Contact List</div>
+                        <div class="text-tiny">Danh sách liên hệ</div>
                     </li>
                 </ul>
             </div>
@@ -34,18 +34,16 @@
                     <div class="wg-filter flex-grow">
                         <form class="form-search flex gap10" method="GET">
                             <fieldset class="name">
-                                <input type="text" placeholder="Search name or email..." name="keyword"
+                                <input type="text" placeholder="Tìm kiếm tên hoặc email..." name="keyword"
                                     value="{{ request('keyword') }}">
                             </fieldset>
                             <fieldset>
                                 <select name="status">
-                                    <option value="">All Status</option>
-                                    <option value="new" {{ request('status') == 'new' ? 'selected' : '' }}>New</option>
-                                    <option value="read" {{ request('status') == 'read' ? 'selected' : '' }}>Read</option>
-                                    <option value="replied" {{ request('status') == 'replied' ? 'selected' : '' }}>Replied
-                                    </option>
-                                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>
-                                        Resolved</option>
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="new" {{ request('status') == 'new' ? 'selected' : '' }}>Mới</option>
+                                    <option value="read" {{ request('status') == 'read' ? 'selected' : '' }}>Đã đọc</option>
+                                    <option value="replied" {{ request('status') == 'replied' ? 'selected' : '' }}>Đã trả lời</option>
+                                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Đã xử lý</option>
                                 </select>
                             </fieldset>
                             <div class="button-submit">
@@ -54,66 +52,50 @@
                         </form>
                     </div>
                     <a class="tf-button style-1 w208" href="#">
-                        {{-- <a class="tf-button style-1 w208" href="{{ route('admin.contacts.export') }}"> --}}
-                        <i class="icon-file-text"></i>Export all order
+                        <i class="icon-file-text"></i>Xuất tất cả liên hệ
                     </a>
                 </div>
                 <div class="wg-table table-all-category">
                     <ul class="table-title flex gap20 mb-14">
-                        <li>
-                            <div class="body-title">Email</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Name</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Phone</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Subject</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Message</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Status</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Admin Reply</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Replied By Id</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Created At</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Action</div>
-                        </li>
+                        <li><div class="body-title">Email</div></li>
+                        <li><div class="body-title">Họ tên</div></li>
+                        <li><div class="body-title">Số điện thoại</div></li>
+                        <li><div class="body-title">Tiêu đề</div></li>
+                        <li><div class="body-title">Nội dung</div></li>
+                        <li><div class="body-title">Trạng thái</div></li>
+                        <li><div class="body-title">Phản hồi của admin</div></li>
+                        <li><div class="body-title">Người trả lời</div></li>
+                        <li><div class="body-title">Ngày tạo</div></li>
+                        <li><div class="body-title">Thao tác</div></li>
                     </ul>
                     <ul class="flex flex-column">
                         @foreach ($contacts as $value)
                             <li class="wg-product item-row gap20">
-                                <div class="name">
-                                    <div class="title line-clamp-2 mb-0">
-                                        <a href="#" class="body-text fw-6">{{ $value->email }}</a>
-                                    </div>
-                                </div>
+                                <div class="body-text text-main-dark mt-4">{{ $value->email }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ $value->name }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ $value->phone }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ $value->subject }}</div>
-                                <div class="body-text text-main-dark mt-4">(view detail)</div>
+                                <div class="body-text text-main-dark mt-4">(Xem chi tiết)</div>
                                 <div>
                                     <div class="block-available status-{{ $value->status }} fw-7">
-                                        {{ ucfirst($value->status) }}
+                                        @php
+                                            $statusText = match($value->status) {
+                                                'new' => 'Mới',
+                                                'read' => 'Đã đọc',
+                                                'replied' => 'Đã trả lời',
+                                                'resolved' => 'Đã xử lý',
+                                                default => ucfirst($value->status)
+                                            };
+                                        @endphp
+                                        {{ $statusText }}
                                     </div>
                                 </div>
-                                <div class="body-text text-main-dark mt-4">(view detail)</div>
+                                <div class="body-text text-main-dark mt-4">(Xem chi tiết)</div>
                                 <div class="body-text text-main-dark mt-4">
                                     @if ($value->replied_by)
-                                        {{ \App\Models\User::find($value->replied_by)->full_name ?? 'Unknown' }}
+                                        {{ \App\Models\User::find($value->replied_by)->full_name ?? 'Không rõ' }}
                                     @else
-                                        <p class="btn btn-danger fw-bold">Unknown</p>
+                                        <span class="badge bg-danger">Không rõ</span>
                                     @endif
                                 </div>
                                 <div class="body-text text-main-dark mt-4">
@@ -124,95 +106,94 @@
                                         data-bs-target="#quickViewModal{{ $value->id }}">
                                         <i class="icon-eye"></i>
                                     </div>
-                                    <!-- Modal Chi tiết liên hệ -->
+                                    <!-- Modal Quick View contact -->
                                     <div class="modal fade" id="quickViewModal{{ $value->id }}" tabindex="-1"
                                         aria-labelledby="quickViewLabel{{ $value->id }}" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered modal-lg">
-                                            <div class="modal-content shadow-lg rounded-4 border-0"
-                                                style="font-size: 16px;">
-                                                <div class="modal-header bg-primary text-white">
+                                            <div class="modal-content shadow-lg rounded-5 border-0"
+                                                style="font-size: 18px; border-radius: 32px;">
+                                                <div class="modal-header bg-gradient-primary text-white rounded-top-5"
+                                                    style="background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%); border-top-left-radius: 32px; border-top-right-radius: 32px;">
                                                     <h3 class="modal-title fw-bold mb-0 text-light"
                                                         id="quickViewLabel{{ $value->id }}">
-                                                        <i class="bi bi-info-circle me-2"></i>Contact Details
+                                                        <i class="fa-solid fa-envelope-open-text me-2"></i>Chi tiết liên hệ
                                                     </h3>
                                                     <button type="button" class="btn-close btn-close-white"
                                                         data-bs-dismiss="modal" aria-label="Đóng"></button>
                                                 </div>
-                                                <div class="modal-body px-5 py-4">
-                                                    <div class="row gy-3">
-                                                        <div class="col-sm-6">
+                                                <div class="modal-body px-5 py-4"
+                                                    style="background: #f8fafc; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px;">
+                                                    <div class="row gy-4">
+                                                        <div class="col-md-6 mb-2">
+                                                            <i class="fa-solid fa-user me-2 text-primary"></i>
+                                                            <strong>Họ tên:</strong>
+                                                            <span class="text-dark ms-1 fs-5">{{ $value->name }}</span>
+                                                        </div>
+                                                        <div class="col-md-6 mb-2">
+                                                            <i class="fa-solid fa-envelope me-2 text-primary"></i>
                                                             <strong>Email:</strong>
-                                                            <div class="text-muted">{{ $value->email }}</div>
+                                                            <span class="text-dark ms-1 fs-5">{{ $value->email }}</span>
                                                         </div>
-                                                        <div class="col-sm-6">
-                                                            <strong>Name:</strong>
-                                                            <div class="text-muted">{{ $value->name }}</div>
+                                                        <div class="col-md-6 mb-2">
+                                                            <i class="fa-solid fa-phone me-2 text-primary"></i>
+                                                            <strong>Số điện thoại:</strong>
+                                                            <span class="text-dark ms-1 fs-5">{{ $value->phone }}</span>
                                                         </div>
-                                                        <div class="col-sm-6">
-                                                            <strong>Phone:</strong>
-                                                            <div class="text-muted">{{ $value->phone }}</div>
+                                                        <div class="col-md-6 mb-2">
+                                                            <i class="fa-solid fa-tag me-2 text-primary"></i>
+                                                            <strong>Tiêu đề:</strong>
+                                                            <span class="text-dark ms-1 fs-5">{{ $value->subject }}</span>
                                                         </div>
-                                                        <div class="col-sm-6">
-                                                            <strong>Subject:</strong>
-                                                            <div class="text-muted">{{ $value->subject }}</div>
-                                                        </div>
-                                                        <div class="col-12">
-                                                            <strong>Message:</strong>
-                                                            <div
-                                                                class="border rounded p-3 bg-light text-secondary fst-italic">
-                                                                {{ $value->message ?? '(No content)' }}
+                                                        <div class="col-12 mb-2">
+                                                            <i class="fa-solid fa-message me-2 text-primary"></i>
+                                                            <strong>Nội dung:</strong>
+                                                            <div class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
+                                                                {{ $value->message }}
                                                             </div>
                                                         </div>
-                                                        <div class="col-12">
-                                                            <strong>Admin Reply:</strong>
-                                                            <div
-                                                                class="border rounded p-3 bg-light text-secondary fst-italic">
-                                                                {{ $value->admin_reply ?? '(No content)' }}
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-sm-6">
-                                                            <strong>Status:</strong>
-                                                            <span
-                                                                class="badge fs-6
-                            @if ($value->status == 'new') bg-primary
-                            @elseif($value->status == 'read') bg-warning text-dark
-                            @elseif($value->status == 'replied') bg-info text-dark
-                            @elseif($value->status == 'resolved') bg-success
-                            @else bg-secondary @endif">
-                                                                {{ ucfirst($value->status) }}
+                                                        <div class="col-md-6 mb-2">
+                                                            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+                                                            <strong>Trạng thái:</strong>
+                                                            <span class="badge ms-2 fs-6"
+                                                                style="background: #007bff; color: #fff; font-weight: bold; border-radius: 12px; padding: 8px 18px;">
+                                                                {{ $statusText }}
                                                             </span>
                                                         </div>
-                                                        <div class="col-sm-6">
-                                                            <strong>Created At:</strong>
-                                                            <div class="text-muted">
-                                                                {{ $value->created_at->format('d-m-Y H:i') }}</div>
-                                                        </div>
-                                                        <div class="col-sm-6">
-                                                            <strong>Replied By:</strong>
-                                                            <div class="text-muted">
-                                                                @if ($value->replied_by)
-                                                                    {{ \App\Models\User::find($value->replied_by)->full_name ?? 'Unknown' }}
-                                                                @else
-                                                                    Unknown
-                                                                @endif
-                                                                {{-- {{ $value->replied_by ?? 'Chưa có' }} --}}
+                                                        <div class="col-md-6 mb-2">
+                                                            <i class="fa-solid fa-user-shield me-2 text-primary"></i>
+                                                            <strong>Phản hồi của admin:</strong>
+                                                            <div class="border rounded-4 p-3 bg-light text-secondary fst-italic mt-2 fs-6 shadow-sm">
+                                                                {{ $value->admin_reply ?? '(Chưa có phản hồi)' }}
                                                             </div>
+                                                        </div>
+                                                        <div class="col-md-6 mb-2">
+                                                            <i class="fa-solid fa-user-tie me-2 text-primary"></i>
+                                                            <strong>Người trả lời:</strong>
+                                                            <span class="text-dark ms-1 fs-5">
+                                                                @if ($value->replied_by)
+                                                                    {{ \App\Models\User::find($value->replied_by)->full_name ?? 'Không rõ' }}
+                                                                @else
+                                                                    Không rõ
+                                                                @endif
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-md-6 mb-2">
+                                                            <i class="fa-solid fa-calendar-days me-2 text-primary"></i>
+                                                            <strong>Ngày tạo:</strong>
+                                                            <span class="text-dark ms-1 fs-5">{{ $value->created_at->format('d-m-Y H:i') }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
-
                                     <div class="item edit">
-                                        <a href="{{ route('admin.contacts.edit', $value->id) }}"><i
-                                                class="icon-edit-3"></i></a>
+                                        <a href="{{ route('admin.contacts.edit', $value->id) }}"><i class="icon-edit-3"></i></a>
                                     </div>
                                     {{-- <div class="item trash">
                                         <form action="{{ route('admin.contacts.destroy', $value->id) }}" method="POST"
                                             style="display:inline;"
-                                            onsubmit="return confirm('Are you sure you want to delete this contacts?');">
+                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa liên hệ này?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -232,7 +213,6 @@
                         Hiển thị {{ $contacts->firstItem() }} đến {{ $contacts->lastItem() }} trong tổng số
                         {{ $contacts->total() }} bản ghi
                     </div>
-
                     <ul class="wg-pagination">
                         {{-- Previous Page Link --}}
                         <li class="{{ $contacts->onFirstPage() ? 'disabled' : '' }}">
@@ -240,14 +220,12 @@
                                 <i class="icon-chevron-left"></i>
                             </a>
                         </li>
-
                         {{-- Pagination Elements --}}
                         @for ($i = 1; $i <= $contacts->lastPage(); $i++)
                             <li class="{{ $contacts->currentPage() == $i ? 'active' : '' }}">
                                 <a href="{{ $contacts->url($i) }}">{{ $i }}</a>
                             </li>
                         @endfor
-
                         {{-- Next Page Link --}}
                         <li class="{{ $contacts->hasMorePages() ? '' : 'disabled' }}">
                             <a href="{{ $contacts->nextPageUrl() ?? '#' }}">
@@ -256,7 +234,6 @@
                         </li>
                     </ul>
                 </div>
-
             </div>
             <!-- /order-list -->
         </div>
