@@ -82,12 +82,7 @@
                             </div>
                             <div class="list-icon-function">
                                 <a href="{{ route('admin.orders.show', $order->id) }}" class="item eye" title="View"><i class="icon-eye"></i></a>
-                                <a href="{{ route('admin.orders.edit', $order->id) }}" class="item edit" title="Edit"><i class="icon-edit-3"></i></a>
-                                <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="item trash" type="submit" onclick="return confirm('Delete this order?')" title="Delete"><i class="icon-trash-2"></i></button>
-                                </form>
+                                
                             </div>
                         </li>
                         @empty

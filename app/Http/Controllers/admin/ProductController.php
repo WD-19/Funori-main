@@ -6,8 +6,10 @@ use App\Models\Product;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Attribute;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+
 
 class ProductController
 {
@@ -19,7 +21,7 @@ class ProductController
             $query->where('name', 'like', '%' . $request->name . '%');
         }
 
-        $products = $query->paginate(20)->appends($request->all());
+        $products = $query->orderBy('updated_at', 'desc')->paginate(20)->appends($request->all());
         return view('admin.products.index', compact('products'));
     }
     public function show($id)
@@ -137,6 +139,7 @@ class ProductController
     public function update(Request $request, $id)
     {
         $product = Product::with(['variants.attributeValues'])->findOrFail($id);
+
         if ($request->has('status')) {
             $product->status = $request->status;
             $product->save();
@@ -163,7 +166,6 @@ class ProductController
             'description' => $request->description,
         ]);
 
-        // Thêm ảnh mới vào gallery nếu có
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $fileName = uniqid() . '_' . time() . '.' . $image->getClientOriginalExtension();
@@ -175,27 +177,67 @@ class ProductController
             }
         }
 
-        // Xóa toàn bộ variants cũ và liên kết thuộc tính (cách đơn giản nhất)
-        foreach ($product->variants as $variant) {
-            $variant->attributeValues()->detach();
-            $variant->delete();
-        }
-
-        // Lưu variants mới
+        $variantIds = [];
         if ($request->has('variants')) {
-            foreach ($request->variants as $variant) {
-                $variantModel = $product->variants()->create([
-                    'price_modifier' => $variant['price_modifier'] ?? 0,
-                    'stock_quantity' => $variant['stock_quantity'] ?? 0,
-                    'image_id' => $variant['image_id'] ?? null,
-                ]);
-                // Lưu thuộc tính cho variant
-                if (isset($variant['attribute_values'])) {
-                    foreach ($variant['attribute_values'] as $attribute_id => $value_id) {
-                        if ($value_id) {
-                            $variantModel->attributeValues()->attach($value_id);
+            foreach ($request->variants as $variantData) {
+                if (!empty($variantData['id'])) {
+                    // Update variant cũ
+                    $variant = $product->variants()->find($variantData['id']);
+                    if ($variant) {
+                        // Xóa ảnh cũ nếu chọn xóa
+                        if (!empty($variantData['remove_image']) && $variant->image) {
+                            // Xóa file vật lý nếu cần
+                            // Storage::delete($variant->image->image_url);
+                            $variant->image()->dissociate();
+                            $variant->save();
                         }
+                        // Upload ảnh mới nếu có
+                        if (isset($variantData['new_image']) && $variantData['new_image']) {
+                            // Xóa ảnh cũ nếu có
+                            if ($variant->image) {
+                                // Xóa file vật lý nếu tồn tại
+                                $oldPath = public_path($variant->image->image_url);
+                                if (file_exists($oldPath)) {
+                                    @unlink($oldPath);
+                                }
+                                // Xóa bản ghi ảnh cũ
+                                $variant->image->delete();
+                            }
+                            // Upload ảnh mới
+                            $file = $variantData['new_image'];
+                            $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                            $file->move(public_path('images/products'), $fileName);
+                            $img = $product->images()->create([
+                                'image_url' => 'images/products/' . $fileName,
+                                'order' => 0
+                            ]);
+                            $variant->image_id = $img->id;
+                            $variant->save();
+                        }
+                        // Cập nhật các trường khác
+                        $variant->update([
+                            'size' => $variantData['size'] ?? null,
+                            'price_modifier' => $variantData['price_modifier'] ?? 0,
+                            'stock_quantity' => $variantData['stock_quantity'] ?? 0,
+                        ]);
+                        // Cập nhật attribute_values
+                        if (isset($variantData['attribute_values'])) {
+                            $variant->attributeValues()->sync(array_filter($variantData['attribute_values']));
+                        }
+                        $variantIds[] = $variant->id;
                     }
+                } else {
+                    // Tạo mới variant
+                    $newVariant = $product->variants()->create([
+                        'size' => $variantData['size'] ?? null,
+                        'price_modifier' => $variantData['price_modifier'] ?? 0,
+                        'stock_quantity' => $variantData['stock_quantity'] ?? 0,
+                        'image_id' => $variantData['image_id'] ?? null,
+                    ]);
+                    if (isset($variantData['attribute_values'])) {
+                        $newVariant->attributeValues()->sync(array_filter($variantData['attribute_values']));
+                    }
+                    $variantIds[] = $newVariant->id;
                 }
             }
         }
