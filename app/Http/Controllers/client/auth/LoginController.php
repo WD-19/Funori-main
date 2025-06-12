@@ -19,10 +19,10 @@ class LoginController
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required|min:6'
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('email', 'password', 'email&password');
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $user = Auth::user();
@@ -33,6 +33,18 @@ class LoginController
                 return redirect()->route('client.dashboard');
             }
         }
-        return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng'])->withInput();
+        return back()->withErrors(['email&password' => 'Email hoặc mật khẩu không đúng'])->withInput();
+    }
+
+
+    public function logout(Request $request)
+    {
+
+        $request->session()->forget('bot_token');
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('client.login.index');
     }
 }

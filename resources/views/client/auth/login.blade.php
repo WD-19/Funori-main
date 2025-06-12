@@ -14,8 +14,8 @@
                 <div class="left">
                     <div class="login-box">
                         <div>
-                            <h3>Login to account</h3>
-                            <div class="body-text text-white">Or enter your email & password to login</div>
+                            <h3>Đăng nhập vào tài khoản </h3>
+                            <div class="body-text text-white">Hoặc nhập email và mật khẩu để đăng nhập</div>
                         </div>
                         <div class="flex flex-column gap16 w-full">
                             <a href="index.html" class="tf-button style-2 w-full">
@@ -51,51 +51,68 @@
                                 <span class="">Sign in with Facebook</span>
                             </a>
                         </div>
-                        @if ($errors->any())
-                            <div class="alert alert-danger" style="color: red; margin-bottom: 16px;">
-                                {{ $errors->first() }}
-                            </div>
-                        @endif
+                        
                         <form class="form-login flex flex-column gap22 w-full" action="{{ route('client.login.index') }}" method="POST">
                             @csrf
                             <fieldset class="email">
-                                <div class="body-title mb-10 text-white">Email address <span class="tf-color-1">*</span></div>
-                                <input class="flex-grow" type="email" placeholder="Enter your email address" name="email" tabindex="0" value="" aria-required="true" >
+                                <div class="body-title mb-10 text-white">Địa chỉ email <span class="tf-color-1">*</span></div>
+                                <input class="flex-grow" type="email" placeholder="Vui lòng nhập địa chỉ email" name="email" tabindex="0" value="{{ old('email') }}" aria-required="true" >
+                                <br>
+                                <br>
                                     @error('email')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                             </fieldset>
                             <fieldset class="password">
-                                <div class="body-title mb-10 text-white">Password <span class="tf-color-1">*</span></div>
-                                <input class="password-input" type="password" placeholder="Enter your password" name="password" tabindex="0" value="" aria-required="true" required="">
+                                <div class="body-title mb-10 text-white">Mật khẩu <span class="tf-color-1">*</span></div>
+                                <input class="password-input" type="password" placeholder="Vui lòng nhập password" name="password" tabindex="0" value="" aria-required="true">
                                 <span class="show-pass">
                                     <i class="icon-eye view"></i>
                                     <i class="icon-eye-off hide"></i>
                                 </span>
+                                <br>
+                                <br>
                                 @error('password')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </fieldset>
                             <div class="flex justify-between items-center">
                                 <div class="flex gap10">
-                                    <input class="tf-check" type="checkbox" id="signed">
-                                    <label class="body-text text-white" for="signed">Keep me signed in</label>
+                                    <input class="tf-check" type="checkbox" id="signed" name="remember">
+                                    <label class="body-text text-white" for="signed">Ghi nhớ đăng nhập</label>
                                 </div>
-                                <a href="#" class="body-text tf-color">Forgot password?</a>
+                                <br>
+                                <br>
+                               
+                                <a href="#" class="body-text tf-color">Quên mật khẩu?</a>
                             </div>
-                            <button type="submit" class="tf-button w-full">Login</button>
+                             @if ($errors->has('email&password'))
+                                    <div class="text-danger mt-2" style="color: #ff4d4f; font-size: 14px;">
+                                        {{ $errors->first('email&password') }}
+                                    </div>
+                             @endif
+                            <button type="submit" class="tf-button w-full">Đăng nhập</button>
+                             
                         </form>
                         <div class="bottom body-text text-center text-center text-white w-full">
-                            Not regster yet?
-                            <a href="sign-up.html" class="body-text tf-color">Register Now</a>
+                          Khách hàng mới?
+                            <a href="{{ route('client.register.index') }}" class="body-text tf-color">Tạo tài khoản</a>
                         </div>
                     </div>
                 </div>
                 <div class="right">
-                    <img src="images/images-section/Sign%20in.jpg" alt="">
+                    <img src="{{ asset('images/images-section/login.jpg') }}" alt="">
                 </div>
             </div>
         </div>
         <!-- /#page -->
     </div>
+    <script>
+    document.querySelector('form.form-login').addEventListener('submit', function(e) {
+        if (!document.getElementById('signed').checked) {
+            alert('Bạn cần chọn "Keep me signed in" để tiếp tục!');
+            e.preventDefault();
+        }
+    });
+</script>
 @endsection

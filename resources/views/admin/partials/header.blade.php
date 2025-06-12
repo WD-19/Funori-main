@@ -385,8 +385,7 @@
                                                     </span>
                                                 </span>
                                             </button>
-                                        @else
-                                            <a href="" class="btn btn-outline-primary">Đăng nhập</a>
+                                        
                                         @endif
 
                                         <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton3" >
@@ -432,12 +431,13 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="login.html" class="user-item">
-                                                    <div class="icon">
-                                                        <i class="icon-log-out"></i>
-                                                    </div>
-                                                    <div class="body-title-2">Log out</div>
-                                                </a>
+                                                {{-- filepath: resources/views/admin/partials/header.blade.php --}}
+                                            <form action="{{ route('client.logout') }}" method="POST" class="d-inline w-100">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-danger btn-lg w-100">
+                                                    <i class="icon-log-out"></i> Đăng xuất
+                                                </button>
+                                            </form>
                                             </li>
                                         </ul>
                                     </div>
