@@ -12,7 +12,7 @@ class CheckLogin
     public function handle(Request $request, Closure $next)
     {
         if (!Auth::check()) {
-            return redirect()->route('client.register.index')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
+            return redirect()->route('client.login.index')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
         }
 
         return $next($request);

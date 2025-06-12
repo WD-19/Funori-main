@@ -93,7 +93,7 @@
                         </form>
                         <div class="bottom body-text text-center text-white w-full">
                             Đã có tài khoản?
-                            <a href="#" class="body-text tf-color">Đăng nhập tại đây</a>
+                            <a href="{{ route('client.login.index') }}" class="body-text tf-color">Đăng nhập tại đây</a>
                         </div>
                     </div>
                 </div>
