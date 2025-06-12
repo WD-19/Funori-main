@@ -106,7 +106,7 @@
 @php
     $attributeSelects = '';
     foreach($attributes as $attribute) {
-        $attributeSelects .= '<select name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
+        $attributeSelects .= '<select style="width: 100px;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
         $attributeSelects .= '<option value="">-- '.$attribute->name.' --</option>';
         foreach($attribute->values as $value) {
             $attributeSelects .= '<option value="'.$value->id.'">'.$value->value.'</option>';
