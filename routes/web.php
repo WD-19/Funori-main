@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
 use App\Http\Controllers\Admin\ProductController;
@@ -12,17 +13,22 @@ use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Middleware\CheckLogin;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('client.auth.register');
 });
 
-Route::prefix('admin')->name('admin.')->middleware([CheckLogin::class])->group(function () {
+Route::prefix('admin')->name('admin.')
+// ->middleware([CheckLogin::class])
+->group(function () {
     // Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.index');
-    })->middleware(CheckLogin::class)->name('dashboard');
+    })
+    // ->middleware(CheckLogin::class)
+    ->name('dashboard');
 
     // Payment Methods
     Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment_methods.index');
@@ -41,7 +47,7 @@ Route::prefix('admin')->name('admin.')->middleware([CheckLogin::class])->group(f
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
     Route::resource('users', UserController::class);
-
+    Route::resource('promotions', PromotionController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('contacts', ContactController::class);
     Route::resource('pages', PageController::class);

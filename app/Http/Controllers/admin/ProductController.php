@@ -119,6 +119,7 @@ class ProductController
                     $variantImageId = $img->id;
                 }
                 $variantModel = $product->variants()->create([
+                    'size' => $variant['size'] ?? null,
                     'price_modifier' => $variant['price_modifier'] ?? 0,
                     'stock_quantity' => $variant['stock_quantity'] ?? 0,
                     'image_id' => $variantImageId,

@@ -5,26 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class PromotionProduct extends Pivot
+class PromotionBrand extends Pivot
 {
     use HasFactory;
 
-    protected $table = 'promotion_product';
-
-
+    protected $table = 'promotion_brand';
     public $timestamps = false;
 
     protected $fillable = [
         'promotion_id',
-        'product_id',
+        'brand_id',
     ];
+
     public function promotion()
     {
         return $this->belongsTo(Promotion::class);
     }
 
-    public function product()
+    public function brand()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Brand::class);
     }
 }

@@ -51,4 +51,9 @@ class Promotion extends Model
     {
         return $this->belongsToMany(Order::class, 'order_promotion')->withPivot('discount_applied');
     }
+    public function brands()
+    {
+        return $this->belongsToMany(Brand::class, 'promotion_brand', 'promotion_id', 'brand_id')
+            ->using(PromotionBrand::class);
+    }
 }
