@@ -7,7 +7,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property bool|null $is_default
+     * @property bool $is_default
      * @property string|null $address_type
      * @property string $street_address
      * @property string $receiver_phone
@@ -943,10 +943,10 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property boolean|null $is_active
+     * @property boolean $is_active
      * @property \Illuminate\Support\Carbon|null $end_date
      * @property \Illuminate\Support\Carbon|null $start_date
-     * @property integer|null $order
+     * @property integer $order
      * @property string $position
      * @property string|null $description
      * @property string|null $link_url
@@ -1265,7 +1265,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property bool|null $is_active
+     * @property bool $is_active
      * @property string|null $description
      * @property string|null $logo_url
      * @property string $slug
@@ -2207,7 +2207,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property bool|null $is_active
+     * @property bool $is_active
      * @property string|null $image_url
      * @property string|null $description
      * @property int|null $parent_id
@@ -2528,11 +2528,11 @@ namespace App\Models {
     /**
      * App\Models\ContactSubmission
      *
-     * @property \Illuminate\Support\Carbon|null $updated_at
-     * @property \Illuminate\Support\Carbon|null $created_at
+     * @property \Illuminate\Support\Carbon $updated_at
+     * @property \Illuminate\Support\Carbon $created_at
      * @property int|null $replied_by
      * @property string|null $admin_reply
-     * @property string|null $status
+     * @property string $status
      * @property string $message
      * @property string $subject
      * @property string|null $phone
@@ -2851,15 +2851,19 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $previous_status
      * @property string|null $cancellation_reason
+     * @property string|null $returned_at
      * @property \Illuminate\Support\Carbon|null $cancelled_at
      * @property \Illuminate\Support\Carbon|null $delivered_at
+     * @property string|null $shipped_at
+     * @property string|null $processing_at
      * @property \Illuminate\Support\Carbon|null $ordered_at
      * @property string|null $admin_note
      * @property string|null $customer_note
-     * @property string|null $order_status
+     * @property string $order_status
      * @property int $shipping_method_id
-     * @property string|null $payment_status
+     * @property string $payment_status
      * @property int $payment_method_id
      * @property decimal:2 $total_amount
      * @property decimal:2 $tax_amount
@@ -2899,9 +2903,13 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCustomerNote($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereAdminNote($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereOrderedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereProcessingAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereDeliveredAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCancelledAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereReturnedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCancellationReason($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order wherePreviousStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order newModelQuery()
@@ -3524,7 +3532,7 @@ namespace App\Models {
     /**
      * App\Models\OrderPromotion
      *
-     * @property string|null $created_at
+     * @property string $created_at
      * @property decimal:2 $discount_applied
      * @property int $promotion_id
      * @property int $order_id
@@ -3840,8 +3848,8 @@ namespace App\Models {
      * @property string|null $featured_image_url
      * @property string|null $meta_description
      * @property string|null $meta_title
-     * @property string|null $status
-     * @property string|null $page_type
+     * @property string $status
+     * @property string $page_type
      * @property int|null $author_id
      * @property string $content
      * @property string $slug
@@ -4161,7 +4169,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property boolean|null $is_active
+     * @property boolean $is_active
      * @property string|null $instructions
      * @property string|null $description
      * @property string $code
@@ -4477,14 +4485,14 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property int|null $view_count
-     * @property boolean|null $is_featured
-     * @property string|null $status
+     * @property int $view_count
+     * @property boolean $is_featured
+     * @property string $status
      * @property int|null $brand_id
      * @property int $category_id
      * @property int|null $stock_quantity
      * @property decimal:2 $regular_price
-     * @property string|null $description
+     * @property string $description
      * @property string|null $short_description
      * @property string $slug
      * @property string $name
@@ -4819,8 +4827,8 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property integer|null $order
-     * @property boolean|null $is_thumbnail
+     * @property integer $order
+     * @property boolean $is_thumbnail
      * @property string|null $alt_text
      * @property string $image_url
      * @property int $product_id
@@ -5766,11 +5774,11 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property string|null $applies_to
-     * @property boolean|null $is_active
+     * @property string $applies_to
+     * @property boolean $is_active
      * @property \Illuminate\Support\Carbon|null $end_date
      * @property \Illuminate\Support\Carbon $start_date
-     * @property int|null $times_used
+     * @property int $times_used
      * @property int|null $usage_limit_per_user
      * @property int|null $usage_limit_per_voucher
      * @property decimal:2|null $min_order_value
@@ -6712,7 +6720,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property string|null $status
+     * @property string $status
      * @property string|null $comment
      * @property integer $rating
      * @property int $order_item_id
@@ -7031,7 +7039,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property boolean|null $is_active
+     * @property boolean $is_active
      * @property decimal:2 $cost
      * @property string|null $description
      * @property string $name
@@ -7346,8 +7354,8 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property string|null $remember_token
-     * @property string|null $role
-     * @property string|null $account_status
+     * @property string $role
+     * @property string $account_status
      * @property string|null $avatar_url
      * @property string|null $phone_number
      * @property string $password
@@ -7989,7 +7997,7 @@ namespace App\Models {
     /**
      * App\Models\WishlistItem
      *
-     * @property string|null $created_at
+     * @property string $created_at
      * @property int $product_id
      * @property int $wishlist_id
      * @property int $id
