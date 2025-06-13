@@ -23,13 +23,12 @@ Route::get('/', function () {
 });
 
 Route::prefix('admin')->name('admin.')
-// ->middleware([CheckLogin::class])
+->middleware([CheckLogin::class])
 ->group(function () {
-    // Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.index');
     })
-    // ->middleware(CheckLogin::class)
+    ->middleware(CheckLogin::class)
     ->name('dashboard');
 
     // Payment Methods

@@ -98,7 +98,7 @@
                     </div>
                 </div>
                 <div class="right">
-                    <img src="{{ asset('images/images-section/OIP.jpg') }}" alt="">
+                    <!-- <img src="{{ asset('images/images-section/bg.jpg') }}" alt=""> -->
                 </div>
             </div>
         </div>
