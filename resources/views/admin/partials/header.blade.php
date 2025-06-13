@@ -369,17 +369,25 @@
                                 </div>
                                 <div class="popup-wrap user type-header">
                                     <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="header-user wg-user">
-                                                <span class="image">
-                                                    <img src="images/avatar/user-1.png" alt="">
+                                       @php
+                                            $user = Auth::user();
+                                        @endphp
+
+                                        @if($user)
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="header-user wg-user">
+                                                    <span class="image">
+                                                        <img src="{{ asset($user->avatar_url ?? 'images/images.jpg') }}" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
+                                                    </span>
+                                                    <span class="flex flex-column">
+                                                        <span class="body-text text-main-dark">{{ $user->full_name }}</span>
+                                                        <span class="text-tiny">Sale Administrator</span>
+                                                    </span>
                                                 </span>
-                                                <span class="flex flex-column">
-                                                    <span class="body-text text-main-dark">Kristin Watson</span>
-                                                    <span class="text-tiny">Sale Administrator</span>
-                                                </span>
-                                            </span>
-                                        </button>
+                                            </button>
+                                        
+                                        @endif
+
                                         <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton3" >
                                             <li>
                                                 <a href="#" class="user-item">
@@ -423,12 +431,13 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="login.html" class="user-item">
-                                                    <div class="icon">
-                                                        <i class="icon-log-out"></i>
-                                                    </div>
-                                                    <div class="body-title-2">Log out</div>
-                                                </a>
+                                                {{-- filepath: resources/views/admin/partials/header.blade.php --}}
+                                            <form action="{{ route('client.logout') }}" method="POST" class="d-inline w-100">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-danger btn-lg w-100">
+                                                    <i class="icon-log-out"></i> Đăng xuất
+                                                </button>
+                                            </form>
                                             </li>
                                         </ul>
                                     </div>

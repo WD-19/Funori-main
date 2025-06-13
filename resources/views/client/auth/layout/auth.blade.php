@@ -43,6 +43,17 @@
     <!-- #wrapper -->
     <div id="wrapper">
         <!-- #page -->
+        @if (session('success'))
+                    <x-alert type="success">
+                        {{ session('success') }}
+                    </x-alert>
+                @endif
+
+                @if (session('error'))
+                    <x-alert type="danger">
+                        {{ session('error') }}
+                    </x-alert>
+                @endif
         @yield('content')
         <!-- /#page -->
     </div>
@@ -58,3 +69,4 @@
 
 
 </html>
+

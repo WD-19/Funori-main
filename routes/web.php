@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController; 
 use App\Http\Controllers\Admin\ProductController;
@@ -10,8 +11,11 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\client\auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Middleware\CheckLogin;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -42,7 +46,7 @@ Route::prefix('admin')->name('admin.')
     Route::resource('products', ProductController::class);
     Route::resource('attributes', AttributeController::class);
     Route::resource('users', UserController::class);
-
+    Route::resource('promotions', PromotionController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('contacts', ContactController::class);
     Route::resource('pages', PageController::class);
@@ -96,7 +100,20 @@ Route::prefix('admin')->name('admin.')
     // (9) In phiếu giao hàng
     Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
         ->name('orders.printShipping');
+
+    // Xuất file Excel/CSV đơn hàng
+    Route::get('orders-export', [OrderController::class, 'export'])->name('orders.export');
+
+    // Thống kê đơn hàng (trang riêng)
+    Route::get('orders-stats', [OrderController::class, 'stats'])->name('orders.stats');
+
+
+
+    
+   
 });
+
+
 
 Route::prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
@@ -105,4 +122,9 @@ Route::prefix('client')->name('client.')->group(function () {
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.index');
+    Route::post('/login', [LoginController::class, 'login']);
+
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

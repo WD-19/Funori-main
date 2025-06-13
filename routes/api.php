@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\API\client\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\client\RegisterController;
 
 Route::post('/client/register', [RegisterController::class, 'store']);
+Route::post('/client/login', [LoginController::class, 'store']);
 
 // ========== API ROUTE ==========
 // Route::prefix('admin')->name('api.admin.')->middleware([CheckApiLogin::class])->group(function () {

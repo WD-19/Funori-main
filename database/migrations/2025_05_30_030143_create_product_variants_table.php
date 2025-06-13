@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('price_modifier', 10, 2); // Chênh lệch giá so với giá gốc sản phẩm (có thể âm hoặc dương) [cite: 18]
             $table->unsignedInteger('stock_quantity'); // Số lượng tồn kho của biến thể này [cite: 18]
             $table->foreignId('image_id')->nullable()->constrained('product_images')->onDelete('set null'); // Khóa ngoại đến product_images(id) (ảnh riêng cho variant, nullable) [cite: 18]
+            $table->string('size', 50)->nullable(); // Thêm cột size, cho phép null
             $table->timestamps(); // Thời gian tạo và cập nhật [cite: 18]
         });
     }
