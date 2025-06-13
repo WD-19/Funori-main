@@ -23,15 +23,14 @@ Route::get('/', function () {
 });
 
 Route::prefix('admin')->name('admin.')
-// ->middleware([CheckLogin::class])
+->middleware([CheckLogin::class])
 ->group(function () {
-    // Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.index');
     })
     // ->middleware(CheckLogin::class)
     ->name('dashboard');
-
+    
     // Payment Methods
     Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment_methods.index');
     Route::get('/payment-methods/create', [PaymentMethodController::class, 'create'])->name('payment_methods.create');
@@ -104,10 +103,15 @@ Route::prefix('admin')->name('admin.')
     Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
         ->name('orders.printShipping');
 
+    // Xuất file Excel/CSV đơn hàng
+    Route::get('orders-export', [OrderController::class, 'export'])->name('orders.export');
+
+    // Thống kê đơn hàng (trang riêng)
+    Route::get('orders-stats', [OrderController::class, 'stats'])->name('orders.stats');
 
 
 
-    // Login và Register
+    
    
 });
 
