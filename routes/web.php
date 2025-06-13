@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
+use App\Http\Controllers\Admin\OrderController; 
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
@@ -17,13 +17,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('client.auth.register');
 });
-
-Route::prefix('admin')->name('admin.')->middleware([CheckLogin::class])->group(function () {
-    // Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')
+->middleware([CheckLogin::class])
+->group(function () {
     Route::get('/', function () {
         return view('admin.index');
-    })->middleware(CheckLogin::class)->name('dashboard');
-
+    })
+    ->middleware(CheckLogin::class)
+    ->name('dashboard');
     // Payment Methods
     Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment_methods.index');
     Route::get('/payment-methods/create', [PaymentMethodController::class, 'create'])->name('payment_methods.create');
