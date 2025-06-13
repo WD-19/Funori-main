@@ -78,9 +78,6 @@
                         <div class="body-title">Status</div>
                     </li>
                     <li>
-                        <div class="body-title">Start date</div>
-                    </li>
-                    <li>
                         <div class="body-title">Action</div>
                     </li>
                 </ul>
@@ -123,15 +120,12 @@
                             <form method="POST" action="{{ route('admin.products.update', $product->id) }}" style="display:inline;">
                                 @csrf
                                 @method('PUT')
-                                <select name="status" onchange="this.form.submit()" style="min-width:110px;">
+                                <select name="status" onchange="this.form.submit()" style="max-width:200px;">
                                     <option value="published" {{ $product->status == 'published' ? 'selected' : '' }}>Published</option>
                                     <option value="draft" {{ $product->status == 'draft' ? 'selected' : '' }}>Draft</option>
                                     <option value="archived" {{ $product->status == 'archived' ? 'selected' : '' }}>Archived</option>
                                 </select>
                             </form>
-                        </div>
-                        <div class="body-text text-main-dark mt-4">
-                            {{ $product->created_at ? $product->created_at->format('m/d/Y') : '' }}
                         </div>
                         <div class="list-icon-function">
                             <div class="item eye">

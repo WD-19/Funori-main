@@ -56,7 +56,7 @@ class RegisterController
             'account_status' => 'active',
         ]);
 
-        return redirect()->route('client.register.index')->with('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
+        return redirect()->route('client.login.index')->with('success', 'Đăng ký thành công! Vui lòng đăng nhập.');
     }
 
     /**

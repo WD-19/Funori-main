@@ -101,10 +101,9 @@
                             <div style="min-width:90px">
                                 <a href="{{ route('admin.orders.tracking', $order->id) }}" class="block-tracking bg-1" style="padding:2px 8px;border-radius:6px;">Theo dõi</a>
                             </div>
-                            <div class="list-icon-function" style="min-width:110px">
-                                <a href="{{ route('admin.orders.show', $order->id) }}" class="item eye" title="Xem"><i class="icon-eye"></i></a>
-                                <a href="{{ route('admin.orders.edit', $order->id) }}" class="item edit" title="Sửa"><i class="icon-edit-3"></i></a>
-                                {{-- Không có nút xóa --}}
+                            <div class="list-icon-function">
+                                <a href="{{ route('admin.orders.show', $order->id) }}" class="item eye" title="View"><i class="icon-eye"></i></a>
+                                
                             </div>
                         </li>
                         @empty
