@@ -18,11 +18,11 @@ Route::get('/', function () {
     return view('client.auth.register');
 });
 
-Route::prefix('admin')->name('admin.')->middleware([CheckLogin::class])->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
     // Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.index');
-    })->middleware(CheckLogin::class)->name('dashboard');
+    })->name('dashboard');
 
     // Payment Methods
     Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment_methods.index');
@@ -95,6 +95,12 @@ Route::prefix('admin')->name('admin.')->middleware([CheckLogin::class])->group(f
     // (9) In phiếu giao hàng
     Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
         ->name('orders.printShipping');
+
+    // Xuất file Excel/CSV đơn hàng
+    Route::get('orders-export', [OrderController::class, 'export'])->name('orders.export');
+
+    // Thống kê đơn hàng (trang riêng)
+    Route::get('orders-stats', [OrderController::class, 'stats'])->name('orders.stats');
 });
 
 Route::prefix('client')->name('client.')->group(function () {
