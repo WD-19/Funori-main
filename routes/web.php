@@ -28,7 +28,7 @@ Route::prefix('admin')->name('admin.')
     Route::get('/', function () {
         return view('admin.index');
     })
-    // ->middleware(CheckLogin::class)
+    ->middleware(CheckLogin::class)
     ->name('dashboard');
 
     // Payment Methods
