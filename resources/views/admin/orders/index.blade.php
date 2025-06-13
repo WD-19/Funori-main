@@ -31,13 +31,13 @@
                         <label class="body-title mb-2 block">Trạng thái</label>
                         <select name="status" class="form-select" style="min-width:120px;">
                             <option value="">-- Tất cả --</option>
-                            <option value="pending_confirmation" @if(request('status')=='pending_confirmation') selected @endif>Chờ xác nhận</option>
+                            <option value="pending_confirmation" @if(request('status')=='pending_confirmation') selected @endif>Chờ xử lý</option>
                             <option value="processing" @if(request('status')=='processing') selected @endif>Đang xử lý</option>
                             <option value="shipped" @if(request('status')=='shipped') selected @endif>Đang giao hàng</option>
                             <option value="delivered" @if(request('status')=='delivered') selected @endif>Đã giao</option>
                             <option value="cancelled" @if(request('status')=='cancelled') selected @endif>Đã hủy</option>
                             <option value="returned" @if(request('status')=='returned') selected @endif>Đã trả hàng</option>
-                            <option value="pending_cancellation" @if(request('status')=='pending_cancellation') selected @endif>Chờ hủy</option>
+
                         </select>
                     </fieldset>
                     <button class="btn btn-primary flex items-center gap-2 mt-6 px-2 py-1" type="submit" style="font-size:12px; border-radius:6px;">
