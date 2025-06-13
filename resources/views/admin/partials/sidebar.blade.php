@@ -106,6 +106,25 @@
                             </li>
                         </ul>
                     </li>
+
+                    <li class="menu-item has-children">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-tag"></i></div>
+                            <div class="text">Promotion</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.promotions.index') }}" class="">
+                                    <div class="text">Promotion list</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.promotions.create') }}" class="">
+                                    <div class="text">Add Promotion</div>
+                                </a>
+                            </li>
+                        </ul>
+
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
