@@ -1,9 +1,10 @@
 <div class="section-menu-left">
     <div class="box-logo">
         <a href="{{ route('admin.dashboard') }}" id="site-logo-inner">
-            <img class="" id="logo_header" alt="" src="https://themesflat.co/html/ecomus/images/logo/logo.svg"
-                data-light="../images/logo/logo.svg"
-                data-dark="https://themesflat.co/html/ecomus/images/logo/logo-white.svg">
+            <img id="logo_header" alt="logo-funori" src="{{ asset('images/logo/funori.jpg') }}"
+                data-light="{{ asset('images/logo/funori.jpg') }}"
+                data-dark="{{ asset('images/logo/funori-white.png') }}"
+                width="200px">
         </a>
         <div class="button-show-hide">
             <i class="icon-chevron-left"></i>
@@ -44,19 +45,19 @@
                             </li>
                         </ul>
                     </li>
-                      <li class="menu-item has-children">
+                    <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="fas fa-tools"></i></div>
                             <div class="text">Method</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{route('admin.payment_methods.index') }}" class="">
+                                <a href="{{ route('admin.payment_methods.index') }}" class="">
                                     <div class="text">Payment Method</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="{{route('admin.shipping_methods.index')}}" class="">
+                                <a href="{{ route('admin.shipping_methods.index') }}" class="">
                                     <div class="text">Shipping Method</div>
                                 </a>
                             </li>
