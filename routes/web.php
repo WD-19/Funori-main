@@ -4,7 +4,7 @@ use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
+use App\Http\Controllers\Admin\OrderController; 
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('client.auth.register');
 });
-
 Route::prefix('admin')->name('admin.')
 ->middleware([CheckLogin::class])
 ->group(function () {
@@ -30,7 +29,6 @@ Route::prefix('admin')->name('admin.')
     })
     ->middleware(CheckLogin::class)
     ->name('dashboard');
-
     // Payment Methods
     Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment_methods.index');
     Route::get('/payment-methods/create', [PaymentMethodController::class, 'create'])->name('payment_methods.create');
@@ -103,10 +101,15 @@ Route::prefix('admin')->name('admin.')
     Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
         ->name('orders.printShipping');
 
+    // Xuất file Excel/CSV đơn hàng
+    Route::get('orders-export', [OrderController::class, 'export'])->name('orders.export');
+
+    // Thống kê đơn hàng (trang riêng)
+    Route::get('orders-stats', [OrderController::class, 'stats'])->name('orders.stats');
 
 
 
-    // Login và Register
+    
    
 });
 

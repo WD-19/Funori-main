@@ -135,12 +135,15 @@
                                         fill="#111111" />
                                 </svg>
                             </div>
-                            <div class="text">Order</div>
+                            <div class="text">Đơn hàng</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.orders.index') }}" class="">
-                                    <div class="text">Order list</div>
+                                    <div class="text">Quản lý đơn hàng</div>
+                                </a>
+                                <a href="{{ route('admin.orders.stats') }}" class="">
+                                    <div class="text">Thống kê</div>
                                 </a>
                             </li>
                         </ul>
