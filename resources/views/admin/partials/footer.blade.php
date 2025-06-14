@@ -1,4 +1,3 @@
-
 <div class="bottom-page">
-    <div class="body-text">Copyright © 2024 <a href="https://themesflat.co/html/ecomus/index.html">Ecomus</a>. Design by Themesflat All rights reserved</div>
+    <div class="body-text">Bản quyền © 2024 <a href="#">Ecomus</a>. Thiết kế bởi Themesflat. Đã đăng ký bản quyền.</div>
 </div>

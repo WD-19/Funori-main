@@ -20,6 +20,13 @@ class OrderSeeder extends Seeder
     public function run(): void
     {
         Order::factory(20)->create()->each(function ($order) {
+            // Thêm seed thông tin người đặt hàng (buyer)
+            $order->buyer_name = fake()->name();
+            $order->buyer_email = fake()->unique()->safeEmail();
+            $order->buyer_phone = '09' . rand(10000000, 99999999);
+            $order->buyer_address = fake()->address();
+            $order->save();
+
             // Mỗi đơn hàng có 1-5 sản phẩm
             $products = Product::inRandomOrder()->take(rand(1, 5))->get();
             $totalAmount = 0;

@@ -168,6 +168,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -476,6 +477,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -787,6 +789,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -1109,6 +1112,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -1425,6 +1429,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -1734,6 +1739,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -2051,6 +2057,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -2374,6 +2381,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -2528,6 +2536,7 @@ namespace App\Models {
     /**
      * App\Models\ContactSubmission
      *
+     * @property \Illuminate\Support\Carbon|null $deleted_at
      * @property \Illuminate\Support\Carbon $updated_at
      * @property \Illuminate\Support\Carbon $created_at
      * @property int|null $replied_by
@@ -2551,6 +2560,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereRepliedBy($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereUpdatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereDeletedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission query()
@@ -2695,6 +2705,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -2870,6 +2881,10 @@ namespace App\Models {
      * @property decimal:2 $discount_amount
      * @property decimal:2 $shipping_fee
      * @property decimal:2 $subtotal_amount
+     * @property string|null $buyer_address
+     * @property string|null $buyer_phone
+     * @property string|null $buyer_email
+     * @property string|null $buyer_name
      * @property string $shipping_address
      * @property string $customer_phone
      * @property string $customer_email
@@ -2891,6 +2906,10 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCustomerEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCustomerPhone($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippingAddress($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereBuyerName($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereBuyerEmail($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereBuyerPhone($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereBuyerAddress($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereSubtotalAmount($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippingFee($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereDiscountAmount($value)
@@ -3056,6 +3075,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -3378,6 +3398,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -3688,6 +3709,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -4013,6 +4035,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -4329,6 +4352,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -4671,6 +4695,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -4988,6 +5013,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -5144,6 +5170,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $size
      * @property int|null $image_id
      * @property int $stock_quantity
      * @property decimal:2 $price_modifier
@@ -5162,6 +5189,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<ProductVariant>|ProductVariant wherePriceModifier($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ProductVariant>|ProductVariant whereStockQuantity($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ProductVariant>|ProductVariant whereImageId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<ProductVariant>|ProductVariant whereSize($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ProductVariant>|ProductVariant whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ProductVariant>|ProductVariant whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ProductVariant>|ProductVariant newModelQuery()
@@ -5308,6 +5336,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -5618,6 +5647,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -5958,6 +5988,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -6112,8 +6143,12 @@ namespace App\Models {
     /**
      * App\Models\PromotionBrand
      *
+     * @property int $brand_id
+     * @property int $promotion_id
      * @property-read \App\Models\Promotion $promotion
      * @property-read \App\Models\Brand $brand
+     * @method static \Illuminate\Database\Eloquent\Builder<PromotionBrand>|PromotionBrand wherePromotionId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<PromotionBrand>|PromotionBrand whereBrandId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<PromotionBrand>|PromotionBrand newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<PromotionBrand>|PromotionBrand newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<PromotionBrand>|PromotionBrand query()
@@ -6258,6 +6293,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -6562,6 +6598,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -6881,6 +6918,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -7195,6 +7233,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -7532,6 +7571,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -7841,6 +7881,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
@@ -8149,6 +8190,7 @@ namespace App\Models {
      * @method static mixed forPageBeforeId($perPage, $lastId, $column)
      * @method static mixed forPageAfterId($perPage, $lastId, $column)
      * @method static mixed reorder($column, $direction)
+     * @method static mixed reorderDesc($column)
      * @method static mixed removeExistingOrdersFor($column)
      * @method static mixed union($query, $all)
      * @method static mixed unionAll($query)
