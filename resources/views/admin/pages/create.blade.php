@@ -16,20 +16,21 @@
                 </li>
                 <li>
                     <a href="{{ route('admin.pages.index') }}">
-                        <div class="text-tiny">Page</div>
+                        <div class="text-tiny">Trang</div>
                     </a>
                 </li>
                 <li>
                     <i class="icon-chevron-right"></i>
                 </li>
                 <li>
-                    <div class="text-tiny">Add Page</div>
+                    <div class="text-tiny">Thêm trang mới</div>
                 </li>
             </ul>
         </div>
         <!-- new-page -->
         <div class="wg-box">
-            <form class="form-new-product form-style-1" action="{{ route('admin.pages.store') }}" method="POST" enctype="multipart/form-data">
+            <form class="form-new-product form-style-1" action="{{ route('admin.pages.store') }}" method="POST"
+                enctype="multipart/form-data">
                 @csrf
                 <fieldset class="name">
                     <div class="body-title">Tiêu đề trang <span class="tf-color-1">*</span></div>
@@ -42,7 +43,8 @@
                 <input type="hidden" name="slug" id="slug" value="{{ old('slug') }}">
                 <fieldset>
                     <div class="body-title">Nội dung <span class="tf-color-1">*</span></div>
-                    <textarea class="flex-grow @error('content') is-invalid @enderror" name="content" id="content" rows="6" placeholder="Nội dung trang">{{ old('content') }}</textarea>
+                    <textarea class="flex-grow @error('content') is-invalid @enderror" name="content" id="content" rows="6"
+                        placeholder="Nội dung trang">{{ old('content') }}</textarea>
                     @error('content')
                         <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                     @enderror
@@ -68,7 +70,8 @@
                     <div class="select flex-grow">
                         <select name="page_type" id="page_type" class="@error('page_type') is-invalid @enderror">
                             <option value="page" {{ old('page_type', 'page') == 'page' ? 'selected' : '' }}>Page</option>
-                            <option value="blog_post" {{ old('page_type') == 'blog_post' ? 'selected' : '' }}>Blog Post</option>
+                            <option value="blog_post" {{ old('page_type') == 'blog_post' ? 'selected' : '' }}>Blog Post
+                            </option>
                         </select>
                         @error('page_type')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
@@ -80,7 +83,8 @@
                     <div class="select flex-grow">
                         <select name="status" id="status" class="@error('status') is-invalid @enderror">
                             <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Nháp</option>
-                            <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Đã xuất bản</option>
+                            <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Đã xuất bản
+                            </option>
                         </select>
                         @error('status')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
@@ -95,7 +99,8 @@
                                 <span class="icon">
                                     <i class="icon-upload-cloud"></i>
                                 </span>
-                                <span class="body-text">Kéo thả ảnh vào đây hoặc <span class="tf-color">nhấn để chọn</span></span>
+                                <span class="body-text">Kéo thả ảnh vào đây hoặc <span class="tf-color">nhấn để
+                                        chọn</span></span>
                                 <img id="featured_image_url-preview" src="#" alt="" style="display: none;">
                                 <input type="file" id="featured_image_url" name="featured_image_url"
                                     class="@error('featured_image_url') is-invalid @enderror" accept="image/*">
@@ -116,15 +121,16 @@
                 </fieldset>
                 <fieldset>
                     <div class="body-title">Meta description</div>
-                    <textarea class="flex-grow @error('meta_description') is-invalid @enderror" name="meta_description" id="meta_description" rows="2" placeholder="Meta description">{{ old('meta_description') }}</textarea>
+                    <textarea class="flex-grow @error('meta_description') is-invalid @enderror" name="meta_description"
+                        id="meta_description" rows="2" placeholder="Meta description">{{ old('meta_description') }}</textarea>
                     @error('meta_description')
                         <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset>
                     <div class="body-title">Ngày xuất bản</div>
-                    <input class="flex-grow form-control @error('published_at') is-invalid @enderror" type="datetime-local"
-                        name="published_at" id="published_at" value="{{ old('published_at') }}">
+                    <input class="flex-grow form-control @error('published_at') is-invalid @enderror"
+                        type="datetime-local" name="published_at" id="published_at" value="{{ old('published_at') }}">
                     @error('published_at')
                         <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                     @enderror
@@ -160,4 +166,42 @@
             }
         });
     </script>
+
+    {{-- Trình soạn thảo văn bản --}}
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script>
+    ClassicEditor
+        .create(document.querySelector('#content'), {
+            simpleUpload: {
+                uploadUrl: '{{ route('admin.pages.upload-image') }}',
+                withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            },
+            toolbar: {
+                items: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', '|',
+                    'link', 'imageUpload', 'mediaEmbed', '|',
+                    'bulletedList', 'numberedList', 'blockQuote', '|',
+                    'undo', 'redo'
+                ]
+            },
+            image: {
+                toolbar: [
+                    'imageStyle:inline',
+                    'imageStyle:block',
+                    'imageStyle:side',
+                    'linkImage'
+                ]
+            }
+        })
+        .then(editor => {
+            console.log('Editor initialized:', editor);
+        })
+        .catch(error => {
+            console.error('Error initializing editor:', error);
+        });
+</script>
 @endsection

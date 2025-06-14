@@ -25,7 +25,7 @@
                 @endif
             </div>
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>All Category</h3>
+                <h3>Tất cả danh mục</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="#">
@@ -37,14 +37,14 @@
                     </li>
                     <li>
                         <a href="#">
-                            <div class="text-tiny">Category</div>
+                            <div class="text-tiny">Danh mục</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">All Category</div>
+                        <div class="text-tiny">Tất cả danh mục</div>
                     </li>
                 </ul>
 
@@ -53,210 +53,90 @@
             <div class="wg-box">
                 <div class="flex items-center justify-between gap10 flex-wrap">
                     <div class="wg-filter flex-grow">
-                        <form class="form-search">
+                        <form class="form-search flex gap10" method="GET" action="{{ route('admin.categories.index') }}">
                             <fieldset class="name">
-                                <input type="text" placeholder="Search here..." class="" name="name"
-                                    tabindex="2" value="" aria-required="true" required="">
+                                <input type="text" placeholder="Tìm kiếm tên danh mục..." name="name"
+                                    value="{{ request('name') }}">
+                            </fieldset>
+                            <fieldset>
+                                <select name="is_active">
+                                    <option value="">Trạng thái</option>
+                                    <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Kích hoạt
+                                    </option>
+                                    <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Không kích
+                                        hoạt</option>
+                                </select>
                             </fieldset>
                             <div class="button-submit">
-                                <button class="" type="submit"><i class="icon-search"></i></button>
+                                <button type="submit"><i class="icon-search"></i></button>
                             </div>
                         </form>
                     </div>
                     <a class="tf-button style-1 w208" href="{{ route('admin.categories.create') }}"><i
-                            class="icon-plus"></i>Add new</a>
+                            class="icon-plus"></i>Thêm mới</a>
                 </div>
                 <div class="wg-table table-all-attribute">
                     <thead>
                         <ul class="table-title flex gap20 mb-14">
                             <li>
-                                <div class="body-title">Category name</div>
+                                <div class="body-title">ID</div>
                             </li>
                             <li>
-                                <div class="body-title">Parent Category</div>
+                                <div class="body-title">Tên danh mục</div>
                             </li>
                             <li>
-                                <div class="body-title">Image</div>
+                                <div class="body-title">Ảnh</div>
                             </li>
                             <li>
-                                <div class="body-title">Status</div>
+                                <div class="body-title">Trạng thái</div>
                             </li>
                             <li>
-                                <div class="body-title">Action</div>
+                                <div class="body-title">Hành động</div>
                             </li>
                         </ul>
                     </thead>
                     <tbody>
                         <ul class="flex flex-column">
-                            @foreach ($categories as $category)
-                                <li class="attribute-item item-row flex items-center justify-between gap20">
-                                    <div class="name">
-                                        <a href="#"
-                                            class="body-title-2">{{ str_repeat('--', $category->depth ?? 0) }}{{ $category->name }}</a>
-                                    </div>
-                                    <div class="body-text">{{ $category->parent ? $category->parent->name : 'Không có' }}
-                                    </div>
-                                    <div class="body-text">
-                                        @if ($category->image_url)
-                                            <img src="{{ asset('storage/' . $category->image_url) }}" alt="Ảnh"
-                                                style="max-width:60px;max-height:60px;">
-                                        @else
-                                            Không có ảnh
-                                        @endif
-                                    </div>
-                                    <div class="body-text">
-                                        @if ($category->is_active)
-                                            <span class="badge bg-success">Kích hoạt</span>
-                                        @else
-                                            <span class="badge bg-danger">Không kích hoạt</span>
-                                        @endif
-                                    </div>
-
-                                    <div class="list-icon-function">
-                                        {{-- <div class="item eye">
-                                            <a href="{{ route('admin.categories.show', $category->id) }}"><i
-                                                    class="icon-eye"></i></a>
-                                        </div> --}}
-
-
-                                        <!-- Quick View Modal for Category Parent -->
-                                        <div class="item eye" data-bs-toggle="modal"
-                                            data-bs-target="#quickViewModalParent{{ $category->id }}">
-                                            <i class="icon-eye"></i>
-                                        </div>
-                                        <div class="modal fade" id="quickViewModalParent{{ $category->id }}" tabindex="-1"
-                                            aria-labelledby="quickViewLabelParent{{ $category->id }}" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                <div class="modal-content shadow-lg rounded-4 border-0"
-                                                    style="font-size: 16px;">
-                                                    <div class="modal-header bg-primary text-white">
-                                                        <h3 class="modal-title fw-bold mb-0 text-light"
-                                                            id="quickViewLabelParent{{ $category->id }}">
-                                                            <i class="bi bi-info-circle me-2"></i>Chi tiết danh mục
-                                                        </h3>
-                                                        <button type="button" class="btn-close btn-close-white"
-                                                            data-bs-dismiss="modal" aria-label="Đóng"></button>
-                                                    </div>
-                                                    <div class="modal-body px-5 py-4">
-                                                        <div class="row gy-3">
-                                                            <div class="col-sm-6">
-                                                                <strong>Tên danh mục:</strong>
-                                                                <div class="text-muted">{{ $category->name }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Slug:</strong>
-                                                                <div class="text-muted">{{ $category->slug }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Danh mục cha:</strong>
-                                                                <div class="text-muted">
-                                                                    {{ $category->parent ? $category->parent->name : 'Không có' }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Trạng thái:</strong>
-                                                                @if ($category->is_active)
-                                                                    <span class="badge bg-success">Kích hoạt</span>
-                                                                @else
-                                                                    <span class="badge bg-danger">Không kích hoạt</span>
-                                                                @endif
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <strong>Mô tả:</strong>
-                                                                <div class="text-muted">
-                                                                    {{ $category->description ?? '(Không có mô tả)' }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <strong>Ảnh:</strong><br>
-                                                                @if ($category->image_url)
-                                                                    <img src="{{ asset('storage/' . $category->image_url) }}"
-                                                                        alt="Ảnh"
-                                                                        style="max-width:120px;max-height:120px;">
-                                                                @else
-                                                                    <span class="text-muted">Không có ảnh</span>
-                                                                @endif
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Ngày tạo:</strong>
-                                                                <div class="text-muted">{{ $category->created_at }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Ngày cập nhật:</strong>
-                                                                <div class="text-muted">{{ $category->updated_at }}</div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="item edit">
-                                            <a href="{{ route('admin.categories.edit', $category->id) }}"><i
-                                                    class="icon-edit-3"></i></a>
-                                        </div>
-
-                                        {{-- <form action="{{ route('admin.categories.destroy', $category->id) }}"
-                                            method="POST">
-                                            @csrf @method('DELETE')
-                                            <button onclick="return confirm('Xóa danh mục này?')"><i
-                                                    class="icon-trash-2"></i></button>
-                                        </form> --}}
-                                        <form action="{{ route('admin.categories.destroy', $category->id) }}"
-                                            method="POST" style="display:inline;"
-                                            onclick="return confirm('Xóa danh mục này??');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
-                                                <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
-                                            </button>
-                                        </form>
-
-                                    </div>
-                                </li>
-                                @foreach ($category->children as $child)
+                            @if ($isSearching)
+                                @foreach ($categories as $category)
                                     <li class="attribute-item item-row flex items-center justify-between gap20">
-                                        <div class="name">
-                                            <a href="#"
-                                                class="body-title-2">{{ str_repeat('--', $child->depth ?? 1) }}{{ $child->name }}</a>
-                                        </div>
-                                        <div class="body-text">{{ $child->parent ? $child->parent->name : 'Không có' }}
+                                        <div class="body-text">{{ $category->id }}</div>
+                                        <div class="name d-flex align-items-center">
+                                            <span class="body-title-2">{{ $category->name }}</span>
                                         </div>
                                         <div class="body-text">
-                                            @if ($child->image_url)
-                                                <img src="{{ asset('storage/' . $child->image_url) }}" alt="Ảnh"
+                                            @if ($category->image_url)
+                                                <img src="{{ asset('storage/' . $category->image_url) }}" alt="Ảnh"
                                                     style="max-width:60px;max-height:60px;">
                                             @else
                                                 Không có ảnh
                                             @endif
                                         </div>
                                         <div class="body-text">
-                                            @if ($child->is_active)
+                                            @if ($category->is_active)
                                                 <span class="badge bg-success">Kích hoạt</span>
                                             @else
                                                 <span class="badge bg-danger">Không kích hoạt</span>
                                             @endif
                                         </div>
-
                                         <div class="list-icon-function">
+
+                                            <!-- Quick View Modal for Category Parent -->
                                             <div class="item eye" data-bs-toggle="modal"
-                                                data-bs-target="#quickViewModal{{ $child->id }}">
+                                                data-bs-target="#quickViewModalParent{{ $category->id }}">
                                                 <i class="icon-eye"></i>
                                             </div>
-
-                                            <!-- Quick View Modal for Category Child -->
-                                            <div class="modal fade" id="quickViewModal{{ $child->id }}"
-                                                tabindex="-1" aria-labelledby="quickViewLabel{{ $child->id }}"
+                                            <div class="modal fade" id="quickViewModalParent{{ $category->id }}"
+                                                tabindex="-1" aria-labelledby="quickViewLabelParent{{ $category->id }}"
                                                 aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered modal-lg">
                                                     <div class="modal-content shadow-lg rounded-4 border-0"
                                                         style="font-size: 16px;">
                                                         <div class="modal-header bg-primary text-white">
                                                             <h3 class="modal-title fw-bold mb-0 text-light"
-                                                                id="quickViewLabel{{ $child->id }}">
-                                                                <i class="bi bi-info-circle me-2"></i>Chi tiết danh mục
+                                                                id="quickViewLabelParent{{ $category->id }}">
+                                                                <i class="bi bi-info-circle me-2"></i>Chi
+                                                                tiết danh mục
                                                             </h3>
                                                             <button type="button" class="btn-close btn-close-white"
                                                                 data-bs-dismiss="modal" aria-label="Đóng"></button>
@@ -265,69 +145,67 @@
                                                             <div class="row gy-3">
                                                                 <div class="col-sm-6">
                                                                     <strong>Tên danh mục:</strong>
-                                                                    <div class="text-muted">{{ $child->name }}</div>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->name }}</div>
                                                                 </div>
                                                                 <div class="col-sm-6">
                                                                     <strong>Slug:</strong>
-                                                                    <div class="text-muted">{{ $child->slug }}</div>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->slug }}</div>
                                                                 </div>
                                                                 <div class="col-sm-6">
                                                                     <strong>Danh mục cha:</strong>
                                                                     <div class="text-muted">
-                                                                        {{ $child->parent ? $child->parent->name : 'Không có' }}
+                                                                        {{ $category->parent ? $category->parent->name : 'Không có' }}
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-sm-6">
                                                                     <strong>Trạng thái:</strong>
-                                                                    @if ($child->is_active)
-                                                                        <span class="badge bg-success">Kích hoạt</span>
-                                                                    @else
-                                                                        <span class="badge bg-danger">Không kích
+                                                                    @if ($category->is_active)
+                                                                        <span class="badge bg-success">Kích
                                                                             hoạt</span>
+                                                                    @else
+                                                                        <span class="badge bg-danger">Không
+                                                                            kích hoạt</span>
                                                                     @endif
                                                                 </div>
                                                                 <div class="col-12">
                                                                     <strong>Mô tả:</strong>
                                                                     <div class="text-muted">
-                                                                        {{ $child->description ?? '(Không có mô tả)' }}
+                                                                        {{ $category->description ?? '(Không có mô tả)' }}
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-12">
                                                                     <strong>Ảnh:</strong><br>
-                                                                    @if ($child->image_url)
-                                                                        <img src="{{ asset('storage/' . $child->image_url) }}"
+                                                                    @if ($category->image_url)
+                                                                        <img src="{{ asset('storage/' . $category->image_url) }}"
                                                                             alt="Ảnh"
                                                                             style="max-width:120px;max-height:120px;">
                                                                     @else
-                                                                        <span class="text-muted">Không có ảnh</span>
+                                                                        <span class="text-muted">Không có
+                                                                            ảnh</span>
                                                                     @endif
                                                                 </div>
                                                                 <div class="col-sm-6">
                                                                     <strong>Ngày tạo:</strong>
-                                                                    <div class="text-muted">{{ $child->created_at }}</div>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->created_at }}</div>
                                                                 </div>
                                                                 <div class="col-sm-6">
                                                                     <strong>Ngày cập nhật:</strong>
-                                                                    <div class="text-muted">{{ $child->updated_at }}</div>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->updated_at }}</div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <!-- End Quick View Modal for Category Parent -->
 
-                                            <div class="item edit">
-                                                <a href="{{ route('admin.categories.edit', $child->id) }}"><i
-                                                        class="icon-edit-3"></i></a>
-                                            </div>
-
-                                            {{-- <form action="{{ route('admin.categories.destroy', $child->id) }}"
-                                                method="POST">
-                                                @csrf @method('DELETE')
-                                                <button onclick="return confirm('Xóa danh mục này?')"><i
-                                                        class="icon-trash-2"></i></button>
-                                            </form> --}}
-                                            <form action="{{ route('admin.categories.destroy', $child->id) }}"
+                                            <a href="{{ route('admin.categories.edit', $category->id) }}"><i
+                                                    class="icon-edit-3"></i></a>
+                                            <form action="{{ route('admin.categories.destroy', $category->id) }}"
                                                 method="POST" style="display:inline;"
                                                 onclick="return confirm('Xóa danh mục này??');">
                                                 @csrf
@@ -337,11 +215,277 @@
                                                     <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
                                                 </button>
                                             </form>
-
                                         </div>
                                     </li>
                                 @endforeach
-                            @endforeach
+                            @else
+                                @foreach ($categories as $category)
+                                    <li class="attribute-item item-row flex items-center justify-between gap20
+                                        {{ request('new_id') == $category->id ? 'bg-warning bg-opacity-25 border border-warning' : '' }}"
+                                        style="align-items: flex-start;">
+                                        <div class="body-text">{{ $category->id }}</div>
+                                        <div class="name d-flex align-items-center">
+                                            @if ($category->children->count())
+                                                <button class="btn btn-sm btn-outline-secondary me-2" type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseChildren{{ $category->id }}"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapseChildren{{ $category->id }}">
+                                                    <i class="bi bi-chevron-down"></i>
+                                                </button>
+                                            @endif
+                                            <span class="body-title-2">{{ $category->name }}</span>
+                                        </div>
+                                        <div class="body-text">
+                                            @if ($category->image_url)
+                                                <img src="{{ asset('storage/' . $category->image_url) }}" alt="Ảnh"
+                                                    style="max-width:60px;max-height:60px;">
+                                            @else
+                                                Không có ảnh
+                                            @endif
+                                        </div>
+                                        <div class="body-text">
+                                            @if ($category->is_active)
+                                                <span class="badge bg-success">Kích hoạt</span>
+                                            @else
+                                                <span class="badge bg-danger">Không kích hoạt</span>
+                                            @endif
+                                        </div>
+                                        <div class="list-icon-function">
+
+                                            <!-- Quick View Modal for Category Parent -->
+                                            <div class="item eye" data-bs-toggle="modal"
+                                                data-bs-target="#quickViewModalParent{{ $category->id }}">
+                                                <i class="icon-eye"></i>
+                                            </div>
+                                            <div class="modal fade" id="quickViewModalParent{{ $category->id }}"
+                                                tabindex="-1" aria-labelledby="quickViewLabelParent{{ $category->id }}"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                    <div class="modal-content shadow-lg rounded-4 border-0"
+                                                        style="font-size: 16px;">
+                                                        <div class="modal-header bg-primary text-white">
+                                                            <h3 class="modal-title fw-bold mb-0 text-light"
+                                                                id="quickViewLabelParent{{ $category->id }}">
+                                                                <i class="bi bi-info-circle me-2"></i>Chi
+                                                                tiết danh mục
+                                                            </h3>
+                                                            <button type="button" class="btn-close btn-close-white"
+                                                                data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                                        </div>
+                                                        <div class="modal-body px-5 py-4">
+                                                            <div class="row gy-3">
+                                                                <div class="col-sm-6">
+                                                                    <strong>Tên danh mục:</strong>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->name }}</div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <strong>Slug:</strong>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->slug }}</div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <strong>Danh mục cha:</strong>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->parent ? $category->parent->name : 'Không có' }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <strong>Trạng thái:</strong>
+                                                                    @if ($category->is_active)
+                                                                        <span class="badge bg-success">Kích
+                                                                            hoạt</span>
+                                                                    @else
+                                                                        <span class="badge bg-danger">Không
+                                                                            kích hoạt</span>
+                                                                    @endif
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <strong>Mô tả:</strong>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->description ?? '(Không có mô tả)' }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <strong>Ảnh:</strong><br>
+                                                                    @if ($category->image_url)
+                                                                        <img src="{{ asset('storage/' . $category->image_url) }}"
+                                                                            alt="Ảnh"
+                                                                            style="max-width:120px;max-height:120px;">
+                                                                    @else
+                                                                        <span class="text-muted">Không có
+                                                                            ảnh</span>
+                                                                    @endif
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <strong>Ngày tạo:</strong>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->created_at }}</div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <strong>Ngày cập nhật:</strong>
+                                                                    <div class="text-muted">
+                                                                        {{ $category->updated_at }}</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- End Quick View Modal for Category Parent -->
+
+                                            <a href="{{ route('admin.categories.edit', $category->id) }}"><i
+                                                    class="icon-edit-3"></i></a>
+                                            <form action="{{ route('admin.categories.destroy', $category->id) }}"
+                                                method="POST" style="display:inline;"
+                                                onclick="return confirm('Xóa danh mục này??');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
+                                                    <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </li>
+                                    @if ($category->children->count())
+                                        <li class="collapse" id="collapseChildren{{ $category->id }}">
+                                            <ul class="ms-5">
+                                                @foreach ($category->children as $child)
+                                                    <li
+                                                        class="attribute-item item-row flex items-center justify-between gap20
+                                                        {{ request('new_id') == $child->id ? 'bg-warning bg-opacity-25 border border-warning' : '' }}">
+                                                        <div class="body-text">{{ $child->id }}</div>
+                                                        <div class="name">
+                                                            <span class="body-title-2">{{ $child->name }}</span>
+                                                        </div>
+                                                        <div class="body-text">
+                                                            @if ($child->image_url)
+                                                                <img src="{{ asset('storage/' . $child->image_url) }}"
+                                                                    alt="Ảnh"
+                                                                    style="max-width:60px;max-height:60px;">
+                                                            @else
+                                                                Không có ảnh
+                                                            @endif
+                                                        </div>
+                                                        <div class="body-text">
+                                                            @if ($child->is_active)
+                                                                <span class="badge bg-success">Kích hoạt</span>
+                                                            @else
+                                                                <span class="badge bg-danger">Không kích hoạt</span>
+                                                            @endif
+                                                        </div>
+                                                        <div class="list-icon-function">
+
+                                                            <!-- Quick View Modal for Child Parent -->
+                                                            <div class="item eye" data-bs-toggle="modal"
+                                                                data-bs-target="#quickViewModalParent{{ $child->id }}">
+                                                                <i class="icon-eye"></i>
+                                                            </div>
+                                                            <div class="modal fade"
+                                                                id="quickViewModalParent{{ $child->id }}"
+                                                                tabindex="-1"
+                                                                aria-labelledby="quickViewLabelParent{{ $child->id }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                                    <div class="modal-content shadow-lg rounded-4 border-0"
+                                                                        style="font-size: 16px;">
+                                                                        <div class="modal-header bg-primary text-white">
+                                                                            <h3 class="modal-title fw-bold mb-0 text-light"
+                                                                                id="quickViewLabelParent{{ $child->id }}">
+                                                                                <i class="bi bi-info-circle me-2"></i>Chi
+                                                                                tiết danh mục
+                                                                            </h3>
+                                                                            <button type="button"
+                                                                                class="btn-close btn-close-white"
+                                                                                data-bs-dismiss="modal"
+                                                                                aria-label="Đóng"></button>
+                                                                        </div>
+                                                                        <div class="modal-body px-5 py-4">
+                                                                            <div class="row gy-3">
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Tên danh mục:</strong>
+                                                                                    <div class="text-muted">
+                                                                                        {{ $child->name }}</div>
+                                                                                </div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Slug:</strong>
+                                                                                    <div class="text-muted">
+                                                                                        {{ $child->slug }}</div>
+                                                                                </div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Danh mục cha:</strong>
+                                                                                    <div class="text-muted">
+                                                                                        {{ $child->parent ? $child->parent->name : 'Không có' }}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Trạng thái:</strong>
+                                                                                    @if ($child->is_active)
+                                                                                        <span class="badge bg-success">Kích
+                                                                                            hoạt</span>
+                                                                                    @else
+                                                                                        <span class="badge bg-danger">Không
+                                                                                            kích hoạt</span>
+                                                                                    @endif
+                                                                                </div>
+                                                                                <div class="col-12">
+                                                                                    <strong>Mô tả:</strong>
+                                                                                    <div class="text-muted">
+                                                                                        {{ $child->description ?? '(Không có mô tả)' }}
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="col-12">
+                                                                                    <strong>Ảnh:</strong><br>
+                                                                                    @if ($child->image_url)
+                                                                                        <img src="{{ asset('storage/' . $child->image_url) }}"
+                                                                                            alt="Ảnh"
+                                                                                            style="max-width:120px;max-height:120px;">
+                                                                                    @else
+                                                                                        <span class="text-muted">Không có
+                                                                                            ảnh</span>
+                                                                                    @endif
+                                                                                </div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Ngày tạo:</strong>
+                                                                                    <div class="text-muted">
+                                                                                        {{ $child->created_at }}</div>
+                                                                                </div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Ngày cập nhật:</strong>
+                                                                                    <div class="text-muted">
+                                                                                        {{ $child->updated_at }}</div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- End Quick View Modal for Child Parent -->
+
+                                                            <a href="{{ route('admin.categories.edit', $child->id) }}"><i
+                                                                    class="icon-edit-3"></i></a>
+                                                            <form
+                                                                action="{{ route('admin.categories.destroy', $child->id) }}"
+                                                                method="POST" style="display:inline;"
+                                                                onclick="return confirm('Xóa danh mục này??');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                    style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
+                                                                    <i class="icon-trash-2"
+                                                                        style="color: red; font-size: 20px;"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            @endif
                         </ul>
                     </tbody>
                 </div>

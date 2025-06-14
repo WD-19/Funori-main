@@ -18,14 +18,14 @@
                 </li>
                 <li>
                     <a href="{{ route('admin.pages.index') }}">
-                        <div class="text-tiny">Page</div>
+                        <div class="text-tiny">Trang</div>
                     </a>
                 </li>
                 <li>
                     <i class="icon-chevron-right"></i>
                 </li>
                 <li>
-                    <div class="text-tiny">Edit Page</div>
+                    <div class="text-tiny">Chỉnh sửa trang</div>
                 </li>
             </ul>
         </div>
@@ -194,5 +194,19 @@
                 if (oldImg) oldImg.style.display = 'none';
             }
         });
+    </script>
+
+    {{-- Trình soạn thảo văn bản --}}
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#content'), {
+                ckfinder: {
+                    // Nếu muốn upload ảnh, cấu hình tại đây
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
     </script>
 @endsection

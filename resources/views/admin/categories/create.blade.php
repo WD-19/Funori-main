@@ -16,14 +16,14 @@
                 </li>
                 <li>
                     <a href="{{ route('admin.categories.index') }}">
-                        <div class="text-tiny">Category</div>
+                        <div class="text-tiny">Danh mục</div>
                     </a>
                 </li>
                 <li>
                     <i class="icon-chevron-right"></i>
                 </li>
                 <li>
-                    <div class="text-tiny">Add Category</div>
+                    <div class="text-tiny">Thêm danh mục mới</div>
                 </li>
             </ul>
         </div>
@@ -33,9 +33,9 @@
                 enctype="multipart/form-data">
                 @csrf
                 <fieldset class="name">
-                    <div class="body-title">Name Category <span class="tf-color-1">*</span></div>
+                    <div class="body-title">Tên danh mục <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('name') is-invalid @enderror" type="text"
-                        placeholder="Name Category" name="name" id="name" value="{{ old('name') }}">
+                        placeholder="Tên danh mục" name="name" id="name" value="{{ old('name') }}">
                     @error('name')
                         <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                     @enderror

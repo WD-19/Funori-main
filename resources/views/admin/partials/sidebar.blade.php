@@ -65,17 +65,17 @@
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-layers"></i></div>
-                            <div class="text">Category</div>
+                            <div class="text">Danh mục</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.categories.index') }}" class="">
-                                    <div class="text">Category list</div>
+                                    <div class="text">Danh sách danh mục</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.categories.create') }}" class="">
-                                    <div class="text">New category</div>
+                                    <div class="text">Thêm danh mục mới</div>
                                 </a>
                             </li>
                         </ul>
@@ -136,17 +136,17 @@
                                         fill="#111111" />
                                 </svg>
                             </div>
-                            <div class="text">Page</div>
+                            <div class="text">Trang</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.pages.index') }}" class="">
-                                    <div class="text">Page list</div>
+                                    <div class="text">Danh sách trang</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.pages.create') }}" class="">
-                                    <div class="text">Add New Page</div>
+                                    <div class="text">Thêm trang mới</div>
                                 </a>
                             </li>
                         </ul>

@@ -41,6 +41,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('contacts', ContactController::class);
     Route::resource('pages', PageController::class);
+    Route::post('pages/upload-image', [PageController::class, 'uploadImage'])->name('pages.upload-image');
     Route::resource('reviews', ReviewController::class);
 
     // Quản lý user
@@ -91,4 +92,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // (9) In phiếu giao hàng
     Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
         ->name('orders.printShipping');
+
+    
 });

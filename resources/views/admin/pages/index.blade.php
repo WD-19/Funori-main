@@ -25,7 +25,7 @@
                 @endif
             </div>
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>All Pages</h3>
+                <h3>Tất cả trang</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="{{ route('admin.dashboard') }}">
@@ -36,7 +36,7 @@
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">All Pages</div>
+                        <div class="text-tiny">Tất cả trang</div>
                     </li>
                 </ul>
             </div>
@@ -44,37 +44,78 @@
             <div class="wg-box">
                 <div class="flex items-center justify-between gap10 flex-wrap">
                     <div class="wg-filter flex-grow">
-                        <form class="form-search" method="GET" action="{{ route('admin.pages.index') }}">
+                        <form class="form-search flex gap10" method="GET" action="{{ route('admin.pages.index') }}">
                             <fieldset class="name">
-                                <input type="text" placeholder="Search here..." class="" name="q"
+                                <input type="text" placeholder="Tìm kiếm tên tiêu đề..." class="" name="q"
                                     value="{{ request('q') }}">
                             </fieldset>
+                            <fieldset>
+                                <select name="status">
+                                    <option value="">Trạng thái</option>
+                                    <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Đã
+                                        xuất bản
+                                    </option>
+                                    <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Nháp
+                                    </option>
+                                </select>
+                            </fieldset>
+                            <fieldset>
+                                <select name="page_type">
+                                    <option value="">Loại trang</option>
+                                    @foreach ($pageTypes as $type)
+                                        <option value="{{ $type }}"
+                                            {{ request('page_type') == $type ? 'selected' : '' }}>
+                                            {{ $type }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
                             <div class="button-submit">
-                                <button class="" type="submit"><i class="icon-search"></i></button>
+                                <button type="submit"><i class="icon-search"></i></button>
                             </div>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="{{ route('admin.pages.create') }}"><i class="icon-plus"></i>Add new</a>
+                    <a class="tf-button style-1 w208" href="{{ route('admin.pages.create') }}"><i
+                            class="icon-plus"></i>Thêm mới
+                    </a>
                 </div>
                 <div class="wg-table table-all-attribute">
                     <thead>
                         <ul class="table-title flex gap20 mb-14">
-                            <li><div class="body-title">Tiêu đề</div></li>
-                            <li><div class="body-title">Slug</div></li>
-                            <li><div class="body-title">Tác giả</div></li>
-                            <li><div class="body-title">Loại trang</div></li>
-                            <li><div class="body-title">Trạng thái</div></li>
-                            <li><div class="body-title">Ảnh</div></li>
-                            <li><div class="body-title">Ngày xuất bản</div></li>
-                            <li><div class="body-title">Hành động</div></li>
+                            <li>
+                                <div class="body-title">ID</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Tiêu đề</div>
+                            </li>
+                            {{-- <li><div class="body-title">Slug</div></li> --}}
+                            <li>
+                                <div class="body-title">Tác giả</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Loại trang</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Trạng thái</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Ảnh</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Ngày xuất bản</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Hành động</div>
+                            </li>
                         </ul>
                     </thead>
                     <tbody>
                         <ul class="flex flex-column">
                             @foreach ($pages as $page)
                                 <li class="attribute-item item-row flex items-center justify-between gap20">
+                                    <div class="body-text">{{ $page->id }}</div>
                                     <div class="body-text">{{ $page->title }}</div>
-                                    <div class="body-text">{{ $page->slug }}</div>
+                                    {{-- <div class="body-text">{{ $page->slug }}</div> --}}
                                     <div class="body-text">{{ $page->author ? $page->author->full_name : 'N/A' }}</div>
                                     <div class="body-text">{{ $page->page_type }}</div>
                                     <div class="body-text">
@@ -101,9 +142,8 @@
                                             <i class="icon-eye"></i>
                                         </div>
                                         <!-- Modal quick view -->
-                                        <div class="modal fade" id="quickViewModalPage{{ $page->id }}"
-                                            tabindex="-1" aria-labelledby="quickViewLabelPage{{ $page->id }}"
-                                            aria-hidden="true">
+                                        <div class="modal fade" id="quickViewModalPage{{ $page->id }}" tabindex="-1"
+                                            aria-labelledby="quickViewLabelPage{{ $page->id }}" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                                 <div class="modal-content shadow-lg rounded-4 border-0"
                                                     style="font-size: 16px;">
@@ -166,7 +206,8 @@
                                                             @endif
                                                             <div class="col-12">
                                                                 <strong>Meta title:</strong>
-                                                                <div class="text-muted">{{ $page->meta_title ?? '-' }}</div>
+                                                                <div class="text-muted">{{ $page->meta_title ?? '-' }}
+                                                                </div>
                                                             </div>
                                                             <div class="col-12">
                                                                 <strong>Meta description:</strong>
