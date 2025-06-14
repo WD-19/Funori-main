@@ -35,7 +35,7 @@
                 @method('PUT')
                 <div class="wg-box">
                     <div class="left">
-                        <h5 class="mb-4">Account</h5>
+                        <h5 class="mb-4">Tài khoản</h5>
                         <div class="body-text1">
                             @if($isSelf)
                                 Bạn chỉ có thể chỉnh sửa thông tin cá nhân.
@@ -58,7 +58,7 @@
                     </div>
                     <div class="right flex-grow">
                         <fieldset class="name mb-24">
-                            <div class="body-title mb-10">Name</div>
+                            <div class="body-title mb-10">Tên người dùng</div>
                             <input class="flex-grow" type="text" name="full_name" value="{{ $user->full_name }}"
                                 @if(!$isSelf) readonly @endif>
                         </fieldset>
@@ -68,12 +68,12 @@
                                 @if(!$isSelf) readonly @endif>
                         </fieldset>
                         <fieldset class="phone mb-24">
-                            <div class="body-title mb-10">Phone Number</div>
+                            <div class="body-title mb-10">Số điện thoại</div>
                             <input class="flex-grow" type="text" name="phone_number" value="{{ $user->phone_number }}"
                                 @if(!$isSelf) readonly @endif>
                         </fieldset>
                         <fieldset class="password mb-24">
-                            <div class="body-title mb-10">Password</div>
+                            <div class="body-title mb-10">Mật khẩu</div>
                             <div class="password-input-wrapper">
                                 <input class="password-input" type="password" placeholder="Password" name="password"
                                     value="*********" readonly id="passwordInput" style="padding-right: 36px;">
@@ -88,11 +88,11 @@
                 </div>
                 <div class="wg-box">
                     <div class="left">
-                        <h5 class="mb-4">Permission</h5>
+                        <h5 class="mb-4">Quyền & Trạng thái tài khoản</h5>
                     </div>
                     <div class="right flex-grow">
                         <fieldset class="mb-24">
-                            <div class="body-title mb-10">Account Status</div>
+                            <div class="body-title mb-10">Trạng thái tài khoản</div>
                             <div class="radio-buttons">
                                 <div class="item">
                                     <input type="radio" name="account_status" id="apply-product1" value="active"
@@ -118,7 +118,7 @@
                             @enderror
                         </fieldset>
                         <fieldset>
-                            <div class="body-title mb-10">Role</div>
+                            <div class="body-title mb-10">Quyền</div>
                             <div class="radio-buttons">
                                 <div class="item">
                                     <input type="radio" name="role" id="create-product1" value="admin"

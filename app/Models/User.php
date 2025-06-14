@@ -12,6 +12,19 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public function isActive()
+    {
+        return $this->account_status === 'active';
+    }
+
+    public function isInactive()
+    {
+        return $this->account_status === 'inactive';
+    }
+    public function isBanned()
+    {
+        return $this->account_status === 'banned';
+    }
     
     protected $fillable = [
         'full_name',

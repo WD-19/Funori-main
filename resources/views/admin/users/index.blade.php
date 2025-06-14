@@ -81,22 +81,25 @@
                     @endphp
 
                     <ul class="table-title flex gap20 mb-14">
+                         <li>
+                            <div class="body-title">ID</div>
+                        </li>
                         <li>
                             <div class="body-title">
-                                User {!! sortIcon('full_name') !!}
+                                Tên người dùng {!! sortIcon('full_name') !!}
                             </div>
                         </li>
                         <li>
-                            <div class="body-title">Phone</div>
+                            <div class="body-title">Số điện thoại</div>
                         </li>
                         <li>
                             <div class="body-title">Email</div>
                         </li>
                         <li>
-                            <div class="body-title">Account Status</div>
+                            <div class="body-title">Trạng thái tài khoản</div>
                         </li>
                         <li>
-                            <div class="body-title">Role</div>
+                            <div class="body-title">Quyền</div>
                         </li>
                         <li>
                             <div class="body-title">
@@ -104,14 +107,17 @@
                             </div>
                         </li>
                         <li>
-                            <div class="body-title">Action</div>
+                            <div class="body-title">Hành động</div>
                         </li>
                     </ul>
 
 
                     <ul class="flex flex-column">
                         @foreach ($users as $user)
+                        
                             <li class="wg-product item-row">
+                                <div class="body-text">{{ $user->id }}</div>
+
                                 <div class="name flex-grow">
                                     <div class="image">
                                         <img src="{{ asset($user->avatar_url ? $user->avatar_url : 'images/images.jpg') }}"
