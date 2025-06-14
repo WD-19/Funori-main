@@ -54,7 +54,7 @@ Route::prefix('admin')->name('admin.')
 
         // Quản lý user
         Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
-        Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
         Route::get('users/{user}/order-history', [UserController::class, 'orderHistory'])->name('users.orderHistory');
 
         // Quản lý đơn hàng

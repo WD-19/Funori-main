@@ -176,7 +176,6 @@
                             <input type="password" name="new_password_confirmation" class="form-control strong-input"
                                 required style="width:100%;margin-top:8px; background-color: #e5e2e2;">
                         </div>
-                        <a href="{{ route('admin.users.index') }}" class="tf-button w180">Back</a>
 
                         <button type="submit" class="tf-button w100" style="font-size:1.1rem;">Save</button>
                     </form>
@@ -189,6 +188,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Avatar preview
             var input = document.getElementById('avatarInput');
             var preview = document.getElementById('avatarPreview');
             if (input && preview) {
@@ -203,6 +203,30 @@
                     }
                 });
             }
+
+            // Reset password modal
+            var resetIcon = document.getElementById('resetPasswordIcon');
+            var resetModal = document.getElementById('resetPasswordModal');
+            var closeModal = document.getElementById('closeResetModal');
+
+            if (resetIcon && resetModal) {
+                resetIcon.addEventListener('click', function() {
+                    resetModal.style.display = 'flex';
+                });
+            }
+            if (closeModal && resetModal) {
+                closeModal.addEventListener('click', function() {
+                    resetModal.style.display = 'none';
+                });
+            }
+            // Đóng modal khi click ra ngoài
+            window.onclick = function(event) {
+                if (event.target === resetModal) {
+                    resetModal.style.display = 'none';
+                }
+            }
         });
     </script>
 @endpush
+
+

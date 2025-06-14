@@ -18,8 +18,14 @@ class LoginController  // Sửa lại để kế thừa Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => [
+                'required',
+                'email',
+                'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/'
+            ],
             'password' => 'required|min:6'
+        ], [
+            'email.regex' => 'Chỉ chấp nhận địa chỉ Gmail (@gmail.com).'
         ]);
 
         $credentials = $request->only('email', 'password');

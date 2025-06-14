@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 $currentUser = Auth::user();
 
@@ -151,4 +152,31 @@ class UserController
       return view('admin.users.orderHistory', compact('user', 'orders'));
    }
 
+   public function resetPassword(Request $request, $id)
+{
+    $user = User::findOrFail($id);
+
+    // Chỉ cho phép đổi mật khẩu nếu là chính mình
+    if (Auth::id() !== $user->id) {
+        return back()->withErrors(['Bạn chỉ có thể đổi mật khẩu của chính mình.']);
+    }
+
+    $request->validate([
+        'old_password' => 'required',
+        'new_password' => 'required|min:6|confirmed',
+    ], [
+        'new_password.confirmed' => 'Xác nhận mật khẩu không khớp.',
+    ]);
+
+    // Kiểm tra mật khẩu cũ
+    if (!Hash::check($request->old_password, $user->password)) {
+        return back()->withErrors(['old_password' => 'Mật khẩu cũ không đúng.']);
+    }
+
+    // Đổi mật khẩu
+    $user->password = bcrypt($request->new_password);
+    $user->save();
+
+    return back()->with('success', 'Đổi mật khẩu thành công!');
+}
 }
