@@ -521,8 +521,12 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
     );
 
     public static $classMap = array (
+        'App\\Http\\Controllers\\API\\client\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/client/LoginController.php',
         'App\\Http\\Controllers\\API\\client\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/client/RegisterController.php',
         'App\\Http\\Controllers\\admin\\ReviewController' => __DIR__ . '/../..' . '/app/Http/Controllers/admin/ReviewController.php',
+        'App\\Http\\Controllers\\client\\auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/auth/LoginController.php',
+        'App\\Http\\Middleware\\CheckApiLogin' => __DIR__ . '/../..' . '/app/Http/Middleware/CheckApiLogin.php',
+        'App\\Http\\Middleware\\CheckLogin' => __DIR__ . '/../..' . '/app/Http/Middleware/CheckLogin.php',
         'App\\Models\\Address' => __DIR__ . '/../..' . '/app/Models/Address.php',
         'App\\Models\\Attribute' => __DIR__ . '/../..' . '/app/Models/Attribute.php',
         'App\\Models\\AttributeValue' => __DIR__ . '/../..' . '/app/Models/AttributeValue.php',

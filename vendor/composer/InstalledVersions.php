@@ -31,6 +31,7 @@ class InstalledVersions
      * @psalm-var array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>}|array{}|null
      */
     private static $installed;
+
     /**
      * @var bool|null
      */
@@ -308,12 +309,6 @@ class InstalledVersions
     {
         self::$installed = $data;
         self::$installedByVendor = array();
-
-        // when using reload, we disable the duplicate protection to ensure that self::$installed data is
-        // always returned, but we cannot know whether it comes from the installed.php in __DIR__ or not,
-        // so we have to assume it does not, and that may result in duplicate data being returned when listing
-        // all installed packages for example
-        self::$installedIsLocalDir = false;
     }
 
     /**
@@ -330,7 +325,6 @@ class InstalledVersions
         $copiedLocalDir = false;
 
         if (self::$canGetVendors) {
-            $selfDir = strtr(__DIR__, '\\', '/');
             foreach (ClassLoader::getRegisteredLoaders() as $vendorDir => $loader) {
                 if (isset(self::$installedByVendor[$vendorDir])) {
                     $installed[] = self::$installedByVendor[$vendorDir];

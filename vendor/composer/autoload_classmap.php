@@ -6,8 +6,12 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Http\\Controllers\\API\\client\\LoginController' => $baseDir . '/app/Http/Controllers/API/client/LoginController.php',
     'App\\Http\\Controllers\\API\\client\\RegisterController' => $baseDir . '/app/Http/Controllers/API/client/RegisterController.php',
     'App\\Http\\Controllers\\admin\\ReviewController' => $baseDir . '/app/Http/Controllers/admin/ReviewController.php',
+    'App\\Http\\Controllers\\client\\auth\\LoginController' => $baseDir . '/app/Http/Controllers/client/auth/LoginController.php',
+    'App\\Http\\Middleware\\CheckApiLogin' => $baseDir . '/app/Http/Middleware/CheckApiLogin.php',
+    'App\\Http\\Middleware\\CheckLogin' => $baseDir . '/app/Http/Middleware/CheckLogin.php',
     'App\\Models\\Address' => $baseDir . '/app/Models/Address.php',
     'App\\Models\\Attribute' => $baseDir . '/app/Models/Attribute.php',
     'App\\Models\\AttributeValue' => $baseDir . '/app/Models/AttributeValue.php',
