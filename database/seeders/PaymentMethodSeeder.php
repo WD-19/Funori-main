@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\PaymentMethod;
 
@@ -13,6 +12,13 @@ class PaymentMethodSeeder extends Seeder
      */
     public function run(): void
     {
-        PaymentMethod::factory(5)->create(); // Tạo 5 phương thức thanh toán
+        $methods = [
+            ['name' => 'Thanh toán khi nhận hàng', 'code' => 'cod', 'description' => 'Thanh toán trực tiếp khi nhận hàng'],
+            ['name' => 'Chuyển khoản ngân hàng', 'code' => 'bank', 'description' => 'Chuyển khoản qua tài khoản ngân hàng'],
+            ['name' => 'Thanh toán qua Momo', 'code' => 'momo', 'description' => 'Thanh toán bằng ví điện tử Momo'],
+        ];
+        foreach ($methods as $m) {
+            PaymentMethod::create($m);
+        }
     }
 }

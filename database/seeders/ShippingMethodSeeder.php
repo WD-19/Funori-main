@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\ShippingMethod;
 
@@ -13,6 +12,13 @@ class ShippingMethodSeeder extends Seeder
      */
     public function run(): void
     {
-        ShippingMethod::factory(3)->create(); // Tạo 3 phương thức vận chuyển
+        $methods = [
+            ['name' => 'Giao hàng tiêu chuẩn', 'description' => 'Giao hàng trong 3-5 ngày làm việc', 'cost' => 30000],
+            ['name' => 'Giao hàng nhanh', 'description' => 'Giao hàng trong 24h', 'cost' => 60000],
+            ['name' => 'Nhận tại cửa hàng', 'description' => 'Nhận hàng trực tiếp tại cửa hàng', 'cost' => 0],
+        ];
+        foreach ($methods as $m) {
+            ShippingMethod::create($m);
+        }
     }
 }
