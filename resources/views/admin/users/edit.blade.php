@@ -23,6 +23,12 @@
                 </ul>
             </div>
             <!-- edit-user -->
+            @php
+                $isSelf = auth()->id() == $user->id;
+                $isEditingAdmin = $user->role === 'admin';
+                $isCurrentAdmin = auth()->user()->role === 'admin';
+            @endphp
+
             <form class="form-add-new-user form-style-2" enctype="multipart/form-data" method="POST"
                 action="{{ route('admin.users.update', $user->id) }}">
                 @csrf
@@ -30,38 +36,52 @@
                 <div class="wg-box">
                     <div class="left">
                         <h5 class="mb-4">Account</h5>
-                        <div class="body-text1">Bạn chỉ có thể chỉnh sửa quyền và trạng thái tài khoản</div>
+                        <div class="body-text1">
+                            @if($isSelf)
+                                Bạn chỉ có thể chỉnh sửa thông tin cá nhân.
+                            @elseif($isEditingAdmin)
+                                Không thể chỉnh sửa thông tin của admin khác.
+                            @else
+                                Bạn chỉ có thể chỉnh sửa quyền và trạng thái tài khoản.
+                            @endif
+                        </div>
                         <div class="avatar-upload mt-3 mb-4">
-                            <label for="avatarInput">
+                            <label @if($isSelf) for="avatarInput" style="cursor:pointer;" @endif>
                                 <img src="{{ asset($user->avatar_url ? $user->avatar_url : 'images/images.jpg') }}"
                                     alt="Avatar" class="avatar-preview" id="avatarPreview">
                             </label>
+                            @if($isSelf)
+                                <input type="file" id="avatarInput" name="avatar_url" accept="image/*"
+                                style="display: none;">
+                            @endif
                         </div>
                     </div>
                     <div class="right flex-grow">
                         <fieldset class="name mb-24">
                             <div class="body-title mb-10">Name</div>
                             <input class="flex-grow" type="text" name="full_name" value="{{ $user->full_name }}"
-                                readonly>
+                                @if(!$isSelf) readonly @endif>
                         </fieldset>
                         <fieldset class="email mb-24">
                             <div class="body-title mb-10">Email</div>
-                            <input class="flex-grow" type="email" name="email" value="{{ $user->email }}" readonly>
+                            <input class="flex-grow" type="email" name="email" value="{{ $user->email }}"
+                                @if(!$isSelf) readonly @endif>
                         </fieldset>
                         <fieldset class="phone mb-24">
                             <div class="body-title mb-10">Phone Number</div>
                             <input class="flex-grow" type="text" name="phone_number" value="{{ $user->phone_number }}"
-                                readonly>
+                                @if(!$isSelf) readonly @endif>
                         </fieldset>
                         <fieldset class="password mb-24">
                             <div class="body-title mb-10">Password</div>
                             <div class="password-input-wrapper">
                                 <input class="password-input" type="password" placeholder="Password" name="password"
                                     value="*********" readonly id="passwordInput" style="padding-right: 36px;">
-
-                                <span id="resetPasswordIcon" title="Reset password" style="font-size: 18px">
-                                    <i class="fas fa-sync-alt"></i>
-                                </span>
+                                @if($isSelf)
+                                    <span id="resetPasswordIcon" title="Reset password" style="font-size: 18px">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </span>
+                                @endif
                             </div>
                         </fieldset>
                     </div>
@@ -76,17 +96,20 @@
                             <div class="radio-buttons">
                                 <div class="item">
                                     <input type="radio" name="account_status" id="apply-product1" value="active"
-                                        {{ old('account_status', $user->account_status) == 'active' ? 'checked' : '' }}>
+                                        {{ old('account_status', $user->account_status) == 'active' ? 'checked' : '' }}
+                                        @if($isSelf || $isEditingAdmin) disabled @endif>
                                     <label for="apply-product1"><span class="body-title-2">Active</span></label>
                                 </div>
                                 <div class="item">
                                     <input type="radio" name="account_status" id="apply-product2" value="inactive"
-                                        {{ old('account_status', $user->account_status) == 'inactive' ? 'checked' : '' }}>
+                                        {{ old('account_status', $user->account_status) == 'inactive' ? 'checked' : '' }}
+                                        @if($isSelf || $isEditingAdmin) disabled @endif>
                                     <label for="apply-product2"><span class="body-title-2">Inactive</span></label>
                                 </div>
                                 <div class="item">
                                     <input type="radio" name="account_status" id="apply-product3" value="banned"
-                                        {{ old('account_status', $user->account_status) == 'banned' ? 'checked' : '' }}>
+                                        {{ old('account_status', $user->account_status) == 'banned' ? 'checked' : '' }}
+                                        @if($isSelf || $isEditingAdmin) disabled @endif>
                                     <label for="apply-product3"><span class="body-title-2">Banned</span></label>
                                 </div>
                             </div>
@@ -99,12 +122,14 @@
                             <div class="radio-buttons">
                                 <div class="item">
                                     <input type="radio" name="role" id="create-product1" value="admin"
-                                        {{ old('role', $user->role) == 'admin' ? 'checked' : '' }}>
+                                        {{ old('role', $user->role) == 'admin' ? 'checked' : '' }}
+                                        @if($isSelf || $isEditingAdmin) disabled @endif>
                                     <label for="create-product1"><span class="body-title-2">Admin</span></label>
                                 </div>
                                 <div class="item">
                                     <input type="radio" name="role" id="create-product2" value="user"
-                                        {{ old('role', $user->role) == 'user' ? 'checked' : '' }}>
+                                        {{ old('role', $user->role) == 'user' ? 'checked' : '' }}
+                                        @if($isSelf || $isEditingAdmin) disabled @endif>
                                     <label for="create-product2"><span class="body-title-2">User</span></label>
                                 </div>
                             </div>
@@ -115,6 +140,7 @@
                     </div>
                 </div>
                 <div class="bot">
+                    <a href="{{ route('admin.users.index') }}" class="tf-button w180">Back</a>
                     <button class="tf-button w180" type="submit">Save</button>
                 </div>
             </form>
@@ -150,6 +176,8 @@
                             <input type="password" name="new_password_confirmation" class="form-control strong-input"
                                 required style="width:100%;margin-top:8px; background-color: #e5e2e2;">
                         </div>
+                        <a href="{{ route('admin.users.index') }}" class="tf-button w180">Back</a>
+
                         <button type="submit" class="tf-button w100" style="font-size:1.1rem;">Save</button>
                     </form>
                 </div>
@@ -161,22 +189,18 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // ...avatar preview code...
-
-            // Hiện modal khi nhấn icon reset
-            var resetIcon = document.getElementById('resetPasswordIcon');
-            var modal = document.getElementById('resetPasswordModal');
-            var closeBtn = document.getElementById('closeResetModal');
-            if (resetIcon && modal && closeBtn) {
-                resetIcon.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    modal.style.display = 'flex';
-                });
-                closeBtn.addEventListener('click', function() {
-                    modal.style.display = 'none';
-                });
-                modal.addEventListener('click', function(e) {
-                    if (e.target === modal) modal.style.display = 'none';
+            var input = document.getElementById('avatarInput');
+            var preview = document.getElementById('avatarPreview');
+            if (input && preview) {
+                input.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
                 });
             }
         });

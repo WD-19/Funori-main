@@ -7,7 +7,7 @@
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>All User</h3>
+                <a href="{{ route('admin.users.index') }}"><h3>All User</h3></a>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="index.html">
@@ -34,14 +34,24 @@
             <div class="wg-box">
                 <div class="flex items-center justify-between gap10 flex-wrap">
                     <div class="wg-filter flex-grow">
-                        <form class="form-search">
+                        <form class="form-search" method="GET" action="{{ route('admin.users.index') }}">
                             <fieldset class="name">
                                 <input type="text" placeholder="Search here..." class="" name="name"
-                                    tabindex="2" value="" aria-required="true" required="">
+                                    value="{{ request('name') }}">
                             </fieldset>
                             <div class="button-submit">
                                 <button class="" type="submit"><i class="icon-search"></i></button>
                             </div>
+                        </form>
+                         <form class="flex items-center gap10" method="GET" action="{{ route('admin.users.index') }}" id="filterForm" style="margin-left: 10px;">
+                            <select name="filter" class="form-select" style="margin-bottom:0; width: 180px; font-size: 14px; padding: 4px 8px;" onchange="document.getElementById('filterForm').submit();">
+                                <option value="">-- Tất cả --</option>
+                                <option value="admin" {{ request('filter') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="user" {{ request('filter') == 'user' ? 'selected' : '' }}>User</option>
+                                <option value="active" {{ request('filter') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ request('filter') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                <option value="banned" {{ request('filter') == 'banned' ? 'selected' : '' }}>Banned</option>
+                            </select>
                         </form>
                     </div>
                     <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}"><i class="icon-plus"></i>Add
@@ -148,8 +158,18 @@
                                                 class="icon-eye"></i></a>
                                     </div>
                                     <div class="item edit">
-                                        <a style="color: green" href="{{ route('admin.users.edit', $user->id) }}"> <i
-                                                class="icon-edit-3"></i></a>
+                                         @php
+                                            $isSelf = auth()->id() == $user->id;
+                                            $isEditingAdmin = $user->role === 'admin';
+                                        @endphp
+
+                                        @if($isEditingAdmin && !$isSelf)
+                                            <i class="fa fa-edit" style="color: #28a745; opacity: 0.4; cursor: not-allowed;" title="Không thể chỉnh sửa admin khác"></i>
+                                        @else
+                                            <a href="{{ route('admin.users.edit', $user->id) }}" title="Chỉnh sửa">
+                                                <i class="fa fa-edit" style="color: #28a745;"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             </li>
@@ -194,42 +214,6 @@
         </div>
         <!-- /main-content-wrap -->
     </div>
-                                    </div>
-                                  <div class="divider"></div>
-                                    <div class="flex items-center justify-between flex-wrap gap10">
-                                        <div class="text-tiny">
-                                            Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} entries
-                                        </div>
-                                        <ul class="wg-pagination">
-                                            <li>
-                                                @if ($users->onFirstPage())
-                                                <span><i class="icon-chevron-left"></i></span>
-                                                @else
-                                                <a href="{{ $users->previousPageUrl() }}"><i class="icon-chevron-left"></i></a>
-                                                @endif
-                                            </li>
-                                            @foreach ($users->getUrlRange(1, $users->lastPage()) as $page => $url)
-                                            <li class="{{ $page == $users->currentPage() ? 'active' : '' }}">
-                                                @if ($page == $users->currentPage())
-                                                <span>{{ $page }}</span>
-                                                @else
-                                                <a href="{{ $url }}">{{ $page }}</a>
-                                                @endif
-                                            </li>
-                                            @endforeach
-                                            <li>
-                                                @if ($users->hasMorePages())
-                                                <a href="{{ $users->nextPageUrl() }}"><i class="icon-chevron-right"></i></a>
-                                                @else
-                                                <span><i class="icon-chevron-right"></i></span>
-                                                @endif
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <!-- /all-user -->
-                            </div>
-                            <!-- /main-content-wrap -->
-                        </div>
+                                   
 
 @endsection

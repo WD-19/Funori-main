@@ -7,23 +7,33 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+
+$currentUser = Auth::user();
 
 class UserController
 {
    public function index(Request $request)
    {
-      $sort = $request->get('sort', 'created_at');
-      $order = $request->get('order', 'desc');
-      $allowedSorts = ['full_name', 'created_at'];
+      $query = User::query();
 
-      if (!in_array($sort, $allowedSorts)) {
-         $sort = 'created_at';
-      }
-      if (!in_array($order, ['asc', 'desc'])) {
-         $order = 'desc';
+      // Tìm kiếm theo tên
+      if ($request->filled('name')) {
+          $query->where('full_name', 'like', '%' . $request->name . '%');
       }
 
-      $users = User::orderBy($sort, $order)->paginate(5)->appends($request->all());
+      // Lọc chung role và status_account
+      if ($request->filled('filter')) {
+          $filter = $request->filter;
+          if (in_array($filter, ['admin', 'user'])) {
+              $query->where('role', $filter);
+          } elseif (in_array($filter, ['active', 'inactive', 'banned'])) {
+              $query->where('account_status', $filter);
+          }
+      }
+
+      $users = $query->orderBy('created_at', 'desc')->paginate(10);
+
       return view('admin.users.index', compact('users'));
    }
 
@@ -86,23 +96,49 @@ class UserController
    public function update(Request $request, $id)
 {
     $user = User::findOrFail($id);
+    $currentUser = Auth::user();
 
-    $validator = Validator::make($request->all(), [
-        'account_status' => 'required|in:active,inactive,banned',
-        'role'           => 'required|in:admin,user',
-    ]);
-
-    if ($validator->fails()) {
-        return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
+    // Không cho admin sửa thông tin của admin khác
+    if ($user->role === 'admin' && $currentUser->id !== $user->id) {
+        return redirect()->back()->with('error', 'Bạn không có quyền sửa thông tin admin khác.');
     }
 
-    $user->account_status = $request->account_status;
-    $user->role = $request->role;
-    $user->save();
+    // Nếu là admin sửa chính mình: chỉ cho phép sửa thông tin cá nhân, không cho sửa role và account_status
+    if ($currentUser->id === $user->id && $currentUser->role === 'admin') {
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone_number' => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-    return redirect()->route('admin.users.index')->with('success', 'Cập nhật user thành công!');
+        // Xử lý upload avatar nếu có
+        if ($request->hasFile('avatar_url')) {
+            $file = $request->file('avatar_url');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/users'), $filename);
+            $validated['avatar_url'] = 'images/users/' . $filename;
+        }
+
+        $user->update($validated);
+        return redirect()->route('admin.users.edit', $user->id)->with('success', 'Cập nhật thành công.');
+    }
+
+    // Nếu là admin sửa user thường: chỉ cho phép sửa role và account_status
+    if ($currentUser->role === 'admin' && $user->role !== 'admin') {
+        $validated = $request->validate([
+            'account_status' => 'required|in:active,inactive,banned',
+            'role' => 'required|in:admin,user',
+        ]);
+        $user->update([
+            'role' => $validated['role'],
+            'account_status' => $validated['account_status'],
+        ]);
+        return redirect()->route('admin.users.edit', $user->id)->with('success', 'Cập nhật thành công.');
+    }
+
+    // Các trường hợp khác (không có quyền)
+    return redirect()->back()->with('error', 'Bạn không có quyền thực hiện thao tác này.');
 }
 
 

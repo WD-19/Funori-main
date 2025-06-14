@@ -108,12 +108,5 @@
     </div>
     <!-- /#page -->
 </div>
-<script>
-    document.querySelector('form.form-login').addEventListener('submit', function(e) {
-        if (!document.getElementById('signed').checked) {
-            alert('Bạn cần chọn "Keep me signed in" để tiếp tục!');
-            e.preventDefault();
-        }
-    });
-</script>
+
 @endsection
