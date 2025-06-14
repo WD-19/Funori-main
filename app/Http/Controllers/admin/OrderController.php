@@ -25,7 +25,7 @@ class OrderController
         // Lọc theo mã đơn hàng hoặc tên khách hàng
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(function($sub) use ($q) {
+            $query->where(function ($sub) use ($q) {
                 $sub->where('order_code', 'like', "%{$q}%")
                     ->orWhere('customer_name', 'like', "%{$q}%");
             });
@@ -34,15 +34,15 @@ class OrderController
         // Lọc theo tên sản phẩm
         if ($request->filled('product')) {
             $product = $request->product;
-            $query->whereHas('items.product', function($q) use ($product) {
+            $query->whereHas('items.product', function ($q) use ($product) {
                 $q->where('name', 'like', "%{$product}%");
             });
         }
 
         // Đơn mới nhất lên đầu (order by created_at DESC)
         $orders = $query->orderByDesc('created_at')
-                        ->paginate(20)
-                        ->appends($request->only(['status','q','product']));
+            ->paginate(20)
+            ->appends($request->only(['status', 'q', 'product']));
 
         return view('admin.orders.index', compact(
             'orders'
@@ -62,7 +62,7 @@ class OrderController
         // Lọc theo mã đơn hàng hoặc tên khách hàng
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(function($sub) use ($q) {
+            $query->where(function ($sub) use ($q) {
                 $sub->where('order_code', 'like', "%{$q}%")
                     ->orWhere('customer_name', 'like', "%{$q}%");
             });
@@ -71,7 +71,7 @@ class OrderController
         // Lọc theo tên sản phẩm
         if ($request->filled('product')) {
             $product = $request->product;
-            $query->whereHas('items.product', function($q) use ($product) {
+            $query->whereHas('items.product', function ($q) use ($product) {
                 $q->where('name', 'like', "%{$product}%");
             });
         }
@@ -84,10 +84,17 @@ class OrderController
         ];
 
         $columns = [
-            'Mã đơn', 'Khách hàng', 'Email', 'SĐT', 'Tổng tiền', 'Trạng thái', 'Ngày đặt', 'Sản phẩm'
+            'Mã đơn',
+            'Khách hàng',
+            'Email',
+            'SĐT',
+            'Tổng tiền',
+            'Trạng thái',
+            'Ngày đặt',
+            'Sản phẩm'
         ];
 
-        $callback = function() use ($orders, $columns) {
+        $callback = function () use ($orders, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
@@ -114,7 +121,7 @@ class OrderController
     public function show($id)
     {
         $order = Order::with(['paymentMethod', 'shippingMethod', 'user', 'items.product'])
-                      ->findOrFail($id);
+            ->findOrFail($id);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -149,7 +156,7 @@ class OrderController
             'ordered_at'         => 'nullable|date',
             'delivered_at'       => 'nullable|date|after_or_equal:ordered_at',
             'cancelled_at'       => 'nullable|date',
-            'cancellation_reason'=> 'nullable|string',
+            'cancellation_reason' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -178,7 +185,7 @@ class OrderController
         $order->update($data);
 
         return redirect()->route('admin.orders.index')
-                         ->with('success', 'Cập nhật đơn hàng thành công.');
+            ->with('success', 'Cập nhật đơn hàng thành công.');
     }
 
     // (5) destroy: xóa đơn hàng
@@ -187,7 +194,7 @@ class OrderController
         $order = Order::findOrFail($id);
         $order->delete();
         return redirect()->route('admin.orders.index')
-                         ->with('success', 'Xóa đơn hàng thành công.');
+            ->with('success', 'Xóa đơn hàng thành công.');
     }
 
     /**
@@ -305,7 +312,7 @@ class OrderController
             $order->save();
 
             return redirect()->route('admin.orders.index')
-                             ->with('success', 'Đã duyệt hủy đơn #' . $order->order_code);
+                ->with('success', 'Đã duyệt hủy đơn #' . $order->order_code);
         }
 
         if ($action === 'reject') {
@@ -315,7 +322,7 @@ class OrderController
             $order->save();
 
             return redirect()->route('admin.orders.index')
-                             ->with('success', 'Đã từ chối yêu cầu hủy đơn #' . $order->order_code);
+                ->with('success', 'Đã từ chối yêu cầu hủy đơn #' . $order->order_code);
         }
 
         return redirect()->back()->with('error', 'Thao tác không hợp lệ.');
@@ -325,7 +332,7 @@ class OrderController
     public function printInvoice($id)
     {
         $order = Order::with(['items.product', 'paymentMethod', 'shippingMethod', 'user'])
-                      ->findOrFail($id);
+            ->findOrFail($id);
         return view('admin.orders.print_invoice', compact('order'));
     }
 
@@ -333,7 +340,7 @@ class OrderController
     public function printShipping($id)
     {
         $order = Order::with(['items.product', 'paymentMethod', 'shippingMethod', 'user'])
-                      ->findOrFail($id);
+            ->findOrFail($id);
         return view('admin.orders.print_shipping', compact('order'));
     }
 

@@ -23,6 +23,8 @@ return new class extends Migration
             $table->foreignId('replied_by')->nullable()->constrained('users')->onDelete('set null'); // Khóa ngoại đến users(id) (admin đã phản hồi, nullable) [cite: 53]
             $table->timestamp('created_at')->useCurrent(); // Thời gian gửi [cite: 53]
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate(); // Thời gian cập nhật trạng thái [cite: 53]
+            $table->softDeletes(); // Tạo cột 'deleted_at' nullable
+
         });
     }
 
