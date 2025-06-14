@@ -26,7 +26,7 @@ return new class extends Migration
             $table->dateTime('start_date'); // Thời gian bắt đầu [cite: 41]
             $table->dateTime('end_date')->nullable(); // Thời gian kết thúc (nullable nếu không giới hạn) [cite: 41]
             $table->boolean('is_active')->default(true); // Kích hoạt (mặc định: true) [cite: 41]
-            $table->enum('applies_to', ['all_products', 'specific_products', 'specific_categories'])->default('all_products'); // Áp dụng cho (mặc định 'all_products') [cite: 41]
+            $table->enum('applies_to', ['all_products', 'specific_brands', 'specific_categories'])->default('all_products'); // Áp dụng cho (mặc định 'all_products') [cite: 41]
             $table->timestamps(); // Thời gian tạo và cập nhật [cite: 41]
         });
     }

@@ -106,6 +106,25 @@
                             </li>
                         </ul>
                     </li>
+
+                    <li class="menu-item has-children">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="icon-tag"></i></div>
+                            <div class="text">Promotion</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.promotions.index') }}" class="">
+                                    <div class="text">Promotion list</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.promotions.create') }}" class="">
+                                    <div class="text">Add Promotion</div>
+                                </a>
+                            </li>
+                        </ul>
+
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
@@ -116,12 +135,15 @@
                                         fill="#111111" />
                                 </svg>
                             </div>
-                            <div class="text">Order</div>
+                            <div class="text">Đơn hàng</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.orders.index') }}" class="">
-                                    <div class="text">Order list</div>
+                                    <div class="text">Quản lý đơn hàng</div>
+                                </a>
+                                <a href="{{ route('admin.orders.stats') }}" class="">
+                                    <div class="text">Thống kê</div>
                                 </a>
                             </li>
                         </ul>
@@ -162,21 +184,7 @@
                                     <div class="text">All user</div>
                                 </a>
                             </li>
-                            <li class="sub-menu-item">
-                                <a href="add-new-user.html" class="">
-                                    <div class="text">Add new user</div>
-                                </a>
-                            </li>
-                            <li class="sub-menu-item">
-                                <a href="login.html" class="">
-                                    <div class="text">Login</div>
-                                </a>
-                            </li>
-                            <li class="sub-menu-item">
-                                <a href="sign-up.html" class="">
-                                    <div class="text">Sign up</div>
-                                </a>
-                            </li>
+                            
                         </ul>
                     </li>
                     <li class="menu-item has-children">
