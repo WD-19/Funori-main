@@ -44,7 +44,7 @@
                         <i class="icon-search" style="font-size:14px;"></i>
                         <span>Tìm</span>
                     </button>
-                   
+
                 </form>
             </div>
             <!-- order-list -->
@@ -103,7 +103,7 @@
                             </div>
                             <div class="list-icon-function">
                                 <a href="{{ route('admin.orders.show', $order->id) }}" class="item eye" title="View"><i class="icon-eye"></i></a>
-                                
+
                             </div>
                         </li>
                         @empty
@@ -126,7 +126,5 @@
             <!-- /order-list -->
         </div>
     </div>
-    <div class="bottom-page">
-        <div class="body-text">Bản quyền © 2024 <a href="https://themesflat.co/html/ecomus/index.html">Ecomus</a>. Thiết kế bởi Themesflat. Đã đăng ký bản quyền.</div>
-    </div>
+
 @endsection

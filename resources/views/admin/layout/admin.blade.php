@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon-precomposed" href="{{ asset('images/favicon.png') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="{{ asset('css/user.css') }}">
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
@@ -50,10 +50,11 @@
                                     </x-alert>
                                 @endif
                                 @yield('content')
+
+                                @include('admin.partials.footer')
                             </div>
                         </div>
                     </div>
-                    @include('admin.partials.footer')
                 </div>
             </div>
         </div>
