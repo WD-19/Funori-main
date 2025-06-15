@@ -16,11 +16,21 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\client\auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Middleware\CheckLogin;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('client.auth.login');
+    if (Auth::check()) {
+        $user = Auth::user();
+        // Nếu là admin, chuyển về dashboard admin
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        // Nếu là user, chuyển về dashboard user
+        return redirect()->route('client.dashboard');
+    }
+    // Nếu chưa đăng nhập, chuyển về trang đăng nhập
+    return redirect()->route('client.login.index');
 });
 
 Route::prefix('admin')->name('admin.')
