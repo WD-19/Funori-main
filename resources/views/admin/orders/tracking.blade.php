@@ -19,7 +19,7 @@
                 <li class="text-sm">Đơn hàng #{{ $order->order_code }}</li>
             </ul>
         </div>
-       
+
         @if($errors->any())
             <div class="alert alert-danger mb-3">
                 <ul class="mb-0">
@@ -61,9 +61,9 @@
             <h5 class="mb-16">Cập nhật trạng thái đơn hàng</h5>
             @if($locked)
                 <div class="alert alert-info mb-0">
-                    Đơn hàng đã 
-                    @if($order->order_status == 'returned') trả hàng 
-                    @elseif($order->order_status == 'cancelled') hủy 
+                    Đơn hàng đã
+                    @if($order->order_status == 'returned') trả hàng
+                    @elseif($order->order_status == 'cancelled') hủy
                     @endif
                     , không thể cập nhật trạng thái.
                 </div>
@@ -262,8 +262,5 @@
 </div>
         </div>
     </div>
-</div>
-<div class="bottom-page">
-    <div class="body-text">Bản quyền © 2024 <a href="https://themesflat.co/html/ecomus/index.html">Ecomus</a>. Thiết kế bởi Themesflat. Đã đăng ký bản quyền.</div>
 </div>
 @endsection

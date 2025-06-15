@@ -152,4 +152,24 @@ class ContactController
 
         return response()->stream($callback, 200, $headers);
     }
+
+    function trash()
+    {
+        $contacts = ContactSubmission::onlyTrashed()->paginate(10);
+        return view('admin.contacts.trash', compact('contacts'));
+    }
+
+    public function restore($id)
+    {
+        $contact = ContactSubmission::onlyTrashed()->findOrFail($id);
+        $contact->restore();
+        return redirect()->route('admin.contacts.trash')->with('success', 'Khôi phục liên hệ thành công!');
+    }
+
+    public function forceDelete($id)
+    {
+        $contact = ContactSubmission::onlyTrashed()->findOrFail($id);
+        $contact->forceDelete();
+        return redirect()->route('admin.contacts.trash')->with('success', 'Xóa vĩnh viễn liên hệ thành công!');
+    }
 }

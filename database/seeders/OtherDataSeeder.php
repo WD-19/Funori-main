@@ -21,13 +21,12 @@ class OtherDataSeeder extends Seeder
      */
     public function run(): void
     {
-        Banner::factory(10)->create(); // Tạo 10 banner
-        Page::factory(15)->create(); // Tạo 15 trang/bài blog
-        ContactSubmission::factory(20)->create(); // Tạo 20 liên hệ
-
-
-
-
+        // Tạo 10 banner
+        Banner::factory(10)->create();
+        // Tạo 15 trang/bài blog
+        Page::factory(15)->create();
+        // Tạo 20 liên hệ
+        ContactSubmission::factory(20)->create();
 
         // Liên kết promotions với sản phẩm và danh mục cụ thể (nếu có)
         Promotion::all()->each(function ($promotion) {
@@ -39,5 +38,47 @@ class OtherDataSeeder extends Seeder
                 $promotion->categories()->attach($categories->pluck('id'));
             }
         });
+
+        // Seed demo banners nếu chưa có
+        if (Banner::count() == 0) {
+            Banner::insert([
+                [
+                    'title' => 'Banner Trang Chủ',
+                    'image_url' => 'banners/demo1.jpg',
+                    'link' => 'https://example.com',
+                    'position' => 'main',
+                    'order' => 1,
+                    'start_at' => now()->subDays(10),
+                    'end_at' => now()->addDays(20),
+                    'is_active' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'title' => 'Banner Sidebar',
+                    'image_url' => 'banners/demo2.jpg',
+                    'link' => 'https://example.com/sidebar',
+                    'position' => 'sidebar',
+                    'order' => 2,
+                    'start_at' => now()->subDays(5),
+                    'end_at' => now()->addDays(10),
+                    'is_active' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'title' => 'Banner Sự kiện',
+                    'image_url' => 'banners/demo3.jpg',
+                    'link' => null,
+                    'position' => 'main',
+                    'order' => 3,
+                    'start_at' => now(),
+                    'end_at' => now()->addDays(30),
+                    'is_active' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            ]);
+        }
     }
 }

@@ -41,9 +41,12 @@
                                 <select name="status">
                                     <option value="">Tất cả trạng thái</option>
                                     <option value="new" {{ request('status') == 'new' ? 'selected' : '' }}>Mới</option>
-                                    <option value="read" {{ request('status') == 'read' ? 'selected' : '' }}>Đã đọc</option>
-                                    <option value="replied" {{ request('status') == 'replied' ? 'selected' : '' }}>Đã trả lời</option>
-                                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Đã xử lý</option>
+                                    <option value="read" {{ request('status') == 'read' ? 'selected' : '' }}>Đã đọc
+                                    </option>
+                                    <option value="replied" {{ request('status') == 'replied' ? 'selected' : '' }}>Đã trả
+                                        lời</option>
+                                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Đã xử
+                                        lý</option>
                                 </select>
                             </fieldset>
                             <div class="button-submit">
@@ -51,46 +54,76 @@
                             </div>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="#">
+                    <a class="tf-button style-1 w208" href="{{ route('admin.contacts.trash') }}">
+                        <i class="icon-trash-2"></i>Thùng Rác
+                    </a>
+
+                    <a class="tf-button style-1 w208" href="{{ route('admin.contacts.export') }}">
                         <i class="icon-file-text"></i>Xuất tất cả liên hệ
                     </a>
                 </div>
                 <div class="wg-table table-all-category">
                     <ul class="table-title flex gap20 mb-14">
-                        <li><div class="body-title">Email</div></li>
-                        <li><div class="body-title">Họ tên</div></li>
-                        <li><div class="body-title">Số điện thoại</div></li>
-                        <li><div class="body-title">Tiêu đề</div></li>
-                        <li><div class="body-title">Nội dung</div></li>
-                        <li><div class="body-title">Trạng thái</div></li>
-                        <li><div class="body-title">Phản hồi của admin</div></li>
-                        <li><div class="body-title">Người trả lời</div></li>
-                        <li><div class="body-title">Ngày tạo</div></li>
-                        <li><div class="body-title">Thao tác</div></li>
+                        <li>
+                            <div class="body-title">Email</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Họ tên</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Số điện thoại</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Tiêu đề</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Nội dung</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Trạng thái</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Phản hồi của admin</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Người trả lời</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Ngày tạo</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Thao tác</div>
+                        </li>
                     </ul>
                     <ul class="flex flex-column">
                         @foreach ($contacts as $value)
                             <li class="wg-product item-row gap20">
                                 <div class="body-text text-main-dark mt-4">{{ $value->email }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ $value->name }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ Str::limit($value->name, 30) }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ $value->phone }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ $value->subject }}</div>
-                                <div class="body-text text-main-dark mt-4">(Xem chi tiết)</div>
+                                <div class="body-text text-main-dark mt-4">{{ Str::limit($value->subject, 30) }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ Str::limit($value->message, 30) }}</div>
                                 <div>
                                     <div class="block-available status-{{ $value->status }} fw-7">
                                         @php
-                                            $statusText = match($value->status) {
+                                            $statusText = match ($value->status) {
                                                 'new' => 'Mới',
                                                 'read' => 'Đã đọc',
                                                 'replied' => 'Đã trả lời',
                                                 'resolved' => 'Đã xử lý',
-                                                default => ucfirst($value->status)
+                                                default => ucfirst($value->status),
                                             };
                                         @endphp
                                         {{ $statusText }}
                                     </div>
                                 </div>
-                                <div class="body-text text-main-dark mt-4">(Xem chi tiết)</div>
+                                <div class="body-text text-main-dark mt-4">
+                                    @if ($value->admin_reply)
+                                        {{ Str::limit($value->admin_reply, 30) }}
+                                    @else
+                                        <span class="badge bg-danger">Chưa phản hồi</span>
+                                    @endif
+                                </div>
                                 <div class="body-text text-main-dark mt-4">
                                     @if ($value->replied_by)
                                         {{ \App\Models\User::find($value->replied_by)->full_name ?? 'Không rõ' }}
@@ -147,7 +180,8 @@
                                                         <div class="col-12 mb-2">
                                                             <i class="fa-solid fa-message me-2 text-primary"></i>
                                                             <strong>Nội dung:</strong>
-                                                            <div class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
+                                                            <div
+                                                                class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
                                                                 {{ $value->message }}
                                                             </div>
                                                         </div>
@@ -162,7 +196,8 @@
                                                         <div class="col-md-6 mb-2">
                                                             <i class="fa-solid fa-user-shield me-2 text-primary"></i>
                                                             <strong>Phản hồi của admin:</strong>
-                                                            <div class="border rounded-4 p-3 bg-light text-secondary fst-italic mt-2 fs-6 shadow-sm">
+                                                            <div
+                                                                class="border rounded-4 p-3 bg-light text-secondary fst-italic mt-2 fs-6 shadow-sm">
                                                                 {{ $value->admin_reply ?? '(Chưa có phản hồi)' }}
                                                             </div>
                                                         </div>
@@ -180,7 +215,8 @@
                                                         <div class="col-md-6 mb-2">
                                                             <i class="fa-solid fa-calendar-days me-2 text-primary"></i>
                                                             <strong>Ngày tạo:</strong>
-                                                            <span class="text-dark ms-1 fs-5">{{ $value->created_at->format('d-m-Y H:i') }}</span>
+                                                            <span
+                                                                class="text-dark ms-1 fs-5">{{ $value->created_at->format('d-m-Y H:i') }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -188,9 +224,10 @@
                                         </div>
                                     </div>
                                     <div class="item edit">
-                                        <a href="{{ route('admin.contacts.edit', $value->id) }}"><i class="icon-edit-3"></i></a>
+                                        <a href="{{ route('admin.contacts.edit', $value->id) }}"><i
+                                                class="icon-edit-3"></i></a>
                                     </div>
-                                    {{-- <div class="item trash">
+                                    <div class="item trash">
                                         <form action="{{ route('admin.contacts.destroy', $value->id) }}" method="POST"
                                             style="display:inline;"
                                             onsubmit="return confirm('Bạn có chắc chắn muốn xóa liên hệ này?');">
@@ -201,7 +238,7 @@
                                                 <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
                                             </button>
                                         </form>
-                                    </div> --}}
+                                    </div>
                                 </div>
                             </li>
                         @endforeach
