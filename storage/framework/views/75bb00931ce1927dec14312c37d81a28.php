@@ -1,8 +1,8 @@
 <div class="section-menu-left">
     <div class="box-logo">
-        <a href="{{ route('admin.dashboard') }}" id="site-logo-inner">
-            <img id="logo_header" alt="logo-funori" src="{{ asset('images/logo/funori.jpg') }}"
-                data-light="{{ asset('images/logo/funori.jpg') }}" data-dark="{{ asset('images/logo/funori-white.jpg') }}"
+        <a href="<?php echo e(route('admin.dashboard')); ?>" id="site-logo-inner">
+            <img id="logo_header" alt="logo-funori" src="<?php echo e(asset('images/logo/funori.jpg')); ?>"
+                data-light="<?php echo e(asset('images/logo/funori.jpg')); ?>" data-dark="<?php echo e(asset('images/logo/funori-white.jpg')); ?>"
                 width="120px">
         </a>
         <div class="button-show-hide">
@@ -14,7 +14,7 @@
             <div class="center-item">
                 <ul class="">
                     <li class="menu-item active">
-                        <a href="{{ route('admin.dashboard') }}" class="">
+                        <a href="<?php echo e(route('admin.dashboard')); ?>" class="">
                             <div class="icon">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -33,12 +33,12 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.products.index') }}" class="">
+                                <a href="<?php echo e(route('admin.products.index')); ?>" class="">
                                     <div class="text">All Products</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.products.create') }}" class="">
+                                <a href="<?php echo e(route('admin.products.create')); ?>" class="">
                                     <div class="text">Add Product</div>
                                 </a>
                             </li>
@@ -51,12 +51,12 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.payment_methods.index') }}" class="">
+                                <a href="<?php echo e(route('admin.payment_methods.index')); ?>" class="">
                                     <div class="text">Payment Method</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.shipping_methods.index') }}" class="">
+                                <a href="<?php echo e(route('admin.shipping_methods.index')); ?>" class="">
                                     <div class="text">Shipping Method</div>
                                 </a>
                             </li>
@@ -69,12 +69,12 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.categories.index') }}" class="">
+                                <a href="<?php echo e(route('admin.categories.index')); ?>" class="">
                                     <div class="text">Category list</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.categories.create') }}" class="">
+                                <a href="<?php echo e(route('admin.categories.create')); ?>" class="">
                                     <div class="text">New category</div>
                                 </a>
                             </li>
@@ -95,12 +95,12 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.attributes.index') }}" class="">
+                                <a href="<?php echo e(route('admin.attributes.index')); ?>" class="">
                                     <div class="text">Attributes</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.attributes.create') }}" class="">
+                                <a href="<?php echo e(route('admin.attributes.create')); ?>" class="">
                                     <div class="text">Add attributes</div>
                                 </a>
                             </li>
@@ -114,12 +114,12 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.promotions.index') }}" class="">
+                                <a href="<?php echo e(route('admin.promotions.index')); ?>" class="">
                                     <div class="text">Promotion list</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.promotions.create') }}" class="">
+                                <a href="<?php echo e(route('admin.promotions.create')); ?>" class="">
                                     <div class="text">Add Promotion</div>
                                 </a>
                             </li>
@@ -139,10 +139,10 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.orders.index') }}" class="">
+                                <a href="<?php echo e(route('admin.orders.index')); ?>" class="">
                                     <div class="text">Quản lý đơn hàng</div>
                                 </a>
-                                <a href="{{ route('admin.orders.stats') }}" class="">
+                                <a href="<?php echo e(route('admin.orders.stats')); ?>" class="">
                                     <div class="text">Thống kê</div>
                                 </a>
                             </li>
@@ -162,7 +162,7 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.banners.index') }}" class="">
+                                <a href="<?php echo e(route('admin.banners.index')); ?>" class="">
                                     <div class="text">Quản lý banner</div>
                                 </a>
                                 
@@ -183,12 +183,12 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.pages.index') }}" class="">
+                                <a href="<?php echo e(route('admin.pages.index')); ?>" class="">
                                     <div class="text">Page list</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.pages.create') }}" class="">
+                                <a href="<?php echo e(route('admin.pages.create')); ?>" class="">
                                     <div class="text">Add New Page</div>
                                 </a>
                             </li>
@@ -201,7 +201,7 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.users.index') }}" class="">
+                                <a href="<?php echo e(route('admin.users.index')); ?>" class="">
                                     <div class="text">All user</div>
                                 </a>
                             </li>
@@ -221,7 +221,7 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.contacts.index') }}" class="">
+                                <a href="<?php echo e(route('admin.contacts.index')); ?>" class="">
                                     <div class="text">Danh Sách Liên Hệ</div>
                                 </a>
                             </li>
@@ -240,7 +240,7 @@
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.reviews.index') }}" class="">
+                                <a href="<?php echo e(route('admin.reviews.index')); ?>" class="">
                                     <div class="text">Danh Sách Đánh Giá</div>
                                 </a>
                             </li>
@@ -321,3 +321,4 @@
         </div>
     </div>
 </div>
+<?php /**PATH C:\laragon\www\Funori-main\resources\views/admin/partials/sidebar.blade.php ENDPATH**/ ?>

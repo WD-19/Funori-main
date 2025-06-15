@@ -1,8 +1,6 @@
-@extends('client.auth.layout.auth')
+<?php $__env->startSection('title', 'Login'); ?>
 
-@section('title', 'Login')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 
 
@@ -52,17 +50,24 @@
                         </a>
                     </div>
 
-                    <form class="form-login flex flex-column gap22 w-full" action="{{ route('client.login.index') }}" method="POST">
-                        @csrf
+                    <form class="form-login flex flex-column gap22 w-full" action="<?php echo e(route('client.login.index')); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
                         <fieldset class="email">
                             <div class="body-title mb-10 text-white">Địa chỉ email <span class="tf-color-1">*</span></div>
                             <input class="flex-grow" type="email" name="email"
-                                 value="{{ old('email', session('last_email')) }}" placeholder="Vui lòng nhập địa chỉ email" tabindex="0" aria-required="true">
+                                 value="<?php echo e(old('email', session('last_email'))); ?>" placeholder="Vui lòng nhập địa chỉ email" tabindex="0" aria-required="true">
                             <br>
                             <br>
-                            @error('email')
-                            <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                            <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="text-danger"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </fieldset>
                         <fieldset class="password">
                             <div class="body-title mb-10 text-white">Mật khẩu <span class="tf-color-1">*</span></div>
@@ -73,9 +78,16 @@
                             </span>
                             <br>
                             <br>
-                            @error('password')
-                            <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                            <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <div class="text-danger"><?php echo e($message); ?></div>
+                            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </fieldset>
                         <div class="flex justify-between items-center">
                             <div class="flex gap10">
@@ -87,27 +99,29 @@
 
                             <a href="#" class="body-text tf-color">Quên mật khẩu?</a>
                         </div>
-                        @if ($errors->has('email&password'))
+                        <?php if($errors->has('email&password')): ?>
                         <div class="text-danger mt-2" style="color: #ff4d4f; font-size: 14px;">
-                            {{ $errors->first('email&password') }}
+                            <?php echo e($errors->first('email&password')); ?>
+
                         </div>
-                        @endif
+                        <?php endif; ?>
                         <button type="submit" class="tf-button w-full">Đăng nhập</button>
 
                     </form>
                     <div class="bottom body-text text-center text-center text-white w-full">
                         Khách hàng mới?
-                        <a href="{{ route('client.register.index') }}" class="body-text tf-color">Tạo tài khoản</a>
+                        <a href="<?php echo e(route('client.register.index')); ?>" class="body-text tf-color">Tạo tài khoản</a>
                     </div>
                 </div>
             </div>
             
             <div class="right">
-                <!-- <img src="{{ asset('images/images-section/login.jpg') }}" alt=""> -->
+                <!-- <img src="<?php echo e(asset('images/images-section/login.jpg')); ?>" alt=""> -->
             </div>
         </div>
     </div>
     <!-- /#page -->
 </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('client.auth.layout.auth', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\Funori-main\resources\views/client/auth/login.blade.php ENDPATH**/ ?>
