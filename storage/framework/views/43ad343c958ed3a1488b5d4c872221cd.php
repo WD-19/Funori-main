@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Thêm khuyến mãi'); ?>
 
 <?php $__env->startSection('content'); ?>

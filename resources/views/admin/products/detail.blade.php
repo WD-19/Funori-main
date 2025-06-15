@@ -9,7 +9,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 bg-white px-3 py-2 rounded shadow-sm">
                 <li class="breadcrumb-item">
-                    <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+                    <a href="{{ route('admin.dashboard') }}">Trang chủ</a>
                 </li>
                 <li class="breadcrumb-item">
                     <a href="{{ route('admin.products.index') }}">Sản phẩm</a>
@@ -31,7 +31,7 @@
                         <dt class="col-sm-4">Tên sản phẩm:</dt>
                         <dd class="col-sm-8 fw-semibold">{{ $product->name }}</dd>
 
-                        <dt class="col-sm-4">Slug:</dt>
+                        <dt class="col-sm-4">Đường dẫn (Slug):</dt>
                         <dd class="col-sm-8">{{ $product->slug }}</dd>
 
                         <dt class="col-sm-4">Danh mục:</dt>
@@ -91,7 +91,7 @@
                                 <tr>
                                     <td class="text-center">
                                         @if($variant->image)
-                                            <img src="{{ asset($variant->image->image_url) }}" alt="Ảnh variant" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                            <img src="{{ asset($variant->image->image_url) }}" alt="Ảnh biến thể" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif

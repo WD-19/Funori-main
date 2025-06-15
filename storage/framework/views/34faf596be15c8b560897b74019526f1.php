@@ -2,11 +2,11 @@
 
 <?php $__env->startSection('content'); ?>
 <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-    <h3>Edit Product</h3>
+    <h3>Cập nhật sản phẩm</h3>
     <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
         <li>
             <a href="index.html">
-                <div class="text-tiny">Dashboard</div>
+                <div class="text-tiny">Trang chủ</div>
             </a>
         </li>
         <li>
@@ -14,14 +14,14 @@
         </li>
         <li>
             <a href="#">
-                <div class="text-tiny">Product</div>
+                <div class="text-tiny">Sản phẩm</div>
             </a>
         </li>
         <li>
             <i class="icon-chevron-right"></i>
         </li>
         <li>
-            <div class="text-tiny">Edit Product</div>
+            <div class="text-tiny">Cập nhật sản phẩm</div>
         </li>
     </ul>
 </div>
@@ -31,7 +31,7 @@
     <?php echo method_field('PUT'); ?>
     <div class="wg-box mb-30">
         <fieldset>
-            <div class="body-title mb-10">Upload images</div>
+            <div class="body-title mb-10">Tải lên ảnh sản phẩm</div>
             <div class="upload-image mb-16" id="drop-area" style="border:2px dashed #ccc; border-radius:8px;">
                 <div class="up-load">
                     <label class="uploadfile" for="myFile" style="width:100%;cursor:pointer;">
@@ -39,7 +39,7 @@
                             <i class="icon-upload-cloud"></i>
                         </span>
                         <div class="text-tiny">
-                            Drop your images here or select <span class="text-secondary">click to browse</span>
+                            Kéo thả ảnh vào đây hoặc <span class="text-secondary">bấm để chọn ảnh</span>
                         </div>
                         <input type="file" id="myFile" name="images[]" multiple style="display:none;">
                     </label>
@@ -56,43 +56,43 @@
     </div>
     <div class="wg-box mb-30">
         <fieldset class="name">
-            <div class="body-title mb-10">Product title <span class="tf-color-1">*</span></div>
-            <input class="mb-10" type="text" placeholder="Enter title" name="name" value="<?php echo e($product->name); ?>" maxlength="100" required>
+            <div class="body-title mb-10">Tên sản phẩm <span class="tf-color-1">*</span></div>
+            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" value="<?php echo e($product->name); ?>" maxlength="100" required>
         </fieldset>
         <fieldset class="category">
-            <div class="body-title mb-10">Category <span class="tf-color-1">*</span></div>
+            <div class="body-title mb-10">Danh mục <span class="tf-color-1">*</span></div>
             <select name="category_id" required>
-                <option value="">-- Choose category --</option>
+                <option value="">-- Chọn danh mục --</option>
                 <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <option value="<?php echo e($category->id); ?>" <?php if($product->category_id == $category->id): ?> selected <?php endif; ?>><?php echo e($category->name); ?></option>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </select>
         </fieldset>
         <fieldset class="brand">
-            <div class="body-title mb-10">Brand <span class="tf-color-1">*</span></div>
+            <div class="body-title mb-10">Thương hiệu <span class="tf-color-1">*</span></div>
             <select name="brand_id" required>
-                <option value="">-- Choose brand --</option>
+                <option value="">-- Chọn thương hiệu --</option>
                 <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $brand): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <option value="<?php echo e($brand->id); ?>" <?php if($product->brand_id == $brand->id): ?> selected <?php endif; ?>><?php echo e($brand->name); ?></option>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </select>
         </fieldset>
         <fieldset class="price">
-            <div class="body-title mb-10">Price <span class="tf-color-1">*</span></div>
+            <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
             <input type="number" name="regular_price" min="0" step="0.01" value="<?php echo e($product->regular_price); ?>" required>
         </fieldset>
         <fieldset class="short_description">
-            <div class="body-title mb-10">Short Description <span class="tf-color-1">*</span></div>
+            <div class="body-title mb-10">Mô tả ngắn <span class="tf-color-1">*</span></div>
             <textarea name="short_description" maxlength="255" required><?php echo e($product->short_description); ?></textarea>
         </fieldset>
         <fieldset class="description">
-            <div class="body-title mb-10">Description</div>
+            <div class="body-title mb-10">Mô tả chi tiết</div>
             <textarea name="description"><?php echo e($product->description); ?></textarea>
         </fieldset>
 
         <!-- VARIANTS -->
         <fieldset class="variants">
-            <div class="body-title mb-10">Variants</div>
+            <div class="body-title mb-10">Biến thể</div>
             <div id="variant-list">
                 <?php $__currentLoopData = $product->variants; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $variant): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="variant-row flex gap10 mb-2 align-items-center">
@@ -125,13 +125,13 @@
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
             <button type="button" class="tf-button style-1 mt-10" id="add-variant-btn">
-                <i class="icon-plus"></i> Add Variant
+                <i class="icon-plus"></i> Thêm biến thể
             </button>
         </fieldset>
     </div>
     <div class="cols gap10">
-        <button class="tf-button w380" type="submit">Update product</button>
-        <a href="<?php echo e(route('admin.products.index')); ?>" class="tf-button style-3 w380">Cancel</a>
+        <button class="tf-button w380" type="submit">Cập nhật sản phẩm</button>
+        <a href="<?php echo e(route('admin.products.index')); ?>" class="tf-button style-3 w380">Hủy</a>
     </div>
 </form>
 
@@ -147,7 +147,7 @@ $attributeSelects .= '<select  style="width: 60%;" name="VARIANT_NAME[attribute_
     $attributeSelects .= '</select>';
 }
 
-$imageOptions = '<option value="">-- Ảnh variant (chọn từ gallery) --</option>';
+$imageOptions = '<option value="">-- Ảnh biến thể (chọn từ gallery) --</option>';
 foreach($productImages as $img) {
 $imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url).'">Ảnh #'.$img->id.'</option>';
 }
@@ -243,23 +243,23 @@ $imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url
             // Hiển thị ảnh khi chọn
             const selectImg = variantDiv.querySelector('select[name^="variants"][name$="[image_id]"]');
             const previewImg = variantDiv.querySelector('.variant-preview');
-            selectImg.addEventListener('change', function() {
-                const imgId = this.value;
-                if (imgId) {
-                    const imgOption = this.querySelector('option[value="' + imgId + '"]');
-                    if (imgOption) {
-                        // Lấy url ảnh từ data-url nếu có, hoặc render url ảnh vào option khi build $imageOptions
-                        const url = imgOption.getAttribute('data-url');
-                        if (url) {
-                            previewImg.src = url;
-                            previewImg.style.display = '';
+            if (selectImg) {
+                selectImg.addEventListener('change', function() {
+                    const imgId = this.value;
+                    if (imgId) {
+                        const imgOption = this.querySelector('option[value="' + imgId + '"]');
+                        if (imgOption) {
+                            const url = imgOption.getAttribute('data-url');
+                            if (url) {
+                                previewImg.src = url;
+                                previewImg.style.display = '';
+                            }
                         }
+                    } else {
+                        previewImg.style.display = 'none';
                     }
-                } else {
-                    previewImg.style.display = 'none';
-                }
-            });
-
+                });
+            }
             variantDiv.querySelector('.remove-variant').onclick = function() {
                 variantDiv.remove();
             };
@@ -269,20 +269,21 @@ $imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url
         document.querySelectorAll('#variant-list .variant-row').forEach(function(variantDiv) {
             const selectImg = variantDiv.querySelector('select[name$="[image_id]"]');
             const previewImg = variantDiv.querySelector('.variant-preview');
-            selectImg.addEventListener('change', function() {
-                const imgId = this.value;
-                const imgOption = this.querySelector('option[value="' + imgId + '"]');
-                if (imgId && imgOption) {
-                    const url = imgOption.getAttribute('data-url');
-                    if (url) {
-                        previewImg.src = url;
-                        previewImg.style.display = '';
+            if (selectImg) {
+                selectImg.addEventListener('change', function() {
+                    const imgId = this.value;
+                    const imgOption = this.querySelector('option[value="' + imgId + '"]');
+                    if (imgId && imgOption) {
+                        const url = imgOption.getAttribute('data-url');
+                        if (url) {
+                            previewImg.src = url;
+                            previewImg.style.display = '';
+                        }
+                    } else {
+                        previewImg.style.display = 'none';
                     }
-                } else {
-                    previewImg.style.display = 'none';
-                }
-            });
-
+                });
+            }
         });
 
     });

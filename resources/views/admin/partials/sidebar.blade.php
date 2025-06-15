@@ -23,23 +23,23 @@
                                         fill="#111111" />
                                 </svg>
                             </div>
-                            <div class="text">Ecommerce</div>
+                            <div class="text">Thống Kê</div>
                         </a>
                     </li>
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-file-plus"></i></div>
-                            <div class="text">Product</div>
+                            <div class="text">Sản Phẩm</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.products.index') }}" class="">
-                                    <div class="text">All Products</div>
+                                    <div class="text">Tất cả sản phẩm</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.products.create') }}" class="">
-                                    <div class="text">Add Product</div>
+                                    <div class="text">Thêm mới sản phẩm</div>
                                 </a>
                             </li>
                         </ul>
@@ -90,17 +90,17 @@
                                         fill="#111111" />
                                 </svg>
                             </div>
-                            <div class="text">Attributes</div>
+                            <div class="text">Thuộc tính</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.attributes.index') }}" class="">
-                                    <div class="text">Attributes</div>
+                                    <div class="text">Thuộc tính</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.attributes.create') }}" class="">
-                                    <div class="text">Add attributes</div>
+                                    <div class="text">Thêm mới thuộc tính</div>
                                 </a>
                             </li>
                         </ul>
@@ -108,17 +108,17 @@
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-tag"></i></div>
-                            <div class="text">Promotion</div>
+                            <div class="text">Mã giảm giá</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.promotions.index') }}" class="">
-                                    <div class="text">Promotion list</div>
+                                    <div class="text">Danh sách mã</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
                                 <a href="{{ route('admin.promotions.create') }}" class="">
-                                    <div class="text">Add Promotion</div>
+                                    <div class="text">Thêm mới mã</div>
                                 </a>
                             </li>
                         </ul>

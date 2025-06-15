@@ -54,7 +54,8 @@
                         <?php echo csrf_field(); ?>
                         <fieldset class="email">
                             <div class="body-title mb-10 text-white">Địa chỉ email <span class="tf-color-1">*</span></div>
-                            <input class="flex-grow" type="email" placeholder="Vui lòng nhập địa chỉ email" name="email" tabindex="0" value="<?php echo e(old('email')); ?>" aria-required="true">
+                            <input class="flex-grow" type="email" name="email"
+                                 value="<?php echo e(old('email', session('last_email'))); ?>" placeholder="Vui lòng nhập địa chỉ email" tabindex="0" aria-required="true">
                             <br>
                             <br>
                             <?php $__errorArgs = ['email'];
@@ -121,13 +122,6 @@ unset($__errorArgs, $__bag); ?>
     </div>
     <!-- /#page -->
 </div>
-<script>
-    document.querySelector('form.form-login').addEventListener('submit', function(e) {
-        if (!document.getElementById('signed').checked) {
-            alert('Bạn cần chọn "Keep me signed in" để tiếp tục!');
-            e.preventDefault();
-        }
-    });
-</script>
+
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('client.auth.layout.auth', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\Funori-main\resources\views/client/auth/login.blade.php ENDPATH**/ ?>

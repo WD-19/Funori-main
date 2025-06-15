@@ -4,11 +4,11 @@
 
 <?php $__env->startSection('content'); ?>
 <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-    <h3>All Attributes</h3>
+    <h3>Danh sách thuộc tính</h3>
     <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
         <li>
             <a href="index.html">
-                <div class="text-tiny">Dashboard</div>
+                <div class="text-tiny">Trang chủ</div>
             </a>
         </li>
         <li>
@@ -16,14 +16,14 @@
         </li>
         <li>
             <a href="#">
-                <div class="text-tiny">Attributes</div>
+                <div class="text-tiny">Thuộc tính</div>
             </a>
         </li>
         <li>
             <i class="icon-chevron-right"></i>
         </li>
         <li>
-            <div class="text-tiny">All Attributes</div>
+            <div class="text-tiny">Tất cả thuộc tính</div>
         </li>
     </ul>
 </div>
@@ -33,7 +33,7 @@
         <div class="wg-filter flex-grow">
             <form class="form-search" method="GET" action="<?php echo e(route('admin.attributes.index')); ?>">
                 <fieldset class="name">
-                    <input type="text" placeholder="Search here..." class="" name="name" tabindex="2"
+                    <input type="text" placeholder="Tìm kiếm..." class="" name="name" tabindex="2"
                         value="<?php echo e(request('name')); ?>">
                 </fieldset>
                 <div class="button-submit">
@@ -41,25 +41,25 @@
                 </div>
             </form>
         </div>
-        <a class="tf-button style-1 w208" href="add-attributes.html"><i class="icon-plus"></i>Add new</a>
+        <a class="tf-button style-1 w208" href="<?php echo e(route('admin.attributes.index')); ?>"><i class="icon-plus"></i>Thêm mới</a>
     </div>
     <div class="wg-table table-all-attribute">
         <ul class="table-title flex gap20 mb-14">
             <li>
-                <div class="body-title">Category</div>
+                <div class="body-title">Tên thuộc tính</div>
             </li>
             <li>
-                <div class="body-title">Value</div>
+                <div class="body-title">Giá trị</div>
             </li>
             <li>
-                <div class="body-title">Action</div>
+                <div class="body-title">Hành động</div>
             </li>
         </ul>
         <ul class="flex flex-column">
             <?php $__currentLoopData = $attributes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $attributeValue): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <li class="attribute-item item-row flex items-center justify-between gap20">
                 <div class="name">
-                    <span class="body-title-2"><?php echo e($attributeValue->attribute->name ?? 'N/A'); ?></span>
+                    <span class="body-title-2"><?php echo e($attributeValue->attribute->name ?? 'Không xác định'); ?></span>
                 </div>
                 <div class="body-text"><?php echo e($attributeValue->value); ?></div>
                 <div class="list-icon-function">
@@ -67,7 +67,7 @@
                         <a href="<?php echo e(route('admin.attributes.edit', $attributeValue->id)); ?>"><i class="icon-edit-3"></i></a>
                     </div>
                     <div class="item trash">
-                        <form action="<?php echo e(route('admin.attributes.destroy', $attributeValue->id)); ?>" method="POST" onsubmit="return confirm('Are you sure?');">
+                        <form action="<?php echo e(route('admin.attributes.destroy', $attributeValue->id)); ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
                             <?php echo csrf_field(); ?>
                             <?php echo method_field('DELETE'); ?>
                             <button type="submit" style="background:transparent;border:none;padding:0;">
@@ -83,7 +83,7 @@
     <div class="divider"></div>
     <div class="flex items-center justify-between flex-wrap gap10">
         <div class="text-tiny">
-            Showing <?php echo e($attributes->firstItem()); ?> to <?php echo e($attributes->lastItem()); ?> of <?php echo e($attributes->total()); ?> entries
+            Hiển thị <?php echo e($attributes->firstItem()); ?> đến <?php echo e($attributes->lastItem()); ?> trên tổng số <?php echo e($attributes->total()); ?> thuộc tính
         </div>
         <ul class="wg-pagination">
             <li>
@@ -112,8 +112,5 @@
         </ul>
     </div>
 </div>
-
-
-
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('admin.layout.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\laragon\www\Funori-main\resources\views/admin/attributes/index.blade.php ENDPATH**/ ?>
