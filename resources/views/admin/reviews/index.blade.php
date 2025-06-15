@@ -53,21 +53,20 @@
                             </div>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="#">
-                        {{-- <a class="tf-button style-1 w208" href="{{ route('admin.reviews.export') }}"> --}}
+                    <a class="tf-button style-1 w208" href="{{ route('admin.reviews.trash') }}">
+                        <i class="icon-trash-2"></i>Thùng rác
+                    </a>
+                    <a class="tf-button style-1 w208" href="{{ route('admin.reviews.export') }}">
                         <i class="icon-file-text"></i>Xuất tất cả đánh giá
                     </a>
                 </div>
                 <div class="wg-table table-all-category">
                     <ul class="table-title flex gap20 mb-14">
                         <li>
-                            <div class="body-title">Mã đơn hàng</div>
+                            <div class="body-title">Người dùng</div>
                         </li>
                         <li>
-                            <div class="body-title">Tên người dùng</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Tên sản phẩm</div>
+                            <div class="body-title">Sản phẩm</div>
                         </li>
                         <li>
                             <div class="body-title">Đánh giá</div>
@@ -79,26 +78,13 @@
                             <div class="body-title">Trạng thái</div>
                         </li>
                         <li>
-                            <div class="body-title">Số lượng</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Thành tiền</div>
-                        </li>
-                        <li>
                             <div class="body-title">Thao tác</div>
                         </li>
                     </ul>
                     <ul class="flex flex-column">
                         @foreach ($reviews as $value)
                             <li class="wg-product item-row gap20">
-                                {{-- Order Code --}}
-                                <div class="body-text text-main-dark mt-4">
-                                    @php
-                                        $orderId = $value->orderItem->order_id ?? null;
-                                        $order = $orders->firstWhere('id', $orderId);
-                                    @endphp
-                                    {{ $order ? $order->order_code : $orderId ?? 'N/A' }}
-                                </div>
+
                                 {{-- User Name --}}
                                 <div class="body-text text-main-dark mt-4">
                                     {{ $value->user->full_name ? $value->user->full_name : $value->user->full_name ?? $value->user->id }}
@@ -115,8 +101,7 @@
                                 </div>
                                 {{-- Comment --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    (Xem chi tiết)
-                                </div>
+                                    {{ Str::limit($value->comment, 30) }}</div>
                                 {{-- Status --}}
                                 <div class="body-text text-main-dark mt-4">
                                     @php
@@ -132,14 +117,6 @@
                                         style="background: {{ $statusColor }}; color: #fff; font-weight: bold;">
                                         {{ $value->status == 'approved' ? 'Đã duyệt' : ($value->status == 'pending' ? 'Chờ duyệt' : ($value->status == 'rejected' ? 'Từ chối' : 'Không rõ')) }}
                                     </span>
-                                </div>
-                                {{-- Quantity --}}
-                                <div class="body-text text-main-dark mt-4">
-                                    {{ $value->orderItem->quantity ?? 'N/A' }}
-                                </div>
-                                {{-- Subtotal --}}
-                                <div class="body-text text-main-dark mt-4">
-                                    {{ isset($value->orderItem->subtotal) ? number_format($value->orderItem->subtotal, 2) : 'N/A' }}
                                 </div>
                                 {{-- Action --}}
                                 <div class="list-icon-function">
@@ -158,7 +135,8 @@
                                                         style="background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%); border-top-left-radius: 32px; border-top-right-radius: 32px;">
                                                         <h3 class="modal-title fw-bold mb-0 text-light"
                                                             id="quickViewLabel{{ $value->id }}">
-                                                            <i class="fa-solid fa-star-half-stroke me-2"></i>Chi tiết đánh giá
+                                                            <i class="fa-solid fa-star-half-stroke me-2"></i>Chi tiết đánh
+                                                            giá
                                                         </h3>
                                                         <button type="button" class="btn-close btn-close-white"
                                                             data-bs-dismiss="modal" aria-label="Đóng"></button>
@@ -180,20 +158,25 @@
                                                             <div class="col-md-6 mb-2">
                                                                 <i class="fa-solid fa-user me-2 text-primary"></i>
                                                                 <strong>Người dùng:</strong>
-                                                                <span class="text-dark ms-1 fs-5">{{ $value->user->full_name ?? 'Không rõ' }}</span>
+                                                                <span
+                                                                    class="text-dark ms-1 fs-5">{{ $value->user->full_name ?? 'Không rõ' }}</span>
                                                             </div>
                                                             <div class="col-md-6 mb-2">
                                                                 <i class="fa-solid fa-box-open me-2 text-primary"></i>
                                                                 <strong>Sản phẩm:</strong>
-                                                                <span class="text-dark ms-1 fs-5">{{ $value->product->name ?? ($value->product_name ?? 'Không rõ') }}</span>
+                                                                <span
+                                                                    class="text-dark ms-1 fs-5">{{ $value->product->name ?? ($value->product_name ?? 'Không rõ') }}</span>
                                                             </div>
                                                             <div class="col-md-6 mb-2">
-                                                                <i class="fa-solid fa-sort-numeric-up me-2 text-primary"></i>
+                                                                <i
+                                                                    class="fa-solid fa-sort-numeric-up me-2 text-primary"></i>
                                                                 <strong>Số lượng:</strong>
-                                                                <span class="text-dark ms-1 fs-5">{{ $value->orderItem->quantity ?? 'N/A' }}</span>
+                                                                <span
+                                                                    class="text-dark ms-1 fs-5">{{ $value->orderItem->quantity ?? 'N/A' }}</span>
                                                             </div>
                                                             <div class="col-md-6 mb-2">
-                                                                <i class="fa-solid fa-money-bill-wave me-2 text-primary"></i>
+                                                                <i
+                                                                    class="fa-solid fa-money-bill-wave me-2 text-primary"></i>
                                                                 <strong>Thành tiền:</strong>
                                                                 <span class="text-dark ms-1 fs-5">
                                                                     {{ isset($value->orderItem->subtotal) ? number_format($value->orderItem->subtotal, 2) : 'N/A' }}
@@ -205,18 +188,22 @@
                                                                 <span class="ms-1">
                                                                     @for ($i = 1; $i <= 5; $i++)
                                                                         @if ($i <= $value->rating)
-                                                                            <i class="fa-solid fa-star text-warning fs-4"></i>
+                                                                            <i
+                                                                                class="fa-solid fa-star text-warning fs-4"></i>
                                                                         @else
-                                                                            <i class="fa-regular fa-star text-warning fs-4"></i>
+                                                                            <i
+                                                                                class="fa-regular fa-star text-warning fs-4"></i>
                                                                         @endif
                                                                     @endfor
-                                                                    <span class="text-muted fs-5">({{ $value->rating ?? 'N/A' }})</span>
+                                                                    <span
+                                                                        class="text-muted fs-5">({{ $value->rating ?? 'N/A' }})</span>
                                                                 </span>
                                                             </div>
                                                             <div class="col-12 mb-2">
                                                                 <i class="fa-solid fa-comment-dots me-2 text-primary"></i>
                                                                 <strong>Bình luận:</strong>
-                                                                <div class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
+                                                                <div
+                                                                    class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
                                                                     {{ $value->comment ?? '(Không có bình luận)' }}
                                                                 </div>
                                                             </div>
@@ -246,7 +233,8 @@
                                                             <div class="col-md-6 mb-2">
                                                                 <i class="fa-solid fa-calendar-days me-2 text-primary"></i>
                                                                 <strong>Ngày tạo:</strong>
-                                                                <span class="text-dark ms-1 fs-5">{{ $value->created_at->format('d-m-Y H:i') }}</span>
+                                                                <span
+                                                                    class="text-dark ms-1 fs-5">{{ $value->created_at->format('d-m-Y H:i') }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -258,7 +246,7 @@
                                             <a href="{{ route('admin.reviews.edit', $value->id) }}"><i
                                                     class="icon-edit-3"></i></a>
                                         </div>
-                                        {{-- <div class="item trash">
+                                        <div class="item trash">
                                             <form action="{{ route('admin.reviews.destroy', $value->id) }}"
                                                 method="POST" style="display:inline;"
                                                 onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');">
@@ -269,7 +257,7 @@
                                                     <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
                                                 </button>
                                             </form>
-                                        </div> --}}
+                                        </div>
                                     </div>
                             </li>
                         @endforeach

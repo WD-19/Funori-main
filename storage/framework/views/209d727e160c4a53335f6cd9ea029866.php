@@ -43,7 +43,15 @@
                         <i class="icon-search" style="font-size:14px;"></i>
                         <span>Tìm</span>
                     </button>
+<<<<<<< HEAD
                    
+=======
+<<<<<<< HEAD
+
+=======
+                   
+>>>>>>> develop
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                 </form>
             </div>
             <!-- order-list -->
@@ -104,7 +112,15 @@
                             </div>
                             <div class="list-icon-function">
                                 <a href="<?php echo e(route('admin.orders.show', $order->id)); ?>" class="item eye" title="View"><i class="icon-eye"></i></a>
+<<<<<<< HEAD
                                 
+=======
+<<<<<<< HEAD
+
+=======
+                                
+>>>>>>> develop
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                             </div>
                         </li>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
@@ -128,9 +144,19 @@
             <!-- /order-list -->
         </div>
     </div>
+<<<<<<< HEAD
     <div class="bottom-page">
         <div class="body-text">Bản quyền © 2024 <a href="https://themesflat.co/html/ecomus/index.html">Ecomus</a>. Thiết kế bởi Themesflat. Đã đăng ký bản quyền.</div>
     </div>
+=======
+<<<<<<< HEAD
+
+=======
+    <div class="bottom-page">
+        <div class="body-text">Bản quyền © 2024 <a href="https://themesflat.co/html/ecomus/index.html">Ecomus</a>. Thiết kế bởi Themesflat. Đã đăng ký bản quyền.</div>
+    </div>
+>>>>>>> develop
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('admin.layout.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\Funori-main\resources\views/admin/orders/index.blade.php ENDPATH**/ ?>

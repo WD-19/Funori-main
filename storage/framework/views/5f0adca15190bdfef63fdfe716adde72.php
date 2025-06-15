@@ -39,9 +39,18 @@
                                 <select name="status">
                                     <option value="">Tất cả trạng thái</option>
                                     <option value="new" <?php echo e(request('status') == 'new' ? 'selected' : ''); ?>>Mới</option>
+<<<<<<< HEAD
                                     <option value="read" <?php echo e(request('status') == 'read' ? 'selected' : ''); ?>>Đã đọc</option>
                                     <option value="replied" <?php echo e(request('status') == 'replied' ? 'selected' : ''); ?>>Đã trả lời</option>
                                     <option value="resolved" <?php echo e(request('status') == 'resolved' ? 'selected' : ''); ?>>Đã xử lý</option>
+=======
+                                    <option value="read" <?php echo e(request('status') == 'read' ? 'selected' : ''); ?>>Đã đọc
+                                    </option>
+                                    <option value="replied" <?php echo e(request('status') == 'replied' ? 'selected' : ''); ?>>Đã trả
+                                        lời</option>
+                                    <option value="resolved" <?php echo e(request('status') == 'resolved' ? 'selected' : ''); ?>>Đã xử
+                                        lý</option>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 </select>
                             </fieldset>
                             <div class="button-submit">
@@ -49,12 +58,21 @@
                             </div>
                         </form>
                     </div>
+<<<<<<< HEAD
                     <a class="tf-button style-1 w208" href="#">
+=======
+                    <a class="tf-button style-1 w208" href="<?php echo e(route('admin.contacts.trash')); ?>">
+                        <i class="icon-trash-2"></i>Thùng rác
+                    </a>
+
+                    <a class="tf-button style-1 w208" href="<?php echo e(route('admin.contacts.export')); ?>">
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         <i class="icon-file-text"></i>Xuất tất cả liên hệ
                     </a>
                 </div>
                 <div class="wg-table table-all-category">
                     <ul class="table-title flex gap20 mb-14">
+<<<<<<< HEAD
                         <li><div class="body-title">Email</div></li>
                         <li><div class="body-title">Họ tên</div></li>
                         <li><div class="body-title">Số điện thoại</div></li>
@@ -65,11 +83,44 @@
                         <li><div class="body-title">Người trả lời</div></li>
                         <li><div class="body-title">Ngày tạo</div></li>
                         <li><div class="body-title">Thao tác</div></li>
+=======
+                        <li>
+                            <div class="body-title">Email</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Họ tên</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Số điện thoại</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Tiêu đề</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Nội dung</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Trạng thái</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Phản hồi của admin</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Người trả lời</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Ngày tạo</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Thao tác</div>
+                        </li>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                     </ul>
                     <ul class="flex flex-column">
                         <?php $__currentLoopData = $contacts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <li class="wg-product item-row gap20">
                                 <div class="body-text text-main-dark mt-4"><?php echo e($value->email); ?></div>
+<<<<<<< HEAD
                                 <div class="body-text text-main-dark mt-4"><?php echo e($value->name); ?></div>
                                 <div class="body-text text-main-dark mt-4"><?php echo e($value->phone); ?></div>
                                 <div class="body-text text-main-dark mt-4"><?php echo e($value->subject); ?></div>
@@ -78,18 +129,43 @@
                                     <div class="block-available status-<?php echo e($value->status); ?> fw-7">
                                         <?php
                                             $statusText = match($value->status) {
+=======
+                                <div class="body-text text-main-dark mt-4"><?php echo e(Str::limit($value->name, 30)); ?></div>
+                                <div class="body-text text-main-dark mt-4"><?php echo e($value->phone); ?></div>
+                                <div class="body-text text-main-dark mt-4"><?php echo e(Str::limit($value->subject, 30)); ?></div>
+                                <div class="body-text text-main-dark mt-4"><?php echo e(Str::limit($value->message, 30)); ?></div>
+                                <div>
+                                    <div class="block-available status-<?php echo e($value->status); ?> fw-7">
+                                        <?php
+                                            $statusText = match ($value->status) {
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                 'new' => 'Mới',
                                                 'read' => 'Đã đọc',
                                                 'replied' => 'Đã trả lời',
                                                 'resolved' => 'Đã xử lý',
+<<<<<<< HEAD
                                                 default => ucfirst($value->status)
+=======
+                                                default => ucfirst($value->status),
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                             };
                                         ?>
                                         <?php echo e($statusText); ?>
 
                                     </div>
                                 </div>
+<<<<<<< HEAD
                                 <div class="body-text text-main-dark mt-4">(Xem chi tiết)</div>
+=======
+                                <div class="body-text text-main-dark mt-4">
+                                    <?php if($value->admin_reply): ?>
+                                        <?php echo e(Str::limit($value->admin_reply, 30)); ?>
+
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">Chưa phản hồi</span>
+                                    <?php endif; ?>
+                                </div>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 <div class="body-text text-main-dark mt-4">
                                     <?php if($value->replied_by): ?>
                                         <?php echo e(\App\Models\User::find($value->replied_by)->full_name ?? 'Không rõ'); ?>
@@ -148,7 +224,12 @@
                                                         <div class="col-12 mb-2">
                                                             <i class="fa-solid fa-message me-2 text-primary"></i>
                                                             <strong>Nội dung:</strong>
+<<<<<<< HEAD
                                                             <div class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
+=======
+                                                            <div
+                                                                class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                                 <?php echo e($value->message); ?>
 
                                                             </div>
@@ -165,7 +246,12 @@
                                                         <div class="col-md-6 mb-2">
                                                             <i class="fa-solid fa-user-shield me-2 text-primary"></i>
                                                             <strong>Phản hồi của admin:</strong>
+<<<<<<< HEAD
                                                             <div class="border rounded-4 p-3 bg-light text-secondary fst-italic mt-2 fs-6 shadow-sm">
+=======
+                                                            <div
+                                                                class="border rounded-4 p-3 bg-light text-secondary fst-italic mt-2 fs-6 shadow-sm">
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                                 <?php echo e($value->admin_reply ?? '(Chưa có phản hồi)'); ?>
 
                                                             </div>
@@ -185,7 +271,12 @@
                                                         <div class="col-md-6 mb-2">
                                                             <i class="fa-solid fa-calendar-days me-2 text-primary"></i>
                                                             <strong>Ngày tạo:</strong>
+<<<<<<< HEAD
                                                             <span class="text-dark ms-1 fs-5"><?php echo e($value->created_at->format('d-m-Y H:i')); ?></span>
+=======
+                                                            <span
+                                                                class="text-dark ms-1 fs-5"><?php echo e($value->created_at->format('d-m-Y H:i')); ?></span>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                         </div>
                                                     </div>
                                                 </div>
@@ -193,9 +284,27 @@
                                         </div>
                                     </div>
                                     <div class="item edit">
+<<<<<<< HEAD
                                         <a href="<?php echo e(route('admin.contacts.edit', $value->id)); ?>"><i class="icon-edit-3"></i></a>
                                     </div>
                                     
+=======
+                                        <a href="<?php echo e(route('admin.contacts.edit', $value->id)); ?>"><i
+                                                class="icon-edit-3"></i></a>
+                                    </div>
+                                    <div class="item trash">
+                                        <form action="<?php echo e(route('admin.contacts.destroy', $value->id)); ?>" method="POST"
+                                            style="display:inline;"
+                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa liên hệ này?');">
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
+                                            <button type="submit"
+                                                style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
+                                                <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 </div>
                             </li>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

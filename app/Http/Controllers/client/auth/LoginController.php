@@ -18,8 +18,14 @@ class LoginController
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => [
+                'required',
+                'email',
+                'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/'
+            ],
             'password' => 'required|min:6'
+        ], [
+            'email.regex' => 'Chỉ chấp nhận địa chỉ Gmail (@gmail.com).'
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -28,6 +34,17 @@ class LoginController
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
             $user = Auth::user();
+
+            // Kiểm tra trạng thái tài khoản
+            if ($user->isBanned()) {
+                Auth::logout();
+                return back()->withErrors(['email&password' => 'Tài khoản của bạn đã bị khóa.'])->withInput();
+            }
+            if ($user->isInactive()) {
+                Auth::logout();
+                return back()->withErrors(['email&password' => 'Tài khoản của bạn chưa được kích hoạt.'])->withInput();
+            }
+
             // Kiểm tra role và chuyển hướng
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');

@@ -14,7 +14,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\client\auth\LoginController;
+use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +47,12 @@ Route::prefix('admin')->name('admin.')
        Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
 
 
+        //quản lý đánh giá
+        Route::get('reviews/export', [ReviewController::class, 'export'])->name('reviews.export');
+        Route::get('reviews/trash', [ReviewController::class, 'trash'])->name('reviews.trash');
+        Route::put('reviews/{id}/restore', [ReviewController::class, 'restore'])->name('reviews.restore');
+        Route::delete('reviews/{id}/force-delete', [ReviewController::class, 'forceDelete'])->name('reviews.forceDelete');
+
         //quản lý liên hệ
         Route::get('contacts/export', [ContactController::class, 'export'])->name('contacts.export');
         Route::get('contacts/trash', [ContactController::class, 'trash'])->name('contacts.trash');
@@ -70,7 +76,7 @@ Route::prefix('admin')->name('admin.')
 
         // Quản lý user
         Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
-        Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
         Route::get('users/{user}/order-history', [UserController::class, 'orderHistory'])->name('users.orderHistory');
 
         // Quản lý đơn hàng
@@ -123,6 +129,10 @@ Route::prefix('admin')->name('admin.')
         Route::resource('reviews', ReviewController::class);
         Route::resource('banners', BannerController::class);
         Route::resource('brands', BrandController::class);
+
+        Route::fallback(function () {
+            return response()->view('admin.errors.404', [], 404);
+        });
     });
 
 
@@ -139,4 +149,8 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::fallback(function () {
+        return response()->view('client.errors.404', [], 404);
+    });
 });

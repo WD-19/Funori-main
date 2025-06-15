@@ -94,7 +94,6 @@
                             </li>
                         </ul>
                     </li>
-
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
@@ -120,7 +119,6 @@
                             </li>
                         </ul>
                     </li>
-
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-tag"></i></div>
@@ -138,7 +136,7 @@
                                 </a>
                             </li>
                         </ul>
-
+                    </li>
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
@@ -211,7 +209,7 @@
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-user"></i></div>
-                            <div class="text">Users</div>
+                            <div class="text">Người dùng</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">

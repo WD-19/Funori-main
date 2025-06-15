@@ -51,14 +51,22 @@
                             </div>
                         </form>
                     </div>
+<<<<<<< HEAD
                     <a class="tf-button style-1 w208" href="#">
                         
+=======
+                    <a class="tf-button style-1 w208" href="<?php echo e(route('admin.reviews.trash')); ?>">
+                        <i class="icon-trash-2"></i>Thùng rác
+                    </a>
+                    <a class="tf-button style-1 w208" href="<?php echo e(route('admin.reviews.export')); ?>">
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         <i class="icon-file-text"></i>Xuất tất cả đánh giá
                     </a>
                 </div>
                 <div class="wg-table table-all-category">
                     <ul class="table-title flex gap20 mb-14">
                         <li>
+<<<<<<< HEAD
                             <div class="body-title">Mã đơn hàng</div>
                         </li>
                         <li>
@@ -66,6 +74,12 @@
                         </li>
                         <li>
                             <div class="body-title">Tên sản phẩm</div>
+=======
+                            <div class="body-title">Người dùng</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Sản phẩm</div>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         </li>
                         <li>
                             <div class="body-title">Đánh giá</div>
@@ -77,18 +91,22 @@
                             <div class="body-title">Trạng thái</div>
                         </li>
                         <li>
+<<<<<<< HEAD
                             <div class="body-title">Số lượng</div>
                         </li>
                         <li>
                             <div class="body-title">Thành tiền</div>
                         </li>
                         <li>
+=======
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                             <div class="body-title">Thao tác</div>
                         </li>
                     </ul>
                     <ul class="flex flex-column">
                         <?php $__currentLoopData = $reviews; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <li class="wg-product item-row gap20">
+<<<<<<< HEAD
                                 
                                 <div class="body-text text-main-dark mt-4">
                                     <?php
@@ -98,6 +116,9 @@
                                     <?php echo e($order ? $order->order_code : $orderId ?? 'N/A'); ?>
 
                                 </div>
+=======
+
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 
                                 <div class="body-text text-main-dark mt-4">
                                     <?php echo e($value->user->full_name ? $value->user->full_name : $value->user->full_name ?? $value->user->id); ?>
@@ -117,8 +138,12 @@
                                 </div>
                                 
                                 <div class="body-text text-main-dark mt-4">
+<<<<<<< HEAD
                                     (Xem chi tiết)
                                 </div>
+=======
+                                    <?php echo e(Str::limit($value->comment, 30)); ?></div>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 
                                 <div class="body-text text-main-dark mt-4">
                                     <?php
@@ -137,6 +162,7 @@
                                     </span>
                                 </div>
                                 
+<<<<<<< HEAD
                                 <div class="body-text text-main-dark mt-4">
                                     <?php echo e($value->orderItem->quantity ?? 'N/A'); ?>
 
@@ -147,6 +173,8 @@
 
                                 </div>
                                 
+=======
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 <div class="list-icon-function">
                                     <div class="list-icon-function">
                                         <div class="item eye" data-bs-toggle="modal"
@@ -163,7 +191,12 @@
                                                         style="background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%); border-top-left-radius: 32px; border-top-right-radius: 32px;">
                                                         <h3 class="modal-title fw-bold mb-0 text-light"
                                                             id="quickViewLabel<?php echo e($value->id); ?>">
+<<<<<<< HEAD
                                                             <i class="fa-solid fa-star-half-stroke me-2"></i>Chi tiết đánh giá
+=======
+                                                            <i class="fa-solid fa-star-half-stroke me-2"></i>Chi tiết đánh
+                                                            giá
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                         </h3>
                                                         <button type="button" class="btn-close btn-close-white"
                                                             data-bs-dismiss="modal" aria-label="Đóng"></button>
@@ -186,11 +219,17 @@
                                                             <div class="col-md-6 mb-2">
                                                                 <i class="fa-solid fa-user me-2 text-primary"></i>
                                                                 <strong>Người dùng:</strong>
+<<<<<<< HEAD
                                                                 <span class="text-dark ms-1 fs-5"><?php echo e($value->user->full_name ?? 'Không rõ'); ?></span>
+=======
+                                                                <span
+                                                                    class="text-dark ms-1 fs-5"><?php echo e($value->user->full_name ?? 'Không rõ'); ?></span>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                             </div>
                                                             <div class="col-md-6 mb-2">
                                                                 <i class="fa-solid fa-box-open me-2 text-primary"></i>
                                                                 <strong>Sản phẩm:</strong>
+<<<<<<< HEAD
                                                                 <span class="text-dark ms-1 fs-5"><?php echo e($value->product->name ?? ($value->product_name ?? 'Không rõ')); ?></span>
                                                             </div>
                                                             <div class="col-md-6 mb-2">
@@ -200,6 +239,21 @@
                                                             </div>
                                                             <div class="col-md-6 mb-2">
                                                                 <i class="fa-solid fa-money-bill-wave me-2 text-primary"></i>
+=======
+                                                                <span
+                                                                    class="text-dark ms-1 fs-5"><?php echo e($value->product->name ?? ($value->product_name ?? 'Không rõ')); ?></span>
+                                                            </div>
+                                                            <div class="col-md-6 mb-2">
+                                                                <i
+                                                                    class="fa-solid fa-sort-numeric-up me-2 text-primary"></i>
+                                                                <strong>Số lượng:</strong>
+                                                                <span
+                                                                    class="text-dark ms-1 fs-5"><?php echo e($value->orderItem->quantity ?? 'N/A'); ?></span>
+                                                            </div>
+                                                            <div class="col-md-6 mb-2">
+                                                                <i
+                                                                    class="fa-solid fa-money-bill-wave me-2 text-primary"></i>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                                 <strong>Thành tiền:</strong>
                                                                 <span class="text-dark ms-1 fs-5">
                                                                     <?php echo e(isset($value->orderItem->subtotal) ? number_format($value->orderItem->subtotal, 2) : 'N/A'); ?>
@@ -212,18 +266,35 @@
                                                                 <span class="ms-1">
                                                                     <?php for($i = 1; $i <= 5; $i++): ?>
                                                                         <?php if($i <= $value->rating): ?>
+<<<<<<< HEAD
                                                                             <i class="fa-solid fa-star text-warning fs-4"></i>
                                                                         <?php else: ?>
                                                                             <i class="fa-regular fa-star text-warning fs-4"></i>
                                                                         <?php endif; ?>
                                                                     <?php endfor; ?>
                                                                     <span class="text-muted fs-5">(<?php echo e($value->rating ?? 'N/A'); ?>)</span>
+=======
+                                                                            <i
+                                                                                class="fa-solid fa-star text-warning fs-4"></i>
+                                                                        <?php else: ?>
+                                                                            <i
+                                                                                class="fa-regular fa-star text-warning fs-4"></i>
+                                                                        <?php endif; ?>
+                                                                    <?php endfor; ?>
+                                                                    <span
+                                                                        class="text-muted fs-5">(<?php echo e($value->rating ?? 'N/A'); ?>)</span>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                                 </span>
                                                             </div>
                                                             <div class="col-12 mb-2">
                                                                 <i class="fa-solid fa-comment-dots me-2 text-primary"></i>
                                                                 <strong>Bình luận:</strong>
+<<<<<<< HEAD
                                                                 <div class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
+=======
+                                                                <div
+                                                                    class="border rounded-4 p-4 bg-white text-secondary fst-italic mt-2 fs-5 shadow-sm">
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                                     <?php echo e($value->comment ?? '(Không có bình luận)'); ?>
 
                                                                 </div>
@@ -255,7 +326,12 @@
                                                             <div class="col-md-6 mb-2">
                                                                 <i class="fa-solid fa-calendar-days me-2 text-primary"></i>
                                                                 <strong>Ngày tạo:</strong>
+<<<<<<< HEAD
                                                                 <span class="text-dark ms-1 fs-5"><?php echo e($value->created_at->format('d-m-Y H:i')); ?></span>
+=======
+                                                                <span
+                                                                    class="text-dark ms-1 fs-5"><?php echo e($value->created_at->format('d-m-Y H:i')); ?></span>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                                             </div>
                                                         </div>
                                                     </div>
@@ -267,7 +343,22 @@
                                             <a href="<?php echo e(route('admin.reviews.edit', $value->id)); ?>"><i
                                                     class="icon-edit-3"></i></a>
                                         </div>
+<<<<<<< HEAD
                                         
+=======
+                                        <div class="item trash">
+                                            <form action="<?php echo e(route('admin.reviews.destroy', $value->id)); ?>"
+                                                method="POST" style="display:inline;"
+                                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');">
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('DELETE'); ?>
+                                                <button type="submit"
+                                                    style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
+                                                    <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                     </div>
                             </li>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

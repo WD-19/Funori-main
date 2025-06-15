@@ -5,7 +5,11 @@
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
+<<<<<<< HEAD
                 <h3>All User</h3>
+=======
+                <a href="<?php echo e(route('admin.users.index')); ?>"><h3>All User</h3></a>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="index.html">
@@ -32,18 +36,40 @@
             <div class="wg-box">
                 <div class="flex items-center justify-between gap10 flex-wrap">
                     <div class="wg-filter flex-grow">
+<<<<<<< HEAD
                         <form class="form-search">
                             <fieldset class="name">
                                 <input type="text" placeholder="Search here..." class="" name="name"
                                     tabindex="2" value="" aria-required="true" required="">
+=======
+                        <form class="form-search" method="GET" action="<?php echo e(route('admin.users.index')); ?>">
+                            <fieldset class="name">
+                                <input type="text" placeholder="Search here..." class="" name="name"
+                                    value="<?php echo e(request('name')); ?>">
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                             </fieldset>
                             <div class="button-submit">
                                 <button class="" type="submit"><i class="icon-search"></i></button>
                             </div>
                         </form>
+<<<<<<< HEAD
                     </div>
                     <a class="tf-button style-1 w208" href="<?php echo e(route('admin.users.create')); ?>"><i class="icon-plus"></i>Add
                         new</a>
+=======
+                         <form class="flex items-center gap10" method="GET" action="<?php echo e(route('admin.users.index')); ?>" id="filterForm" style="margin-left: 10px;">
+                            <select name="filter" class="form-select" style="margin-bottom:0; width: 180px; font-size: 14px; padding: 4px 8px;" onchange="document.getElementById('filterForm').submit();">
+                                <option value="">-- Tất cả --</option>
+                                <option value="admin" <?php echo e(request('filter') == 'admin' ? 'selected' : ''); ?>>Admin</option>
+                                <option value="user" <?php echo e(request('filter') == 'user' ? 'selected' : ''); ?>>User</option>
+                                <option value="active" <?php echo e(request('filter') == 'active' ? 'selected' : ''); ?>>Active</option>
+                                <option value="inactive" <?php echo e(request('filter') == 'inactive' ? 'selected' : ''); ?>>Inactive</option>
+                                <option value="banned" <?php echo e(request('filter') == 'banned' ? 'selected' : ''); ?>>Banned</option>
+                            </select>
+                        </form>
+                    </div>
+                    <a class="tf-button style-1 w208" href="<?php echo e(route('admin.users.create')); ?>"><i class="icon-plus"></i>Thêm tài khoản</a>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                 </div>
                 <div class="wg-table table-all-user">
                     <?php
@@ -69,23 +95,43 @@
                     ?>
 
                     <ul class="table-title flex gap20 mb-14">
+<<<<<<< HEAD
                         <li>
                             <div class="body-title">
                                 User <?php echo sortIcon('full_name'); ?>
+=======
+                         <li>
+                            <div class="body-title">ID</div>
+                        </li>
+                        <li>
+                            <div class="body-title">
+                                Tên người dùng <?php echo sortIcon('full_name'); ?>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
 
                             </div>
                         </li>
                         <li>
+<<<<<<< HEAD
                             <div class="body-title">Phone</div>
+=======
+                            <div class="body-title">Số điện thoại</div>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         </li>
                         <li>
                             <div class="body-title">Email</div>
                         </li>
                         <li>
+<<<<<<< HEAD
                             <div class="body-title">Account Status</div>
                         </li>
                         <li>
                             <div class="body-title">Role</div>
+=======
+                            <div class="body-title">Trạng thái tài khoản</div>
+                        </li>
+                        <li>
+                            <div class="body-title">Quyền</div>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         </li>
                         <li>
                             <div class="body-title">
@@ -94,14 +140,25 @@
                             </div>
                         </li>
                         <li>
+<<<<<<< HEAD
                             <div class="body-title">Action</div>
+=======
+                            <div class="body-title">Hành động</div>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         </li>
                     </ul>
 
 
                     <ul class="flex flex-column">
                         <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+<<<<<<< HEAD
                             <li class="wg-product item-row">
+=======
+                        
+                            <li class="wg-product item-row">
+                                <div class="body-text"><?php echo e($user->id); ?></div>
+
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 <div class="name flex-grow">
                                     <div class="image">
                                         <img src="<?php echo e(asset($user->avatar_url ? $user->avatar_url : 'images/images.jpg')); ?>"
@@ -150,8 +207,23 @@
                                                 class="icon-eye"></i></a>
                                     </div>
                                     <div class="item edit">
+<<<<<<< HEAD
                                         <a style="color: green" href="<?php echo e(route('admin.users.edit', $user->id)); ?>"> <i
                                                 class="icon-edit-3"></i></a>
+=======
+                                         <?php
+                                            $isSelf = auth()->id() == $user->id;
+                                            $isEditingAdmin = $user->role === 'admin';
+                                        ?>
+
+                                        <?php if($isEditingAdmin && !$isSelf): ?>
+                                            <i class="fa fa-edit" style="color: #28a745; opacity: 0.4; cursor: not-allowed;" title="Không thể chỉnh sửa admin khác"></i>
+                                        <?php else: ?>
+                                            <a href="<?php echo e(route('admin.users.edit', $user->id)); ?>" title="Chỉnh sửa">
+                                                <i class="fa fa-edit" style="color: #28a745;"></i>
+                                            </a>
+                                        <?php endif; ?>
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                     </div>
                                 </div>
                             </li>
@@ -196,6 +268,7 @@
         </div>
         <!-- /main-content-wrap -->
     </div>
+<<<<<<< HEAD
                                     </div>
                                   <div class="divider"></div>
                                     <div class="flex items-center justify-between flex-wrap gap10">
@@ -233,6 +306,9 @@
                             </div>
                             <!-- /main-content-wrap -->
                         </div>
+=======
+                                   
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
 
 <?php $__env->stopSection(); ?>
 
