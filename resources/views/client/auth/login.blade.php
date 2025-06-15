@@ -56,7 +56,8 @@
                         @csrf
                         <fieldset class="email">
                             <div class="body-title mb-10 text-white">Địa chỉ email <span class="tf-color-1">*</span></div>
-                            <input class="flex-grow" type="email" placeholder="Vui lòng nhập địa chỉ email" name="email" tabindex="0" value="{{ old('email') }}" aria-required="true">
+                            <input class="flex-grow" type="email" name="email"
+                                 value="{{ old('email', session('last_email')) }}" placeholder="Vui lòng nhập địa chỉ email" tabindex="0" aria-required="true">
                             <br>
                             <br>
                             @error('email')
@@ -108,12 +109,5 @@
     </div>
     <!-- /#page -->
 </div>
-<script>
-    document.querySelector('form.form-login').addEventListener('submit', function(e) {
-        if (!document.getElementById('signed').checked) {
-            alert('Bạn cần chọn "Keep me signed in" để tiếp tục!');
-            e.preventDefault();
-        }
-    });
-</script>
+
 @endsection

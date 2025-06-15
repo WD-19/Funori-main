@@ -43,7 +43,11 @@
                         <i class="icon-search" style="font-size:14px;"></i>
                         <span>Tìm</span>
                     </button>
+<<<<<<< HEAD
 
+=======
+                   
+>>>>>>> develop
                 </form>
             </div>
             <!-- order-list -->
@@ -104,7 +108,11 @@
                             </div>
                             <div class="list-icon-function">
                                 <a href="<?php echo e(route('admin.orders.show', $order->id)); ?>" class="item eye" title="View"><i class="icon-eye"></i></a>
+<<<<<<< HEAD
 
+=======
+                                
+>>>>>>> develop
                             </div>
                         </li>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
@@ -128,7 +136,13 @@
             <!-- /order-list -->
         </div>
     </div>
+<<<<<<< HEAD
 
+=======
+    <div class="bottom-page">
+        <div class="body-text">Bản quyền © 2024 <a href="https://themesflat.co/html/ecomus/index.html">Ecomus</a>. Thiết kế bởi Themesflat. Đã đăng ký bản quyền.</div>
+    </div>
+>>>>>>> develop
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('admin.layout.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\Funori-main\resources\views/admin/orders/index.blade.php ENDPATH**/ ?>
