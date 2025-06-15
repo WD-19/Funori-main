@@ -106,7 +106,7 @@
 @php
     $attributeSelects = '';
     foreach($attributes as $attribute) {
-        $attributeSelects .= '<select name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
+        $attributeSelects .= '<select style="width: 100px;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
         $attributeSelects .= '<option value="">-- '.$attribute->name.' --</option>';
         foreach($attribute->values as $value) {
             $attributeSelects .= '<option value="'.$value->id.'">'.$value->value.'</option>';
@@ -193,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${variantIndex}]`);
         variantDiv.innerHTML = `
             ${selects}
+            <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
             <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width:200px;">
             <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width:100px;">
             <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="width:180px;">

@@ -34,6 +34,7 @@
                 enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+                <!-- Tiêu đề -->
                 <fieldset class="name">
                     <div class="body-title">Tiêu đề trang <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('title') is-invalid @enderror" type="text"
@@ -43,13 +44,16 @@
                     @enderror
                 </fieldset>
                 <input type="hidden" name="slug" id="slug" value="{{ old('slug', $page->slug) }}">
+                <!-- Nội dung -->
                 <fieldset>
                     <div class="body-title">Nội dung <span class="tf-color-1">*</span></div>
-                    <textarea class="flex-grow @error('content') is-invalid @enderror" name="content" id="content"
-                        rows="6" placeholder="Nội dung trang">{{ old('content', $page->content) }}</textarea>
-                    @error('content')
-                        <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                    @enderror
+                    <div class="ck-editor-container">
+                        <textarea class="flex-grow @error('content') is-invalid @enderror" name="content" id="content" rows="6"
+                            placeholder="Nội dung trang">{{ old('content', $page->content) }}</textarea>
+                        @error('content')
+                            <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </fieldset>
                 <fieldset>
                     <div class="body-title">Tác giả <span class="tf-color-1">*</span></div>
@@ -97,18 +101,19 @@
                         @enderror
                     </div>
                 </fieldset>
+                <!-- Ảnh đại diện -->
                 <fieldset>
                     <div class="body-title">Ảnh đại diện</div>
                     <div class="upload-image flex-grow d-block">
-                        <div class="item up-load" style="display: flex; align-items: flex-start; gap: 24px;">
-                            <label class="uploadfile h250" for="featured_image_url" style="flex:1;">
+                        <div class="item up-load">
+                            <label class="uploadfile h250" for="featured_image_url">
                                 <span class="icon">
                                     <i class="icon-upload-cloud"></i>
                                 </span>
                                 <span class="body-text">Kéo thả ảnh vào đây hoặc <span class="tf-color">nhấn để
                                         chọn</span></span>
-                                <img id="featured_image_url-preview" src="#" alt=""
-                                    style="display: none; max-width:120px;">
+                                <img id="featured_image_url-preview" src="" alt=""
+                                    style="display: none; max-width:120px; margin-top:10px; border-radius:8px; object-fit:cover;">
                                 <input type="file" id="featured_image_url" name="featured_image_url"
                                     class="@error('featured_image_url') is-invalid @enderror" accept="image/*">
                             </label>
@@ -124,7 +129,7 @@
                     <div id="old-image-wrap" style="text-align:center;">
                         <div style="font-size:13px; color:#888;">Ảnh hiện tại</div>
                         <img id="old-image" src="{{ asset('storage/' . $page->featured_image_url) }}" alt="Ảnh đại diện"
-                            style="max-width: 120px; margin-top:10px;">
+                            style="max-width: 120px; margin-top:10px; border-radius:8px; object-fit:cover;">
                     </div>
                 @endif
 
@@ -185,28 +190,105 @@
         // Hiển thị ảnh xem trước khi tải lên
         document.getElementById('featured_image_url').addEventListener('change', function(event) {
             const [file] = event.target.files;
+            const preview = document.getElementById('featured_image_url-preview');
             if (file) {
-                const preview = document.getElementById('featured_image_url-preview');
                 preview.src = URL.createObjectURL(file);
                 preview.style.display = 'block';
-                // Ẩn ảnh cũ nếu có
-                const oldImg = document.getElementById('old-image');
-                if (oldImg) oldImg.style.display = 'none';
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
             }
         });
     </script>
 
     {{-- Trình soạn thảo văn bản --}}
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-    <script>
-        ClassicEditor
-            .create(document.querySelector('#content'), {
-                ckfinder: {
-                    // Nếu muốn upload ảnh, cấu hình tại đây
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    </script>
+
+    @push('scripts')
+        <script>
+            ClassicEditor
+                .create(document.querySelector('#content'), {
+                    simpleUpload: {
+                        uploadUrl: '{{ route('admin.pages.upload-image') }}', // Đảm bảo route đúng
+                        withCredentials: true, // Cho phép gửi cookie/CSRF token
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}', // Token CSRF từ Laravel
+                            'Accept': 'application/json' // Đảm bảo server trả về JSON
+                        }
+                    },
+                    toolbar: {
+                        items: [
+                            'heading', '|',
+                            'bold', 'italic', 'underline', 'strikethrough', '|',
+                            'link', 'imageUpload', 'mediaEmbed', 'insertTable', '|',
+                            'bulletedList', 'numberedList', 'blockQuote', '|',
+                            'fontSize', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
+                            'alignment', 'indent', 'outdent', '|',
+                            'undo', 'redo'
+                        ]
+                    },
+                    image: {
+                        toolbar: [
+                            'imageStyle:inline',
+                            'imageStyle:block',
+                            'imageStyle:side',
+                            'linkImage',
+                            'imageResize'
+                        ]
+                    },
+                    table: {
+                        contentToolbar: [
+                            'tableColumn', 'tableRow', 'mergeTableCells'
+                        ]
+                    }
+                })
+                .then(editor => {
+                    console.log('Editor initialized:', editor);
+                })
+                .catch(error => {
+                    console.error('Error initializing editor:', error);
+                });
+        </script>
+    @endpush
+    @push('head')
+        <style>
+            .ck-editor__editable {
+                min-height: 300px;
+                max-height: 600px;
+                overflow-y: auto;
+                width: 100%;
+                box-sizing: border-box;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                max-width: 100%;
+            }
+
+            .ck-editor__main {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .wg-box {
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            .form-new-product {
+                max-width: 100%;
+            }
+
+            .ck-editor-container {
+                width: 100%;
+                max-width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .ck-editor__editable,
+            .ck-editor__main {
+                position: relative !important;
+                float: none !important;
+                width: 100% !important;
+            }
+        </style>
+    @endpush
 @endsection

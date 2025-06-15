@@ -136,8 +136,9 @@
                                     <div class="body-text">
                                         {{ $page->published_at ? $page->published_at->format('d/m/Y H:i') : '-' }}
                                     </div>
+
                                     <div class="list-icon-function">
-                                        <div class="item eye" data-bs-toggle="modal"
+                                        {{-- <div class="item eye" data-bs-toggle="modal"
                                             data-bs-target="#quickViewModalPage{{ $page->id }}">
                                             <i class="icon-eye"></i>
                                         </div>
@@ -226,7 +227,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
 
                                         <div class="item edit">
                                             <a href="{{ route('admin.pages.edit', $page->id) }}"><i

@@ -1,140 +1,21 @@
 <div class="header-dashboard">
     <div class="wrap">
         <div class="header-left">
-            <a href="index.html">
-                <img class="" id="logo_header_mobile" alt=""
-                    src="https://themesflat.co/html/ecomus/images/logo/logo.svg" data-light="../images/logo/logo.svg"
-                    data-dark="https://themesflat.co/html/ecomus/images/logo/logo-white.svg">
-            </a>
             <div class="button-show-hide">
                 <i class="icon-chevron-left"></i>
             </div>
-            <form class="form-search flex-grow">
-                <fieldset class="name">
-                    <input type="text" placeholder="Search" class="show-search" name="name" tabindex="2"
-                        value="" aria-required="true" required="">
-                </fieldset>
-                <div class="button-submit">
-                    <button class="" type="submit"><i class="icon-search"></i></button>
-                </div>
-                <div class="box-content-search" id="box-content-search">
-                    <ul class="mb-24">
-                        <li class="mb-14">
-                            <div class="body-title">Top selling product</div>
-                        </li>
-                        <li class="mb-14">
-                            <div class="divider"></div>
-                        </li>
-                        <li>
-                            <ul>
-                                <li class="product-item gap14 mb-10">
-                                    <div class="image no-bg">
-                                        <img src="images/products/product-1.jpg" alt="">
-                                    </div>
-                                    <div class="flex items-center justify-between gap20 flex-grow">
-                                        <div class="name">
-                                            <a href="product-list.html" class="body-text">Neptune Longsleeve</a>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="mb-10">
-                                    <div class="divider"></div>
-                                </li>
-                                <li class="product-item gap14 mb-10">
-                                    <div class="image no-bg">
-                                        <img src="images/products/product-2.jpg" alt="">
-                                    </div>
-                                    <div class="flex items-center justify-between gap20 flex-grow">
-                                        <div class="name">
-                                            <a href="product-list.html" class="body-text">Ribbed Tank Top</a>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="mb-10">
-                                    <div class="divider"></div>
-                                </li>
-                                <li class="product-item gap14">
-                                    <div class="image no-bg">
-                                        <img src="images/products/product-3.jpg" alt="">
-                                    </div>
-                                    <div class="flex items-center justify-between gap20 flex-grow">
-                                        <div class="name">
-                                            <a href="product-list.html" class="body-text">Ribbed modal T-shirt</a>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <ul class="">
-                        <li class="mb-14">
-                            <div class="body-title">Order product</div>
-                        </li>
-                        <li class="mb-14">
-                            <div class="divider"></div>
-                        </li>
-                        <li>
-                            <ul>
-                                <li class="product-item gap14 mb-10">
-                                    <div class="image no-bg">
-                                        <img src="images/products/product-4.jpg" alt="">
-                                    </div>
-                                    <div class="flex items-center justify-between gap20 flex-grow">
-                                        <div class="name">
-                                            <a href="product-list.html" class="body-text">Oversized Motif T-shirt</a>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="mb-10">
-                                    <div class="divider"></div>
-                                </li>
-                                <li class="product-item gap14 mb-10">
-                                    <div class="image no-bg">
-                                        <img src="images/products/product-5.jpg" alt="">
-                                    </div>
-                                    <div class="flex items-center justify-between gap20 flex-grow">
-                                        <div class="name">
-                                            <a href="product-list.html" class="body-text">V-neck linen T-shirt</a>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="mb-10">
-                                    <div class="divider"></div>
-                                </li>
-                                <li class="product-item gap14 mb-10">
-                                    <div class="image no-bg">
-                                        <img src="images/products/product-6.jpg" alt="">
-                                    </div>
-                                    <div class="flex items-center justify-between gap20 flex-grow">
-                                        <div class="name">
-                                            <a href="product-list.html" class="body-text">Jersey thong body</a>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="mb-10">
-                                    <div class="divider"></div>
-                                </li>
-                                <li class="product-item gap14">
-                                    <div class="image no-bg">
-                                        <img src="images/products/product-7.jpg" alt="">
-                                    </div>
-                                    <div class="flex items-center justify-between gap20 flex-grow">
-                                        <div class="name">
-                                            <a href="product-list.html" class="body-text">Jersey thong body</a>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </form>
         </div>
         <div class="header-grid">
+            @php
+                use Illuminate\Support\Str;
+                use App\Models\ContactSubmission;
+                $newContactCount = ContactSubmission::where('status', 'new')->count();
+                $contacts = ContactSubmission::where('status', 'new')->orderBy('created_at', 'desc')->get();
+            @endphp
             <div class="header-item country">
                 <select class="image-select no-text">
-                    <option data-thumbnail="images/country/1.png">ENG</option>
-                    <option data-thumbnail="images/country/9.png">VIE</option>
+                    <option data-thumbnail="{{ asset('images/country/1.png') }}">ENG</option>
+                    <option data-thumbnail="{{ asset('images/country/9.png') }}">VIE</option>
                 </select>
             </div>
             <div class="header-item button-dark-light">
@@ -145,72 +26,64 @@
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="header-item">
-                            <span class="text-tiny">1</span>
-                            <i class="icon-bell"></i>
+                            <span class="text-tiny">{{ $newContactCount }}</span>
+                            <i class="icon-message-square"></i>
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton1">
                         <li>
-                            <h6>Notifications</h6>
+                            <h6>Tin Nhắn</h6>
                         </li>
-                        <li>
-                            <div class="noti-item w-full wg-user active">
-                                <div class="image">
-                                    <img src="images/customers/customer-1.jpg" alt="">
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="flex items-center justify-between">
-                                        <a href="#" class="body-title">Cameron Williamson</a>
-                                        <div class="time">10:13 PM</div>
-                                    </div>
-                                    <div class="text-tiny">Hello?</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="noti-item w-full wg-user active">
-                                <div class="image">
-                                    <img src="images/customers/customer-2.jpg" alt="">
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="flex items-center justify-between">
-                                        <a href="#" class="body-title">Ralph Edwards</a>
-                                        <div class="time">10:13 PM</div>
-                                    </div>
-                                    <div class="text-tiny">Are you there? interested i this...</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="noti-item w-full wg-user active">
-                                <div class="image">
-                                    <img src="images/customers/customer-3.jpg" alt="">
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="flex items-center justify-between">
-                                        <a href="#" class="body-title">Eleanor Pena</a>
-                                        <div class="time">10:13 PM</div>
-                                    </div>
-                                    <div class="text-tiny">Interested in this loads?</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="noti-item w-full wg-user active">
-                                <div class="image">
-                                    <img src="images/customers/customer-1.jpg" alt="">
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="flex items-center justify-between">
-                                        <a href="#" class="body-title">Jane Cooper</a>
-                                        <div class="time">10:13 PM</div>
-                                    </div>
-                                    <div class="text-tiny">Okay...Do we have a deal?</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li><a href="#" class="tf-button w-full">View all</a></li>
+                        <div style="max-height: 320px; overflow-y: auto; padding-right: 4px;">
+                            <ul style="margin: 0; padding: 0; list-style: none;">
+                                @foreach ($contacts as $contact)
+                                    <li style="margin-bottom: 14px;">
+                                        <div class="noti-item w-full wg-user active">
+                                            <div class="image">
+                                                <img src="{{ asset('images/customers/customer-1.jpg') }}"
+                                                    alt="">
+                                            </div>
+                                            <div class="flex-grow">
+                                                <div class="flex items-center justify-between">
+                                                    <a href="{{ route('admin.contacts.edit', $contact->id) }}"
+                                                        class="body-title">{{ $contact->name }}</a>
+                                                    <div class="time">{{ $contact->created_at->format('H:i d/m') }}
+                                                    </div>
+                                                </div>
+                                                <div class="text-tiny">{{ Str::limit($contact->message, 30) }}</div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <li><a href="{{ route('admin.contacts.index') }}" class="tf-button w-full">View all</a></li>
                     </ul>
+
+                    <style>
+                        .dropdown-menu.has-content {
+                            min-width: 320px;
+                        }
+
+                        .dropdown-menu.has-content ul li {
+                            margin-bottom: 14px;
+                        }
+
+                        .dropdown-menu.has-content ul li:last-child {
+                            margin-bottom: 0;
+                        }
+
+                        .dropdown-menu.has-content div[style*="overflow-y: auto"]::-webkit-scrollbar {
+                            width: 6px;
+                            background: #f1f1f1;
+                            border-radius: 3px;
+                        }
+
+                        .dropdown-menu.has-content div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+                            background: #ccc;
+                            border-radius: 3px;
+                        }
+                    </style>
                 </div>
             </div>
             <div class="popup-wrap message type-header">
@@ -219,12 +92,12 @@
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="header-item">
                             <span class="text-tiny">1</span>
-                            <i class="icon-message-square"></i>
+                            <i class="icon-bell"></i>
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton2">
                         <li>
-                            <h6>Message</h6>
+                            <h6>Thông Báo</h6>
                         </li>
                         <li>
                             <div class="message-item item-1">
@@ -301,7 +174,7 @@
                             <ul class="list-apps">
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-1.png" alt="">
+                                        <img src="{{ asset('images/apps/item-1.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">Photoshop</div>
@@ -309,7 +182,7 @@
                                 </li>
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-2.png" alt="">
+                                        <img src="{{ asset('images/apps/item-2.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">illustrator</div>
@@ -317,7 +190,7 @@
                                 </li>
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-3.png" alt="">
+                                        <img src="{{ asset('images/apps/item-3.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">Sheets</div>
@@ -325,7 +198,7 @@
                                 </li>
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-4.png" alt="">
+                                        <img src="{{ asset('images/apps/item-4.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">Gmail</div>
@@ -333,7 +206,7 @@
                                 </li>
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-5.png" alt="">
+                                        <img src="{{ asset('images/apps/item-5.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">Messenger</div>
@@ -341,7 +214,7 @@
                                 </li>
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-6.png" alt="">
+                                        <img src="{{ asset('images/apps/item-6.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">Youtube</div>
@@ -349,7 +222,7 @@
                                 </li>
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-7.png" alt="">
+                                        <img src="{{ asset('images/apps/item-7.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">Flaticon</div>
@@ -357,7 +230,7 @@
                                 </li>
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-8.png" alt="">
+                                        <img src="{{ asset('images/apps/item-8.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">Instagram</div>
@@ -365,7 +238,7 @@
                                 </li>
                                 <li class="item">
                                     <div class="image">
-                                        <img src="images/apps/item-9.png" alt="">
+                                        <img src="{{ asset('images/apps/item-9.png') }}" alt="">
                                     </div>
                                     <a href="#">
                                         <div class="text-tiny">PDF</div>
@@ -379,18 +252,26 @@
             </div>
             <div class="popup-wrap user type-header">
                 <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="header-user wg-user">
-                            <span class="image">
-                                <img src="images/avatar/user-1.png" alt="">
+                    @php
+                        $user = Auth::user();
+                    @endphp
+
+                    @if ($user)
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="header-user wg-user">
+                                <span class="image">
+                                    <img src="{{ asset($user->avatar_url ?? 'images/images.jpg') }}" alt=""
+                                        style="width: 50px; height: 35px; border-radius: 50%; object-fit: cover;">
+                                </span>
+                                <span class="flex flex-column">
+                                    <span class="body-text text-main-dark">{{ $user->full_name }}</span>
+                                    <span class="text-tiny">Sale Administrator</span>
+                                </span>
                             </span>
-                            <span class="flex flex-column">
-                                <span class="body-text text-main-dark">Kristin Watson</span>
-                                <span class="text-tiny">Sale Administrator</span>
-                            </span>
-                        </span>
-                    </button>
+                        </button>
+                    @endif
+
                     <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton3">
                         <li>
                             <a href="#" class="user-item">
@@ -434,12 +315,13 @@
                             </a>
                         </li>
                         <li>
-                            <a href="login.html" class="user-item">
-                                <div class="icon">
-                                    <i class="icon-log-out"></i>
-                                </div>
-                                <div class="body-title-2">Log out</div>
-                            </a>
+                            {{-- filepath: resources/views/admin/partials/header.blade.php --}}
+                            <form action="{{ route('client.logout') }}" method="POST" class="d-inline w-100">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger btn-lg w-100">
+                                    <i class="icon-log-out"></i> Đăng xuất
+                                </button>
+                            </form>
                         </li>
                     </ul>
                 </div>

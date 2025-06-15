@@ -112,20 +112,34 @@ class CategoryController
     {
         $category = Category::withCount('children')->findOrFail($id);
 
-        // Nếu là danh mục cha và đang có danh mục con thì không cho cập nhật
-        if (is_null($category->parent_id) && $category->children_count > 0) {
-            return redirect()->route('admin.categories.edit', $category->id)
-                ->with('error', 'Không thể cập nhật: Danh mục cha này đang có danh mục con!');
-        }
+        $isParentWithChildren = is_null($category->parent_id) && $category->children_count > 0;
 
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
-            'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
-            'parent_id' => 'nullable|exists:categories,id|not_in:' . $category->id,
-            'description' => 'nullable|string',
-            'image_url' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'is_active' => 'required|boolean',
-        ]);
+        // Nếu là danh mục cha và đang có danh mục con thì không cho cập nhật parent_id
+        if ($isParentWithChildren) {
+            $request->validate([
+                'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+                'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
+                'description' => 'nullable|string',
+                'image_url' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                'is_active' => 'required|boolean',
+            ]);
+
+            // Nếu người dùng cố tình thay đổi parent_id
+            if ($request->parent_id && $request->parent_id != $category->parent_id) {
+                return redirect()->back()
+                    // KHÔNG dùng withInput()
+                    ->with('error', 'Không thể thay đổi danh mục cha vì danh mục này đang chứa danh mục con!');
+            }
+        } else {
+            $request->validate([
+                'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+                'slug' => 'required|string|max:255|unique:categories,slug,' . $category->id,
+                'parent_id' => 'nullable|exists:categories,id|not_in:' . $category->id,
+                'description' => 'nullable|string',
+                'image_url' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                'is_active' => 'required|boolean',
+            ]);
+        }
 
         $imagePath = $category->image_url;
 
@@ -138,16 +152,21 @@ class CategoryController
             $imagePath = $request->file('image_url')->store('uploads/categories', 'public');
         }
 
-        $category->update([
+        $updateData = [
             'name' => $request->name,
             'slug' => $request->slug ?: Str::slug($request->name),
-            'parent_id' => $request->parent_id,
             'description' => $request->description,
             'image_url' => $imagePath,
             'is_active' => $request->is_active,
-        ]);
+        ];
 
-        // Quay lại trang sửa, hiển thị thông báo thành công
+        // Chỉ cập nhật parent_id nếu được phép
+        if (!$isParentWithChildren) {
+            $updateData['parent_id'] = $request->parent_id;
+        }
+
+        $category->update($updateData);
+
         return redirect()->route('admin.categories.edit', $category->id)
             ->with('success', 'Cập nhật danh mục thành công!');
     }

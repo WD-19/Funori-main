@@ -158,13 +158,78 @@
 
 
                 </div>
-                <div class="pagination-wrapper">
-                    {{ $users->links() }}
+                <div class="divider"></div>
+                <div class="flex items-center justify-between flex-wrap gap10">
+                    <div class="text-tiny">
+                        Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} entries
+                    </div>
+                    <ul class="wg-pagination">
+                        <li>
+                            @if ($users->onFirstPage())
+                            <span><i class="icon-chevron-left"></i></span>
+                            @else
+                            <a href="{{ $users->previousPageUrl() }}"><i class="icon-chevron-left"></i></a>
+                            @endif
+                        </li>
+                        @foreach ($users->getUrlRange(1, $users->lastPage()) as $page => $url)
+                        <li class="{{ $page == $users->currentPage() ? 'active' : '' }}">
+                            @if ($page == $users->currentPage())
+                            <span>{{ $page }}</span>
+                            @else
+                            <a href="{{ $url }}">{{ $page }}</a>
+                            @endif
+                        </li>
+                        @endforeach
+                        <li>
+                            @if ($users->hasMorePages())
+                            <a href="{{ $users->nextPageUrl() }}"><i class="icon-chevron-right"></i></a>
+                            @else
+                            <span><i class="icon-chevron-right"></i></span>
+                            @endif
+                        </li>
+                    </ul>
                 </div>
             </div>
             <!-- /all-user -->
         </div>
         <!-- /main-content-wrap -->
     </div>
+                                    </div>
+                                  <div class="divider"></div>
+                                    <div class="flex items-center justify-between flex-wrap gap10">
+                                        <div class="text-tiny">
+                                            Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} entries
+                                        </div>
+                                        <ul class="wg-pagination">
+                                            <li>
+                                                @if ($users->onFirstPage())
+                                                <span><i class="icon-chevron-left"></i></span>
+                                                @else
+                                                <a href="{{ $users->previousPageUrl() }}"><i class="icon-chevron-left"></i></a>
+                                                @endif
+                                            </li>
+                                            @foreach ($users->getUrlRange(1, $users->lastPage()) as $page => $url)
+                                            <li class="{{ $page == $users->currentPage() ? 'active' : '' }}">
+                                                @if ($page == $users->currentPage())
+                                                <span>{{ $page }}</span>
+                                                @else
+                                                <a href="{{ $url }}">{{ $page }}</a>
+                                                @endif
+                                            </li>
+                                            @endforeach
+                                            <li>
+                                                @if ($users->hasMorePages())
+                                                <a href="{{ $users->nextPageUrl() }}"><i class="icon-chevron-right"></i></a>
+                                                @else
+                                                <span><i class="icon-chevron-right"></i></span>
+                                                @endif
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- /all-user -->
+                            </div>
+                            <!-- /main-content-wrap -->
+                        </div>
 
 @endsection

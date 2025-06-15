@@ -22,6 +22,7 @@ class ProductVariantFactory extends Factory
             'image_id' => ProductImage::factory(), // Có thể là ảnh riêng cho variant
             'created_at' => $this->faker->dateTimeBetween('-6 months', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-6 months', 'now'),
+            'size' => $this->faker->randomElement(['120x60x75 cm', '200x80x75 cm', 'Dài 2m, rộng 80cm', '90x45x75 cm']),
         ];
     }
 }
