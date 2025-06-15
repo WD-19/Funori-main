@@ -54,8 +54,7 @@
                             </select>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}"><i class="icon-plus"></i>Add
-                        new</a>
+                    <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}"><i class="icon-plus"></i>Thêm tài khoản</a>
                 </div>
                 <div class="wg-table table-all-user">
                     @php

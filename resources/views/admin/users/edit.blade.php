@@ -30,7 +30,7 @@
             @endphp
 
             <form class="form-add-new-user form-style-2" enctype="multipart/form-data" method="POST"
-                action="{{ route('admin.users.update', $user->id) }}">
+                action="{{ route('admin.users.update', $user->id) }}" id="editForm">
                 @csrf
                 @method('PUT')
                 <div class="wg-box">
@@ -141,7 +141,7 @@
                 </div>
                 <div class="bot">
                     <a href="{{ route('admin.users.index') }}" class="tf-button w180">Back</a>
-                    <button class="tf-button w180" type="submit">Save</button>
+                    <button class="tf-button w180" type="submit" id="saveBtn" >Save</button>
                 </div>
             </form>
             <!-- /edit-user -->
@@ -225,6 +225,25 @@
                     resetModal.style.display = 'none';
                 }
             }
+
+            const form = document.getElementById('editForm');
+            const saveBtn = document.getElementById('saveBtn');
+            // Lưu lại dữ liệu ban đầu của form
+            const initialData = new FormData(form);
+
+            saveBtn.addEventListener('click', function(e) {
+                if (!confirm('Bạn có chắc chắn muốn lưu thay đổi này?')) {
+                    // Nếu Cancel, reset lại form về dữ liệu ban đầu
+                    e.preventDefault();
+                    // Lặp qua từng input và set lại value
+                    for (let [name, value] of initialData.entries()) {
+                        let field = form.elements[name];
+                        if (field) {
+                            field.value = value;
+                        }
+                    }
+                }
+            });
         });
     </script>
 @endpush
