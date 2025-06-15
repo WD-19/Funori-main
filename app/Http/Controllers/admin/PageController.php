@@ -13,10 +13,30 @@ class PageController
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $pages = \App\Models\Page::with('author')->orderByDesc('created_at')->paginate(10);
-        return view('admin.pages.index', compact('pages'));
+        $query = Page::with('author')->orderByDesc('created_at');
+
+        // Lọc theo trạng thái
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Lọc theo loại trang
+        if ($request->filled('page_type')) {
+            $query->where('page_type', $request->page_type);
+        }
+
+        // Tìm kiếm theo tiêu đề
+        if ($request->has('q') && $request->q) {
+            $query->where('title', 'like', '%' . $request->q . '%');
+        }
+
+        // Lấy danh sách loại trang để render filter
+        $pageTypes = Page::select('page_type')->distinct()->pluck('page_type');
+
+        $pages = $query->paginate(10)->withQueryString();
+        return view('admin.pages.index', compact('pages', 'pageTypes'));
     }
 
     /**
@@ -40,7 +60,7 @@ class PageController
             'author_id' => 'required|exists:users,id',
             'page_type' => 'required|string|max:100',
             'status' => 'required|in:draft,published',
-            'featured_image_url' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'featured_image_url' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'published_at' => 'required|date',
@@ -142,5 +162,32 @@ class PageController
         }
         $page->delete();
         return redirect()->route('admin.pages.index')->with('success', 'Xóa trang thành công!');
+    }
+
+    /**
+     * Upload image for the editor.
+     */
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'upload' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
+        ]);
+
+        if ($request->hasFile('upload')) {
+            $file = $request->file('upload');
+            $path = $file->store('uploads/pages', 'public');
+            $url = asset('storage/' . $path);
+
+            return response()->json([
+                'uploaded' => 1,
+                'fileName' => $file->getClientOriginalName(),
+                'url' => $url
+            ]);
+        }
+
+        return response()->json([
+            'uploaded' => 0,
+            'error' => ['message' => 'No file uploaded or invalid file.']
+        ], 400);
     }
 }

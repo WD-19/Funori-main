@@ -53,6 +53,9 @@ Route::prefix('admin')->name('admin.')
         Route::put('reviews/{id}/restore', [ReviewController::class, 'restore'])->name('reviews.restore');
         Route::delete('reviews/{id}/force-delete', [ReviewController::class, 'forceDelete'])->name('reviews.forceDelete');
 
+        // Quản lý pages
+        Route::post('pages/upload-image', [PageController::class, 'uploadImage'])->name('pages.upload-image');
+
         //quản lý liên hệ
         Route::get('contacts/export', [ContactController::class, 'export'])->name('contacts.export');
         Route::get('contacts/trash', [ContactController::class, 'trash'])->name('contacts.trash');

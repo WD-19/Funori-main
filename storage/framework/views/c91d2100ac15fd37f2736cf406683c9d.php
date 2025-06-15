@@ -20,10 +20,7 @@
     <link rel="stylesheet" href="<?php echo e(asset('css/user.css')); ?>">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-<<<<<<< HEAD
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-=======
->>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
 
     <?php echo $__env->yieldPushContent('head'); ?>
 </head>
@@ -126,5 +123,4 @@
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 
-</html>
-<?php /**PATH C:\laragon\www\Funori-main\resources\views/admin/layout/admin.blade.php ENDPATH**/ ?>
+</html><?php /**PATH C:\laragon\www\Funori-main\resources\views/admin/layout/admin.blade.php ENDPATH**/ ?>
