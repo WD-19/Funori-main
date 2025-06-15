@@ -26,7 +26,7 @@ class OrderController
         // Lọc theo mã đơn hàng hoặc tên khách hàng nếu có truyền vào
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(function($sub) use ($q) {
+            $query->where(function ($sub) use ($q) {
                 $sub->where('order_code', 'like', "%{$q}%")
                     ->orWhere('customer_name', 'like', "%{$q}%");
             });
@@ -35,15 +35,15 @@ class OrderController
         // Lọc theo tên sản phẩm nếu có truyền vào
         if ($request->filled('product')) {
             $product = $request->product;
-            $query->whereHas('items.product', function($q) use ($product) {
+            $query->whereHas('items.product', function ($q) use ($product) {
                 $q->where('name', 'like', "%{$product}%");
             });
         }
 
         // Lấy danh sách đơn hàng, sắp xếp mới nhất lên đầu, phân trang 20 bản ghi/trang
         $orders = $query->orderByDesc('created_at')
-                        ->paginate(20)
-                        ->appends($request->only(['status','q','product']));
+            ->paginate(20)
+            ->appends($request->only(['status', 'q', 'product']));
 
         // Trả về view danh sách đơn hàng
         return view('admin.orders.index', compact(
@@ -65,7 +65,7 @@ class OrderController
         // Lọc theo mã đơn hàng hoặc tên khách hàng
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(function($sub) use ($q) {
+            $query->where(function ($sub) use ($q) {
                 $sub->where('order_code', 'like', "%{$q}%")
                     ->orWhere('customer_name', 'like', "%{$q}%");
             });
@@ -74,7 +74,7 @@ class OrderController
         // Lọc theo tên sản phẩm
         if ($request->filled('product')) {
             $product = $request->product;
-            $query->whereHas('items.product', function($q) use ($product) {
+            $query->whereHas('items.product', function ($q) use ($product) {
                 $q->where('name', 'like', "%{$product}%");
             });
         }
@@ -90,7 +90,14 @@ class OrderController
 
         // Định nghĩa các cột cho file CSV
         $columns = [
-            'Mã đơn', 'Khách hàng', 'Email', 'SĐT', 'Tổng tiền', 'Trạng thái', 'Ngày đặt', 'Sản phẩm'
+            'Mã đơn',
+            'Khách hàng',
+            'Email',
+            'SĐT',
+            'Tổng tiền',
+            'Trạng thái',
+            'Ngày đặt',
+            'Sản phẩm'
         ];
 
         // Callback để ghi dữ liệu ra file CSV
@@ -164,7 +171,7 @@ class OrderController
             'ordered_at'         => 'nullable|date',
             'delivered_at'       => 'nullable|date|after_or_equal:ordered_at',
             'cancelled_at'       => 'nullable|date',
-            'cancellation_reason'=> 'nullable|string',
+            'cancellation_reason' => 'nullable|string',
         ]);
 
         // Lấy dữ liệu hợp lệ từ request
@@ -196,7 +203,7 @@ class OrderController
 
         // Chuyển hướng về danh sách đơn hàng kèm thông báo thành công
         return redirect()->route('admin.orders.index')
-                         ->with('success', 'Cập nhật đơn hàng thành công.');
+            ->with('success', 'Cập nhật đơn hàng thành công.');
     }
 
     // (5) destroy: xóa đơn hàng
@@ -208,7 +215,7 @@ class OrderController
         $order->delete();
         // Chuyển hướng về danh sách đơn hàng kèm thông báo thành công
         return redirect()->route('admin.orders.index')
-                         ->with('success', 'Xóa đơn hàng thành công.');
+            ->with('success', 'Xóa đơn hàng thành công.');
     }
 
     /**
@@ -282,7 +289,7 @@ class OrderController
     public function tracking($id)
     {
         // Lấy đơn hàng theo id
-        $order = \App\Models\Order::findOrFail($id);
+        $order = Order::findOrFail($id);
         // Trả về view tracking trạng thái đơn hàng
         return view('admin.orders.tracking', compact('order'));
     }
@@ -341,7 +348,7 @@ class OrderController
 
             // Chuyển hướng về danh sách đơn hàng kèm thông báo thành công
             return redirect()->route('admin.orders.index')
-                             ->with('success', 'Đã duyệt hủy đơn #' . $order->order_code);
+                ->with('success', 'Đã duyệt hủy đơn #' . $order->order_code);
         }
 
         if ($action === 'reject') {
@@ -352,7 +359,7 @@ class OrderController
 
             // Chuyển hướng về danh sách đơn hàng kèm thông báo thành công
             return redirect()->route('admin.orders.index')
-                             ->with('success', 'Đã từ chối yêu cầu hủy đơn #' . $order->order_code);
+                ->with('success', 'Đã từ chối yêu cầu hủy đơn #' . $order->order_code);
         }
 
         // Nếu action không hợp lệ

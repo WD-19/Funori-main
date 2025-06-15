@@ -1,11 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Banner;
-use Illuminate\Support\Facades\Storage;
+
 
 class BannerController
 {
