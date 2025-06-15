@@ -103,6 +103,10 @@ Route::prefix('admin')->name('admin.')
         Route::resource('contacts', ContactController::class);
         Route::resource('pages', PageController::class);
         Route::resource('reviews', ReviewController::class);
+
+        Route::fallback(function () {
+            return response()->view('admin.errors.404', [], 404);
+        });
     });
 
 
@@ -119,4 +123,8 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::fallback(function () {
+        return response()->view('client.errors.404', [], 404);
+    });
 });
