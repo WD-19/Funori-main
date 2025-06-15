@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
@@ -53,6 +54,7 @@ Route::prefix('admin')->name('admin.')
     Route::resource('contacts', ContactController::class);
     Route::resource('pages', PageController::class);
     Route::resource('reviews', ReviewController::class);
+    Route::resource('banners', BannerController::class);
 
     // Quản lý user
 
@@ -109,10 +111,8 @@ Route::prefix('admin')->name('admin.')
     // Thống kê đơn hàng (trang riêng)
     Route::get('orders-stats', [OrderController::class, 'stats'])->name('orders.stats');
 
-
-
-    
-   
+    Route::post('banners/reorder', [BannerController::class, 'reorder'])->name('banners.reorder');
+    Route::post('banners/{banner}/toggle', [BannerController::class, 'toggle'])->name('banners.toggle');
 });
 
 
@@ -130,3 +130,4 @@ Route::prefix('client')->name('client.')->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
+
