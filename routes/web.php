@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\client\auth\LoginController;
+use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Auth;
@@ -65,7 +65,7 @@ Route::prefix('admin')->name('admin.')
 
         // Quản lý user
         Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
-        Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
         Route::get('users/{user}/order-history', [UserController::class, 'orderHistory'])->name('users.orderHistory');
 
         // Quản lý đơn hàng

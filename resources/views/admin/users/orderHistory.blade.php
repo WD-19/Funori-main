@@ -8,7 +8,7 @@
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>Order #123783</h3>
+                <h3>Order </h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="index.html">
@@ -35,7 +35,7 @@
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Order #123783</div>
+                        <div class="text-tiny">Order </div>
                     </li>
                 </ul>
             </div>
@@ -75,7 +75,6 @@
                                     </div>
                                 </form>
                             </div>
-                            <a class="tf-button style-1 w208" href="add-new-user.html"><i class="icon-plus"></i>Add new</a>
                         </div>
                         <div class="wg-table table-all-user product-scroll-container"
                             style="max-height: 400px; min-width: 100%; overflow: auto;">
@@ -113,27 +112,7 @@
 
                             </ul>
                         </div>
-                        <div class="divider"></div>
-                        <div class="flex items-center justify-between flex-wrap gap10">
-                            <div class="text-tiny">Showing 10 entries</div>
-                            <ul class="wg-pagination">
-                                <li>
-                                    <a href="#"><i class="icon-chevron-left"></i></a>
-                                </li>
-                                <li>
-                                    <a href="#">1</a>
-                                </li>
-                                <li class="active">
-                                    <a href="#">2</a>
-                                </li>
-                                <li>
-                                    <a href="#">3</a>
-                                </li>
-                                <li>
-                                    <a href="#"><i class="icon-chevron-right"></i></a>
-                                </li>
-                            </ul>
-                        </div>
+                      
                     </div>
 
                 </div>
