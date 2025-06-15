@@ -42,6 +42,12 @@ Route::prefix('admin')->name('admin.')
             ->middleware(CheckLogin::class)
             ->name('dashboard');
 
+        //quản lý đánh giá
+        Route::get('reviews/export', [ReviewController::class, 'export'])->name('reviews.export');
+        Route::get('reviews/trash', [ReviewController::class, 'trash'])->name('reviews.trash');
+        Route::put('reviews/{id}/restore', [ReviewController::class, 'restore'])->name('reviews.restore');
+        Route::delete('reviews/{id}/force-delete', [ReviewController::class, 'forceDelete'])->name('reviews.forceDelete');
+
         //quản lý liên hệ
         Route::get('contacts/export', [ContactController::class, 'export'])->name('contacts.export');
         Route::get('contacts/trash', [ContactController::class, 'trash'])->name('contacts.trash');
@@ -117,6 +123,10 @@ Route::prefix('admin')->name('admin.')
         Route::resource('pages', PageController::class);
         Route::resource('reviews', ReviewController::class);
         Route::resource('banners', BannerController::class);
+
+        Route::fallback(function () {
+            return response()->view('admin.errors.404', [], 404);
+        });
     });
 
 
@@ -133,4 +143,8 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::fallback(function () {
+        return response()->view('client.errors.404', [], 404);
+    });
 });

@@ -53,7 +53,7 @@
                         </form>
                     </div>
                     <a class="tf-button style-1 w208" href="<?php echo e(route('admin.contacts.trash')); ?>">
-                        <i class="icon-trash-2"></i>Thùng Rác
+                        <i class="icon-trash-2"></i>Thùng rác
                     </a>
 
                     <a class="tf-button style-1 w208" href="<?php echo e(route('admin.contacts.export')); ?>">
