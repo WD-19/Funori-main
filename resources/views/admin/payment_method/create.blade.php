@@ -67,8 +67,8 @@
                     <textarea name="instructions" id="instructions" class="form-control" placeholder="Hướng dẫn thanh toán">{{ old('instructions') }}</textarea>
                 </div>
                 <div class="form-group mt-4 d-flex align-items-center gap-2">
-                    <button type="submit" class="tf-button style-1">Add method</button>
-                    <a href="{{ route('admin.payment_methods.index') }}" class="tf-button style-1">Back</a>
+                    <button type="submit" class="tf-button style-1">Thêm mới</button>
+                    <a href="{{ route('admin.payment_methods.index') }}" class="tf-button style-1">Quay lại</a>
                 </div>
             </form>
         </div>

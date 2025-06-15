@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController; 
@@ -29,13 +30,18 @@ Route::prefix('admin')->name('admin.')
     })
     ->middleware(CheckLogin::class)
     ->name('dashboard');
-    // Payment Methods
+    // Quản lý thương hiệu
+    Route::resource('brands', BrandController::class);
+    Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
+
+    //phương thức thanh toán
     Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment_methods.index');
     Route::get('/payment-methods/create', [PaymentMethodController::class, 'create'])->name('payment_methods.create');
     Route::post('/payment-methods', [PaymentMethodController::class, 'store'])->name('payment_methods.store');
     Route::delete('/payment-methods/{id}', [PaymentMethodController::class, 'destroy'])->name('payment_methods.destroy');
     Route::put('/payment-methods/{id}/toggle', [PaymentMethodController::class, 'toggle'])->name('payment_methods.toggle');
-    // Shipping Methods
+    
+    // Phương thức vận chuyển
     Route::get('/shipping-methods', [ShippingMethodController::class, 'index'])->name('shipping_methods.index');
     Route::get('/shipping-methods/create', [ShippingMethodController::class, 'create'])->name('shipping_methods.create');
     Route::post('/shipping-methods', [ShippingMethodController::class, 'store'])->name('shipping_methods.store');
@@ -112,7 +118,7 @@ Route::prefix('admin')->name('admin.')
     
    
 });
-
+  
 
 
 Route::prefix('client')->name('client.')->group(function () {
