@@ -4,11 +4,11 @@
 
 @section('content')
 <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-    <h3>Add Product</h3>
+    <h3>Thêm sản phẩm</h3>
     <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
         <li>
             <a href="index.html">
-                <div class="text-tiny">Dashboard</div>
+                <div class="text-tiny">Trang chủ</div>
             </a>
         </li>
         <li>
@@ -16,14 +16,14 @@
         </li>
         <li>
             <a href="#">
-                <div class="text-tiny">Product</div>
+                <div class="text-tiny">Sản phẩm</div>
             </a>
         </li>
         <li>
             <i class="icon-chevron-right"></i>
         </li>
         <li>
-            <div class="text-tiny">Add Product</div>
+            <div class="text-tiny">Thêm sản phẩm</div>
         </li>
     </ul>
 </div>
@@ -32,7 +32,7 @@
     @csrf
     <div class="wg-box mb-30">
         <fieldset>
-            <div class="body-title mb-10">Upload images</div>
+            <div class="body-title mb-10">Tải lên ảnh sản phẩm</div>
             <div class="upload-image mb-16" id="drop-area" style="border:2px dashed #ccc; border-radius:8px;">
                 <div class="up-load">
                     <label class="uploadfile" for="myFile" style="width:100%;cursor:pointer;">
@@ -40,7 +40,7 @@
                             <i class="icon-upload-cloud"></i>
                         </span>
                         <div class="text-tiny">
-                            Drop your images here or select <span class="text-secondary">click to browse</span>
+                            Kéo thả ảnh vào đây hoặc <span class="text-secondary">bấm để chọn ảnh</span>
                         </div>
                         <input type="file" id="myFile" name="images[]" multiple required style="display:none;">
                     </label>
@@ -52,53 +52,53 @@
     </div>
     <div class="wg-box mb-30">
         <fieldset class="name">
-            <div class="body-title mb-10">Product title <span class="tf-color-1">*</span></div>
-            <input class="mb-10" type="text" placeholder="Enter title" name="name" maxlength="100" required>
+            <div class="body-title mb-10">Tên sản phẩm <span class="tf-color-1">*</span></div>
+            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" maxlength="100" required>
         </fieldset>
         <fieldset class="category">
-            <div class="body-title mb-10">Category <span class="tf-color-1">*</span></div>
+            <div class="body-title mb-10">Danh mục <span class="tf-color-1">*</span></div>
             <select name="category_id" required>
-                <option value="">-- Choose category --</option>
+                <option value="">-- Chọn danh mục --</option>
                 @foreach($categories as $category)
                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach
             </select>
         </fieldset>
         <fieldset class="brand">
-            <div class="body-title mb-10">Brand <span class="tf-color-1">*</span></div>
+            <div class="body-title mb-10">Thương hiệu <span class="tf-color-1">*</span></div>
             <select name="brand_id" required>
-                <option value="">-- Choose brand --</option>
+                <option value="">-- Chọn thương hiệu --</option>
                 @foreach($brands as $brand)
                 <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                 @endforeach
             </select>
         </fieldset>
         <fieldset class="price">
-            <div class="body-title mb-10">Price <span class="tf-color-1">*</span></div>
+            <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
             <input type="number" name="regular_price" min="0" step="0.01" required>
         </fieldset>
         <fieldset class="short_description">
-            <div class="body-title mb-10">Short Description <span class="tf-color-1">*</span></div>
+            <div class="body-title mb-10">Mô tả ngắn <span class="tf-color-1">*</span></div>
             <textarea name="short_description" maxlength="255" required></textarea>
         </fieldset>
         <fieldset class="description">
-            <div class="body-title mb-10">Description</div>
+            <div class="body-title mb-10">Mô tả chi tiết</div>
             <textarea name="description"></textarea>
         </fieldset>
 
         <!-- VARIANTS -->
         <fieldset class="variants">
-            <div class="body-title mb-10">Variants</div>
+            <div class="body-title mb-10">Biến thể</div>
             <div id="variant-list">
             </div>
             <button type="button" class="tf-button style-1 mt-10" id="add-variant-btn">
-                <i class="icon-plus"></i> Add Variant
+                <i class="icon-plus"></i> Thêm biến thể
             </button>
         </fieldset>
     </div>
     <div class="cols gap10">
-        <button class="tf-button w380" type="submit">Add product</button>
-        <a href="{{ route('admin.products.index') }}" class="tf-button style-3 w380">Cancel</a>
+        <button class="tf-button w380" type="submit">Thêm sản phẩm</button>
+        <a href="{{ route('admin.products.index') }}" class="tf-button style-3 w380">Hủy</a>
     </div>
 </form>
 
@@ -106,7 +106,7 @@
 @php
     $attributeSelects = '';
     foreach($attributes as $attribute) {
-        $attributeSelects .= '<select style="width: 100px;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
+        $attributeSelects .= '<select style="width: 250px;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
         $attributeSelects .= '<option value="">-- '.$attribute->name.' --</option>';
         foreach($attribute->values as $value) {
             $attributeSelects .= '<option value="'.$value->id.'">'.$value->value.'</option>';
@@ -114,7 +114,7 @@
         $attributeSelects .= '</select>';
     }
 
-    $imageOptions = '<option value="">-- Ảnh variant (chọn từ gallery) --</option>';
+    $imageOptions = '<option value="">-- Ảnh biến thể (chọn từ gallery) --</option>';
     foreach($productImages as $img) {
         $imageOptions .= '<option value="'.$img->id.'">Ảnh #'.$img->id.'</option>';
     }
