@@ -46,18 +46,32 @@
                     </li>
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
-                            <div class="icon"><i class="fas fa-tools"></i></div>
-                            <div class="text">Method</div>
+                            <div class="icon"><i class="bi bi-award-fill fs-2"></i></div>
+                            <div class="text">Thương Hiệu</div>
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.payment_methods.index') }}" class="">
-                                    <div class="text">Payment Method</div>
+                                <a href="{{route('admin.brands.index')}}" class="">
+                                    <div class="text">Quản lí</div>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </li>
+                      <li class="menu-item has-children">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon"><i class="fas fa-tools"></i></div>
+                            <div class="text">Phương thức</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{route('admin.payment_methods.index') }}" class="">
+                                    <div class="text">Thanh Toán</div>
                                 </a>
                             </li>
                             <li class="sub-menu-item">
-                                <a href="{{ route('admin.shipping_methods.index') }}" class="">
-                                    <div class="text">Shipping Method</div>
+                                <a href="{{route('admin.shipping_methods.index')}}" class="">
+                                    <div class="text">Giao Hàng</div>
                                 </a>
                             </li>
                         </ul>

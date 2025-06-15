@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -41,6 +42,10 @@ Route::prefix('admin')->name('admin.')
         })
             ->middleware(CheckLogin::class)
             ->name('dashboard');
+        
+       // Quản lý thương hiệu
+       Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
+
 
         //quản lý đánh giá
         Route::get('reviews/export', [ReviewController::class, 'export'])->name('reviews.export');
@@ -123,6 +128,7 @@ Route::prefix('admin')->name('admin.')
         Route::resource('pages', PageController::class);
         Route::resource('reviews', ReviewController::class);
         Route::resource('banners', BannerController::class);
+        Route::resource('brands', BrandController::class);
 
         Route::fallback(function () {
             return response()->view('admin.errors.404', [], 404);

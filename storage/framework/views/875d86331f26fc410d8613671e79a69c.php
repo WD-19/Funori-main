@@ -78,10 +78,13 @@
                     <li>
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
                         <div class="body-title">Start date</div>
                     </li>
                     <li>
 >>>>>>> develop
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         <div class="body-title">Action</div>
                     </li>
                 </ul>
@@ -132,8 +135,12 @@
 <<<<<<< HEAD
                                 <select name="status" onchange="this.form.submit()" style="max-width:200px;">
 =======
+<<<<<<< HEAD
+                                <select name="status" onchange="this.form.submit()" style="max-width:200px;">
+=======
                                 <select name="status" onchange="this.form.submit()" style="min-width:110px;">
 >>>>>>> develop
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                     <option value="published" <?php echo e($product->status == 'published' ? 'selected' : ''); ?>>Published</option>
                                     <option value="draft" <?php echo e($product->status == 'draft' ? 'selected' : ''); ?>>Draft</option>
                                     <option value="archived" <?php echo e($product->status == 'archived' ? 'selected' : ''); ?>>Archived</option>
@@ -142,11 +149,14 @@
                         </div>
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
                         <div class="body-text text-main-dark mt-4">
                             <?php echo e($product->created_at ? $product->created_at->format('m/d/Y') : ''); ?>
 
                         </div>
 >>>>>>> develop
+>>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         <div class="list-icon-function">
                             <div class="item eye">
                                 <a href="<?php echo e(route('admin.products.show', $product->id)); ?>"><i class="icon-eye"></i></a>
