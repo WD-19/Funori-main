@@ -20,6 +20,8 @@ return new class extends Migration
             $table->text('comment')->nullable(); // Nội dung bình luận (nullable) [cite: 35]
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Trạng thái (mặc định: 'pending' - chờ duyệt) [cite: 35]
             $table->timestamps(); // Thời gian tạo và cập nhật [cite: 35]
+            $table->softDeletes(); // Tạo cột 'deleted_at' nullable
+
         });
     }
 

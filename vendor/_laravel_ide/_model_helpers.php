@@ -6753,6 +6753,7 @@ namespace App\Models {
     /**
      * App\Models\Review
      *
+     * @property \Illuminate\Support\Carbon|null $deleted_at
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property string $status
@@ -6774,6 +6775,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereUpdatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereDeletedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review query()

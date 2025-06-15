@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
@@ -12,14 +13,24 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\client\auth\LoginController;
+use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Middleware\CheckLogin;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('client.auth.login');
+    if (Auth::check()) {
+        $user = Auth::user();
+        // Nếu là admin, chuyển về dashboard admin
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        // Nếu là user, chuyển về dashboard user
+        return redirect()->route('client.dashboard');
+    }
+    // Nếu chưa đăng nhập, chuyển về trang đăng nhập
+    return redirect()->route('client.login.index');
 });
 
 Route::prefix('admin')->name('admin.')
@@ -30,6 +41,12 @@ Route::prefix('admin')->name('admin.')
         })
             ->middleware(CheckLogin::class)
             ->name('dashboard');
+
+        //quản lý đánh giá
+        Route::get('reviews/export', [ReviewController::class, 'export'])->name('reviews.export');
+        Route::get('reviews/trash', [ReviewController::class, 'trash'])->name('reviews.trash');
+        Route::put('reviews/{id}/restore', [ReviewController::class, 'restore'])->name('reviews.restore');
+        Route::delete('reviews/{id}/force-delete', [ReviewController::class, 'forceDelete'])->name('reviews.forceDelete');
 
         //quản lý liên hệ
         Route::get('contacts/export', [ContactController::class, 'export'])->name('contacts.export');
@@ -54,7 +71,7 @@ Route::prefix('admin')->name('admin.')
 
         // Quản lý user
         Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
-        Route::post('users/{id}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
         Route::get('users/{user}/order-history', [UserController::class, 'orderHistory'])->name('users.orderHistory');
 
         // Quản lý đơn hàng
@@ -92,7 +109,9 @@ Route::prefix('admin')->name('admin.')
         Route::get('orders-stats', [OrderController::class, 'stats'])->name('orders.stats');
         // Xuất file Excel/CSV đơn hàng
         Route::get('orders-export', [OrderController::class, 'export'])->name('orders.export');
-
+        // banner
+        Route::post('banners/reorder', [BannerController::class, 'reorder'])->name('banners.reorder');
+        Route::post('banners/{banner}/toggle', [BannerController::class, 'toggle'])->name('banners.toggle');
         // Login và Register
 
         Route::resource('products', ProductController::class);
@@ -103,6 +122,11 @@ Route::prefix('admin')->name('admin.')
         Route::resource('contacts', ContactController::class);
         Route::resource('pages', PageController::class);
         Route::resource('reviews', ReviewController::class);
+        Route::resource('banners', BannerController::class);
+
+        Route::fallback(function () {
+            return response()->view('admin.errors.404', [], 404);
+        });
     });
 
 
@@ -119,4 +143,8 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::fallback(function () {
+        return response()->view('client.errors.404', [], 404);
+    });
 });

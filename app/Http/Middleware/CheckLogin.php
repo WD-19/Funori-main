@@ -9,12 +9,13 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckLogin
 {
-    public function handle(Request $request, Closure $next)
+     public function handle($request, Closure $next)
     {
-        if (!Auth::check()) {
-            return redirect()->route('client.login.index')->with('error', 'Vui lòng đăng nhập để tiếp tục.');
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            return redirect()->route('client.login.index');
         }
-
         return $next($request);
     }
 }
+
+
