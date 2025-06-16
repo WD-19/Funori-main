@@ -7,7 +7,7 @@
     <h3>Cập nhật sản phẩm</h3>
     <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
         <li>
-            <a href="index.html">
+            <a href="{{ route('admin.dashboard') }}">
                 <div class="text-tiny">Trang chủ</div>
             </a>
         </li>
@@ -15,7 +15,7 @@
             <i class="icon-chevron-right"></i>
         </li>
         <li>
-            <a href="#">
+            <a href="{{ route('admin.products.index') }}">
                 <div class="text-tiny">Sản phẩm</div>
             </a>
         </li>
@@ -27,6 +27,17 @@
         </li>
     </ul>
 </div>
+
+@if($errors->any())
+    <div class="alert alert-danger mb-3">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <!-- form-edit-product -->
 <form class="form-edit-product" method="POST" action="{{ route('admin.products.update', $product->id) }}" enctype="multipart/form-data">
     @csrf
@@ -48,8 +59,10 @@
                 </div>
                 <div class="flex gap20 flex-wrap" id="gallery">
                     @foreach($productImages as $img)
-                    <div class="item">
+                    <div class="item position-relative" data-image-id="{{ $img->id }}">
                         <img src="{{ asset($img->image_url) }}" style="max-width:80px; max-height:80px; object-fit:cover; border:1px solid #eee; border-radius:4px;">
+                        <button type="button" class="btn btn-danger btn-sm btn-remove-image" style="position:absolute;top:2px;right:2px;padding:2px 6px;line-height:1;font-size:14px;" data-image-id="{{ $img->id }}">×</button>
+                        <input type="hidden" name="keep_images[]" value="{{ $img->id }}">
                     </div>
                     @endforeach
                 </div>
@@ -59,14 +72,14 @@
     <div class="wg-box mb-30">
         <fieldset class="name">
             <div class="body-title mb-10">Tên sản phẩm <span class="tf-color-1">*</span></div>
-            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" value="{{ $product->name }}" maxlength="100" required>
+            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" value="{{ old('name', $product->name) }}" maxlength="100" required>
         </fieldset>
         <fieldset class="category">
             <div class="body-title mb-10">Danh mục <span class="tf-color-1">*</span></div>
             <select name="category_id" required>
                 <option value="">-- Chọn danh mục --</option>
                 @foreach($categories as $category)
-                <option value="{{ $category->id }}" @if($product->category_id == $category->id) selected @endif>{{ $category->name }}</option>
+                <option value="{{ $category->id }}" @if(old('category_id', $product->category_id) == $category->id) selected @endif>{{ $category->name }}</option>
                 @endforeach
             </select>
         </fieldset>
@@ -75,21 +88,21 @@
             <select name="brand_id" required>
                 <option value="">-- Chọn thương hiệu --</option>
                 @foreach($brands as $brand)
-                <option value="{{ $brand->id }}" @if($product->brand_id == $brand->id) selected @endif>{{ $brand->name }}</option>
+                <option value="{{ $brand->id }}" @if(old('brand_id', $product->brand_id) == $brand->id) selected @endif>{{ $brand->name }}</option>
                 @endforeach
             </select>
         </fieldset>
         <fieldset class="price">
             <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
-            <input type="number" name="regular_price" min="0" step="0.01" value="{{ $product->regular_price }}" required>
+            <input type="number" name="regular_price" min="0" step="0.01" value="{{ old('regular_price', $product->regular_price) }}" required>
         </fieldset>
         <fieldset class="short_description">
             <div class="body-title mb-10">Mô tả ngắn <span class="tf-color-1">*</span></div>
-            <textarea name="short_description" maxlength="255" required>{{ $product->short_description }}</textarea>
+            <textarea name="short_description" maxlength="255" required>{{ old('short_description', $product->short_description) }}</textarea>
         </fieldset>
         <fieldset class="description">
             <div class="body-title mb-10">Mô tả chi tiết</div>
-            <textarea name="description">{{ $product->description }}</textarea>
+            <textarea name="description">{{ old('description', $product->description) }}</textarea>
         </fieldset>
 
         <!-- VARIANTS -->
@@ -110,15 +123,15 @@
                         @endforeach
                     </select>
                     @endforeach
-                    <input type="text" name="variants[{{ $i }}][size]" value="{{ old('variants.'.$i.'.size', $variant->size ?? '') }}" placeholder="Kích thước (ví dụ: 120x60x75 cm)">
-                    <input style="width: 150px;" type="number" name="variants[{{ $i }}][price_modifier]" value="{{ $variant->price_modifier }}" placeholder="Giá chênh lệch" step="0.01">
-                    <input style="width: 100px;" type="number" name="variants[{{ $i }}][stock_quantity]" value="{{ $variant->stock_quantity }}" placeholder="Kho" min="0">
+                    <input type="text" name="variants[{{ $i }}][size]" value="{{ old('variants.'.$i.'.size', $variant->size ?? '') }}" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
+                    <input style="width: 150px;" type="number" name="variants[{{ $i }}][price_modifier]" value="{{ old('variants.'.$i.'.price_modifier', $variant->price_modifier) }}" placeholder="Giá chênh lệch" step="0.01">
+                    <input style="width: 100px;" type="number" name="variants[{{ $i }}][stock_quantity]" value="{{ old('variants.'.$i.'.stock_quantity', $variant->stock_quantity) }}" placeholder="Kho" min="0">
 
                     <div class="d-flex flex-column align-items-center" style="min-width:150px;">
                         <img
                             class="variant-preview mb-1"
                             src="{{ $variant->image ? asset($variant->image->image_url) : '' }}"
-                            style="width:100px;height:100px;object-fit:cover;border-radius:4px;border:1px solid #eee;">
+                            style="width:80px;height:80px;object-fit:cover;border-radius:4px;border:1px solid #eee;">
                         <input type="file" name="variants[{{ $i }}][new_image]" accept="image/*" class="form-control form-control-sm variant-file-input" style="width:110px;">
                     </div>
                     <button type="hidden" style="padding:0 8px; width: 50px; height: 50px;"></button>
@@ -136,21 +149,15 @@
     </div>
 </form>
 
-
 @php
 $attributeSelects = '';
 foreach($attributes as $attribute) {
-$attributeSelects .= '<select  style="width: 60%;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
+    $attributeSelects .= '<select style="width: 60%;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
     $attributeSelects .= '<option value="">-- '.$attribute->name.' --</option>';
     foreach($attribute->values as $value) {
-    $attributeSelects .= '<option value="'.$value->id.'">'.$value->value.'</option>';
+        $attributeSelects .= '<option value="'.$value->id.'">'.$value->value.'</option>';
     }
     $attributeSelects .= '</select>';
-}
-
-$imageOptions = '<option value="">-- Ảnh biến thể (chọn từ gallery) --</option>';
-foreach($productImages as $img) {
-$imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url).'">Ảnh #'.$img->id.'</option>';
 }
 @endphp
 
@@ -161,6 +168,21 @@ $imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url
         const gallery = document.getElementById('gallery');
         let filesArray = [];
 
+        // XÓA ẢNH SẢN PHẨM ĐÃ CÓ
+        gallery.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-remove-image')) {
+                const imageId = e.target.getAttribute('data-image-id');
+                const item = e.target.closest('.item');
+                if (item) {
+                    item.remove();
+                }
+                // Xóa input keep_images tương ứng
+                const inputKeep = gallery.querySelector('input[name="keep_images[]"][value="' + imageId + '"]');
+                if (inputKeep) inputKeep.remove();
+            }
+        });
+
+        // DRAG & DROP ẢNH MỚI
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, e => e.preventDefault(), false);
             dropArea.addEventListener(eventName, e => e.stopPropagation(), false);
@@ -180,7 +202,6 @@ $imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url
             updateInputFiles();
             previewFiles(filesArray);
         };
-        dropArea.querySelector('label').onclick = () => input.click();
         input.addEventListener('change', function() {
             const files = Array.from(this.files);
             filesArray = filesArray.concat(files);
@@ -195,13 +216,13 @@ $imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url
         };
 
         function previewFiles(files) {
-            gallery.innerHTML = '';
+            // Hiển thị ảnh mới chọn (không ảnh cũ)
             files.forEach(file => {
                 if (!file.type.startsWith('image/')) return;
                 const reader = new FileReader();
                 reader.onload = e => {
                     const div = document.createElement('div');
-                    div.className = 'item';
+                    div.className = 'item position-relative';
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.style.maxWidth = '80px';
@@ -216,10 +237,10 @@ $imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url
             });
         };
 
+        // VARIANT JS
         const variantList = document.getElementById('variant-list');
         const addVariantBtn = document.getElementById('add-variant-btn');
         const attributeSelectsTemplate = `{!! addslashes($attributeSelects) !!}`;
-        const imageOptionsTemplate = `{!! addslashes($imageOptions) !!}`;
         let variantIndex = variantList.querySelectorAll('.variant-row').length;
         addVariantBtn.addEventListener('click', function() {
             const variantDiv = document.createElement('div');
@@ -227,66 +248,19 @@ $imageOptions .= '<option value="'.$img->id.'" data-url="'.asset($img->image_url
             let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${variantIndex}]`);
             variantDiv.innerHTML = `
                 ${selects}
-                <input type="text" name="variants[${variantIndex}][size]" placeholder="Kích thước (ví dụ: 120x60x75 cm)" class="form-control form-control-sm">
-                <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" class="form-control form-control-sm" style="width: 150px;">
-                <input style="width: 100px;" type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" class="form-control form-control-sm">
-                <div class="d-flex flex-column align-items-center" style="min-width:150px;">
-                    <img class="variant-preview mb-1" src="" style="width:80px;height:80px;object-fit:cover;border-radius:4px;border:1px solid #eee;display:none;">
-                    <input type="file" name="variants[${variantIndex}][new_image]" accept="image/*" class="form-control form-control-sm variant-file-input" style="width:110px;">
-                </div>
-                <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">&times;</button>
+                <input type="text" name="variants[${variantIndex}][size]" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
+                <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+                <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
+                <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="width:180px;">
+                <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">&times;</button> <br>
             `;
-            variantDiv.querySelector('.remove-variant').onclick = function() {
-                variantDiv.remove();
-            };
             variantList.appendChild(variantDiv);
 
-            // Hiển thị ảnh khi chọn
-            const selectImg = variantDiv.querySelector('select[name^="variants"][name$="[image_id]"]');
-            const previewImg = variantDiv.querySelector('.variant-preview');
-            if (selectImg) {
-                selectImg.addEventListener('change', function() {
-                    const imgId = this.value;
-                    if (imgId) {
-                        const imgOption = this.querySelector('option[value="' + imgId + '"]');
-                        if (imgOption) {
-                            const url = imgOption.getAttribute('data-url');
-                            if (url) {
-                                previewImg.src = url;
-                                previewImg.style.display = '';
-                            }
-                        }
-                    } else {
-                        previewImg.style.display = 'none';
-                    }
-                });
-            }
             variantDiv.querySelector('.remove-variant').onclick = function() {
                 variantDiv.remove();
             };
             variantIndex++;
         });
-
-        document.querySelectorAll('#variant-list .variant-row').forEach(function(variantDiv) {
-            const selectImg = variantDiv.querySelector('select[name$="[image_id]"]');
-            const previewImg = variantDiv.querySelector('.variant-preview');
-            if (selectImg) {
-                selectImg.addEventListener('change', function() {
-                    const imgId = this.value;
-                    const imgOption = this.querySelector('option[value="' + imgId + '"]');
-                    if (imgId && imgOption) {
-                        const url = imgOption.getAttribute('data-url');
-                        if (url) {
-                            previewImg.src = url;
-                            previewImg.style.display = '';
-                        }
-                    } else {
-                        previewImg.style.display = 'none';
-                    }
-                });
-            }
-        });
-
     });
 </script>
 

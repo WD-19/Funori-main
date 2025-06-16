@@ -7,7 +7,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 bg-white px-3 py-2 rounded shadow-sm">
                 <li class="breadcrumb-item">
-                    <a href="<?php echo e(route('admin.dashboard')); ?>">Dashboard</a>
+                    <a href="<?php echo e(route('admin.dashboard')); ?>">Trang chủ</a>
                 </li>
                 <li class="breadcrumb-item">
                     <a href="<?php echo e(route('admin.products.index')); ?>">Sản phẩm</a>
@@ -29,7 +29,7 @@
                         <dt class="col-sm-4">Tên sản phẩm:</dt>
                         <dd class="col-sm-8 fw-semibold"><?php echo e($product->name); ?></dd>
 
-                        <dt class="col-sm-4">Slug:</dt>
+                        <dt class="col-sm-4">Đường dẫn (Slug):</dt>
                         <dd class="col-sm-8"><?php echo e($product->slug); ?></dd>
 
                         <dt class="col-sm-4">Danh mục:</dt>
@@ -89,7 +89,7 @@
                                 <tr>
                                     <td class="text-center">
                                         <?php if($variant->image): ?>
-                                            <img src="<?php echo e(asset($variant->image->image_url)); ?>" alt="Ảnh variant" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                            <img src="<?php echo e(asset($variant->image->image_url)); ?>" alt="Ảnh biến thể" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
