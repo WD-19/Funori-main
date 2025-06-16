@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Danh sách thuộc tính'); ?>
 
 <?php $__env->startSection('content'); ?>

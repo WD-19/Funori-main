@@ -1,11 +1,11 @@
-<?php $__env->startSection('title', 'Danh sách sản phẩm'); ?>
+<?php $__env->startSection('title', 'Thêm sản phẩm'); ?>
 
 <?php $__env->startSection('content'); ?>
 <div class="flex items-center flex-wrap justify-between gap20 mb-30">
     <h3>Thêm sản phẩm</h3>
     <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
         <li>
-            <a href="index.html">
+            <a href="<?php echo e(route('admin.dashboard')); ?>">
                 <div class="text-tiny">Trang chủ</div>
             </a>
         </li>
@@ -13,7 +13,7 @@
             <i class="icon-chevron-right"></i>
         </li>
         <li>
-            <a href="#">
+            <a href="<?php echo e(route('admin.products.index')); ?>">
                 <div class="text-tiny">Sản phẩm</div>
             </a>
         </li>
@@ -25,7 +25,17 @@
         </li>
     </ul>
 </div>
-<!-- form-add-product -->
+
+<?php if($errors->any()): ?>
+    <div class="alert alert-danger mb-3">
+        <ul class="mb-0">
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <li><?php echo e($error); ?></li>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </ul>
+    </div>
+<?php endif; ?>
+
 <form class="form-add-product" method="POST" action="<?php echo e(route('admin.products.store')); ?>" enctype="multipart/form-data">
     <?php echo csrf_field(); ?>
     <div class="wg-box mb-30">
@@ -40,7 +50,7 @@
                         <div class="text-tiny">
                             Kéo thả ảnh vào đây hoặc <span class="text-secondary">bấm để chọn ảnh</span>
                         </div>
-                        <input type="file" id="myFile" name="images[]" multiple required style="display:none;">
+                        <input type="file" id="myFile" name="images[]" multiple  style="display:none;">
                     </label>
                 </div>
                 <div class="flex gap20 flex-wrap" id="gallery">
@@ -51,44 +61,46 @@
     <div class="wg-box mb-30">
         <fieldset class="name">
             <div class="body-title mb-10">Tên sản phẩm <span class="tf-color-1">*</span></div>
-            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" maxlength="100" required>
+            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" maxlength="100"  value="<?php echo e(old('name')); ?>">
         </fieldset>
         <fieldset class="category">
             <div class="body-title mb-10">Danh mục <span class="tf-color-1">*</span></div>
-            <select name="category_id" required>
+            <select name="category_id" >
                 <option value="">-- Chọn danh mục --</option>
                 <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <option value="<?php echo e($category->id); ?>"><?php echo e($category->name); ?></option>
+                <option value="<?php echo e($category->id); ?>" <?php if(old('category_id') == $category->id): ?> selected <?php endif; ?>><?php echo e($category->name); ?></option>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </select>
         </fieldset>
         <fieldset class="brand">
             <div class="body-title mb-10">Thương hiệu <span class="tf-color-1">*</span></div>
-            <select name="brand_id" required>
+            <select name="brand_id" >
                 <option value="">-- Chọn thương hiệu --</option>
                 <?php $__currentLoopData = $brands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $brand): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <option value="<?php echo e($brand->id); ?>"><?php echo e($brand->name); ?></option>
+                <option value="<?php echo e($brand->id); ?>" <?php if(old('brand_id') == $brand->id): ?> selected <?php endif; ?>><?php echo e($brand->name); ?></option>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </select>
         </fieldset>
         <fieldset class="price">
             <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
-            <input type="number" name="regular_price" min="0" step="0.01" required>
+            <input type="number" name="regular_price" min="0" step="0.01"  value="<?php echo e(old('regular_price')); ?>">
         </fieldset>
         <fieldset class="short_description">
             <div class="body-title mb-10">Mô tả ngắn <span class="tf-color-1">*</span></div>
-            <textarea name="short_description" maxlength="255" required></textarea>
+            <textarea name="short_description" maxlength="255" ><?php echo e(old('short_description')); ?></textarea>
         </fieldset>
         <fieldset class="description">
             <div class="body-title mb-10">Mô tả chi tiết</div>
-            <textarea name="description"></textarea>
+            <textarea name="description"><?php echo e(old('description')); ?></textarea>
         </fieldset>
 
         <!-- VARIANTS -->
         <fieldset class="variants">
             <div class="body-title mb-10">Biến thể</div>
             <div id="variant-list">
+                <br>
             </div>
+            <br><br>
             <button type="button" class="tf-button style-1 mt-10" id="add-variant-btn">
                 <i class="icon-plus"></i> Thêm biến thể
             </button>
@@ -100,21 +112,15 @@
     </div>
 </form>
 
-
 <?php
     $attributeSelects = '';
     foreach($attributes as $attribute) {
-        $attributeSelects .= '<select style="width: 250px;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
+        $attributeSelects .= '<select style="width: 60%;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" >';
         $attributeSelects .= '<option value="">-- '.$attribute->name.' --</option>';
         foreach($attribute->values as $value) {
             $attributeSelects .= '<option value="'.$value->id.'">'.$value->value.'</option>';
         }
         $attributeSelects .= '</select>';
-    }
-
-    $imageOptions = '<option value="">-- Ảnh biến thể (chọn từ gallery) --</option>';
-    foreach($productImages as $img) {
-        $imageOptions .= '<option value="'.$img->id.'">Ảnh #'.$img->id.'</option>';
     }
 ?>
 
@@ -144,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateInputFiles();
         previewFiles(filesArray);
     }
-    dropArea.querySelector('label').onclick = () => input.click();
     input.addEventListener('change', function() {
         const files = Array.from(this.files);
         filesArray = filesArray.concat(files);
@@ -183,19 +188,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let variantIndex = 0;
 
     const attributeSelectsTemplate = `<?php echo addslashes($attributeSelects); ?>`;
-    const imageOptionsTemplate = `<?php echo addslashes($imageOptions); ?>`;
 
     addVariantBtn.addEventListener('click', function() {
         const variantDiv = document.createElement('div');
-        variantDiv.className = 'variant-row flex gap10 mb-2';
+        variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
         let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${variantIndex}]`);
         variantDiv.innerHTML = `
             ${selects}
             <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width:200px;">
-            <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width:100px;">
+            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+            <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
             <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="width:180px;">
-            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px;">&times;</button>
+            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">&times;</button>
         `;
         variantList.appendChild(variantDiv);
 
