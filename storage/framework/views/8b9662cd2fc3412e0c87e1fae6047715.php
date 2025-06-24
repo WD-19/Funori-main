@@ -1,1 +1,0 @@
-<?php /**PATH C:\laragon\www\Funori-main\resources\views/client/index.blade.php ENDPATH**/ ?>

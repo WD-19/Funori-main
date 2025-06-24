@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
+use App\Http\Controllers\client\ClientController;
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -31,7 +32,7 @@ Route::get('/', function () {
         return redirect()->route('client.dashboard');
     }
     // Nếu chưa đăng nhập, chuyển về trang đăng nhập
-    return redirect()->route('client.login.index');
+    return redirect()->route('client.home');
 });
 
 Route::prefix('admin')->name('admin.')
@@ -42,9 +43,9 @@ Route::prefix('admin')->name('admin.')
         })
             ->middleware(CheckLogin::class)
             ->name('dashboard');
-        
-       // Quản lý thương hiệu
-       Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
+
+        // Quản lý thương hiệu
+        Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
 
 
         //quản lý đánh giá
@@ -138,19 +139,18 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
-
-
 Route::prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
+
+    Route::get('/home', [ClientController::class, 'index'])->name('home');
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.index');
     Route::post('/login', [LoginController::class, 'login']);
-
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::fallback(function () {
