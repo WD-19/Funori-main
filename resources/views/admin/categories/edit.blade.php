@@ -21,13 +21,20 @@
                 <input type="hidden" name="slug" id="slug" value="{{ old('slug', $category->slug) }}">
 
                 <fieldset class="category">
-                    <div class="body-title">Danh mục cha</div>
+                    <div class="body-title">Danh mục</div>
                     <div class="select flex-grow">
                         <select name="parent_id" id="parent_id" class="@error('parent_id') is-invalid @enderror">
-                            <option value="">-- Không có --</option>
+                            <option value="">-- Danh mục cha --</option>
                             @foreach ($parents as $parent)
                                 <option value="{{ $parent->id }}"
-                                    {{ old('parent_id', $category->parent_id) == $parent->id ? 'selected' : '' }}>
+                                    @if (
+                                        (session('error') && is_null($category->parent_id) && $category->children()->count() > 0)
+                                            ? ($category->parent_id == $parent->id)
+                                            : (old('parent_id', $category->parent_id) == $parent->id)
+                                    )
+                                        selected
+                                    @endif
+                                >
                                     {{ $parent->name }}
                                 </option>
                             @endforeach
@@ -119,6 +126,5 @@
             document.getElementById('slug').value = slug;
         });
 
-        // Hiển thị ảnh xem trước khi tải lên
     </script>
 @endsection
