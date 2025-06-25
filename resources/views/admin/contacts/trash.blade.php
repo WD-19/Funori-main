@@ -57,7 +57,7 @@
                         </li>
                     </ul>
                     <ul class="flex flex-column">
-                        @foreach ($contacts as $value)
+                        @forelse ($contacts as $value)
                             <li class="wg-product item-row gap20">
                                 <div class="body-text text-main-dark mt-4">{{ $value->email }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ $value->name }}</div>
@@ -98,9 +98,12 @@
                                         </form>
                                     </div>
                                 </div>
-
                             </li>
-                        @endforeach
+                        @empty
+                            <li class="body-text text-center w-full py-4" style="font-size: 1.1rem; color: #888;">
+                                Không có liên hệ nào trong thùng rác.
+                            </li>
+                        @endforelse
                     </ul>
                 </div>
                 <div class="divider"></div>

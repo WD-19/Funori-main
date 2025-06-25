@@ -19,7 +19,7 @@ class ReviewController
         // Tìm kiếm theo tên user hoặc tên sản phẩm
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
-            $query->where(function($q) use ($keyword) {
+            $query->where(function ($q) use ($keyword) {
                 $q->whereHas('user', function ($q2) use ($keyword) {
                     $q2->where('full_name', 'like', "%$keyword%");
                 })->orWhereHas('product', function ($q2) use ($keyword) {
@@ -89,7 +89,7 @@ class ReviewController
         $review->status = $request->status;
         $review->save();
 
-        return redirect()->route('admin.reviews.index')->with('success', 'Review updated successfully!');
+        return redirect()->route('admin.reviews.index')->with('success', 'Cập nhật đánh giá thành công!');
     }
 
     /**
@@ -100,6 +100,75 @@ class ReviewController
         $reviews = Review::findOrFail($id);
         $reviews->delete();
 
-        return redirect()->route('admin.reviews.index')->with('success', 'Review deleted successfully!');
+        return redirect()->route('admin.reviews.index')->with('success', 'Xóa đánh giá thành công!');
+    }
+
+    public function export()
+    {
+        $reviews = Review::with(['user', 'product', 'orderItem'])->get();
+
+        $filename = 'reviews_' . date('Ymd_His') . '.csv';
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = [
+            'ID',
+            'User',
+            'Product',
+            'Order Item',
+            'Rating',
+            'Comment',
+            'Status',
+            'Created At'
+        ];
+
+        $callback = function () use ($reviews, $columns) {
+            if (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($reviews as $review) {
+                fputcsv($file, [
+                    $review->id,
+                    $review->user->full_name ?? '',
+                    $review->product->name ?? '',
+                    $review->orderItem->id ?? '',
+                    $review->rating,
+                    $review->comment,
+                    $review->status,
+                    $review->created_at,
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    function trash()
+    {
+        $reviews = Review::onlyTrashed()->paginate(10);
+        return view('admin.reviews.trash', compact('reviews'));
+    }
+
+    public function restore($id)
+    {
+        $contact = Review::onlyTrashed()->findOrFail($id);
+        $contact->restore();
+        return redirect()->route('admin.reviews.trash')->with('success', 'Khôi phục đánh giá thành công!');
+    }
+
+    public function forceDelete($id)
+    {
+        $contact = Review::onlyTrashed()->findOrFail($id);
+        $contact->forceDelete();
+        return redirect()->route('admin.reviews.trash')->with('success', 'Xóa vĩnh viễn đánh giá thành công!');
     }
 }

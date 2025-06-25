@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Category;
+use Illuminate\Support\Str;
+
 
 class CategorySeeder extends Seeder
 {
@@ -13,17 +14,23 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        // Tạo một số danh mục gốc
-        $rootCategories = Category::factory(5)->create(['parent_id' => null]);
-
-        // Tạo danh mục con cho mỗi danh mục gốc
-        $rootCategories->each(function ($rootCategory) {
-            Category::factory(rand(2, 4))->create(['parent_id' => $rootCategory->id])->each(function ($childCategory) {
-                // Tạo danh mục cháu cho một số danh mục con
-                if (rand(0, 1)) { // 50% cơ hội có danh mục cháu
-                    Category::factory(rand(1, 2))->create(['parent_id' => $childCategory->id]);
-                }
-            });
-        });
+        $danhMuc = [
+            'Ghế Sofa', 'Bàn Trà', 'Tủ Quần Áo', 'Giường Ngủ', 'Kệ Tivi'
+        ];
+        foreach ($danhMuc as $ten) {
+            $cat = Category::create([
+                'name' => $ten,
+                'slug' => Str::slug($ten),
+                'parent_id' => null
+            ]);
+            foreach (['Cao cấp', 'Phổ thông'] as $tenCon) {
+                $tenDanhMucCon = $tenCon . ' ' . $ten;
+                Category::create([
+                    'name' => $tenDanhMucCon,
+                    'slug' => Str::slug($tenDanhMucCon),
+                    'parent_id' => $cat->id
+                ]);
+            }
+        }
     }
 }

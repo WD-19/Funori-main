@@ -1,38 +1,48 @@
 @extends('admin.layout.admin')
 
-@section('title', 'Danh sách sản phẩm')
+@section('title', 'Thêm sản phẩm')
 
 @section('content')
 <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-    <h3>Add Product</h3>
+    <h3>Thêm sản phẩm</h3>
     <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
         <li>
-            <a href="index.html">
-                <div class="text-tiny">Dashboard</div>
+            <a href="{{ route('admin.dashboard') }}">
+                <div class="text-tiny">Trang chủ</div>
             </a>
         </li>
         <li>
             <i class="icon-chevron-right"></i>
         </li>
         <li>
-            <a href="#">
-                <div class="text-tiny">Product</div>
+            <a href="{{ route('admin.products.index') }}">
+                <div class="text-tiny">Sản phẩm</div>
             </a>
         </li>
         <li>
             <i class="icon-chevron-right"></i>
         </li>
         <li>
-            <div class="text-tiny">Add Product</div>
+            <div class="text-tiny">Thêm sản phẩm</div>
         </li>
     </ul>
 </div>
-<!-- form-add-product -->
+
+@if($errors->any())
+    <div class="alert alert-danger mb-3">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <form class="form-add-product" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
     @csrf
     <div class="wg-box mb-30">
         <fieldset>
-            <div class="body-title mb-10">Upload images</div>
+            <div class="body-title mb-10">Tải lên ảnh sản phẩm</div>
             <div class="upload-image mb-16" id="drop-area" style="border:2px dashed #ccc; border-radius:8px;">
                 <div class="up-load">
                     <label class="uploadfile" for="myFile" style="width:100%;cursor:pointer;">
@@ -40,9 +50,9 @@
                             <i class="icon-upload-cloud"></i>
                         </span>
                         <div class="text-tiny">
-                            Drop your images here or select <span class="text-secondary">click to browse</span>
+                            Kéo thả ảnh vào đây hoặc <span class="text-secondary">bấm để chọn ảnh</span>
                         </div>
-                        <input type="file" id="myFile" name="images[]" multiple required style="display:none;">
+                        <input type="file" id="myFile" name="images[]" multiple  style="display:none;">
                     </label>
                 </div>
                 <div class="flex gap20 flex-wrap" id="gallery">
@@ -52,71 +62,67 @@
     </div>
     <div class="wg-box mb-30">
         <fieldset class="name">
-            <div class="body-title mb-10">Product title <span class="tf-color-1">*</span></div>
-            <input class="mb-10" type="text" placeholder="Enter title" name="name" maxlength="100" required>
+            <div class="body-title mb-10">Tên sản phẩm <span class="tf-color-1">*</span></div>
+            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" maxlength="100"  value="{{ old('name') }}">
         </fieldset>
         <fieldset class="category">
-            <div class="body-title mb-10">Category <span class="tf-color-1">*</span></div>
-            <select name="category_id" required>
-                <option value="">-- Choose category --</option>
+            <div class="body-title mb-10">Danh mục <span class="tf-color-1">*</span></div>
+            <select name="category_id" >
+                <option value="">-- Chọn danh mục --</option>
                 @foreach($categories as $category)
-                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                <option value="{{ $category->id }}" @if(old('category_id') == $category->id) selected @endif>{{ $category->name }}</option>
                 @endforeach
             </select>
         </fieldset>
         <fieldset class="brand">
-            <div class="body-title mb-10">Brand <span class="tf-color-1">*</span></div>
-            <select name="brand_id" required>
-                <option value="">-- Choose brand --</option>
+            <div class="body-title mb-10">Thương hiệu <span class="tf-color-1">*</span></div>
+            <select name="brand_id" >
+                <option value="">-- Chọn thương hiệu --</option>
                 @foreach($brands as $brand)
-                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                <option value="{{ $brand->id }}" @if(old('brand_id') == $brand->id) selected @endif>{{ $brand->name }}</option>
                 @endforeach
             </select>
         </fieldset>
         <fieldset class="price">
-            <div class="body-title mb-10">Price <span class="tf-color-1">*</span></div>
-            <input type="number" name="regular_price" min="0" step="0.01" required>
+            <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
+            <input type="number" name="regular_price" min="0" step="0.01"  value="{{ old('regular_price') }}">
         </fieldset>
         <fieldset class="short_description">
-            <div class="body-title mb-10">Short Description <span class="tf-color-1">*</span></div>
-            <textarea name="short_description" maxlength="255" required></textarea>
+            <div class="body-title mb-10">Mô tả ngắn <span class="tf-color-1">*</span></div>
+            <textarea name="short_description" maxlength="255" >{{ old('short_description') }}</textarea>
         </fieldset>
         <fieldset class="description">
-            <div class="body-title mb-10">Description</div>
-            <textarea name="description"></textarea>
+            <div class="body-title mb-10">Mô tả chi tiết</div>
+            <textarea name="description">{{ old('description') }}</textarea>
         </fieldset>
 
         <!-- VARIANTS -->
         <fieldset class="variants">
-            <div class="body-title mb-10">Variants</div>
+            <div class="body-title mb-10">Biến thể</div>
             <div id="variant-list">
+                <br>
             </div>
+            <br><br>
             <button type="button" class="tf-button style-1 mt-10" id="add-variant-btn">
-                <i class="icon-plus"></i> Add Variant
+                <i class="icon-plus"></i> Thêm biến thể
             </button>
         </fieldset>
     </div>
     <div class="cols gap10">
-        <button class="tf-button w380" type="submit">Add product</button>
-        <a href="{{ route('admin.products.index') }}" class="tf-button style-3 w380">Cancel</a>
+        <button class="tf-button w380" type="submit">Thêm sản phẩm</button>
+        <a href="{{ route('admin.products.index') }}" class="tf-button style-3 w380">Hủy</a>
     </div>
 </form>
-
 
 @php
     $attributeSelects = '';
     foreach($attributes as $attribute) {
-        $attributeSelects .= '<select style="width: 100px;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
+        $attributeSelects .= '<select style="width: 60%;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" >';
         $attributeSelects .= '<option value="">-- '.$attribute->name.' --</option>';
         foreach($attribute->values as $value) {
             $attributeSelects .= '<option value="'.$value->id.'">'.$value->value.'</option>';
         }
         $attributeSelects .= '</select>';
-    }
-
-    $imageOptions = '<option value="">-- Ảnh variant (chọn từ gallery) --</option>';
-    foreach($productImages as $img) {
-        $imageOptions .= '<option value="'.$img->id.'">Ảnh #'.$img->id.'</option>';
     }
 @endphp
 
@@ -146,7 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateInputFiles();
         previewFiles(filesArray);
     }
-    dropArea.querySelector('label').onclick = () => input.click();
     input.addEventListener('change', function() {
         const files = Array.from(this.files);
         filesArray = filesArray.concat(files);
@@ -185,19 +190,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let variantIndex = 0;
 
     const attributeSelectsTemplate = `{!! addslashes($attributeSelects) !!}`;
-    const imageOptionsTemplate = `{!! addslashes($imageOptions) !!}`;
 
     addVariantBtn.addEventListener('click', function() {
         const variantDiv = document.createElement('div');
-        variantDiv.className = 'variant-row flex gap10 mb-2';
+        variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
         let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${variantIndex}]`);
         variantDiv.innerHTML = `
             ${selects}
             <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width:200px;">
-            <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width:100px;">
+            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+            <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
             <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="width:180px;">
-            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px;">&times;</button>
+            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">&times;</button>
         `;
         variantList.appendChild(variantDiv);
 

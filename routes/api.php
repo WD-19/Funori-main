@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\admin\ContactController;
+use App\Http\Controllers\API\admin\ReviewController;
 use App\Http\Controllers\API\client\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,7 +17,12 @@ Route::prefix('admin')->name('api.admin.')->middleware(['auth:sanctum'])->group(
     Route::put('contacts/{id}/restore', [ContactController::class, 'restore']);
     Route::delete('contacts/{id}/force-delete', [ContactController::class, 'forceDelete']);
 
+    //quản lý đánh giá
+    Route::put('reviews/{id}/restore', [ReviewController::class, 'restore']);
+    Route::delete('reviews/{id}/force-delete', [ReviewController::class, 'forceDelete']);
+
     Route::apiResource('contacts', ContactController::class);
+    Route::apiResource('reviews', ReviewController::class);
 });
 
 // Route::prefix('/products')->group(function () {
