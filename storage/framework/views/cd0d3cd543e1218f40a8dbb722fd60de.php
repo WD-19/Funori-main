@@ -304,9 +304,48 @@ unset($__errorArgs, $__bag); ?>
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <?php $__env->startPush('scripts'); ?>
         <script>
-            ClassicEditor.create(document.querySelector('#content'), {
-                // ...CKEditor config như cũ...
-            });
+            ClassicEditor
+                .create(document.querySelector('#content'), {
+                    simpleUpload: {
+                        uploadUrl: '<?php echo e(route('admin.pages.upload-image')); ?>', // Đảm bảo route đúng
+                        withCredentials: true, // Cho phép gửi cookie/CSRF token
+                        headers: {
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>', // Token CSRF từ Laravel
+                            'Accept': 'application/json' // Đảm bảo server trả về JSON
+                        }
+                    },
+                    toolbar: {
+                        items: [
+                            'heading', '|',
+                            'bold', 'italic', 'underline', 'strikethrough', '|',
+                            'link', 'imageUpload', 'mediaEmbed', 'insertTable', '|',
+                            'bulletedList', 'numberedList', 'blockQuote', '|',
+                            'fontSize', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
+                            'alignment', 'indent', 'outdent', '|',
+                            'undo', 'redo'
+                        ]
+                    },
+                    image: {
+                        toolbar: [
+                            'imageStyle:inline',
+                            'imageStyle:block',
+                            'imageStyle:side',
+                            'linkImage',
+                            'imageResize'
+                        ]
+                    },
+                    table: {
+                        contentToolbar: [
+                            'tableColumn', 'tableRow', 'mergeTableCells'
+                        ]
+                    }
+                })
+                .then(editor => {
+                    console.log('Editor initialized:', editor);
+                })
+                .catch(error => {
+                    console.error('Error initializing editor:', error);
+                });
         </script>
     <?php $__env->stopPush(); ?>
     <?php $__env->startPush('head'); ?>
