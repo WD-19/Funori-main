@@ -46,7 +46,6 @@
                     </li>
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
-<<<<<<< HEAD
                             <div class="icon"><i class="bi bi-award-fill fs-2"></i></div>
                             <div class="text">Thương Hiệu</div>
                         </a>
@@ -63,28 +62,16 @@
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="fas fa-tools"></i></div>
                             <div class="text">Phương thức</div>
-=======
-                            <div class="icon"><i class="fas fa-tools"></i></div>
-                            <div class="text">Method</div>
->>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
                                 <a href="<?php echo e(route('admin.payment_methods.index')); ?>" class="">
-<<<<<<< HEAD
                                     <div class="text">Thanh Toán</div>
-=======
-                                    <div class="text">Payment Method</div>
->>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 </a>
                             </li>
                             <li class="sub-menu-item">
                                 <a href="<?php echo e(route('admin.shipping_methods.index')); ?>" class="">
-<<<<<<< HEAD
                                     <div class="text">Giao Hàng</div>
-=======
-                                    <div class="text">Shipping Method</div>
->>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                                 </a>
                             </li>
                         </ul>
@@ -107,10 +94,6 @@
                             </li>
                         </ul>
                     </li>
-<<<<<<< HEAD
-
-=======
->>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
@@ -136,10 +119,6 @@
                             </li>
                         </ul>
                     </li>
-<<<<<<< HEAD
-
-=======
->>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-tag"></i></div>
@@ -157,11 +136,7 @@
                                 </a>
                             </li>
                         </ul>
-<<<<<<< HEAD
-
-=======
                     </li>
->>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
@@ -234,11 +209,7 @@
                     <li class="menu-item has-children">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon"><i class="icon-user"></i></div>
-<<<<<<< HEAD
-                            <div class="text">Users</div>
-=======
                             <div class="text">Người dùng</div>
->>>>>>> c9d4f3a268865ac8e0d7ac4322e51f500868f71c
                         </a>
                         <ul class="sub-menu">
                             <li class="sub-menu-item">
