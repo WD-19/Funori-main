@@ -51,7 +51,6 @@
             <div class="wg-box">
                 <div class="wg-table table-all-category mt-2">
                     <ul class="table-title flex gap10 mb-14" style="background:#f3f4f6;">
-                        <li style="min-width:180px"><div class="body-title">Sản phẩm</div></li>
                         <li style="min-width:120px"><div class="body-title">Mã đơn</div></li>
                         <li style="min-width:100px"><div class="body-title">Giá trị</div></li>
                         <li style="min-width:80px"><div class="body-title">SL</div></li>
@@ -63,16 +62,7 @@
                     <ul class="flex flex-column">
                         @forelse($orders as $order)
                         <li class="wg-product item-row gap10" style="align-items:center; border-bottom:1px solid #eee; padding:12px 0;">
-                            <div class="name flex items-center gap10" style="min-width:180px">
-                                <div class="image" style="width:40px;height:40px;">
-                                    <img src="{{ optional(optional($order->items->first())->product)->image_url ?: asset('images/products/default.jpg') }}" alt="" style="width:100%;height:100%;object-fit:cover;">
-                                </div>
-                                <div class="title line-clamp-2 mb-0">
-                                    <a href="{{ route('admin.orders.show', $order->id) }}" class="body-text fw-6">
-                                        {{ optional(optional($order->items->first())->product)->name ?? 'Không có' }}
-                                    </a>
-                                </div>
-                            </div>
+                            
                             <div class="body-text text-main-dark" style="min-width:120px">#{{ $order->order_code }}</div>
                             <div class="body-text text-main-dark" style="min-width:100px">{{ number_format($order->total_amount, 0, ',', '.') }}₫</div>
                             <div class="body-text text-main-dark" style="min-width:80px">{{ $order->items->sum('quantity') }}</div>

@@ -17,7 +17,7 @@ class OrderFactory extends Factory
      */
     public function definition(): array
     {
-        $user = User::inRandomOrder()->first() ?? User::factory()->create();
+        $user = User::inRandomOrder()->value('id') ?? User::factory()->create()->id;
         $paymentMethod = PaymentMethod::inRandomOrder()->first() ?? PaymentMethod::factory()->create();
         $shippingMethod = ShippingMethod::inRandomOrder()->first() ?? ShippingMethod::factory()->create();
 

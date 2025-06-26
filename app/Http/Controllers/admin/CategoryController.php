@@ -167,7 +167,7 @@ class CategoryController
 
         $category->update($updateData);
 
-        return redirect()->route('admin.categories.edit', $category->id)
+        return redirect()->route('admin.categories.index', $category->id)
             ->with('success', 'Cập nhật danh mục thành công!');
     }
 

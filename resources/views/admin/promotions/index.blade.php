@@ -89,10 +89,10 @@
                             {{ $promotion->created_at ? $promotion->created_at->format('d/m/Y') : '-' }}
                         </div>
                         <div class="list-icon-function">
-                            <div class="item edit">
+                            {{-- <div class="item edit">
                                 <a href="{{ route('admin.promotions.edit', $promotion->id) }}"><i class="icon-edit-3"></i></a>
-                            </div>
-                            <div class="item trash">
+                            </div> --}}
+                            {{-- <div class="item trash">
                                 <form action="{{ route('admin.promotions.destroy', $promotion->id) }}" method="POST" onsubmit="return confirm('Xóa khuyến mãi này?');" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
@@ -100,7 +100,7 @@
                                         <i class="icon-trash-2"></i>
                                     </button>
                                 </form>
-                            </div>
+                            </div> --}}
                         </div>
                     </li>
                     @empty
