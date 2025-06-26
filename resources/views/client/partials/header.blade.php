@@ -8,10 +8,10 @@
         <nav class="box-menu">
             <ul class="all-list-menu">
                 <li>
-                    <a href="" class="hover-a">Home</a>
+                    <a href="{{ route('home') }}" class="hover-a">Home</a>
                 </li>
                 <li class="padding-list-menu">
-                    <a href="#" class="hover-a">Shop</a>
+                    <a href="{{ route('shop') }}" class="hover-a">Shop</a>
                     <!-- <a href="">
                             <i class="fa-solid fa-angle-down angle-down"></i>
                         </a> -->

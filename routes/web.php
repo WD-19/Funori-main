@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\client\ShopController;
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Controllers\client\ClientController;
@@ -142,7 +143,7 @@ Route::prefix('admin')->name('admin.')
 
 
     Route::get('/', [ClientController::class, 'index'])->name('home');
-
+    Route::get('/cua-hang', [ShopController::class, 'index'])->name('shop');
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
