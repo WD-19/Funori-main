@@ -139,12 +139,12 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
+Route::get('/', [ClientController::class, 'index'])->name('client.home');
+
 Route::prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
-
-    Route::get('/home', [ClientController::class, 'index'])->name('home');
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
