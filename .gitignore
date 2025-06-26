@@ -1,1 +1,8 @@
 .env
+/storage/*.key
+/storage/*.log
+/storage/app/*
+/storage/framework/*
+/storage/logs/*
+/storage/views/*
+/storage/public
