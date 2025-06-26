@@ -24,7 +24,7 @@
                 <?php endif; ?>
             </div>
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>All Pages</h3>
+                <h3>Tất cả trang</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="<?php echo e(route('admin.dashboard')); ?>">
@@ -35,7 +35,7 @@
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">All Pages</div>
+                        <div class="text-tiny">Tất cả trang</div>
                     </li>
                 </ul>
             </div>
@@ -43,37 +43,79 @@
             <div class="wg-box">
                 <div class="flex items-center justify-between gap10 flex-wrap">
                     <div class="wg-filter flex-grow">
-                        <form class="form-search" method="GET" action="<?php echo e(route('admin.pages.index')); ?>">
+                        <form class="form-search flex gap10" method="GET" action="<?php echo e(route('admin.pages.index')); ?>">
                             <fieldset class="name">
-                                <input type="text" placeholder="Search here..." class="" name="q"
+                                <input type="text" placeholder="Tìm kiếm tên tiêu đề..." class="" name="q"
                                     value="<?php echo e(request('q')); ?>">
                             </fieldset>
+                            <fieldset>
+                                <select name="status">
+                                    <option value="">Trạng thái</option>
+                                    <option value="published" <?php echo e(request('status') == 'published' ? 'selected' : ''); ?>>Đã
+                                        xuất bản
+                                    </option>
+                                    <option value="draft" <?php echo e(request('status') == 'draft' ? 'selected' : ''); ?>>Nháp
+                                    </option>
+                                </select>
+                            </fieldset>
+                            <fieldset>
+                                <select name="page_type">
+                                    <option value="">Loại trang</option>
+                                    <?php $__currentLoopData = $pageTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($type); ?>"
+                                            <?php echo e(request('page_type') == $type ? 'selected' : ''); ?>>
+                                            <?php echo e($type); ?>
+
+                                        </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                            </fieldset>
                             <div class="button-submit">
-                                <button class="" type="submit"><i class="icon-search"></i></button>
+                                <button type="submit"><i class="icon-search"></i></button>
                             </div>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="<?php echo e(route('admin.pages.create')); ?>"><i class="icon-plus"></i>Add new</a>
+                    <a class="tf-button style-1 w208" href="<?php echo e(route('admin.pages.create')); ?>"><i
+                            class="icon-plus"></i>Thêm mới
+                    </a>
                 </div>
                 <div class="wg-table table-all-attribute">
                     <thead>
                         <ul class="table-title flex gap20 mb-14">
-                            <li><div class="body-title">Tiêu đề</div></li>
-                            <li><div class="body-title">Slug</div></li>
-                            <li><div class="body-title">Tác giả</div></li>
-                            <li><div class="body-title">Loại trang</div></li>
-                            <li><div class="body-title">Trạng thái</div></li>
-                            <li><div class="body-title">Ảnh</div></li>
-                            <li><div class="body-title">Ngày xuất bản</div></li>
-                            <li><div class="body-title">Hành động</div></li>
+                            <li>
+                                <div class="body-title">ID</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Tiêu đề</div>
+                            </li>
+                            
+                            <li>
+                                <div class="body-title">Tác giả</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Loại trang</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Trạng thái</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Ảnh</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Ngày xuất bản</div>
+                            </li>
+                            <li>
+                                <div class="body-title">Hành động</div>
+                            </li>
                         </ul>
                     </thead>
                     <tbody>
                         <ul class="flex flex-column">
                             <?php $__currentLoopData = $pages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <li class="attribute-item item-row flex items-center justify-between gap20">
+                                    <div class="body-text"><?php echo e($page->id); ?></div>
                                     <div class="body-text"><?php echo e($page->title); ?></div>
-                                    <div class="body-text"><?php echo e($page->slug); ?></div>
+                                    
                                     <div class="body-text"><?php echo e($page->author ? $page->author->full_name : 'N/A'); ?></div>
                                     <div class="body-text"><?php echo e($page->page_type); ?></div>
                                     <div class="body-text">
@@ -95,100 +137,9 @@
                                         <?php echo e($page->published_at ? $page->published_at->format('d/m/Y H:i') : '-'); ?>
 
                                     </div>
+
                                     <div class="list-icon-function">
-                                        <div class="item eye" data-bs-toggle="modal"
-                                            data-bs-target="#quickViewModalPage<?php echo e($page->id); ?>">
-                                            <i class="icon-eye"></i>
-                                        </div>
-                                        <!-- Modal quick view -->
-                                        <div class="modal fade" id="quickViewModalPage<?php echo e($page->id); ?>"
-                                            tabindex="-1" aria-labelledby="quickViewLabelPage<?php echo e($page->id); ?>"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                <div class="modal-content shadow-lg rounded-4 border-0"
-                                                    style="font-size: 16px;">
-                                                    <div class="modal-header bg-primary text-white">
-                                                        <h3 class="modal-title fw-bold mb-0 text-light"
-                                                            id="quickViewLabelPage<?php echo e($page->id); ?>">
-                                                            <i class="bi bi-info-circle me-2"></i>Chi tiết trang
-                                                        </h3>
-                                                        <button type="button" class="btn-close btn-close-white"
-                                                            data-bs-dismiss="modal" aria-label="Đóng"></button>
-                                                    </div>
-                                                    <div class="modal-body px-5 py-4">
-                                                        <div class="row gy-3">
-                                                            <div class="col-sm-6">
-                                                                <strong>Tiêu đề:</strong>
-                                                                <div class="text-muted"><?php echo e($page->title); ?></div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Slug:</strong>
-                                                                <div class="text-muted"><?php echo e($page->slug); ?></div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Tác giả:</strong>
-                                                                <div class="text-muted">
-                                                                    <?php echo e($page->author ? $page->author->full_name : 'N/A'); ?>
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Loại trang:</strong>
-                                                                <div class="text-muted"><?php echo e($page->page_type); ?></div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Trạng thái:</strong>
-                                                                <?php if($page->status == 'published'): ?>
-                                                                    <span class="badge bg-success">Đã xuất bản</span>
-                                                                <?php else: ?>
-                                                                    <span class="badge bg-secondary">Nháp</span>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Ngày xuất bản:</strong>
-                                                                <div class="text-muted">
-                                                                    <?php echo e($page->published_at ? $page->published_at->format('d/m/Y H:i') : '-'); ?>
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <strong>Nội dung:</strong>
-                                                                <div class="text-muted"
-                                                                    style="white-space:pre-line;max-height:200px;overflow:auto;">
-                                                                    <?php echo $page->content; ?>
-
-                                                                </div>
-                                                            </div>
-                                                            <?php if(!empty($page->featured_image_url)): ?>
-                                                                <div class="col-12">
-                                                                    <strong>Ảnh đại diện:</strong><br>
-                                                                    <img src="<?php echo e(asset('storage/' . $page->featured_image_url)); ?>"
-                                                                        alt="Ảnh đại diện"
-                                                                        style="max-width:120px;max-height:120px;">
-                                                                </div>
-                                                            <?php endif; ?>
-                                                            <div class="col-12">
-                                                                <strong>Meta title:</strong>
-                                                                <div class="text-muted"><?php echo e($page->meta_title ?? '-'); ?></div>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <strong>Meta description:</strong>
-                                                                <div class="text-muted">
-                                                                    <?php echo e($page->meta_description ?? '-'); ?></div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Ngày tạo:</strong>
-                                                                <div class="text-muted"><?php echo e($page->created_at); ?></div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Ngày cập nhật:</strong>
-                                                                <div class="text-muted"><?php echo e($page->updated_at); ?></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        
 
                                         <div class="item edit">
                                             <a href="<?php echo e(route('admin.pages.edit', $page->id)); ?>"><i

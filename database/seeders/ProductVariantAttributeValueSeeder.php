@@ -18,10 +18,8 @@ class ProductVariantAttributeValueSeeder extends Seeder
         $attributeValues = AttributeValue::all();
 
         foreach ($variants as $variant) {
-            // Gán 1-2 giá trị thuộc tính ngẫu nhiên cho mỗi biến thể
             $values = $attributeValues->random(rand(1, 2));
             foreach ($values as $value) {
-                // Tránh trùng lặp
                 ProductVariantAttributeValue::firstOrCreate([
                     'product_variant_id' => $variant->id,
                     'attribute_value_id' => $value->id,

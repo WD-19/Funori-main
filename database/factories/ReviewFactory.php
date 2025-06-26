@@ -16,11 +16,13 @@ class ReviewFactory extends Factory
      */
     public function definition(): array
     {
-        // Đảm bảo order_item_id liên quan đến một user và product hợp lệ
         $orderItem = OrderItem::inRandomOrder()->first() ?? OrderItem::factory()->create();
 
+        // Random user từ bảng user thay vì lấy từ order
+        $user = User::inRandomOrder()->first() ?? User::factory()->create();
+
         return [
-            'user_id' => $orderItem->order->user_id ?? User::factory(), // Lấy user từ order_item hoặc tạo mới
+            'user_id' => $user->id,
             'product_id' => $orderItem->product_id,
             'order_item_id' => $orderItem->id,
             'rating' => $this->faker->numberBetween(1, 5),

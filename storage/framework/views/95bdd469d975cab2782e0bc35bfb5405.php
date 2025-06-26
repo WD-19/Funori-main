@@ -6,7 +6,7 @@
             <?php echo e(session('success')); ?>
 
         </div>
-        
+
     <?php endif; ?>
     <div class="main-content-wrap">
         <h3 class="mb-4">Cập nhật banner</h3>
@@ -60,8 +60,8 @@
                     <span class="slider round"></span>
                 </label>
             </fieldset>
-            <button class="tf-button" type="submit" id="submit-btn">Cập nhật</button>
-            <a href="<?php echo e(route('admin.banners.index')); ?>" class="tf-button style-2 ml-2">Quay lại</a>
+            <button class="tf-button w-100" type="submit" id="submit-btn">Cập nhật</button>
+            <a href="<?php echo e(route('admin.banners.index')); ?>" class="tf-button w-100 ml-2">Quay lại</a>
         </form>
     </div>
 </div>

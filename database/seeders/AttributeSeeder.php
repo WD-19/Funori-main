@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
-use Illuminate\Support\Facades\DB;
 
 class AttributeSeeder extends Seeder
 {
@@ -15,24 +13,22 @@ class AttributeSeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = \Faker\Factory::create();
-
         // Màu sắc
-        $colorAttr = Attribute::factory()->create(['name' => 'Color']);
-        AttributeValue::factory()->count(5)->create(['attribute_id' => $colorAttr->id])->each(function ($value) use ($faker) {
-            $value->update(['value' => $faker->colorName()]);
-        });
+        $color = Attribute::create(['name' => 'Màu sắc']);
+        foreach (['Đỏ', 'Xanh', 'Vàng', 'Nâu', 'Trắng', 'Đen'] as $mau) {
+            AttributeValue::create(['attribute_id' => $color->id, 'value' => $mau]);
+        }
 
         // Kích thước
-        $sizeAttr = Attribute::factory()->create(['name' => 'Size']);
-        AttributeValue::factory()->count(5)->create(['attribute_id' => $sizeAttr->id])->each(function ($value) use ($faker) {
-            $value->update(['value' => $faker->randomElement(['Small', 'Medium', 'Large', 'XL', 'XXL'])]);
-        });
+        $size = Attribute::create(['name' => 'Kích thước']);
+        foreach (['Nhỏ', 'Vừa', 'Lớn', 'Siêu lớn'] as $kt) {
+            AttributeValue::create(['attribute_id' => $size->id, 'value' => $kt]);
+        }
 
         // Chất liệu
-        $materialAttr = Attribute::factory()->create(['name' => 'Material']);
-        AttributeValue::factory()->count(5)->create(['attribute_id' => $materialAttr->id])->each(function ($value) use ($faker) {
-            $value->update(['value' => $faker->randomElement(['Wood', 'Metal', 'Leather', 'Fabric', 'Plastic'])]);
-        });
+        $material = Attribute::create(['name' => 'Chất liệu']);
+        foreach (['Gỗ', 'Kim loại', 'Da', 'Vải', 'Nhựa'] as $cl) {
+            AttributeValue::create(['attribute_id' => $material->id, 'value' => $cl]);
+        }
     }
 }
