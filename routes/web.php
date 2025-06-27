@@ -147,10 +147,10 @@ Route::prefix('admin')->name('admin.')
 
 Route::get('/', [ClientController::class, 'index'])->name('client.home');
 
-Route::prefix('client')->name('client.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('client.index');
-    })->name('dashboard');
+// Route::prefix('client')->name('client.')->group(function () {
+//     Route::get('/dashboard', function () {
+//         return view('client.index');
+//     })->name('dashboard');
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
@@ -166,4 +166,4 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);
     });
-});
+// });
