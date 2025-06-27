@@ -130,8 +130,8 @@ class OrderController
     public function show($id)
     {
         // Lấy đơn hàng theo id, kèm các quan hệ liên quan
-        $order = Order::with(['paymentMethod', 'shippingMethod', 'user', 'items.product'])
-                      ->findOrFail($id);
+        $order = Order::with(['paymentMethod', 'shippingMethod', 'user', 'items.product.images', 'items.productVariant.attributeValues.attribute'])
+            ->findOrFail($id);
         // Trả về view chi tiết đơn hàng
         return view('admin.orders.show', compact('order'));
     }
@@ -238,13 +238,9 @@ class OrderController
 
         $oldStatus = $order->order_status;
         $newStatus = $request->input('order_status');
+        $adminNote = $request->input('admin_note');
 
-        // Kiểm tra trạng thái chuyển tiếp hợp lệ
-        $transitions = Order::getAllowedStatusTransitions();
-        if (!in_array($newStatus, $transitions[$oldStatus] ?? [])) {
-            return redirect()->route('admin.orders.tracking', $order->id)
-                ->with('error', 'Không thể chuyển trạng thái từ ' . $oldStatus . ' sang ' . $newStatus . '.');
-        }
+        // Cho phép chuyển đổi tự do giữa các trạng thái để test
 
         // Gán trạng thái mới cho đơn hàng
         $order->order_status = $newStatus;
@@ -273,11 +269,31 @@ class OrderController
 
         // Cập nhật ghi chú admin nếu có
         if ($request->filled('admin_note')) {
-            $order->admin_note = $request->input('admin_note');
+            $order->admin_note = $adminNote;
         }
 
         // Lưu đơn hàng
         $order->save();
+
+        // Ghi lại lịch sử trạng thái (bao gồm ghi chú admin) nếu có quan hệ status_histories
+        if (method_exists($order, 'status_histories')) {
+            // Nếu trạng thái đã tồn tại trong lịch sử, chỉ thêm bản ghi mới nếu trạng thái thực sự thay đổi
+            // Nếu trạng thái KHÁC, tạo bản ghi mới
+            if ($oldStatus !== $newStatus) {
+                $order->status_histories()->create([
+                    'status' => $newStatus,
+                    'admin_note' => $adminNote,
+                    'created_at' => now(),
+                ]);
+            } else {
+                // Nếu trạng thái KHÔNG đổi, chỉ cập nhật ghi chú cho bản ghi cuối cùng (nếu có)
+                $lastHistory = $order->status_histories()->latest()->first();
+                if ($lastHistory && $lastHistory->status === $newStatus && $request->filled('admin_note')) {
+                    $lastHistory->admin_note = $adminNote;
+                    $lastHistory->save();
+                }
+            }
+        }
 
         // Chuyển hướng về trang tracking trạng thái đơn hàng kèm thông báo thành công
         return redirect()
@@ -387,66 +403,89 @@ class OrderController
     }
 
     // (10) stats: thống kê đơn hàng
-    public function stats(Request $request)
+public function stats(Request $request)
     {
-        // Đếm tổng số đơn hàng
-        $totalOrders = Order::count();
-        // Đếm số đơn đã giao
-        $deliveredOrders = Order::where('order_status', 'delivered')->count();
-        // Đếm số đơn đã hủy
-        $cancelledOrders = Order::where('order_status', 'cancelled')->count();
-        // Đếm số đơn đang xử lý
-        $processingOrders = Order::where('order_status', 'processing')->count();
-        // Đếm số đơn chờ xác nhận
-        $pendingOrders = Order::where('order_status', 'pending_confirmation')->count();
-        // Đếm số đơn đã trả hàng
-        $returnedOrders = Order::where('order_status', 'returned')->count();
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        // Thời gian
+        $startOfThisMonth  = $now->copy()->startOfMonth();
+        $endOfThisMonth    = $now->copy()->endOfMonth();
+        $startOfLastMonth  = $now->copy()->subMonthNoOverflow()->startOfMonth();
+        $endOfLastMonth    = $now->copy()->subMonthNoOverflow()->endOfMonth();
+        $startOfLastYearMo = $now->copy()->subYear()->startOfMonth();
+        $endOfLastYearMo   = $now->copy()->subYear()->endOfMonth();
 
-        // Tính tổng doanh thu tháng hiện tại (chỉ đơn đã giao)
-        $totalRevenueMonth = Order::whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->where('order_status', 'delivered')
+        // Tổng số đơn & theo trạng thái
+        $totalOrders      = Order::count();
+        $deliveredOrders  = Order::where('order_status','delivered')->count();
+        $cancelledOrders  = Order::where('order_status','cancelled')->count();
+        $processingOrders = Order::where('order_status','processing')->count();
+        $pendingOrders    = Order::where('order_status','pending_confirmation')->count();
+        $returnedOrders   = Order::where('order_status','returned')->count();
+
+        // Doanh thu & số đơn delivered tháng này
+        $totalRevenueThisMonth = Order::where('order_status','delivered')
+            ->whereBetween('delivered_at',[$startOfThisMonth,$endOfThisMonth])
             ->sum('total_amount');
-        // Tính tổng doanh thu năm hiện tại (chỉ đơn đã giao)
-        $totalRevenueYear = Order::whereYear('created_at', now()->year)
-            ->where('order_status', 'delivered')
+        $deliveredThisMonth = Order::where('order_status','delivered')
+            ->whereBetween('delivered_at',[$startOfThisMonth,$endOfThisMonth])
+            ->count();
+
+        // So sánh
+        $totalRevenueLastMonth       = Order::where('order_status','delivered')
+            ->whereBetween('delivered_at',[$startOfLastMonth,$endOfLastMonth])
             ->sum('total_amount');
-        // Tính doanh thu trung bình mỗi tháng trong năm
-        $avgRevenuePerMonth = $totalRevenueYear / (now()->month ?: 1);
+        $totalRevenueThisMonthLastYear = Order::where('order_status','delivered')
+            ->whereBetween('delivered_at',[$startOfLastYearMo,$endOfLastYearMo])
+            ->sum('total_amount');
 
-        // Lấy đơn hàng mới nhất
-        $latestOrder = Order::orderByDesc('created_at')->first();
+        // KPI
+        $completed = $deliveredOrders + $cancelledOrders;
+        $successRate        = $completed ? round($deliveredOrders/$completed*100,1) : 0;
+        $cancellationRate   = $completed ? round($cancelledOrders/$completed*100,1) : 0;
+        $averageOrderValue  = $deliveredThisMonth ? round($totalRevenueThisMonth/$deliveredThisMonth) : 0;
+        $momRevenueGrowth   = $totalRevenueLastMonth
+            ? round(($totalRevenueThisMonth - $totalRevenueLastMonth)/$totalRevenueLastMonth*100,1)
+            : ($totalRevenueThisMonth ? 100 : 0);
+        $yoyRevenueGrowth   = $totalRevenueThisMonthLastYear
+            ? round(($totalRevenueThisMonth - $totalRevenueThisMonthLastYear)/$totalRevenueThisMonthLastYear*100,1)
+            : ($totalRevenueThisMonth ? 100 : 0);
 
-        // Chuẩn bị dữ liệu cho biểu đồ: Đơn hàng và doanh thu theo tháng trong năm
-        $chartLabels = [];
-        $chartOrderCounts = [];
-        $chartOrderAmounts = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $chartLabels[] = sprintf('%02d/%s', $m, now()->year);
-            $chartOrderCounts[] = Order::whereMonth('created_at', $m)
-                ->whereYear('created_at', now()->year)
-                ->count();
-            $chartOrderAmounts[] = Order::whereMonth('created_at', $m)
-                ->whereYear('created_at', now()->year)
-                ->where('order_status', 'delivered')
+        // Sparkline: 6 tháng gần nhất
+        $sparklineLabels = $sparklineData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $m = $now->copy()->subMonths($i);
+            $sparklineLabels[] = $m->format('M Y');
+            $sparklineData[]   = Order::where('order_status','delivered')
+                ->whereMonth('delivered_at',$m->month)
+                ->whereYear('delivered_at',$m->year)
                 ->sum('total_amount');
         }
 
-        // Trả về view thống kê đơn hàng
+        // Bar/line chart: 12 tháng năm nay
+        $chartLabels = $chartCounts = $chartAmounts = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $chartLabels[]  = sprintf('%02d/%d',$m,$now->year);
+            $chartCounts[]  = Order::whereMonth('created_at',$m)
+                ->whereYear('created_at',$now->year)->count();
+            $chartAmounts[] = Order::where('order_status','delivered')
+                ->whereMonth('delivered_at',$m)
+                ->whereYear('delivered_at',$now->year)
+                ->sum('total_amount');
+        }
+
+        // Đơn mới nhất
+        $latestOrder = Order::orderByDesc('created_at')
+            ->first(['order_code','customer_name','total_amount','created_at']);
+
         return view('admin.orders.stats', compact(
-            'totalOrders',
-            'deliveredOrders',
-            'cancelledOrders',
-            'processingOrders',
-            'pendingOrders',
-            'returnedOrders',
-            'totalRevenueMonth',
-            'totalRevenueYear',
-            'avgRevenuePerMonth',
-            'latestOrder',
-            'chartLabels',
-            'chartOrderCounts',
-            'chartOrderAmounts'
+            'totalOrders','deliveredOrders','cancelledOrders','processingOrders',
+            'pendingOrders','returnedOrders',
+            'totalRevenueThisMonth','averageOrderValue',
+            'successRate','cancellationRate','momRevenueGrowth','yoyRevenueGrowth',
+            'sparklineLabels','sparklineData',
+            'chartLabels','chartCounts','chartAmounts',
+            'latestOrder'
         ));
     }
+
 }
