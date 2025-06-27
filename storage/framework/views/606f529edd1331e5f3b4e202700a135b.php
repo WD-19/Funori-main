@@ -1,17 +1,13 @@
 <div class="header">
     <div class="content">
-        {{-- <div class="box-menu-mobile">
-            <button>
-                <i class="fa-solid fa-bars"></i>
-            </button>
-        </div> --}}
+        
         <nav class="box-menu">
             <ul class="all-list-menu">
                 <li>
-                    <a href="{{ route('home') }}" class="hover-a">Home</a>
+                    <a href="<?php echo e(route('home')); ?>" class="hover-a">Home</a>
                 </li>
                 <li class="padding-list-menu">
-                    <a href="{{ route('shop') }}" class="hover-a">Shop</a>
+                    <a href="<?php echo e(route('shop')); ?>" class="hover-a">Shop</a>
                     <!-- <a href="">
                             <i class="fa-solid fa-angle-down angle-down"></i>
                         </a> -->
@@ -39,7 +35,7 @@
         <div class="box-logo">
             <div class="logo">
                 <a href="index.html">
-                    <img src="{{ asset('client/picture/logo.png') }}" alt="" />
+                    <img src="<?php echo e(asset('client/picture/logo.png')); ?>" alt="" />
                 </a>
             </div>
         </div>
@@ -47,7 +43,7 @@
             <a href="" class="box-search">
                 <i class="fa-solid fa-magnifying-glass search"></i>
             </a>
-            <a href="{{ route('login.index') }}" class="box-user">
+            <a href="<?php echo e(route('login.index')); ?>" class="box-user">
                 <i class="fa-regular fa-user user"></i>
             </a>
             <a href="" class="box-heart">
@@ -59,3 +55,4 @@
         </div>
     </div>
 </div>
+<?php /**PATH D:\laragon\www\Funori-main\resources\views/client/partials/header.blade.php ENDPATH**/ ?>
