@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('client/css/main.css') }}">
     <link rel="stylesheet" href="{{ asset('client/css/main-mobile.css') }}">
     <link rel="stylesheet" href="{{ asset('client/css/Shop.css') }}">
+    
     <title>Home</title>
 </head>
 
