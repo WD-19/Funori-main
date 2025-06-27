@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         // Admin
         User::create([
             'full_name' => 'Quản trị viên',
-            'email' => 'admin@noithat.vn',
+            'email' => 'admin@gmail.com',
             'password' => bcrypt('matkhau123'),
             'role' => 'admin',
             'account_status' => 'active',

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class LoginController 
+class LoginController
 {
     // Hiển thị form đăng nhập
     public function showLoginForm()
@@ -50,7 +50,7 @@ class LoginController
                 return redirect()->route('admin.dashboard');
             }
 
-            return redirect()->route('client.dashboard');
+            return redirect()->route('client.home');
         }
 
         return back()->withErrors(['login' => 'Email hoặc mật khẩu không đúng'])->withInput();

@@ -38,6 +38,9 @@ class CreateOrdersTable extends Migration
             $table->text('cancellation_reason')->nullable();
             $table->string('previous_status')->nullable();
             $table->timestamps();
+            $table->string('shipping_name')->nullable();
+            $table->string('shipping_phone')->nullable();
+            $table->string('shipping_email')->nullable();
         });
     }
 

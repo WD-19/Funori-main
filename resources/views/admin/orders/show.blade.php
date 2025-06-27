@@ -39,13 +39,40 @@
                                     <li class="wg-product">
                                         <div class="name">
                                             <div class="image">
-                                                <img src="{{ optional($item->product)->image_url ?: asset('images/products/default.jpg') }}" alt="">
+                                                @php
+                                                    $imageUrl = optional(optional($item->product)->images->first())->image_url;
+                                                @endphp
+                                                <img src="{{ $imageUrl ? asset($imageUrl) : asset('images/products/default.jpg') }}" alt="">
                                             </div>
                                             <div>
                                                 <div class="text-tiny">Tên sản phẩm</div>
                                                 <div class="title">
                                                     <a href="#" class="body-title-2">{{ $item->product->name ?? 'Không xác định' }}</a>
+                                                    <span class="body-text" style="margin-left: 10px;">({{ number_format($item->price ?? optional($item->product)->regular_price ?? 0, 0, ',', '.') }}₫)</span>
                                                 </div>
+                                                {{-- Hiển thị biến thể nếu có --}}
+                                                @php
+                                                    // Nếu variant_attributes là json/text trong DB, cần decode
+                                                    $variantAttrs = $item->variant_attributes;
+                                                    if (is_string($variantAttrs)) {
+                                                        $variantAttrs = json_decode($variantAttrs, true);
+                                                    }
+                                                @endphp
+                                                @if(!empty($variantAttrs) && is_array($variantAttrs))
+                                                    <div class="text-tiny" style="color:#888;">
+                                                        @foreach($variantAttrs as $attr => $val)
+                                                            <span>{{ $attr }}: {{ $val }}</span>@if(!$loop->last), @endif
+                                                        @endforeach
+                                                    </div>
+                                                @elseif($item->product_variant_id && $item->productVariant && isset($item->productVariant->attributeValues))
+                                                    <div class="text-tiny" style="color:#888;">
+                                                        @foreach($item->productVariant->attributeValues as $attrValue)
+                                                            <span>
+                                                                {{ $attrValue->attribute->name ?? '' }}: {{ $attrValue->value ?? '' }}
+                                                            </span>@if(!$loop->last), @endif
+                                                        @endforeach
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                         <div>
@@ -63,14 +90,10 @@
                     <div class="wg-box">
                         <div class="wg-table table-cart-totals">
                             <ul class="table-title flex mb-24">
-                                <li><div class="body-title">Tổng giỏ hàng</div></li>
+                                <li><div class="body-title">Thông tin đơn hàng</div></li>
                                 <li><div class="body-title">Giá</div></li>
                             </ul>
                             <ul class="flex flex-column gap14">
-                                <li class="cart-totals-item">
-                                    <span class="body-text">Tạm tính:</span>
-                                    <span class="body-title-2">{{ number_format($order->subtotal_amount, 0, ',', '.') }}₫</span>
-                                </li>
                                 <li class="divider"></li>
                                 <li class="cart-totals-item">
                                     <span class="body-text">Phí vận chuyển:</span>
@@ -84,10 +107,7 @@
                                     </li>
                                 @endif
                                 <li class="divider"></li>
-                                <li class="cart-totals-item">
-                                    <span class="body-text">Thuế (VAT):</span>
-                                    <span class="body-title-2">{{ number_format($order->tax_amount, 0, ',', '.') }}₫</span>
-                                </li>
+                                
                                 <li class="divider"></li>
                                 <li class="cart-totals-item">
                                     <span class="body-title">Tổng cộng:</span>
@@ -144,6 +164,11 @@
                     <div class="wg-box mb-20 gap10">
                         <div class="body-title">Địa chỉ giao hàng</div>
                         <div class="body-text">{{ $order->shipping_address }}</div>
+                        <div class="body-text" style="margin-top:8px;">
+                            <b>Họ tên người nhận:</b> {{ $order->shipping_name ?? $order->buyer_name ?? '-' }}<br>
+                            <b>SĐT người nhận:</b> {{ $order->shipping_phone ?? $order->buyer_phone ?? '-' }}<br>
+                            <b>Email người nhận:</b> {{ $order->shipping_email ?? $order->buyer_email ?? '-' }}
+                        </div>
                     </div>
 
                     <div class="wg-box mb-20 gap10">
@@ -167,8 +192,7 @@
                     </div>
 
                     <div class="wg-box gap10">
-                        <div class="body-title">Ngày giao dự kiến</div>
-                        <div class="body-title-2 tf-color-2">{{ $order->delivered_at ? $order->delivered_at->format('d/m/Y') : '-' }}</div>
+                       
                         <a class="tf-button style-1 w-full" href="{{ route('admin.orders.tracking', $order->id) }}"><i class="icon-truck"></i> Theo dõi đơn hàng</a>
                         <a class="tf-button w-full" target="_blank" href="{{ route('admin.orders.printInvoice', $order->id) }}"><i class="icon-file-text"></i> In hóa đơn</a>
                         <a class="tf-button w-full" target="_blank" href="{{ route('admin.orders.printShipping', $order->id) }}"><i class="icon-file-text"></i> In phiếu giao hàng</a>
@@ -217,6 +241,6 @@
 @endsection
 @push('scripts')
 <script>
-    // Nếu dùng Bootstrap 5, modal sẽ tự hoạt động
+
 </script>
 @endpush

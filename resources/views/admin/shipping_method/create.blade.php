@@ -14,7 +14,7 @@
                 <li><i class="icon-chevron-right"></i></li>
                 <li>
                     <a href="{{ route('admin.shipping_methods.index') }}">
-                        <div class="text-tiny">Shipping Methods</div>
+                        <div class="text-tiny">Giao hàng</div>
                     </a>
                 </li>
                 <li><i class="icon-chevron-right"></i></li>

@@ -1,11 +1,12 @@
 <?php
-
+//Admin Controller
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\OrderController; // Đảm bảo dòng này đã được thêm
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
@@ -13,9 +14,16 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\client\AboutController;
+//Client Controller
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
+use App\Http\Controllers\client\ClientController;
+use App\Http\Controllers\client\PageController as ClientPageController;
+use App\Http\Controllers\client\ShopController;
+// Middleware
 use App\Http\Middleware\CheckLogin;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -30,7 +38,7 @@ Route::get('/', function () {
         return redirect()->route('client.dashboard');
     }
     // Nếu chưa đăng nhập, chuyển về trang đăng nhập
-    return redirect()->route('client.login.index');
+    return redirect()->route('client.home');
 });
 
 Route::prefix('admin')->name('admin.')
@@ -42,11 +50,18 @@ Route::prefix('admin')->name('admin.')
             ->middleware(CheckLogin::class)
             ->name('dashboard');
 
+        // Quản lý thương hiệu
+        Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
+
+
         //quản lý đánh giá
         Route::get('reviews/export', [ReviewController::class, 'export'])->name('reviews.export');
         Route::get('reviews/trash', [ReviewController::class, 'trash'])->name('reviews.trash');
         Route::put('reviews/{id}/restore', [ReviewController::class, 'restore'])->name('reviews.restore');
         Route::delete('reviews/{id}/force-delete', [ReviewController::class, 'forceDelete'])->name('reviews.forceDelete');
+
+        // Quản lý pages
+        Route::post('pages/upload-image', [PageController::class, 'uploadImage'])->name('pages.upload-image');
 
         //quản lý liên hệ
         Route::get('contacts/export', [ContactController::class, 'export'])->name('contacts.export');
@@ -123,13 +138,14 @@ Route::prefix('admin')->name('admin.')
         Route::resource('pages', PageController::class);
         Route::resource('reviews', ReviewController::class);
         Route::resource('banners', BannerController::class);
+        Route::resource('brands', BrandController::class);
 
         Route::fallback(function () {
             return response()->view('admin.errors.404', [], 404);
         });
     });
 
-
+Route::get('/', [ClientController::class, 'index'])->name('client.home');
 
 Route::prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
@@ -141,8 +157,11 @@ Route::prefix('client')->name('client.')->group(function () {
 
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.index');
     Route::post('/login', [LoginController::class, 'login']);
-
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::get('/page', [ClientPageController::class, 'index'])->name('page');
+    Route::get('/about', [AboutController::class, 'index'])->name('about');
+    Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);
