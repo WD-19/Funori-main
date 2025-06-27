@@ -36,7 +36,7 @@ class ProductController
         $categories = Category::all();
         $brands = Brand::all();
 
-        $products = $query->orderBy('updated_at', 'desc')->paginate(20)->appends($request->all());
+        $products = $query->orderBy('updated_at', 'desc')->paginate(10)->appends($request->all());
         return view('admin.products.index', compact('products', 'categories', 'brands'));
     }
     public function show($id)

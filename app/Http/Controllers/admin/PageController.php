@@ -148,7 +148,7 @@ class PageController
             'published_at' => $request->published_at,
         ]);
 
-        return redirect()->route('admin.pages.edit', $page->id)->with('success', 'Cập nhật trang thành công!');
+        return redirect()->route('admin.pages.index', $page->id)->with('success', 'Cập nhật trang thành công!');
     }
 
     /**
