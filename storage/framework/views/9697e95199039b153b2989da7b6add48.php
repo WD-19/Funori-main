@@ -4,38 +4,30 @@
         <nav class="box-menu">
             <ul class="all-list-menu">
                 <li>
-                    <a href="" class="hover-a">Home</a>
+                    <a href="<?php echo e(route('client.home')); ?>" class="hover-a">Trang chủ</a>
                 </li>
                 <li class="padding-list-menu">
-                    <a href="#" class="hover-a">Shop</a>
+                    <a href="<?php echo e(route('client.shop')); ?>" class="hover-a">Cửa hàng</a>
                     <!-- <a href="">
                             <i class="fa-solid fa-angle-down angle-down"></i>
                         </a> -->
                 </li>
                 <li class="padding-list-menu">
-                    <a href="#" class="hover-a">About Us</a>
+                    <a href="<?php echo e(route('client.about')); ?>" class="hover-a">Về chúng tôi</a>
                     <!-- <a href="">
                             <i class="fa-solid fa-angle-down angle-down"></i>
                         </a> -->
                 </li>
+                
                 <li class="padding-list-menu">
-                    <a href="#" class="hover-a">Blog</a>
-                    <!-- <a href="">
-                            <i class="fa-solid fa-angle-down angle-down"></i>
-                        </a> -->
-                </li>
-                <li class="padding-list-menu">
-                    <a href="#" class="hover-a">Page</a>
-                    <a href="#">
-                        <i class="fa-solid fa-angle-down angle-down"></i>
-                    </a>
+                    <a href="<?php echo e(route('client.page')); ?>" class="hover-a">Tin tức</a>
                 </li>
             </ul>
         </nav>
         <div class="box-logo">
             <div class="logo">
                 <a href="index.html">
-                    <img src="<?php echo e(asset('client/picture/logo.png')); ?>" alt="" />
+                    <img src="<?php echo e(asset('client/picture/logo.png')); ?>" alt="Logo" />
                 </a>
             </div>
         </div>

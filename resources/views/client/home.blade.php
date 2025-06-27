@@ -1,5 +1,7 @@
 @extends('client.layout.client')
 
+@section('title', 'Trang chủ')
+
 @section('content')
     <div class="banner">
     <script>
@@ -152,7 +154,7 @@
         </div>
     </div>
                @endforeach
- 
+
                 {{-- <div class="new-product">
                     <div class="all-product">
                         <a href="" style="text-decoration: none">

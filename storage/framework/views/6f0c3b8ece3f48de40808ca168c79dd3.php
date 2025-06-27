@@ -1,68 +1,67 @@
 <div class="box-first-footer">
     <div class="contact">
-        <h2>CONTACT US</h2>
+        <h2>LIÊN HỆ</h2>
         <div class="in">
-            <div>Add :4 Copley Place, 7th Floor, Boston, MA 6</div>
-            <div>Tell : 866.453.4748</div>
-            <div>HR Fax: 810.222.5439</div>
-            <div>sales@funorifurniture.com</div>
+            <div>Địa chỉ: 4 Copley Place, Tầng 7, Boston, MA 6</div>
+            <div>Điện thoại: 866.453.4748</div>
+            <div>Fax nhân sự: 810.222.5439</div>
+            <div>Email: sales@funorifurniture.com</div>
         </div>
     </div>
     <div class="contact">
-        <h2>CATEGOIRES</h2>
+        <h2>DANH MỤC</h2>
         <div class="in">
             <a href="">
-                <div>Furniture</div>
+                <div>Nội thất</div>
             </a>
             <a href="">
-                <div>Tables</div>
+                <div>Bàn</div>
             </a>
             <a href="">
-                <div>Seating</div>
+                <div>Ghế ngồi</div>
             </a>
             <a href="">
-                <div>Desks & office </div>
+                <div>Bàn làm việc & văn phòng</div>
             </a>
             <a href="">
-                <div>Storage</div>
+                <div>Lưu trữ</div>
             </a>
             <a href="">
-                <div>Bed & Bath</div>
-            </a>
-        </div>
-    </div>
-    <div class="contact">
-        <h2>SERVICES</h2>
-        <div class="in">
-            <a href="">
-                <div>Sale</div>
-            </a>
-            <a href="">
-                <div>Quick Ship</div>
-            </a>
-            <a href="">
-                <div>New Designs</div>
-            </a>
-            <a href="">
-                <div>Accidental Fabric Protection</div>
-            </a>
-            <a href="">
-                <div>Furniture Care</div>
-            </a>
-            <a href="">
-                <div>Gift Cards</div>
+                <div>Phòng ngủ & phòng tắm</div>
             </a>
         </div>
     </div>
     <div class="contact">
-        <h2>JOIN US</h2>
+        <h2>DỊCH VỤ</h2>
         <div class="in">
-            <div style="margin-bottom: 25px;">Enter your email below to be the first to know
-                <br>
-                about new collections and product launches.
+            <a href="">
+                <div>Khuyến mãi</div>
+            </a>
+            <a href="">
+                <div>Giao hàng nhanh</div>
+            </a>
+            <a href="">
+                <div>Thiết kế mới</div>
+            </a>
+            <a href="">
+                <div>Bảo vệ vải chống sự cố</div>
+            </a>
+            <a href="">
+                <div>Bảo dưỡng nội thất</div>
+            </a>
+            <a href="">
+                <div>Thẻ quà tặng</div>
+            </a>
+        </div>
+    </div>
+    <div class="contact">
+        <h2>THAM GIA VỚI CHÚNG TÔI</h2>
+        <div class="in">
+            <div style="margin-bottom: 25px;">
+                Nhập email của bạn để là người đầu tiên biết về bộ sưu tập và sản phẩm mới.
             </div>
             <div class="box-email">
-                <input type="text" placeholder="Email adress...">
+                <input type="text" placeholder="Nhập email...">
                 <button type="submit">
                     <i class="fa-solid fa-envelope"></i>
                 </button>
@@ -97,7 +96,7 @@
 <div class="box-second-footer">
     <div class="first-box">
         <div class="title">
-            Copyright © 2022. All Right Reserved
+            Bản quyền © 2022. Đã đăng ký bản quyền.
         </div>
     </div>
     <div class="second-box">

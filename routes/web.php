@@ -1,5 +1,5 @@
 <?php
-
+//Admin Controller
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BrandController;
@@ -14,10 +14,16 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\client\AboutController;
+//Client Controller
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Controllers\client\ClientController;
+use App\Http\Controllers\client\PageController as ClientPageController;
+use App\Http\Controllers\client\ShopController;
+// Middleware
 use App\Http\Middleware\CheckLogin;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -138,18 +144,24 @@ Route::prefix('admin')->name('admin.')
             return response()->view('admin.errors.404', [], 404);
         });
     });
- Route::get('/', [ClientController::class, 'index'])->name('client.home');
+
+Route::get('/', [ClientController::class, 'index'])->name('client.home');
 
 Route::prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
+
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.index');
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::get('/page', [ClientPageController::class, 'index'])->name('page');
+    Route::get('/about', [AboutController::class, 'index'])->name('about');
+    Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);

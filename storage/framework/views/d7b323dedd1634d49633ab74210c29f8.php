@@ -1,3 +1,5 @@
+<?php $__env->startSection('title', 'Trang chủ'); ?>
+
 <?php $__env->startSection('content'); ?>
     <div class="banner">
     <script>
@@ -150,7 +152,7 @@
         </div>
     </div>
                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
- 
+
                 
             </div>
         </div>
