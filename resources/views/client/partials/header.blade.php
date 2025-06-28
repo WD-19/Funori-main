@@ -35,7 +35,7 @@
         </nav>
         <div class="box-logo">
             <div class="logo">
-                <a href="index.html">
+                <a href="{{ route('client.home') }}">
                     <img src="{{ asset('client/picture/logo.png') }}" alt="Logo" />
                 </a>
             </div>

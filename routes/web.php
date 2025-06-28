@@ -20,10 +20,10 @@ use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Controllers\client\ClientController;
 use App\Http\Controllers\client\PageController as ClientPageController;
+use App\Http\Controllers\client\ProductController as ClientProductController;
 use App\Http\Controllers\client\ShopController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -145,12 +145,12 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
-Route::get('/', [ClientController::class, 'index'])->name('client.home');
-
-Route::prefix('client')->name('client.')->group(function () {
+Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
+
+    Route::get('/', [ClientController::class, 'index'])->name('home');
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
@@ -162,6 +162,13 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/about', [AboutController::class, 'index'])->name('about');
     Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+
+    //nếu /client thì trả về view 404
+    Route::get('/client', function () {
+        return response()->view('client.errors.404', [], 404);
+    });
+
+    Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);
