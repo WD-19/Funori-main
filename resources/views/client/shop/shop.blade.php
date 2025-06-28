@@ -3,21 +3,19 @@
 
 @section('content')
 
-    <div class="box-banner-shop">
-        <div class="in-box-banner">
+    <div class="box-banner-shop"
+        @if(isset($mainBanner))
+            style="background: url('{{ asset('storage/'.$mainBanner->image_url) }}') center center/cover no-repeat; border-radius: 16px; min-height: 260px; position: relative;"
+        @endif
+    >
+        <div class="in-box-banner" style="background: rgba(255,255,255,0.85); border-radius: 16px; padding: 32px;">
             <div class="text-title-banner">
-                Shop
+                {{ $mainBanner->title ?? 'Shop' }}
             </div>
             <div class="box-path">
-                <div>
-                    Home
-                </div>
-                <div class="icon">
-                    <i class="fa-solid fa-angle-right"></i>
-                </div>
-                <div>
-                    Shop
-                </div>
+                <div>Home</div>
+                <div class="icon"><i class="fa-solid fa-angle-right"></i></div>
+                <div>Shop</div>
             </div>
             <div class="box-list-product">
                 <div class="box-shop-product">
@@ -146,20 +144,19 @@
         </div>
         <div class="box-all-product">
             <div class="header-product">
-                <div class="show-item">
-                    <div>
-                        Hiển thị {{ $products->firstItem() }}–{{ $products->lastItem() }} trên tổng số
-                        {{ $products->total() }} sản phẩm
-                    </div>
-                </div>
-                <select name="" id="box-all-list">
-                    <option value="">Default Sorting</option>
-                    <option value="">Sort By Popularity</option>
-                    <option value="">Sort By Average Rating</option>
-                    <option value="">Sort By Latest</option>
-                    <option value="">Sort By Price: Low To High</option>
-                    <option value="">Sort By Price: High To Low</option>
-                </select>
+                <form method="GET" id="sort-form" style="display:inline;">
+                    @foreach(request()->except(['sort','page']) as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+                    <select name="sort" id="box-all-list" onchange="document.getElementById('sort-form').submit()">
+                        <option value="">Default Sorting</option>
+                        <option value="popularity" {{ request('sort') == 'popularity' ? 'selected' : '' }}>Sort By Popularity</option>
+                        <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Sort By Average Rating</option>
+                        <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Sort By Latest</option>
+                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Sort By Price: Low To High</option>
+                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Sort By Price: High To Low</option>
+                    </select>
+                </form>
             </div>
             <div class="all-box-new-product" style="display: flex; flex-wrap: wrap; gap: 24px;">
                 @foreach($products as $product)
@@ -204,16 +201,21 @@
                     </div>
                 @endforeach
             </div>
-            <div class="box-footer-product">
-                <div class="title-footer-product">
-                    Hiển thị {{ $products->firstItem() }}–{{ $products->lastItem() }} trên tổng số {{ $products->total() }}
+            <div class="box-footer-product" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: 18px 20px; background: #f8f8f8; border-radius: 10px; margin-top: 24px;">
+                <div class="title-footer-product" style="font-size: 15px; color: #333;">
+                    Hiển thị
+                    <span style="font-weight: bold;">{{ $products->firstItem() }}–{{ $products->lastItem() }}</span>
+                    trên tổng số
+                    <span style="font-weight: bold;">{{ $products->total() }}</span>
                     sản phẩm
                 </div>
-                <div class="box-percent">
-                    <div class="in-percent"></div>
+                <div class="box-percent" style="flex: 1; margin: 0 24px;">
+                    <div class="in-percent" style="height: 6px; background: #e0e0e0; border-radius: 3px; position: relative;">
+                        <div style="height: 100%; background: #fcad02; border-radius: 3px; width: {{ $products->lastItem()/$products->total()*100 }}%; transition: width 0.3s;"></div>
+                    </div>
                 </div>
-                <div class="buttom-load">
-                    {{ $products->links() }}
+                <div class="buttom-load" style="min-width: 180px; display: flex; justify-content: flex-end;">
+                    {{ $products->links('vendor.pagination.bootstrap-4') }}
                 </div>
             </div>
         </div>

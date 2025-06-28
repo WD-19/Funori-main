@@ -141,9 +141,10 @@ Route::prefix('admin')->name('admin.')
     });
 
 
-
     Route::get('/', [ClientController::class, 'index'])->name('home');
     Route::get('/cua-hang', [ShopController::class, 'index'])->name('shop');
+Route::prefix('client')->name('client.')->group(function () {
+
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
@@ -155,3 +156,4 @@ Route::prefix('admin')->name('admin.')
         return response()->view('client.errors.404', [], 404);
     });
 
+});

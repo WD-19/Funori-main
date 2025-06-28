@@ -47,7 +47,7 @@
             <a href="" class="box-search">
                 <i class="fa-solid fa-magnifying-glass search"></i>
             </a>
-            <a href="{{ route('login.index') }}" class="box-user">
+            <a href="{{ route('client.login.index') }}" class="box-user">
                 <i class="fa-regular fa-user user"></i>
             </a>
             <a href="" class="box-heart">
