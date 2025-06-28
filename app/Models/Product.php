@@ -33,6 +33,11 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function thumbnail()
+{
+    return $this->hasOne(ProductImage::class)->oldestOfMany();
+}
+  
 
     public function brand()
     {

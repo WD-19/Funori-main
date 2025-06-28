@@ -82,11 +82,11 @@
                 </div>
                 <div class="mb-20">
                     <label class="body-title mb-8" for="admin_note">Ghi chú của quản trị viên</label>
-                    <textarea name="admin_note" id="admin_note" rows="2" class="form-control" style="border-radius:8px;min-height:44px;">{{ old('admin_note', $order->admin_note) }}</textarea>
+                    <textarea name="admin_note" id="admin_note" rows="2" class="form-control" style="border-radius:8px;min-height:44px; font-size:16px;">{{ old('admin_note') }}</textarea>
                 </div>
                 <div class="mb-20" id="cancel_reason_box" style="display: none;">
                     <label class="body-title mb-8" for="cancellation_reason">Lý do hủy</label>
-                    <textarea name="cancellation_reason" id="cancellation_reason" rows="2" class="form-control" style="border-radius:8px;min-height:44px;">{{ old('cancellation_reason', $order->cancellation_reason) }}</textarea>
+                    <textarea name="cancellation_reason" id="cancellation_reason" rows="2" class="form-control" style="border-radius:8px;min-height:44px;font-size:16px;">{{ old('cancellation_reason', $order->cancellation_reason) }}</textarea>
                 </div>
                 <div class="flex gap10">
                     <button class="tf-button w208" type="submit" style="height:44px;">Cập nhật</button>
@@ -181,85 +181,75 @@
         <div class="wg-box mt-20">
             <div class="body-title mb-12">Lịch sử vận chuyển</div>
             <!-- Dùng div với class "table-responsive" và style="max-height: 400px;" -->
-<div class="table-responsive" style="max-height: 400px;">
-    <table class="table table-bordered" style="width:100%; border-collapse:collapse;">
-        <tbody>
-            @php
-                $steps = [
-                    [
-                        'label' => 'Đặt hàng',
-                        'at' => $order->ordered_at,
-                        'desc' => 'Đơn hàng đã được đặt',
-                        'note' => $order->customer_note,
-                        'show' => true,
-                    ],
-                    [
-                        'label' => 'Đang xử lý',
-                        'at' => $order->processing_at,
-                        'desc' => 'Đơn hàng đang được xử lý',
-                        'note' => '',
-                        'show' => $order->processing_at,
-                    ],
-                    [
-                        'label' => 'Đã giao cho đơn vị vận chuyển',
-                        'at' => $order->shipped_at,
-                        'desc' => 'Đơn hàng đã được giao cho đơn vị vận chuyển',
-                        'note' => '',
-                        'show' => $order->shipped_at,
-                    ],
-                    [
-                        'label' => 'Đã giao thành công',
-                        'at' => $order->delivered_at,
-                        'desc' => 'Đơn hàng đã giao thành công',
-                        'note' => '',
-                        'show' => $order->delivered_at,
-                    ],
-                    [
-                        'label' => 'Đã hủy',
-                        'at' => $order->cancelled_at,
-                        'desc' => 'Đơn hàng đã bị hủy',
-                        'note' => $order->cancellation_reason,
-                        'show' => $order->cancelled_at,
-                    ],
-                    [
-                        'label' => 'Đã trả hàng',
-                        'at' => $order->returned_at,
-                        'desc' => 'Đơn hàng đã trả hàng',
-                        'note' => '',
-                        'show' => $order->returned_at,
-                    ],
-                ];
-            @endphp
-            @foreach($steps as $step)
-                @if($step['show'])
+            <div class="table-responsive" style="max-height: 400px;">
+                <table class="table table-bordered" style="width:100%; border-collapse:collapse;">
+                    <tbody>
+                        @forelse($order->status_histories->sortBy('created_at') as $history)
+                        @php
+                            $statusLabel = [
+                                'pending_confirmation' => 'Đặt hàng',
+                                'processing' => 'Đang xử lý',
+                                'shipped' => 'Đã giao cho đơn vị vận chuyển',
+                                'delivered' => 'Đã giao thành công',
+                                'cancelled' => 'Đã hủy',
+                                'returned' => 'Đã trả hàng',
+                                'pending_cancellation' => 'Đang chờ hủy',
+                            ];
+                            $statusDesc = [
+                                'pending_confirmation' => 'Đơn hàng đã được đặt',
+                                'processing' => 'Đơn hàng đang được xử lý',
+                                'shipped' => 'Đơn hàng đã được giao cho đơn vị vận chuyển',
+                                'delivered' => 'Đơn hàng đã giao thành công',
+                                'cancelled' => 'Đơn hàng đã bị hủy',
+                                'returned' => 'Đơn hàng đã trả hàng',
+                                'pending_cancellation' => 'Khách hàng yêu cầu hủy đơn',
+                            ];
+                        @endphp
                 <tr>
                     <th style="width:120px;vertical-align:top;">Trạng thái</th>
-                    <td>{{ $step['label'] }}</td>
+                    <td>{{ $statusLabel[$history->status] ?? $history->status }}</td>
                 </tr>
                 <tr>
                     <th style="vertical-align:top;">Ngày</th>
-                    <td>{{ $step['at'] ? \Carbon\Carbon::parse($step['at'])->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y') : '-' }}</td>
+                    <td>{{ $history->created_at ? \Carbon\Carbon::parse($history->created_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y') : '-' }}</td>
                 </tr>
                 <tr>
                     <th style="vertical-align:top;">Giờ</th>
-                    <td>{{ $step['at'] ? \Carbon\Carbon::parse($step['at'])->setTimezone('Asia/Ho_Chi_Minh')->format('h:i A') : '-' }}</td>
+                    <td>{{ $history->created_at ? \Carbon\Carbon::parse($history->created_at)->setTimezone('Asia/Ho_Chi_Minh')->format('h:i A') : '-' }}</td>
                 </tr>
                 <tr>
                     <th style="vertical-align:top;">Mô tả</th>
-                    <td>{{ $step['desc'] }}</td>
+                    <td>{{ $statusDesc[$history->status] ?? 'Cập nhật trạng thái' }}</td>
                 </tr>
-                @if($step['note'])
+                {{-- Customer note is part of the initial order, not each history entry --}}
+                @if($history->status == 'pending_confirmation' && !empty($order->customer_note))
                 <tr>
-                    <th style="vertical-align:top;">Ghi chú</th>
-                    <td>{{ $step['note'] }}</td>
+                    <th style="vertical-align:top;">Ghi chú khách hàng</th>
+                    <td>{{ $order->customer_note }}</td>
+                </tr>
+                @endif
+                {{-- Cancellation reason is on the main order object, displayed when status is cancelled --}}
+                @if($history->status == 'cancelled' && !empty($order->cancellation_reason))
+                <tr>
+                    <th style="vertical-align:top;">Lý do hủy</th>
+                    <td>{{ $order->cancellation_reason }}</td>
+                </tr>
+                @endif
+                @if(!empty($history->admin_note))
+                <tr>
+                    <th style="vertical-align:top;">Ghi chú quản trị</th>
+                    <td>{{ $history->admin_note }}</td>
                 </tr>
                 @endif
                 <tr><td colspan="2"><hr style="margin:8px 0;"></td></tr>
-                @endif
-            @endforeach
-        </tbody>
-    </table>
-</div>
+                        @empty
+                        <tr>
+                            <td colspan="2">Chưa có lịch sử trạng thái nào.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

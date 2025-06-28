@@ -1,109 +1,149 @@
 @extends('admin.layout.admin')
 @section('title', 'Thống kê đơn hàng')
+
 @section('content')
-    <div class="main-content-inner">
-        <div class="main-content-wrap">
-            <div class="mb-24 flex flex-wrap gap20">
-                <div class="wg-box" style="min-width:180px;">
-                    <div class="body-title mb-2">Tổng số đơn hàng</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">{{ $totalOrders }}</div>
-                </div>
-                <div class="wg-box" style="min-width:180px;">
-                    <div class="body-title mb-2">Đơn hàng thành công</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">{{ $deliveredOrders ?? 0 }}</div>
-                </div>
-                <div class="wg-box" style="min-width:180px;">
-                    <div class="body-title mb-2">Đơn hàng đã hủy</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">{{ $cancelledOrders ?? 0 }}</div>
-                </div>
-                <div class="wg-box" style="min-width:180px;">
-                    <div class="body-title mb-2">Đơn hàng đang xử lý</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">{{ $processingOrders ?? 0 }}</div>
-                </div>
-                <div class="wg-box" style="min-width:180px;">
-                    <div class="body-title mb-2">Đơn hàng chờ xác nhận</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">{{ $pendingOrders ?? 0 }}</div>
-                </div>
-                <div class="wg-box" style="min-width:180px;">
-                    <div class="body-title mb-2">Đơn hàng trả hàng</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">{{ $returnedOrders ?? 0 }}</div>
-                </div>
-            </div>
-            <div class="mb-24 flex flex-wrap gap20">
-                <div class="wg-box" style="min-width:220px;">
-                    <div class="body-title mb-2">Doanh thu tháng {{ now()->format('m/Y') }}</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">{{ number_format($totalRevenueMonth, 0, ',', '.') }}₫</div>
-                </div>
-                <div class="wg-box" style="min-width:220px;">
-                    <div class="body-title mb-2">Doanh thu năm {{ now()->format('Y') }}</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">{{ number_format($totalRevenueYear, 0, ',', '.') }}₫</div>
-                </div>
-                <div class="wg-box" style="min-width:220px;">
-                    <div class="body-title mb-2">Doanh thu trung bình/tháng</div>
-                    <div class="body-title-2 tf-color-1" style="font-size:22px;">
-                        {{ number_format($avgRevenuePerMonth ?? 0, 0, ',', '.') }}₫
-                    </div>
-                </div>
-                <div class="wg-box" style="min-width:220px;">
-                    <div class="body-title mb-2">Đơn hàng mới nhất</div>
-                    @if($latestOrder)
-                        <div class="body-title-2">
-                            <a href="{{ route('admin.orders.show', $latestOrder->id) }}">#{{ $latestOrder->order_code }}</a>
-                            - {{ $latestOrder->customer_name }} ({{ number_format($latestOrder->total_amount, 0, ',', '.') }}₫)
-                            <span class="text-tiny ml-2">{{ $latestOrder->ordered_at ? \Carbon\Carbon::parse($latestOrder->ordered_at)->format('d/m/Y H:i') : '' }}</span>
-                        </div>
-                    @else
-                        <div class="body-title-2">Không có đơn hàng</div>
-                    @endif
-                </div>
-            </div>
-            <div class="mb-24">
-                <a href="{{ route('admin.orders.export', request()->all()) }}" class="tf-button">
-                    <i class="icon-file-text"></i> Xuất Excel/CSV
-                </a>
-            </div>
-            <div class="wg-box mt-6">
-                <div class="body-title mb-2">Biểu đồ đơn hàng theo tháng (năm {{ now()->format('Y') }})</div>
-                <canvas id="ordersChart" height="80"></canvas>
-            </div>
+<div class="container py-3">
+  {{-- Tiêu đề trang --}}
+  <div class="mb-4">
+    <h2 class="h4">Dashboard Thống kê Đơn hàng</h2>
+    <p class="text-muted mb-0">Cập nhật: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</p>
+  </div>
+
+  {{-- 1. KPI Tổng quan --}}
+  <div class="row gy-3 gx-2">
+    @php
+      $overview = [
+        ['title'=>'Tổng đơn hàng',       'value'=>number_format($totalOrders),      'color'=>'text-dark'],
+        ['title'=>'Đơn thành công',     'value'=>number_format($deliveredOrders),  'color'=>'text-success'],
+        ['title'=>'Đơn đã hủy',         'value'=>number_format($cancelledOrders),  'color'=>'text-danger'],
+        ['title'=>'Đang xử lý',         'value'=>number_format($processingOrders),'color'=>'text-warning'],
+        ['title'=>'Chờ xác nhận',       'value'=>number_format($pendingOrders),    'color'=>'text-primary'],
+        ['title'=>'Đơn trả hàng',       'value'=>number_format($returnedOrders),   'color'=>'text-info'],
+      ];
+    @endphp
+    @foreach($overview as $item)
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-3 text-center">
+            <div class="small text-uppercase text-muted">{{ $item['title'] }}</div>
+            <div class="h5 {{ $item['color'] }} fw-bold mb-1">{{ $item['value'] }}</div>
+          </div>
         </div>
+      </div>
+    @endforeach
+  </div>
+
+  {{-- 2. KPI Hiệu suất --}}
+  <div class="row gy-3 gx-2 mt-3">
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-3">
+          <div class="small text-muted">Tỉ lệ thành công</div>
+          <div class="h4 text-success fw-bold">{{ $successRate }}% </div>
+          <div class="small text-muted">(Đã giao / Đã hoàn tất)</div>
+        </div>
+      </div>
     </div>
-  
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-3">
+          <div class="small text-muted">Tỉ lệ hủy đơn</div>
+          <div class="h4 text-danger fw-bold">{{ $cancellationRate }}% </div>
+          <div class="small text-muted">(Đã hủy / Đã hoàn tất)</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-3">
+          <div class="small text-muted">Giá trị TB đơn (AOV)</div>
+          <div class="h4 text-primary fw-bold">{{ number_format($averageOrderValue,0,',','.') }}₫</div>
+          <div class="small text-muted">(Tháng này)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- 3. Growth và Đơn mới nhất --}}
+  <div class="row gy-3 gx-2 mt-3">
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-3">
+          <div class="small text-muted">Tăng trưởng MoM</div>
+          <div class="h4 fw-bold">{{ $momRevenueGrowth }}% </div>
+          <canvas id="sparklineChart" height="40"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-3">
+          <div class="small text-muted">Tăng trưởng YoY</div>
+          <div class="h4 fw-bold">{{ $yoyRevenueGrowth }}% </div>
+          <div class="small text-muted">So cùng kỳ năm trước</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-3">
+          <div class="small text-muted">Đơn hàng mới nhất</div>
+          @if($latestOrder)
+            <div class="fw-bold">#{{ $latestOrder->order_code }}</div>
+            <div class="small mb-1">{{ $latestOrder->customer_name }}</div>
+            <div class="text-info fw-bold mb-1">{{ number_format($latestOrder->total_amount,0,',','.') }}₫</div>
+            <div class="small text-muted">{{ \Carbon\Carbon::parse($latestOrder->created_at)->format('d/m/Y H:i') }}</div>
+          @else
+            <div class="small text-muted">Chưa có đơn mới</div>
+          @endif
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- 4. Biểu đồ 12 tháng --}}
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-3">
+          <div class="small text-muted mb-2">Đơn & Doanh thu 12 tháng</div>
+          <canvas id="annualChart" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- 5. Alert --}}
+  @if($cancellationRate > 5)
+    <div class="alert alert-warning mt-3">
+      <strong>Cảnh báo:</strong> Tỉ lệ hủy đơn đang cao ({{ $cancellationRate }}%).
+    </div>
+  @endif
+  @if($momRevenueGrowth < 0)
+    <div class="alert alert-danger mt-2">
+      <strong>Chú ý:</strong> Doanh thu MoM giảm {{ abs($momRevenueGrowth) }}%.
+    </div>
+  @endif
+</div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var ctx = document.getElementById('ordersChart').getContext('2d');
-        var chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {!! json_encode($chartLabels) !!},
-                datasets: [{
-                    label: 'Số đơn hàng',
-                    data: {!! json_encode($chartOrderCounts) !!},
-                    backgroundColor: '#3b82f6'
-                },{
-                    label: 'Doanh thu (₫)',
-                    data: {!! json_encode($chartOrderAmounts) !!},
-                    backgroundColor: '#10b981'
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    });
+  // Sparkline
+  new Chart(document.getElementById('sparklineChart'), {
+    type: 'line',
+    data: { labels: @json($sparklineLabels), datasets: [{ data: @json($sparklineData), fill:false, borderWidth:1, tension:0.4 }] },
+    options: { responsive:true, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
+  });
+
+  // Annual Chart
+  new Chart(document.getElementById('annualChart'), {
+    type:'bar', data:{ labels:@json($chartLabels), datasets:[
+      { type:'bar',  label:'Số đơn',   data:@json($chartCounts),  yAxisID:'A', backgroundColor:'rgba(54,162,235,0.6)' },
+      { type:'line', label:'Doanh thu',data:@json($chartAmounts), yAxisID:'B', borderWidth:2 }
+    ]},
+    options:{ responsive:true, scales:{ A:{beginAtZero:true, position:'left'}, B:{beginAtZero:true, position:'right', grid:{drawOnChartArea:false}} } }
+  });
 </script>
 @endpush

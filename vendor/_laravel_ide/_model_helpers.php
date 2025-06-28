@@ -4522,6 +4522,7 @@ namespace App\Models {
      * @property string $name
      * @property int $id
      * @property-read \App\Models\Category $category
+     * @property-read \App\Models\ProductImage $thumbnail
      * @property-read \App\Models\Brand $brand
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductImage> $images
      * @property-read int|null $images_count

@@ -2,25 +2,18 @@
 
 namespace App\Http\Controllers\client;
 
-
-use App\Models\Product;
-use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ShopController
 {
+    /**
+     * Display the shop page.
+     */
     public function index(Request $request)
-{
-    $categories = Category::withCount('products')->get();
+    {
+        // Logic to retrieve necessary data for the shop page
+        // For example: products, categories, etc.
 
-    $query = Product::with(['images', 'brand', 'category', 'reviews']);
-
-    if ($request->filled('category_id')) {
-        $query->where('category_id', $request->category_id);
+        return view('client.shop.shop'); // Return the corresponding view
     }
-
-    $products = $query->latest()->paginate(12);
-
-    return view('client.shop', compact('products', 'categories'));
-}
 }
