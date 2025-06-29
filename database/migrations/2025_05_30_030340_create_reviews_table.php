@@ -12,16 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reviews', function (Blueprint $table) {
-            $table->id(); // Khóa chính, tự tăng [cite: 35]
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Khóa ngoại đến users(id) [cite: 35]
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // Khóa ngoại đến products(id) [cite: 35]
-            $table->foreignId('order_item_id')->constrained('order_items')->onDelete('cascade'); // Khóa ngoại đến order_items(id) (để đảm bảo người dùng đã mua SP) [cite: 35]
-            $table->unsignedTinyInteger('rating'); // Điểm đánh giá (ví dụ: 1 đến 5) [cite: 35]
-            $table->text('comment')->nullable(); // Nội dung bình luận (nullable) [cite: 35]
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Trạng thái (mặc định: 'pending' - chờ duyệt) [cite: 35]
-            $table->timestamps(); // Thời gian tạo và cập nhật [cite: 35]
+            $table->id(); // Khóa chính, tự tăng
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Khóa ngoại đến users(id)
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // Khóa ngoại đến products(id)
+            $table->foreignId('order_item_id')->constrained('order_items')->onDelete('cascade'); // Khóa ngoại đến order_items(id)
+            $table->unsignedTinyInteger('rating'); // Điểm đánh giá (1-5)
+            $table->text('comment')->nullable(); // Nội dung bình luận
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Trạng thái
+            $table->text('admin_reply')->nullable(); // Phản hồi từ admin (thêm dòng này)
+            $table->timestamp('admin_reply_created_at')->nullable(); // Thời gian phản hồi admin (thêm dòng này)
+            $table->timestamps(); // Thời gian tạo và cập nhật
             $table->softDeletes(); // Tạo cột 'deleted_at' nullable
-
         });
     }
 

@@ -1,6 +1,6 @@
 @extends('client.layout.client')
 
-@section('title', 'Trang chủ')
+@section('title', $product->name)
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/fonts.css') }}">
@@ -24,6 +24,7 @@
         </div>
     </div>
     <!-- /breadcrumb -->
+
     <!-- Sản phẩm -->
     <section class="flat-spacing-4 pt_0">
         <div class="tf-main-product section-image-zoom">
@@ -276,18 +277,6 @@
                                     </form>
                                 </div>
                                 <div class="tf-product-info-extra-link">
-                                    <a href="#compare_color" data-bs-toggle="modal" class="tf-product-extra-icon">
-                                        <div class="icon">
-                                            <img src="{{ asset('client/ecomus/images/item/compare.svg') }}" alt="">
-                                        </div>
-                                        <div class="text fw-6">So sánh màu</div>
-                                    </a>
-                                    <a href="#ask_question" data-bs-toggle="modal" class="tf-product-extra-icon">
-                                        <div class="icon">
-                                            <i class="icon-question"></i>
-                                        </div>
-                                        <div class="text fw-6">Hỏi đáp</div>
-                                    </a>
                                     <a href="#delivery_return" data-bs-toggle="modal" class="tf-product-extra-icon">
                                         <div class="icon">
                                             <svg class="d-inline-block" xmlns="http://www.w3.org/2000/svg" width="22"
@@ -349,8 +338,7 @@
             </div>
         </div>
     </section>
-    <!-- /default -->
-
+    <!-- /Sản phẩm -->
     <script>
         // Hiển thị giá gốc sản phẩm, chỉ đổi sang giá biến thể khi chọn, bấm lại lần 2 sẽ bỏ chọn về giá gốc
         document.addEventListener('DOMContentLoaded', function () {
@@ -416,6 +404,7 @@
             updatePrice();
         });
     </script>
+
     <!-- tabs -->
     <section class="flat-spacing-17 pt_0">
         <div class="container">
@@ -440,6 +429,7 @@
                             </li>
                         </ul>
                         <div class="widget-content-tab">
+                            {{-- mô tả --}}
                             <div class="widget-content-inner active">
                                 <div class="">
                                     <p class="mb_30">
@@ -447,132 +437,137 @@
                                         <br><br>
                                         {!! nl2br(e($product->description)) !!}
                                     </p>
+
                                     <div class="tf-product-des-demo">
                                         <div class="right">
-                                            <h3 class="fs-16 fw-5">Tính năng</h3>
+                                            <h3 class="fs-16 fw-5">Tính năng nổi bật</h3>
                                             <ul>
-                                                <li>Cài nút phía trước</li>
-                                                <li> Điều chỉnh tay áo</li>
-                                                <li>Thêu logo Babaton ở ngực và gấu áo</li>
+                                                <li>Thiết kế hiện đại, phù hợp với nhiều không gian nội thất</li>
+                                                <li>Chất liệu gỗ tự nhiên/kim loại cao cấp, bền bỉ</li>
+                                                <li>Khả năng chịu lực tốt, tuổi thọ cao</li>
+                                                <li>Dễ dàng lắp ráp và di chuyển</li>
                                             </ul>
-                                            <h3 class="fs-16 fw-5">Chất liệu & Bảo quản</h3>
+
+                                            <h3 class="fs-16 fw-5">Chất liệu & Thông tin kỹ thuật</h3>
                                             <ul class="mb-0">
-                                                <li>Thành phần: 100% LENZING™ ECOVERO™ Viscose</li>
-                                                <li>Bảo quản: Giặt tay</li>
-                                                <li>Nhập khẩu</li>
+                                                <li>Chất liệu: Gỗ sồi tự nhiên/Gỗ MDF phủ Melamine</li>
+                                                <li>Kích thước: D120 x R60 x C75 cm</li>
+                                                <li>Màu sắc: Nâu tự nhiên/Trắng</li>
+                                                <li>Sản xuất tại: Việt Nam</li>
                                             </ul>
                                         </div>
+
                                         <div class="left">
-                                            <h3 class="fs-16 fw-5">Chất liệu & Bảo quản</h3>
+                                            <h3 class="fs-16 fw-5">Hướng dẫn bảo quản</h3>
                                             <div class="d-flex gap-10 mb_15 align-items-center">
                                                 <div class="icon">
                                                     <i class="icon-machine"></i>
                                                 </div>
-                                                <span>Giặt máy tối đa 30ºC. Vắt nhẹ.</span>
-                                            </div>
-                                            <div class="d-flex gap-10 mb_15 align-items-center">
-                                                <div class="icon">
-                                                    <i class="icon-iron"></i>
-                                                </div>
-                                                <span>Là tối đa 110ºC.</span>
+                                                <span>Dùng khăn mềm ẩm lau bề mặt định kỳ</span>
                                             </div>
                                             <div class="d-flex gap-10 mb_15 align-items-center">
                                                 <div class="icon">
                                                     <i class="icon-bleach"></i>
                                                 </div>
-                                                <span>Không tẩy.</span>
+                                                <span>Không dùng hóa chất tẩy mạnh</span>
                                             </div>
                                             <div class="d-flex gap-10 mb_15 align-items-center">
                                                 <div class="icon">
                                                     <i class="icon-dry-clean"></i>
                                                 </div>
-                                                <span>Không giặt khô.</span>
+                                                <span>Không ngâm nước hoặc để tiếp xúc lâu với chất lỏng</span>
                                             </div>
                                             <div class="d-flex gap-10 align-items-center">
                                                 <div class="icon">
                                                     <i class="icon-tumble-dry"></i>
                                                 </div>
-                                                <span>Sấy khô ở nhiệt độ trung bình.</span>
+                                                <span>Bảo quản nơi khô ráo, thông thoáng</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            {{-- /mô tả --}}
+
+                            {{-- biến thể --}}
                             <div class="widget-content-inner">
                                 <table class="tf-pr-attrs">
                                     <tbody>
-                                        <tr class="tf-attr-pa-color">
+                                        <tr>
                                             <th class="tf-attr-label">Màu sắc</th>
                                             <td class="tf-attr-value">
-                                                <p>Trắng, Hồng, Đen</p>
+                                                <p>Trắng sữa, Gỗ tự nhiên, Đen nhám</p>
                                             </td>
                                         </tr>
-                                        <tr class="tf-attr-pa-size">
+                                        <tr>
                                             <th class="tf-attr-label">Kích thước</th>
                                             <td class="tf-attr-value">
-                                                <p>S, M, L, XL</p>
+                                                <p>Dài 120cm x Rộng 60cm x Cao 75cm</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="tf-attr-label">Chất liệu</th>
+                                            <td class="tf-attr-value">
+                                                <p>Gỗ MDF phủ Melamine chống trầy xước</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="tf-attr-label">Bảo hành</th>
+                                            <td class="tf-attr-value">
+                                                <p>12 tháng</p>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
+                            {{-- /biến thể --}}
+
                             {{-- đánh giá --}}
+                            @php
+                                // Đếm số lượt đánh giá đã duyệt
+                                $approvedReviews = $reviews->where('status', 'approved');
+                                $reviewCount = $approvedReviews->count();
+
+                                // Tính trung bình rate
+                                $averageRate = $reviewCount > 0 ? round($approvedReviews->avg('rating'), 1) : 0;
+
+                                // Đếm số lượng từng rate
+                                $rateCounts = [];
+                                for ($i = 1; $i <= 5; $i++) {
+                                    $rateCounts[$i] = $approvedReviews->where('rating', $i)->count();
+                                }
+                            @endphp
                             <div class="widget-content-inner">
                                 <div class="tab-reviews write-cancel-review-wrap">
                                     <div class="tab-reviews-heading">
                                         <div class="top">
                                             <div class="text-center">
-                                                <h1 class="number fw-6">4.8</h1>
+                                                <h1 class="number fw-6">{{ $averageRate }}</h1>
                                                 <div class="list-star">
-                                                    <i class="icon icon-star"></i>
-                                                    <i class="icon icon-star"></i>
-                                                    <i class="icon icon-star"></i>
-                                                    <i class="icon icon-star"></i>
-                                                    <i class="icon icon-star"></i>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <i
+                                                            class="icon icon-star{{ $i <= round($averageRate) ? '' : '-o' }}"></i>
+                                                    @endfor
                                                 </div>
-                                                <p>(168 Đánh giá)</p>
+                                                <p>({{ $reviewCount }} Đánh giá)</p>
                                             </div>
                                             <div class="rating-score">
-                                                <div class="item">
-                                                    <div class="number-1 text-caption-1">5</div>
-                                                    <i class="icon icon-star"></i>
-                                                    <div class="line-bg">
-                                                        <div style="width: 94.67%;"></div>
+                                                @for ($i = 5; $i >= 1; $i--)
+                                                    <div class="item">
+                                                        <div class="number-1 text-caption-1">{{ $i }}</div>
+                                                        <i class="icon icon-star"></i>
+                                                        <div class="line-bg">
+                                                            @php
+                                                                $percent =
+                                                                    $reviewCount > 0
+                                                                        ? ($rateCounts[$i] / $reviewCount) * 100
+                                                                        : 0;
+                                                            @endphp
+                                                            <div style="width: {{ $percent }}%;"></div>
+                                                        </div>
+                                                        <div class="number-2 text-caption-1">{{ $rateCounts[$i] }}</div>
                                                     </div>
-                                                    <div class="number-2 text-caption-1">59</div>
-                                                </div>
-                                                <div class="item">
-                                                    <div class="number-1 text-caption-1">4</div>
-                                                    <i class="icon icon-star"></i>
-                                                    <div class="line-bg">
-                                                        <div style="width: 60%;"></div>
-                                                    </div>
-                                                    <div class="number-2 text-caption-1">46</div>
-                                                </div>
-                                                <div class="item">
-                                                    <div class="number-1 text-caption-1">3</div>
-                                                    <i class="icon icon-star"></i>
-                                                    <div class="line-bg">
-                                                        <div style="width: 0%;"></div>
-                                                    </div>
-                                                    <div class="number-2 text-caption-1">0</div>
-                                                </div>
-                                                <div class="item">
-                                                    <div class="number-1 text-caption-1">2</div>
-                                                    <i class="icon icon-star"></i>
-                                                    <div class="line-bg">
-                                                        <div style="width: 0%;"></div>
-                                                    </div>
-                                                    <div class="number-2 text-caption-1">0</div>
-                                                </div>
-                                                <div class="item">
-                                                    <div class="number-1 text-caption-1">1</div>
-                                                    <i class="icon icon-star"></i>
-                                                    <div class="line-bg">
-                                                        <div style="width: 0%;"></div>
-                                                    </div>
-                                                    <div class="number-2 text-caption-1">0</div>
-                                                </div>
+                                                @endfor
                                             </div>
                                         </div>
                                         <div>
@@ -585,206 +580,291 @@
                                     <div class="reply-comment cancel-review-wrap">
                                         <div
                                             class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap">
-                                            <h5 class="">03 Bình luận</h5>
-                                            <div class="d-flex align-items-center gap-12">
-                                                <div class="text-caption-1">Sắp xếp theo:</div>
-                                                <div class="tf-dropdown-sort" data-bs-toggle="dropdown">
-                                                    <div class="btn-select">
-                                                        <span class="text-sort-value">Mới nhất</span>
-                                                        <span class="icon icon-arrow-down"></span>
-                                                    </div>
-                                                    <div class="dropdown-menu">
-                                                        <div class="select-item active">
-                                                            <span class="text-value-item">Mới nhất</span>
-                                                        </div>
-                                                        <div class="select-item">
-                                                            <span class="text-value-item">Cũ nhất</span>
-                                                        </div>
-                                                        <div class="select-item">
-                                                            <span class="text-value-item">Phổ biến nhất</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <h5 class="">{{ $reviewCount }} Bình luận</h5>
+                                            <form method="GET" id="review-sort-form">
+                                                <label for="sort-select" class="me-2">Sắp xếp theo:</label>
+                                                <select name="sort" id="sort-select"
+                                                    class="form-select d-inline w-auto"
+                                                    onchange="document.getElementById('review-sort-form').submit()">
+                                                    <option value="newest"
+                                                        {{ request('sort') === 'newest' ? 'selected' : '' }}>Mới nhất
+                                                    </option>
+                                                    <option value="oldest"
+                                                        {{ request('sort') === 'oldest' ? 'selected' : '' }}>Cũ nhất
+                                                    </option>
+                                                </select>
+                                            </form>
+
                                         </div>
                                         <div class="reply-comment-wrap">
-                                            <div class="reply-comment-item">
-                                                <div class="user">
-                                                    <div class="image">
-                                                        <img src="{{ asset('client/ecomus/images/collections/collection-circle-9.jpg') }}"
-                                                            alt="">
+                                            @foreach ($reviews as $review)
+                                                @if ($review->status === 'approved')
+                                                    {{-- Hiển thị bình thường nếu đã duyệt --}}
+                                                    <div class="reply-comment-item">
+                                                        <div class="user">
+                                                            <div class="image">
+                                                                <img src="{{ asset('client/ecomus/images/collections/collection-circle-9.jpg') }}"
+                                                                    alt="">
+                                                            </div>
+                                                            <div>
+                                                                <h6>
+                                                                    <a href="#" class="link">
+                                                                        @php
+                                                                            $name =
+                                                                                $review->user->full_name ?? 'Ẩn danh';
+                                                                            if (
+                                                                                $name !== 'Ẩn danh' &&
+                                                                                mb_strlen($name) > 6
+                                                                            ) {
+                                                                                $first = mb_substr($name, 0, 3);
+                                                                                $last = mb_substr($name, -3);
+                                                                                $masked =
+                                                                                    $first .
+                                                                                    str_repeat(
+                                                                                        '*',
+                                                                                        mb_strlen($name) - 6,
+                                                                                    ) .
+                                                                                    $last;
+                                                                                echo $masked;
+                                                                            } else {
+                                                                                echo $name;
+                                                                            }
+                                                                        @endphp
+                                                                    </a>
+                                                                </h6>
+                                                                <div class="day text_black-3">
+                                                                    {{ $review->created_at->diffForHumans() }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="list-star mb-1">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <i
+                                                                    class="icon icon-star{{ $i <= $review->rating ? '' : '-o' }}"></i>
+                                                            @endfor
+                                                        </div>
+                                                        <p class="text_black-3">{{ $review->comment }}</p>
                                                     </div>
-                                                    <div>
-                                                        <h6>
-                                                            <a href="#" class="link">Chất lượng tuyệt vời vượt
-                                                                mong đợi</a>
-                                                        </h6>
-                                                        <div class="day text_black-3">1 ngày trước</div>
+                                                    @if ($review->admin_reply)
+                                                        <div class="reply-comment-item type-reply">
+                                                            <div class="user">
+                                                                <div class="image">
+                                                                    <img src="{{ asset('client/ecomus/images/collections/collection-circle-10.jpg') }}"
+                                                                        alt="">
+                                                                </div>
+                                                                <div>
+                                                                    <h6>
+                                                                        <a href="#" class="link">
+                                                                            @php
+                                                                                // Nếu có admin, lấy tên admin, còn không thì hiển thị mặc định
+                                                                                $adminName =
+                                                                                    $review->admin->full_name ??
+                                                                                    'Admin';
+                                                                                if (mb_strlen($adminName) > 6) {
+                                                                                    $first = mb_substr(
+                                                                                        $adminName,
+                                                                                        0,
+                                                                                        3,
+                                                                                    );
+                                                                                    $last = mb_substr($adminName, -3);
+                                                                                    $masked =
+                                                                                        $first .
+                                                                                        str_repeat(
+                                                                                            '*',
+                                                                                            mb_strlen($adminName) - 6,
+                                                                                        ) .
+                                                                                        $last;
+                                                                                    echo $masked;
+                                                                                } else {
+                                                                                    echo $adminName;
+                                                                                }
+                                                                            @endphp
+                                                                        </a>
+                                                                    </h6>
+                                                                    <div class="day text_black-3">
+                                                                        {{ $review->admin_reply_created_at ? \Carbon\Carbon::parse($review->admin_reply_created_at)->diffForHumans() : '' }}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <p class="text_black-3">{{ $review->admin_reply }}</p>
+                                                        </div>
+                                                    @endif
+                                                @elseif ($review->status === 'pending' && auth()->check() && auth()->id() === $review->user_id)
+                                                    {{-- Làm mờ và chỉ user đánh giá thấy --}}
+                                                    <div class="reply-comment-item" style="opacity: 0.5;">
+                                                        <div class="user">
+                                                            <div class="image">
+                                                                <img src="{{ asset('client/ecomus/images/collections/collection-circle-9.jpg') }}"
+                                                                    alt="">
+                                                            </div>
+                                                            <div>
+                                                                <h6>
+                                                                    <a href="#" class="link">
+                                                                        @php
+                                                                            $name =
+                                                                                $review->user->full_name ?? 'Ẩn danh';
+                                                                            if (
+                                                                                $name !== 'Ẩn danh' &&
+                                                                                mb_strlen($name) > 6
+                                                                            ) {
+                                                                                $first = mb_substr($name, 0, 3);
+                                                                                $last = mb_substr($name, -3);
+                                                                                $masked =
+                                                                                    $first .
+                                                                                    str_repeat(
+                                                                                        '*',
+                                                                                        mb_strlen($name) - 6,
+                                                                                    ) .
+                                                                                    $last;
+                                                                                echo $masked;
+                                                                            } else {
+                                                                                echo $name;
+                                                                            }
+                                                                        @endphp
+                                                                    </a>
+                                                                </h6>
+                                                                <div class="day text_black-3">
+                                                                    {{ $review->created_at->diffForHumans() }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="list-star mb-1">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <i
+                                                                    class="icon icon-star{{ $i <= $review->rating ? '' : '-o' }}"></i>
+                                                            @endfor
+                                                        </div>
+                                                        <p class="text_black-3"><em>Đánh giá của bạn đang chờ
+                                                                duyệt</em><br>{{ $review->comment }}</p>
                                                     </div>
-                                                </div>
-                                                <p class="text_black-3">Giao diện tuyệt vời - chúng tôi đang tìm một giao
-                                                    diện với nhiều tính năng tích hợp sẵn và linh hoạt, và đây là lựa chọn
-                                                    hoàn hảo. Chúng tôi nghĩ sẽ phải thuê lập trình viên để hoàn thiện,
-                                                    nhưng thực tế tự làm được hết. Hỗ trợ cũng rất nhanh và hữu ích.</p>
-                                            </div>
-                                            <div class="reply-comment-item type-reply">
-                                                <div class="user">
-                                                    <div class="image">
-                                                        <img src="{{ asset('client/ecomus/images/collections/collection-circle-10.jpg') }}"
-                                                            alt="">
-                                                    </div>
-                                                    <div>
-                                                        <h6>
-                                                            <a href="#" class="link">Phản hồi từ Modave</a>
-                                                        </h6>
-                                                        <div class="day text_black-3">1 ngày trước</div>
-                                                    </div>
-                                                </div>
-                                                <p class="text_black-3">Chúng tôi rất vui khi nghe điều đó! Điều chúng tôi
-                                                    yêu thích nhất ở Modave là giúp chủ shop tự xây dựng website đẹp mà
-                                                    không cần thuê lập trình viên :) Cảm ơn bạn vì đánh giá tuyệt vời này!
-                                                </p>
-                                            </div>
+                                                @endif
+                                            @endforeach
                                         </div>
                                     </div>
-                                    <form class="form-write-review write-review-wrap">
+                                    {{-- ...form viết đánh giá giữ nguyên... --}}
+                                    <form class="form-write-review write-review-wrap" method="POST"
+                                        action="{{ route('client.reviews.store', $product->id) }}">
+                                        @csrf
                                         <div class="heading">
                                             <h5>Viết đánh giá:</h5>
                                             <div class="list-rating-check">
-                                                <input type="radio" id="star5" name="rate" value="5" />
+                                                <input type="radio" id="star5" name="rating" value="5" />
                                                 <label for="star5" title="text"></label>
-                                                <input type="radio" id="star4" name="rate" value="4" />
+                                                <input type="radio" id="star4" name="rating" value="4" />
                                                 <label for="star4" title="text"></label>
-                                                <input type="radio" id="star3" name="rate" value="3" />
+                                                <input type="radio" id="star3" name="rating" value="3" />
                                                 <label for="star3" title="text"></label>
-                                                <input type="radio" id="star2" name="rate" value="2" />
+                                                <input type="radio" id="star2" name="rating" value="2" />
                                                 <label for="star2" title="text"></label>
-                                                <input type="radio" id="star1" name="rate" value="1" />
+                                                <input type="radio" id="star1" name="rating" value="1"
+                                                    checked />
                                                 <label for="star1" title="text"></label>
                                             </div>
                                         </div>
                                         <div class="form-content">
                                             <fieldset class="box-field">
-                                                <label class="label">Tiêu đề đánh giá</label>
-                                                <input type="text" placeholder="Nhập tiêu đề đánh giá" name="text"
-                                                    tabindex="2" value="" aria-required="true" required="">
-                                            </fieldset>
-                                            <fieldset class="box-field">
                                                 <label class="label">Nội dung đánh giá</label>
-                                                <textarea rows="4" placeholder="Viết bình luận của bạn tại đây" tabindex="2"
-                                                    aria-required="true" required=""></textarea>
+                                                <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây" tabindex="2" required></textarea>
                                             </fieldset>
-                                            <div class="box-field group-2">
-                                                <fieldset>
-                                                    <input type="text" placeholder="Tên của bạn (hiển thị công khai)"
-                                                        name="text" tabindex="2" value="" aria-required="true" required="">
-                                                </fieldset>
-                                                <fieldset>
-                                                    <input type="email" placeholder="Email của bạn (bảo mật)" name="email"
-                                                        tabindex="2" value="" aria-required="true" required="">
-                                                </fieldset>
-                                            </div>
-                                            <div class="box-check">
-                                                <input type="checkbox" name="availability" class="tf-check" id="check1">
-                                                <label class="text_black-3" for="check1">Lưu tên, email và website của
-                                                    tôi cho lần bình luận sau.</label>
-                                            </div>
+                                            {{-- <div class="box-check">
+                                                <input type="checkbox" name="availability" class="tf-check"
+                                                    id="check1" {{ old('availability') ? 'checked' : '' }}>
+                                                <label class="text_black-3" for="check1">
+                                                    Tôi Đồng Ý Tuân Thủ Quy Tắc Cộng Đồng Và Tôn Trọng Mọi Người.
+                                                </label>
+                                            </div> --}}
                                         </div>
                                         <div class="button-submit">
-                                            <button class="tf-btn btn-fill animate-hover-btn" type="submit">Gửi đánh
-                                                giá</button>
+                                            <button type="submit" class="tf-btn btn-fill animate-hover-btn">
+                                                Gửi đánh giá
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
-                            {{-- đánh giá --}}
+                            {{-- /đánh giá --}}
+
+                            {{-- vận chuyển --}}
                             <div class="widget-content-inner">
                                 <div class="tf-page-privacy-policy">
-                                    <div class="title">Chính sách bảo mật của Công ty</div>
-                                    <p>Công ty TNHH và các công ty con, công ty mẹ, công ty liên kết của chúng tôi được coi
-                                        là vận hành Website này (“chúng tôi”) nhận thấy bạn quan tâm đến cách thông tin về
-                                        bạn được sử dụng và chia sẻ. Chúng tôi đã tạo ra Chính sách bảo mật này để thông báo
-                                        cho bạn biết chúng tôi thu thập những thông tin gì trên Website, cách chúng tôi sử
-                                        dụng thông tin của bạn và các lựa chọn bạn có về cách thông tin của bạn được thu
-                                        thập và sử dụng. Vui lòng đọc kỹ Chính sách bảo mật này. Việc bạn sử dụng Website
-                                        đồng nghĩa với việc bạn đã đọc và chấp nhận các thực tiễn bảo mật của chúng tôi như
-                                        được nêu trong Chính sách bảo mật này.</p>
-                                    <p>Lưu ý rằng các thực tiễn được mô tả trong Chính sách bảo mật này áp dụng cho thông
-                                        tin được chúng tôi hoặc các công ty con, công ty liên kết hoặc đại lý của chúng tôi
-                                        thu thập: (i) thông qua Website này, (ii) khi áp dụng, thông qua Bộ phận Chăm sóc
-                                        khách hàng của chúng tôi liên quan đến Website này, (iii) thông qua thông tin được
-                                        cung cấp cho chúng tôi tại các cửa hàng bán lẻ độc lập của chúng tôi, và (iv) thông
-                                        qua thông tin được cung cấp cho chúng tôi liên quan đến các chương trình khuyến mãi
-                                        và rút thăm trúng thưởng.</p>
-                                    <p>Chúng tôi không chịu trách nhiệm về nội dung hoặc thực tiễn bảo mật trên bất kỳ trang
-                                        web nào khác.</p>
-                                    <p>Chúng tôi có quyền, theo quyết định riêng của mình, sửa đổi, cập nhật, bổ sung,
-                                        ngừng, xóa hoặc thay đổi bất kỳ phần nào của Chính sách bảo mật này, toàn bộ hoặc
-                                        một phần, bất cứ lúc nào. Khi chúng tôi sửa đổi Chính sách bảo mật này, chúng tôi sẽ
-                                        cập nhật ngày “cập nhật lần cuối” nằm ở đầu Chính sách bảo mật này.</p>
-                                    <p>Nếu bạn cung cấp thông tin cho chúng tôi hoặc truy cập hoặc sử dụng Website dưới bất
-                                        kỳ hình thức nào sau khi Chính sách bảo mật này đã được thay đổi, bạn sẽ được coi là
-                                        đã vô điều kiện đồng ý với những thay đổi đó. Phiên bản mới nhất của Chính sách bảo
-                                        mật này sẽ có trên Website và sẽ thay thế tất cả các phiên bản trước đó.</p>
-                                    <p>Nếu bạn có bất kỳ câu hỏi nào về Chính sách bảo mật này, vui lòng liên hệ Bộ phận
-                                        Chăm sóc khách hàng của chúng tôi qua email tại marketing@company.com</p>
+                                    <div class="title">Chính sách Vận chuyển</div>
+
+                                    <p>Funori Furniture cam kết giao hàng đến tay khách hàng một cách nhanh chóng, an toàn
+                                        và đúng hẹn. Chính sách vận chuyển áp dụng cho tất cả đơn hàng được đặt trên website
+                                        <strong>funori.vn</strong> và các kênh bán hàng chính thức của chúng tôi.
+                                    </p>
+
+                                    <h3 class="fs-16 fw-5 mt-4">1. Khu vực giao hàng</h3>
+                                    <ul>
+                                        <li>Giao hàng toàn quốc với các đơn vị vận chuyển uy tín như Giao hàng tiết kiệm,
+                                            Viettel Post, Ahamove,...</li>
+                                        <li>Giao nội thành Hà Nội và TP.HCM bằng đội ngũ riêng của Funori (đối với sản phẩm
+                                            cồng kềnh, cần lắp đặt)</li>
+                                    </ul>
+
+                                    <h3 class="fs-16 fw-5 mt-4">2. Thời gian giao hàng</h3>
+                                    <ul>
+                                        <li>Nội thành: 1–3 ngày làm việc</li>
+                                        <li>Ngoại thành & tỉnh thành khác: 3–7 ngày làm việc (tùy vị trí)</li>
+                                        <li>Đơn hàng cần gia công/lắp đặt: từ 5–10 ngày tùy vào sản phẩm</li>
+                                    </ul>
+
+                                    <h3 class="fs-16 fw-5 mt-4">3. Phí vận chuyển</h3>
+                                    <ul>
+                                        <li>Miễn phí giao hàng tại Hà Nội & TP.HCM với đơn hàng từ 5.000.000đ</li>
+                                        <li>Phí vận chuyển các khu vực khác sẽ được tính tự động tại bước thanh toán</li>
+                                        <li>Đơn hàng cồng kềnh/lắp đặt: có thể có phụ phí, sẽ được nhân viên thông báo trước
+                                            khi xác nhận đơn hàng</li>
+                                    </ul>
+
+                                    <h3 class="fs-16 fw-5 mt-4">4. Chính sách kiểm tra & nhận hàng</h3>
+                                    <ul>
+                                        <li>Quý khách được kiểm tra ngoại quan sản phẩm trước khi nhận hàng</li>
+                                        <li>Trong trường hợp sản phẩm bị hư hại do vận chuyển, vui lòng từ chối nhận và liên
+                                            hệ ngay hotline bên dưới</li>
+                                    </ul>
+
+                                    <h3 class="fs-16 fw-5 mt-4">5. Hỗ trợ</h3>
+                                    <p>Nếu có thắc mắc hoặc cần hỗ trợ thêm, vui lòng liên hệ bộ phận Chăm sóc khách hàng:
+                                    </p>
+                                    <p>
+                                        📞 Hotline: <strong>1900 1234</strong> (8h00 – 20h00)<br>
+                                        📧 Email: <a href="mailto:support@funori.vn">support@funori.vn</a>
+                                    </p>
                                 </div>
                             </div>
+                            {{-- /vận chuyển --}}
+
+                            {{-- chính sách / ưu điểm --}}
                             <div class="widget-content-inner">
-                                <ul class="d-flex justify-content-center mb_18">
-                                    <li class="">
-                                        <svg viewBox="0 0 40 40" width="35px" height="35px" color="#222" margin="5px">
-                                            <path fill="currentColor"
-                                                d="M8.7 30.7h22.7c.3 0 .6-.2.7-.6l4-25.3c-.1-.4-.3-.7-.7-.8s-.7.2-.8.6L34 8.9l-3-1.1c-2.4-.9-5.1-.5-7.2 1-2.3 1.6-5.3 1.6-7.6 0-2.1-1.5-4.8-1.9-7.2-1L6 8.9l-.7-4.3c0-.4-.4-.7-.7-.6-.4.1-.6.4-.6.8l4 25.3c.1.3.3.6.7.6zm.8-21.6c2-.7 4.2-.4 6 .8 1.4 1 3 1.5 4.6 1.5s3.2-.5 4.6-1.5c1.7-1.2 4-1.6 6-.8l3.3 1.2-3 19.1H9.2l-3-19.1 3.3-1.2zM32 32H8c-.4 0-.7.3-.7.7s.3.7.7.7h24c.4 0 .7-.3.7-.7s-.3-.7-.7-.7zm0 2.7H8c-.4 0-.7.3-.7.7s.3.6.7.6h24c.4 0 .7-.3.7-.7s-.3-.6-.7-.6zm-17.9-8.9c-1 0-1.8-.3-2.4-.6l.1-2.1c.6.4 1.4.6 2 .6.8 0 1.2-.4 1.2-1.3s-.4-1.3-1.3-1.3h-1.3l.2-1.9h1.1c.6 0 1-.3 1-1.3 0-.8-.4-1.2-1.1-1.2s-1.2.2-1.9.4l-.2-1.9c.7-.4 1.5-.6 2.3-.6 2 0 3 1.3 3 2.9 0 1.2-.4 1.9-1.1 2.3 1 .4 1.3 1.4 1.3 2.5.3 1.8-.6 3.5-2.9 3.5zm4-5.5c0-3.9 1.2-5.5 3.2-5.5s3.2 1.6 3.2 5.5-1.2 5.5-3.2 5.5-3.2-1.6-3.2-5.5zm4.1 0c0-2-.1-3.5-.9-3.5s-1 1.5-1 3.5.1 3.5 1 3.5c.8 0 .9-1.5.9-3.5zm4.5-1.4c-.9 0-1.5-.8-1.5-2.1s.6-2.1 1.5-2.1 1.5.8 1.5 2.1-.5 2.1-1.5 2.1zm0-.8c.4 0 .7-.5.7-1.2s-.2-1.2-.7-1.2-.7.5-.7 1.2.3 1.2.7 1.2z">
-                                            </path>
-                                        </svg>
+                                 <ul class="d-flex justify-content-center flex-wrap gap-4 mb_18 text-center">
+                                    <li style="width: 100px;">
+                                        <i class="fas fa-truck fa-2x text-primary"></i>
+                                        <p class="mt-2 small">Giao hàng tận nơi</p>
                                     </li>
-                                    <li class="">
-                                        <svg viewBox="0 0 40 40" width="35px" height="35px" color="#222" margin="5px">
-                                            <path fill="currentColor"
-                                                d="M36.7 31.1l-2.8-1.3-4.7-9.1 7.5-3.5c.4-.2.6-.6.4-1s-.6-.5-1-.4l-7.5 3.5-7.8-15c-.3-.5-1.1-.5-1.4 0l-7.8 15L4 15.9c-.4-.2-.8 0-1 .4s0 .8.4 1l7.5 3.5-4.7 9.1-2.8 1.3c-.4.2-.6.6-.4 1 .1.3.4.4.7.4.1 0 .2 0 .3-.1l1-.4-1.5 2.8c-.1.2-.1.5 0 .8.1.2.4.3.7.3h31.7c.3 0 .5-.1.7-.4.1-.2.1-.5 0-.8L35.1 32l1 .4c.1 0 .2.1.3.1.3 0 .6-.2.7-.4.1-.3 0-.8-.4-1zm-5.1-2.3l-9.8-4.6 6-2.8 3.8 7.4zM20 6.4L27.1 20 20 23.3 12.9 20 20 6.4zm-7.8 15l6 2.8-9.8 4.6 3.8-7.4zm22.4 13.1H5.4L7.2 31 20 25l12.8 6 1.8 3.5z">
-                                            </path>
-                                        </svg>
+                                    <li style="width: 100px;">
+                                        <i class="fas fa-tools fa-2x text-primary"></i>
+                                        <p class="mt-2 small">Lắp đặt tại nhà</p>
                                     </li>
-                                    <li class="">
-                                        <svg viewBox="0 0 40 40" width="35px" height="35px" color="#222" margin="5px">
-                                            <path fill="currentColor"
-                                                d="M5.9 5.9v28.2h28.2V5.9H5.9zM19.1 20l-8.3 8.3c-2-2.2-3.2-5.1-3.2-8.3s1.2-6.1 3.2-8.3l8.3 8.3zm-7.4-9.3c2.2-2 5.1-3.2 8.3-3.2s6.1 1.2 8.3 3.2L20 19.1l-8.3-8.4zM20 20.9l8.3 8.3c-2.2 2-5.1 3.2-8.3 3.2s-6.1-1.2-8.3-3.2l8.3-8.3zm.9-.9l8.3-8.3c2 2.2 3.2 5.1 3.2 8.3s-1.2 6.1-3.2 8.3L20.9 20zm8.4-10.2c-1.2-1.1-2.6-2-4.1-2.6h6.6l-2.5 2.6zm-18.6 0L8.2 7.2h6.6c-1.5.6-2.9 1.5-4.1 2.6zm-.9.9c-1.1 1.2-2 2.6-2.6 4.1V8.2l2.6 2.5zM7.2 25.2c.6 1.5 1.5 2.9 2.6 4.1l-2.6 2.6v-6.7zm3.5 5c1.2 1.1 2.6 2 4.1 2.6H8.2l2.5-2.6zm18.6 0l2.6 2.6h-6.6c1.4-.6 2.8-1.5 4-2.6zm.9-.9c1.1-1.2 2-2.6 2.6-4.1v6.6l-2.6-2.5zm2.6-14.5c-.6-1.5-1.5-2.9-2.6-4.1l2.6-2.6v6.7z">
-                                            </path>
-                                        </svg>
+                                    <li style="width: 100px;">
+                                        <i class="fas fa-shield-alt fa-2x text-primary"></i>
+                                        <p class="mt-2 small">Bảo hành 12 tháng</p>
                                     </li>
-                                    <li class="">
-                                        <svg viewBox="0 0 40 40" width="35px" height="35px" color="#222" margin="5px">
-                                            <path fill="currentColor"
-                                                d="M35.1 33.6L33.2 6.2c0-.4-.3-.7-.7-.7H13.9c-.4 0-.7.3-.7.7s.3.7.7.7h18l.7 10.5H20.8c-8.8.2-15.9 7.5-15.9 16.4 0 .4.3.7.7.7h28.9c.2 0 .4-.1.5-.2s.2-.3.2-.5v-.2h-.1zm-28.8-.5C6.7 25.3 13 19 20.8 18.9h11.9l1 14.2H6.3zm11.2-6.8c0 1.2-1 2.1-2.1 2.1s-2.1-1-2.1-2.1 1-2.1 2.1-2.1 2.1 1 2.1 2.1zm6.3 0c0 1.2-1 2.1-2.1 2.1-1.2 0-2.1-1-2.1-2.1s1-2.1 2.1-2.1 2.1 1 2.1 2.1z">
-                                            </path>
-                                        </svg>
+                                    <li style="width: 100px;">
+                                        <i class="fas fa-credit-card fa-2x text-primary"></i>
+                                        <p class="mt-2 small">Thanh toán khi nhận</p>
                                     </li>
-                                    <li class="">
-                                        <svg viewBox="0 0 40 40" width="35px" height="35px" color="#222" margin="5px">
-                                            <path fill="currentColor"
-                                                d="M20 33.8c7.6 0 13.8-6.2 13.8-13.8S27.6 6.2 20 6.2 6.2 12.4 6.2 20 12.4 33.8 20 33.8zm0-26.3c6.9 0 12.5 5.6 12.5 12.5S26.9 32.5 20 32.5 7.5 26.9 7.5 20 13.1 7.5 20 7.5zm-.4 15h.5c1.8 0 3-1.1 3-3.7 0-2.2-1.1-3.6-3.1-3.6h-2.6v10.6h2.2v-3.3zm0-5.2h.4c.6 0 .9.5.9 1.7 0 1.1-.3 1.7-.9 1.7h-.4v-3.4z">
-                                            </path>
-                                        </svg>
+                                    <li style="width: 100px;">
+                                        <i class="fas fa-rotate-left fa-2x text-primary"></i>
+                                        <p class="mt-2 small">Đổi trả 7 ngày</p>
                                     </li>
-                                    <li class="">
-                                        <svg viewBox="0 0 40 40" width="35px" height="35px" color="#222" margin="5px">
-                                            <path fill="currentColor"
-                                                d="M30.2 29.3c2.2-2.5 3.6-5.7 3.6-9.3s-1.4-6.8-3.6-9.3l3.6-3.6c.3-.3.3-.7 0-.9-.3-.3-.7-.3-.9 0l-3.6 3.6c-2.5-2.2-5.7-3.6-9.3-3.6s-6.8 1.4-9.3 3.6L7.1 6.2c-.3-.3-.7-.3-.9 0-.3.3-.3.7 0 .9l3.6 3.6c-2.2 2.5-3.6 5.7-3.6 9.3s1.4 6.8 3.6 9.3l-3.6 3.6c-.3.3-.3.7 0 .9.1.1.3.2.5.2s.3-.1.5-.2l3.6-3.6c2.5 2.2 5.7 3.6 9.3 3.6s6.8-1.4 9.3-3.6l3.6 3.6c.1.1.3.2.5.2s.3-.1.5-.2c.3-.3.3-.7 0-.9l-3.8-3.6z">
-                                            </path>
-                                        </svg>
-                                    </li>
-                                    <li class="">
-                                        <svg viewBox="0 0 40 40" width="35px" height="35px" color="#222" margin="5px">
-                                            <path fill="currentColor"
-                                                d="M34.1 34 .1H5.9V5.9h28.2v28.2zM7.2 32.8h25.6V7.2H7.2v25.6zm13.5-18.3a.68.68 0 0 0-.7-.7.68.68 0 0 0-.7.7v10.9a.68.68 0 0 0 .7.7.68.68 0 0 0 .7-.7V14.5z">
-                                            </path>
-                                        </svg>
+                                    <li style="width: 100px;">
+                                        <i class="fas fa-couch fa-2x text-primary"></i>
+                                        <p class="mt-2 small">Chất liệu cao cấp</p>
                                     </li>
                                 </ul>
-                                <p class="text-center text-paragraph">LT01: 70% len, 15% polyester, 10% polyamide, 5%
-                                    acrylic 900 Grms/mt</p>
                             </div>
+                            {{-- /chính sách --}}
                         </div>
                     </div>
                 </div>
@@ -792,4 +872,129 @@
         </div>
     </section>
     <!-- /tabs -->
+
+    <!-- modal delivery_return -->
+    <div class="modal modalCentered fade modalDemo tf-product-modal modal-part-content" id="delivery_return">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="header">
+                    <div class="demo-title">Giao hàng & Đổi trả</div>
+                    <span class="icon-close icon-close-popup" data-bs-dismiss="modal"></span>
+                </div>
+                <div class="overflow-y-auto">
+                    <!-- Chính sách giao hàng -->
+                    <div class="tf-product-popup-delivery">
+                        <div class="title">Giao hàng</div>
+                        <p class="text-paragraph">Tất cả đơn hàng được giao qua đối tác vận chuyển uy tín như GHTK,
+                            Ahamove, Viettel Post.</p>
+                        <p class="text-paragraph">Miễn phí giao hàng với đơn từ 5.000.000đ tại Hà Nội và TP.HCM.</p>
+                        <p class="text-paragraph">Thời gian giao hàng từ 2–7 ngày làm việc tùy khu vực.</p>
+                        <p class="text-paragraph">Bạn sẽ nhận được mã theo dõi đơn hàng sau khi xác nhận.</p>
+                    </div>
+
+                    <!-- Chính sách đổi trả -->
+                    <div class="tf-product-popup-delivery">
+                        <div class="title">Đổi trả</div>
+                        <p class="text-paragraph">Sản phẩm được đổi trả trong vòng 7 ngày nếu có lỗi từ nhà sản xuất hoặc
+                            vận chuyển.</p>
+                        <p class="text-paragraph">Sản phẩm phải còn nguyên bao bì, chưa qua sử dụng hoặc lắp đặt.</p>
+                        <p class="text-paragraph">Chi phí vận chuyển đổi/trả do khách hàng chi trả (trừ lỗi từ phía công
+                            ty).</p>
+                        <p class="text-paragraph">Không áp dụng đổi trả với sản phẩm giảm giá, đặt hàng riêng theo yêu cầu.
+                        </p>
+                    </div>
+
+                    <!-- Liên hệ hỗ trợ -->
+                    <div class="tf-product-popup-delivery">
+                        <div class="title">Hỗ trợ</div>
+                        <p class="text-paragraph">Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+                        <p class="text-paragraph">Email: <a href="mailto:support@funori.vn">support@funori.vn</a></p>
+                        <p class="text-paragraph mb-0">Hotline: 1900 1234 (8h00 – 20h00)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /modal delivery_return -->
+
+
+    <!-- modal share social -->
+    <div class="modal modalCentered fade modalDemo tf-product-modal modal-part-content" id="share_social">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="header">
+                    <div class="demo-title">Chia sẻ</div>
+                    <span class="icon-close icon-close-popup" data-bs-dismiss="modal"></span>
+                </div>
+                <div class="overflow-y-auto">
+                    <ul class="tf-social-icon d-flex gap-10">
+                        <li>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(Request::fullUrl()) }}"
+                                target="_blank" class="box-icon social-facebook bg_line justify-content-center">
+                                <i class="icon icon-fb"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="box-icon social-instagram bg_line justify-content-center disabled">
+                                <i class="icon icon-instagram"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="box-icon social-tiktok bg_line justify-content-center disabled">
+                                <i class="icon icon-tiktok"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://pinterest.com/pin/create/button/?url={{ urlencode(Request::fullUrl()) }}"
+                                target="_blank" class="box-icon social-pinterest bg_line justify-content-center">
+                                <i class="icon icon-pinterest-1"></i>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <form class="form-share" method="post">
+                        <fieldset>
+                            <input id="share-url" type="text" value="{{ Request::fullUrl() }}" readonly>
+                        </fieldset>
+                        <div class="button-submit">
+                            <button id="copy-btn" type="button"
+                                class="tf-btn btn-sm radius-3 btn-fill btn-icon animate-hover-btn"
+                                onclick="copyShareLink()">
+                                Sao chép liên kết
+                            </button>
+                        </div>
+                        <script>
+                            function copyShareLink() {
+                                const input = document.getElementById('share-url');
+                                const button = document.getElementById('copy-btn');
+                                const originalText = button.innerHTML;
+
+                                navigator.clipboard.writeText(input.value)
+                                    .then(() => {
+                                        button.innerHTML = 'Đã sao chép!';
+
+                                        // Sau 2.5 giây, khôi phục lại nút gốc
+                                        setTimeout(() => {
+                                            button.innerHTML = originalText;
+                                        }, 2500);
+                                    })
+                                    .catch(() => {
+                                        button.innerHTML = '❌ Lỗi sao chép!';
+                                        setTimeout(() => {
+                                            button.innerHTML = originalText;
+                                        }, 2500);
+                                    });
+                            }
+                        </script>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /modal share social -->
+
 @endsection
+
+@endsection
+

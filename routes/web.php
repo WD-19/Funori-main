@@ -22,6 +22,7 @@ use App\Http\Controllers\client\ClientController;
 use App\Http\Controllers\client\PageController as ClientPageController;
 use App\Http\Controllers\client\ProductController as ClientProductController;
 use App\Http\Controllers\client\ShopController;
+use App\Http\Middleware\CheckClientLogin;
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Auth;
@@ -156,7 +157,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.index');
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -167,6 +168,10 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);
     });
+
+    Route::post('/product/{product}/review', [ClientProductController::class, 'store'])
+        ->middleware(CheckClientLogin::class)
+        ->name('reviews.store');
 
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 
