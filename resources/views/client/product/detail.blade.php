@@ -979,7 +979,7 @@
                                         }, 2500);
                                     })
                                     .catch(() => {
-                                        button.innerHTML = '❌ Lỗi sao chép!';
+                                        button.innerHTML = 'Lỗi sao chép!';
                                         setTimeout(() => {
                                             button.innerHTML = originalText;
                                         }, 2500);
@@ -995,6 +995,3 @@
     <!-- /modal share social -->
 
 @endsection
-
-@endsection
-
