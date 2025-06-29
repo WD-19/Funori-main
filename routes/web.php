@@ -165,16 +165,24 @@ Route::prefix('client')->name('client.')->group(function () {
 
     Route::prefix('profile')->group(function () {
         Route::get('/', function () {
+            return view('client.profile.dashboard');
+        })->name('profile.dashboard');
+
+        Route::get('/order', function () {
             return view('client.profile.order');
         })->name('profile.order');
-
-        Route::get('/info', function () {
-            return view('client.profile.info');
-        })->name('profile.info');
 
         Route::get('/address', function () {
             return view('client.profile.address');
         })->name('profile.address');
+
+        Route::get('/accountDetail', function () {
+            return view('client.profile.accountDetail');
+        })->name('profile.accountDetail');
+
+        Route::get('/wishlist', function () {
+            return view('client.profile.wishlist');
+        })->name('profile.wishlist');
 
         // ... các trang con khác
     });
