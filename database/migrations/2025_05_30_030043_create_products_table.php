@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unsignedInteger('stock_quantity')->nullable(); // Số lượng tồn kho (nếu không quản lý theo variant) [cite: 10]
             $table->foreignId('category_id')->constrained('categories')->onDelete('restrict'); // Khóa ngoại đến categories(id) [cite: 10]
             $table->foreignId('brand_id')->nullable()->constrained('brands')->onDelete('set null'); // Khóa ngoại đến brands(id) (nullable) [cite: 10]
-            $table->enum('status', ['published', 'draft', 'archived', 'out_of_stock'])->default('draft'); // Trạng thái sản phẩm (mặc định: 'draft') [cite: 10]
+            $table->enum('status', ['published', 'draft', 'archived', 'out_of_stock'])->default('published'); // Trạng thái sản phẩm (mặc định: 'draft') [cite: 10]
             $table->boolean('is_featured')->default(false); // Sản phẩm nổi bật (mặc định: false) [cite: 10]
             $table->unsignedInteger('view_count')->default(0); // Lượt xem (mặc định: 0) [cite: 10]
             $table->timestamps(); // Thời gian tạo và cập nhật [cite: 10]

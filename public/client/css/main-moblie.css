@@ -18,11 +18,11 @@ html {
 }
 
 @media screen and (max-width: 700px) {
-    .header {
+    .headermain {
         vertical-align: middle;
     }
 
-    .header .content .box-menu {
+    .headermain .contentmain .box-menu {
         display: none;
     }
 
@@ -43,7 +43,7 @@ html {
         margin: 0;
     }
 
-    .header .content {
+    .headermain .contentmain {
         /* background-color: #FF9B42; */
         padding: 0;
         display: flex;

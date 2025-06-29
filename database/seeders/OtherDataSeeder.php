@@ -80,5 +80,6 @@ class OtherDataSeeder extends Seeder
                 ],
             ]);
         }
+        
     }
 }
