@@ -8,7 +8,7 @@
         <div class="container">
             <div class="tf-breadcrumb-wrap d-flex justify-content-between flex-wrap align-items-center">
                 <div class="tf-breadcrumb-list">
-                    <a href="{{ route('client.home') }}" class="text">Trang chủ</a>
+                    <a href="" class="text">Trang chủ</a>
                     <i class="icon icon-arrow-right"></i>
                     <a href="#" class="text">{{ $product->category->name ?? 'Danh mục' }}</a>
                     <i class="icon icon-arrow-right"></i>

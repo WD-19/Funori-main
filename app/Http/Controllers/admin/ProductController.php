@@ -97,7 +97,7 @@ class ProductController
             'variants.*.size' => 'required|string|max:100',
             'variants.*.price_modifier' => 'required|numeric',
             'variants.*.stock_quantity' => 'required|integer|min:0',
-            'variants.*.image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'variants.*.image' => 'required|image|mimes:jpeg,png,jpg, gif,svg|max:2048',
         ], [
             'name.required' => 'Tên sản phẩm là bắt buộc.',
             'name.max' => 'Tên sản phẩm không được vượt quá 100 ký tự.',
@@ -134,6 +134,18 @@ class ProductController
         ]);
 
         $slug = Str::slug($validated['name']);
+
+        // Kiểm tra trùng tên hoặc slug
+        $exists = Product::where('name', $validated['name'])
+            ->orWhere('slug', $slug)
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors(['name' => 'Tên sản phẩm hoặc đường dẫn (slug) đã tồn tại.'])
+                ->withInput();
+        }
+
         $product = Product::create([
             'name' => $validated['name'],
             'slug' => $slug,
@@ -257,6 +269,27 @@ class ProductController
             'variants.*.new_image.mimes' => 'Ảnh biến thể phải có định dạng jpeg, png, jpg, gif hoặc svg.',
             'variants.*.new_image.max' => 'Ảnh biến thể không được vượt quá 2MB.',
         ]);
+
+        $slug = Str::slug($validated['name']);
+
+        // Kiểm tra trùng tên hoặc slug (trừ sản phẩm hiện tại)
+        $exists = Product::where(function($q) use ($validated, $slug, $id) {
+                $q->where('name', $validated['name'])
+                  ->orWhere('slug', $slug);
+            })
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors(['name' => 'Tên sản phẩm hoặc đường dẫn (slug) đã tồn tại.'])
+                ->withInput();
+        }
+
+        // Đếm số ảnh sẽ còn lại sau khi cập nhật
+        $keepImages = $request->input('keep_images', []);
+        $newImages = $request->file('images', []);
+        $totalImages = count($keepImages) + (is_array($newImages) ? count($newImages) : 0);
 
         // Validate bắt buộc phải còn ít nhất 1 ảnh sau khi cập nhật
         if ($totalImages < 1) {
