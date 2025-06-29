@@ -114,7 +114,8 @@
                 @foreach ($products as $product)
                     <div class="new-product">
                         <div class="all-product">
-                            <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}" style="text-decoration: none">
+                            <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}"
+                                style="text-decoration: none">
                                 <div class="new-img-product">
                                     <img src="{{ asset($product->thumbnail->image_url ?? 'default.jpg') }}"
                                         alt="{{ $product->thumbnail->alt_text ?? $product->name }}">

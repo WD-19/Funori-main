@@ -2860,6 +2860,9 @@ namespace App\Models {
     /**
      * App\Models\Order
      *
+     * @property string|null $shipping_email
+     * @property string|null $shipping_phone
+     * @property string|null $shipping_name
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property string|null $previous_status
@@ -2933,6 +2936,9 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order wherePreviousStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereUpdatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippingName($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippingPhone($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippingEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order query()
@@ -3866,7 +3872,19 @@ namespace App\Models {
     /**
      * App\Models\OrderStatusHistory
      *
+     * @property \Illuminate\Support\Carbon|null $updated_at
+     * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $admin_note
+     * @property string $status
+     * @property int $order_id
+     * @property int $id
      * @property-read \App\Models\Order $order
+     * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory whereId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory whereOrderId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory whereStatus($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory whereAdminNote($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory whereCreatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<OrderStatusHistory>|OrderStatusHistory query()
@@ -7059,6 +7077,8 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $deleted_at
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $admin_reply_created_at
+     * @property string|null $admin_reply
      * @property string $status
      * @property string|null $comment
      * @property integer $rating
@@ -7076,6 +7096,8 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereRating($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereComment($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereStatus($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereAdminReply($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereAdminReplyCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Review>|Review whereDeletedAt($value)

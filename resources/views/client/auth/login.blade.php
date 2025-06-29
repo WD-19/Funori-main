@@ -52,7 +52,7 @@
                         </a>
                     </div>
 
-                    <form class="form-login flex flex-column gap22 w-full" action="{{ route('client.login.index') }}" method="POST">
+                    <form class="form-login flex flex-column gap22 w-full" action="{{ route('client.login') }}" method="POST">
                         @csrf
                         <fieldset class="email">
                             <div class="body-title mb-10 text-white">Địa chỉ email <span class="tf-color-1">*</span></div>
@@ -101,7 +101,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="right">
                 <!-- <img src="{{ asset('images/images-section/login.jpg') }}" alt=""> -->
             </div>
