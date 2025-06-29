@@ -162,7 +162,7 @@
                 @foreach($products as $product)
                     <div class="new-product-1">
                         <div class="pic-product-1">
-                            <a href="">
+                            <a href="{{ route('client.product.show', $product->slug) }}">
                                 <img src="{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}"
                                     alt="{{ $product->name }}"
                                     onmouseover="this.src='{{ $product->images->get(1) ? asset($product->images->get(1)->image_url) : asset($product->images->first() ? $product->images->first()->image_url : 'images/no-image.png') }}'"
@@ -193,7 +193,7 @@
                             </span>
                         </div>
                         <div class="title-new-product">
-                            <a href="   ">{{ $product->name }}</a>
+                            <a href="{{ route('client.product.show', $product->slug) }}">{{ $product->name }}</a>
                         </div>
                         <div style="font-size: 16px; color: rgb(170, 167, 167);">
                             {{ number_format($product->regular_price, 0, ',', '.') }} đ

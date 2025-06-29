@@ -12,12 +12,6 @@
     <link rel="stylesheet" href="<?php echo e(asset('client/css/shop.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('client/css/main-mobile.css')); ?>">
 
-    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/fonts/fonts.css')); ?>">
-    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/fonts/font-icons.css')); ?>">
-    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/css/bootstrap.min.css')); ?>">
-    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/css/swiper-bundle.min.css')); ?>">
-    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/css/animate.css')); ?>">
-    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/css/styles.css')); ?>">
 
     <title><?php echo $__env->yieldContent('title'); ?></title>
 </head>

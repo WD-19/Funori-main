@@ -7207,7 +7207,6 @@ header.header-bg {
 .box-icon {
   display: flex;
   align-items: center;
-  justify-content: center;
   -webkit-transition: all 0.4s ease;
   -moz-transition: all 0.4s ease;
   -ms-transition: all 0.4s ease;

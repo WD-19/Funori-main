@@ -4,10 +4,10 @@
         <nav class="box-menu">
             <ul class="all-list-menu">
                 <li>
-                    <a href="<?php echo e(route('client.home')); ?>" class="hover-a">Trang chủ</a>
+                    <a href="<?php echo e(route('home')); ?>" class="hover-a">Trang chủ</a>
                 </li>
                 <li class="padding-list-menu">
-                    <a href="<?php echo e(route('client.shop')); ?>" class="hover-a">Cửa hàng</a>
+                    <a href="<?php echo e(route('shop')); ?>" class="hover-a">Cửa hàng</a>
                     <!-- <a href="">
                             <i class="fa-solid fa-angle-down angle-down"></i>
                         </a> -->
@@ -26,7 +26,7 @@
         </nav>
         <div class="box-logo">
             <div class="logo">
-                <a href="<?php echo e(route('client.home')); ?>">
+                <a href="index.html">
                     <img src="<?php echo e(asset('client/picture/logo.png')); ?>" alt="Logo" />
                 </a>
             </div>
