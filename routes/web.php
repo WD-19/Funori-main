@@ -145,8 +145,9 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
-Route::get('/', [ClientController::class, 'index'])->name('client.home');
+Route::get('/', [ClientController::class, 'index'])->name('home');
 
+Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
@@ -161,7 +162,6 @@ Route::prefix('client')->name('client.')->group(function () {
 
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/about', [AboutController::class, 'index'])->name('about');
-    Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);
