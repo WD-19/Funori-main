@@ -3,12 +3,18 @@
 @section('title', $product->name)
 
 @section('content')
+    <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
     <!-- breadcrumb -->
     <div class="tf-breadcrumb">
         <div class="container">
             <div class="tf-breadcrumb-wrap d-flex justify-content-between flex-wrap align-items-center">
                 <div class="tf-breadcrumb-list">
-                    <a href="" class="text">Trang chủ</a>
+                    <a href="{{ route('home') }}" class="text">Trang chủ</a>
                     <i class="icon icon-arrow-right"></i>
                     <a href="#" class="text">{{ $product->category->name ?? 'Danh mục' }}</a>
                     <i class="icon icon-arrow-right"></i>
@@ -27,8 +33,8 @@
                     <div class="col-md-6">
                         <div class="tf-product-media-wrap sticky-top">
                             <div class="thumbs-slider">
-                                <div dir="ltr" class="swiper tf-product-media-thumbs other-image-zoom"
-                                    id="thumbs-swiper" data-direction="vertical">
+                                <div dir="ltr" class="swiper tf-product-media-thumbs other-image-zoom" id="thumbs-swiper"
+                                    data-direction="vertical">
                                     <div class="swiper-wrapper stagger-wrap">
                                         {{-- Mỗi ảnh phụ là 1 slide --}}
                                         @foreach ($product->images as $image)
@@ -45,8 +51,7 @@
                                     <div class="swiper-wrapper">
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide">
-                                                <img class="tf-image-zoom lazyload"
-                                                    data-zoom="{{ asset($image->image_url) }}"
+                                                <img class="tf-image-zoom lazyload" data-zoom="{{ asset($image->image_url) }}"
                                                     data-src="{{ asset($image->image_url) }}"
                                                     src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
                                             </div>
@@ -56,7 +61,7 @@
                                     <div class="swiper-button-prev button-style-arrow thumbs-prev"></div>
                                 </div>
                                 <script>
-                                    document.addEventListener('DOMContentLoaded', function() {
+                                    document.addEventListener('DOMContentLoaded', function () {
                                         var thumbsSwiper = new Swiper('#thumbs-swiper', {
                                             direction: 'vertical',
                                             slidesPerView: 4,
@@ -103,7 +108,7 @@
                                         updateThumbBorder();
 
                                         // Responsive thumbs direction on resize
-                                        window.addEventListener('resize', function() {
+                                        window.addEventListener('resize', function () {
                                             let dir = window.innerWidth > 768 ? 'vertical' : 'horizontal';
                                             thumbsSwiper.changeDirection(dir);
                                         });
@@ -195,44 +200,52 @@
                                         <div class="badges">Nổi bật</div>
                                     @endif
                                 </div>
+                                {{-- Hiển thị giá --}}
                                 <div class="tf-product-info-price">
                                     <div class="price-on-sale" id="product-price">
                                         {{ number_format($product->regular_price, 0, ',', '.') }}đ
                                     </div>
                                 </div>
-                                {{-- Chọn biến thể kích thước --}}
+
+                                {{-- Hiển thị các biến thể (variants) --}}
                                 @if ($product->variants->count())
-                                    <div class="tf-product-info-variant-picker">
-                                        <div class="variant-picker-item">
-                                            <div class="variant-picker-label">
-                                                Chọn kích thước:
-                                            </div>
-                                            <div class="variant-picker-values">
-                                                @foreach ($product->variants as $variant)
-                                                    <input id="variant-{{ $variant->id }}" type="radio"
-                                                        name="variant_id" value="{{ $variant->id }}"
-                                                        data-price="{{ $variant->price_modifier }}"
-                                                        data-image="{{ $variant->image ? asset('client/ecomus/' . $variant->image->image_url) : '' }}"
-                                                        data-material="{{ $variant->material ?? '' }}">
-                                                    <label class="style-text size-btn" for="variant-{{ $variant->id }}">
-                                                        <p>{{ $variant->size }}</p>
-                                                    </label>
-                                                @endforeach
-                                            </div>
+                                    <div class="tf-product-info-variant-picker mb-3">
+                                        <div class="variant-picker-label mb-2">
+                                            Chọn biến thể:
                                         </div>
-                                    </div>
-                                    {{-- Biến thể chất liệu --}}
-                                    <div class="tf-product-info-variant-picker mt-2">
-                                        <div class="variant-picker-item">
-                                            <div class="variant-picker-label">
-                                                Chất liệu:
-                                                <span id="material-label">
-                                                    {{ $product->variants->first()->material ?? '' }}
-                                                </span>
-                                            </div>
+                                        <div class="variant-picker-values d-flex flex-wrap gap-2">
+                                            @foreach ($product->variants as $variant)
+                                                <label class="variant-box p-2 border rounded mb-2"
+                                                    style="min-width:160px; cursor:pointer;">
+                                                    <input type="radio" name="variant_id" value="{{ $variant->id }}"
+                                                        data-price="{{ $product->regular_price + $variant->price_modifier }}"
+                                                        data-material="{{ $variant->material ?? '' }}"
+                                                        style="margin-right: 8px;">
+                                                    @if($variant->image)
+                                                        <img src="{{ asset($variant->image->image_url) }}" alt="Ảnh biến thể"
+                                                            style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
+                                                    @endif
+                                                    <div>
+                                                        <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
+                                                        <strong>Giá:</strong>
+                                                        {{ number_format($product->regular_price + $variant->price_modifier, 0, ',', '.') }}đ<br>
+                                                        <strong>Kho:</strong> {{ $variant->stock_quantity ?? '-' }}<br>
+                                                        {{-- Hiển thị các thuộc tính của biến thể --}}
+                                                        @if($variant->attributeValues && $variant->attributeValues->count())
+                                                            <div>
+                                                                @foreach($variant->attributeValues as $attrVal)
+                                                                    <span
+                                                                        class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}: {{ $attrVal->value ?? '' }}</span>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </label>
+                                            @endforeach
                                         </div>
                                     </div>
                                 @endif
+
                                 <div class="tf-product-info-quantity">
                                     <div class="quantity-title fw-6">Số lượng</div>
                                     <div class="wg-quantity">
@@ -328,7 +341,7 @@
     <!-- /Sản phẩm -->
     <script>
         // Hiển thị giá gốc sản phẩm, chỉ đổi sang giá biến thể khi chọn, bấm lại lần 2 sẽ bỏ chọn về giá gốc
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const variantRadios = document.querySelectorAll('input[name="variant_id"]');
             const priceEl = document.getElementById('product-price');
             const totalPriceEl = document.getElementById('total-price');
@@ -361,7 +374,7 @@
             variantRadios.forEach(radio => {
                 radio.checked = false;
 
-                radio.addEventListener('click', function(e) {
+                radio.addEventListener('click', function (e) {
                     // Nếu đã chọn rồi và bấm lại thì bỏ chọn
                     if (lastChecked === this) {
                         this.checked = false;
@@ -377,7 +390,7 @@
 
             // Tăng giảm số lượng
             document.querySelectorAll('.btn-quantity').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     let val = parseInt(quantityInput.value) || 1;
                     if (this.classList.contains('btn-increase')) {
                         quantityInput.value = val + 1;
@@ -824,7 +837,7 @@
 
                             {{-- chính sách / ưu điểm --}}
                             <div class="widget-content-inner">
-                                <ul class="d-flex justify-content-center flex-wrap gap-4 mb_18 text-center">
+                                 <ul class="d-flex justify-content-center flex-wrap gap-4 mb_18 text-center">
                                     <li style="width: 100px;">
                                         <i class="fas fa-truck fa-2x text-primary"></i>
                                         <p class="mt-2 small">Giao hàng tận nơi</p>
@@ -966,7 +979,7 @@
                                         }, 2500);
                                     })
                                     .catch(() => {
-                                        button.innerHTML = '❌ Lỗi sao chép!';
+                                        button.innerHTML = 'Lỗi sao chép!';
                                         setTimeout(() => {
                                             button.innerHTML = originalText;
                                         }, 2500);
