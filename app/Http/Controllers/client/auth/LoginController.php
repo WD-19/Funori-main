@@ -50,7 +50,7 @@ class LoginController
                 return redirect()->route('admin.dashboard');
             }
 
-            return redirect()->route('client.home');
+            return redirect()->route('home');
         }
 
         return back()->withErrors(['login' => 'Email hoặc mật khẩu không đúng'])->withInput();
