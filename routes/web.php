@@ -111,7 +111,7 @@ Route::prefix('admin')->name('admin.')
         // (6.1) Trang tracking trạng thái đơn hàng (form cập nhật trạng thái riêng)
         Route::get('orders/{order}/tracking', [OrderController::class, 'tracking'])
             ->name('orders.tracking');
-        // (7) Xử lý yêu cầu hủy đơn (khách hàng đã gửi “request cancel”), admin duyệt/không duyệt
+        // (7) Xử lý yêu cầu hủy đơn (khách hàng đã gửi "request cancel"), admin duyệt/không duyệt
         Route::post('orders/{order}/process-cancel', [OrderController::class, 'processCancel'])
             ->name('orders.processCancel');
         // (8) In hóa đơn (HTML hoặc PDF)
@@ -162,6 +162,22 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/about', [AboutController::class, 'index'])->name('about');
     Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+
+    Route::prefix('profile')->group(function () {
+        Route::get('/', function () {
+            return view('client.profile.order');
+        })->name('profile.order');
+
+        Route::get('/info', function () {
+            return view('client.profile.info');
+        })->name('profile.info');
+
+        Route::get('/address', function () {
+            return view('client.profile.address');
+        })->name('profile.address');
+
+        // ... các trang con khác
+    });
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);

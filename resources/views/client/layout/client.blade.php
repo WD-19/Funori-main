@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="{{ asset('client/css/about.css') }}">
     <link rel="stylesheet" href="{{ asset('client/css/shop.css') }}">
     <link rel="stylesheet" href="{{ asset('client/css/main-mobile.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 
     <title>@yield('title')</title>
 </head>
@@ -30,3 +32,4 @@
 </html>
 <script src="https://kit.fontawesome.com/eda05fcf5c.js" crossorigin="anonymous"></script>
 <script src="{{ asset('client/js/main.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
