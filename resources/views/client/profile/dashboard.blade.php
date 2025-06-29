@@ -1,6 +1,7 @@
 @extends('client.profile.index')
 
 @section('content_profile')
+ <div class="col-lg-9">
     <div class="my-account-content account-dashboard">
         <div class="mb_60">
             <h5 class="fw-5 mb_20">Hello Themesflat</h5>
@@ -9,4 +10,5 @@
                 </p>
         </div>
     </div>
+</div>
 @endsection

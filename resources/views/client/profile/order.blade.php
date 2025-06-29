@@ -1,6 +1,7 @@
 @extends('client.profile.index')
 
 @section('content_profile')
+
     <div class="my-account-content account-order">
         <div class="wrap-account-order">
                                 <table>

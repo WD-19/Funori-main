@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Review;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewController
 {
@@ -75,18 +77,25 @@ class ReviewController
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, string $id)
     {
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string',
             'status' => 'required|in:pending,approved,rejected',
+            'admin_reply' => 'nullable|string',
         ]);
 
         $review = Review::findOrFail($id);
         $review->rating = $request->rating;
         $review->comment = $request->comment;
         $review->status = $request->status;
+
+        // Bổ sung cập nhật phản hồi admin
+        $review->admin_reply = $request->admin_reply;
+        $review->admin_reply_created_at = $request->admin_reply ? now() : null;
+
         $review->save();
 
         return redirect()->route('admin.reviews.index')->with('success', 'Cập nhật đánh giá thành công!');

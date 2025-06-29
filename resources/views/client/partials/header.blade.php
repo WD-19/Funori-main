@@ -1,5 +1,5 @@
-<div class="header">
-    <div class="content">
+<div class="headermain">
+    <div class="contentmain">
         {{-- <div class="box-menu-mobile">
             <button>
                 <i class="fa-solid fa-bars"></i>
@@ -8,10 +8,10 @@
         <nav class="box-menu">
             <ul class="all-list-menu">
                 <li>
-                    <a href="{{ route('client.home') }}" class="hover-a">Trang chủ</a>
+                    <a href="{{ route('home') }}" class="hover-a">Trang chủ</a>
                 </li>
                 <li class="padding-list-menu">
-                    <a href="{{ route('client.shop') }}" class="hover-a">Cửa hàng</a>
+                    <a href="{{ route('shop') }}" class="hover-a">Cửa hàng</a>
                     <!-- <a href="">
                             <i class="fa-solid fa-angle-down angle-down"></i>
                         </a> -->
@@ -54,7 +54,7 @@
                 </a>
                 @if(Auth::check())
                 <div class="dropdown-menu" style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 10px; overflow: hidden; padding: 18px 0;">
-                    <a href="#" class="dropdown-item d-flex align-items-center" style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
+                    <a href="{{ route('client.profile.dashboard') }}" class="dropdown-item d-flex align-items-center" style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
                         <i class="fa-regular fa-user" style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i> Profile
                     </a>
                     <form action="{{ route('client.logout') }}" method="POST" style="margin: 0;">
@@ -81,6 +81,9 @@
                 </script>
                 @endif
             </div>
+            <a href="{{ route('client.login') }}" class="box-user">
+                <i class="fa-regular fa-user user"></i>
+            </a>
             <a href="" class="box-heart">
                 <i class="fa-regular fa-heart heart"></i>
             </a>
