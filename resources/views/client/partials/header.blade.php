@@ -1,5 +1,5 @@
-<div class="header">
-    <div class="content">
+<div class="headermain">
+    <div class="contentmain">
         {{-- <div class="box-menu-mobile">
             <button>
                 <i class="fa-solid fa-bars"></i>

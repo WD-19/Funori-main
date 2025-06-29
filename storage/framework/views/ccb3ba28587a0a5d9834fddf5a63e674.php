@@ -7,10 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
     <link rel="stylesheet" href="<?php echo e(asset('client/css/main.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('client/css/blog.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('client/css/about.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('client/css/shop.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('client/css/main-mobile.css')); ?>">
-    <link rel="stylesheet" href="<?php echo e(asset('client/css/Shop.css')); ?>">
-    
-    <title>Home</title>
+
+    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/fonts/fonts.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/fonts/font-icons.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/css/bootstrap.min.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/css/swiper-bundle.min.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/css/animate.css')); ?>">
+    <link rel="stylesheet" href="<?php echo e(asset('client/ecomus/css/styles.css')); ?>">
+
+    <title><?php echo $__env->yieldContent('title'); ?></title>
 </head>
 
 <body>
@@ -25,7 +34,20 @@
     <!-- <div style="margin-bottom: 600px;"></div> -->
 </body>
 
-</html>
 <script src="https://kit.fontawesome.com/eda05fcf5c.js" crossorigin="anonymous"></script>
 <script src="<?php echo e(asset('client/js/main.js')); ?>"></script>
+
+<script src="<?php echo e(asset('client/ecomus/js/bootstrap.min.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/jquery.min.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/swiper-bundle.min.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/carousel.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/bootstrap-select.min.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/lazysize.min.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/bootstrap-select.min.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/count-down.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/wow.min.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/multiple-modal.js')); ?>"></script>
+<script src="<?php echo e(asset('client/ecomus/js/main.js')); ?>"></script>
+
+</html>
 <?php /**PATH D:\laragon\www\Funori-main\resources\views/client/layout/client.blade.php ENDPATH**/ ?>
