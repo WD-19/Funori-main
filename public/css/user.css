@@ -72,3 +72,28 @@
     color: #333;
     background: #e9ecef;
 }
+
+.bg-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+    color: black;
+}
+
+.bg-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.bg-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.bg-info {
+    background-color: #17a2b8;
+    color: white;
+}

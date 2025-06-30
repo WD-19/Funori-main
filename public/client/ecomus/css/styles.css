@@ -68,6 +68,7 @@
     --bg-scrollbar-thumb: #c1c1c1;
 }
 
+
 .color-primary-2 {
     --primary: #814037;
 }
@@ -264,16 +265,16 @@ li {
     list-style: none;
 }
 
-.container {
+.container1 {
     max-width: 1540px;
 }
 
-.container {
+.container1 {
     width: 100%;
     margin: auto;
 }
 
-.container {
+.container1 {
     padding-left: 15px;
     padding-right: 15px;
 }
@@ -15087,6 +15088,9 @@ blockquote .text {
 
     .logo-header img {
         width: 136px;
+
+
+        
     }
 
     .canvas-mb {
@@ -15095,7 +15099,7 @@ blockquote .text {
     }
 
     .container-full,
-    .container {
+    .container1 {
         padding-left: 30px;
         padding-right: 30px;
     }
@@ -16380,7 +16384,8 @@ blockquote .text {
         margin-top: 40px;
     }
 
-    .container {
+    .container1
+     {
         padding-left: 50px;
         padding-right: 50px;
     }
