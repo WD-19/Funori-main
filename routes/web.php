@@ -147,9 +147,10 @@ Route::prefix('admin')->name('admin.')
             return response()->view('admin.errors.404', [], 404);
         });
     });
-
     Route::get('/', [ClientController::class, 'index'])->name('home');
     Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+
+
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');

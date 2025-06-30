@@ -45,7 +45,7 @@
                 <i class="fa-solid fa-magnifying-glass search"></i>
             </a>
             <div class="box-user dropdown d-flex align-items-center" style="position: relative;">
-                <a href="{{ Auth::check() ? '#' : route('client.login.index') }}" id="userDropdown" style="padding: 0; border: none; background: none; display: flex; align-items: center; vertical-align: middle;">
+                <a href="{{ Auth::check() ? '#' : route('client.login') }}" id="userDropdown" style="padding: 0; border: none; background: none; display: flex; align-items: center; vertical-align: middle;">
                     @if(Auth::check())
                         <img src="{{ asset(Auth::user()->avatar_url ? Auth::user()->avatar_url : 'images/images.jpg') }}" alt="avatar" style="width:32px;height:32px;object-fit:cover;border-radius:50%; display: block; vertical-align: middle;">
                     @else
@@ -81,9 +81,7 @@
                 </script>
                 @endif
             </div>
-            <a href="{{ route('client.login') }}" class="box-user">
-                <i class="fa-regular fa-user user"></i>
-            </a>
+  
             <a href="" class="box-heart">
                 <i class="fa-regular fa-heart heart"></i>
             </a>

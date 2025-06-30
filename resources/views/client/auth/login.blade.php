@@ -100,7 +100,7 @@
                         <a href="{{ route('client.register.index') }}" class="body-text tf-color">Tạo tài khoản</a>
                     </div>
                     <div class="bottom body-text text-center text-center text-white w-full mt-2">
-                        <a href="{{ route('client.home') }}" class="body-text tf-color">Quay về trang chủ</a>
+                        <a href="{{ route('home') }}" class="body-text tf-color">Quay về trang chủ</a>
                     </div>
                 </div>
             </div>
