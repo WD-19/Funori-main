@@ -31,17 +31,21 @@
                 <li class="padding-list-menu">
                     <a href="{{ route('client.page') }}" class="hover-a">Tin tức</a>
                 </li>
+                <li class="padding-list-menu">
+                    <a href="{{ route('client.contact') }}" class="hover-a">Liên hệ</a>
+                </li>
             </ul>
         </nav>
         <div class="box-logo">
             <div class="logo">
-                <a href="index.html">
+                <a href="{{ route('home') }}" class="logo-link">
+                    {{-- <img src="{{ asset('client/picture/logo.png') }}" alt="Logo" /> --}}
                     <img src="{{ asset('client/picture/logo.png') }}" alt="Logo" />
                 </a>
             </div>
         </div>
         <div class="box-icon d-flex align-items-center gap-3">
-            <a href="" class="box-search">
+            <a href="{{ route('client.search') }}" class="box-search">
                 <i class="fa-solid fa-magnifying-glass search"></i>
             </a>
             <div class="box-user dropdown d-flex align-items-center" style="position: relative;">
@@ -81,7 +85,6 @@
                 </script>
                 @endif
             </div>
-  
             <a href="" class="box-heart">
                 <i class="fa-regular fa-heart heart"></i>
             </a>

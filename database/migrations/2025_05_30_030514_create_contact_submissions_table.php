@@ -15,8 +15,6 @@ return new class extends Migration
             $table->id(); // Khóa chính, tự tăng [cite: 53]
             $table->string('name'); // Tên người liên hệ [cite: 53]
             $table->string('email'); // Email người liên hệ [cite: 53]
-            $table->string('phone', 20)->nullable(); // Số điện thoại (nullable) [cite: 53]
-            $table->string('subject'); // Chủ đề [cite: 53]
             $table->text('message'); // Nội dung tin nhắn [cite: 53]
             $table->enum('status', ['new', 'read', 'replied', 'resolved'])->default('new'); // Trạng thái (mặc định: 'new') [cite: 53]
             $table->text('admin_reply')->nullable(); // Nội dung admin phản hồi (nullable) [cite: 53]

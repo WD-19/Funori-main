@@ -86,4 +86,26 @@ class ProductController
 
         return back()->with('success', 'Gửi đánh giá thành công! Đánh giá của bạn sẽ được duyệt sớm.');
     }
+
+    public function search(Request $request)
+    {
+        $query = Product::query();
+
+        // Nếu có keyword thì tìm theo tên hoặc mô tả
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', '%' . $keyword . '%')
+                    ->orWhere('description', 'like', '%' . $keyword . '%');
+            });
+        }
+
+        // Sắp xếp theo ngày tạo mới nhất
+        $query->orderBy('created_at', 'desc');
+
+        // Lấy kết quả phân trang
+        $products = $query->paginate(12)->appends($request->all());
+
+        return view('client.product.search', compact('products'));
+    }
 }
