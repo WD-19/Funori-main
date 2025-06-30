@@ -47,6 +47,9 @@
                             <div class="body-title">Trạng thái</div>
                         </li>
                         <li>
+                            <div class="body-title">Phản hồi Admin</div>
+                        </li>
+                        <li>
                             <div class="body-title">Ngày xóa</div>
                         </li>
                         <li>
@@ -95,6 +98,10 @@
                                         style="background: {{ $statusColor }}; color: #fff; font-weight: bold;">
                                         {{ $statusText }}
                                     </span>
+                                </div>
+                                {{-- Admin Reply --}}
+                                <div class="body-text text-main-dark mt-4">
+                                    {{ Str::limit($value->admin_reply, 30) ?? '-' }}
                                 </div>
                                 {{-- Deleted At --}}
                                 <div class="body-text text-main-dark mt-4">

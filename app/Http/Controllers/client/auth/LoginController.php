@@ -70,6 +70,6 @@ class LoginController
             $request->session()->flash('last_email', $email);
         }
 
-        return redirect()->route('login.index');
+        return redirect()->route('client.login');
     }
 }

@@ -11,17 +11,20 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\PageController;
-use App\Http\Controllers\admin\ReviewController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\client\AboutController;
+use App\Http\Controllers\Client\AboutController;
 //Client Controller
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Controllers\client\ClientController;
 use App\Http\Controllers\client\PageController as ClientPageController;
 use App\Http\Controllers\client\ProductController as ClientProductController;
+use App\Http\Controllers\client\ContactController as ClientContactCController;
+use App\Http\Controllers\client\ProfileController as ProfileController;
 use App\Http\Controllers\client\ShopController;
+use App\Http\Middleware\CheckClientLogin;
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Auth;
@@ -111,7 +114,7 @@ Route::prefix('admin')->name('admin.')
         // (6.1) Trang tracking trạng thái đơn hàng (form cập nhật trạng thái riêng)
         Route::get('orders/{order}/tracking', [OrderController::class, 'tracking'])
             ->name('orders.tracking');
-        // (7) Xử lý yêu cầu hủy đơn (khách hàng đã gửi “request cancel”), admin duyệt/không duyệt
+        // (7) Xử lý yêu cầu hủy đơn (khách hàng đã gửi "request cancel"), admin duyệt/không duyệt
         Route::post('orders/{order}/process-cancel', [OrderController::class, 'processCancel'])
             ->name('orders.processCancel');
         // (8) In hóa đơn (HTML hoặc PDF)
@@ -145,30 +148,49 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
-    Route::get('/', [ClientController::class, 'index'])->name('home');
-    Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+Route::get('/', [ClientController::class, 'index'])->name('home');
+Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
 
-
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.index');
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
+    Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
+    Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
+
+    Route::get('/search', [ClientProductController::class, 'search'])->name('search');
+
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);
     });
 
+    Route::post('/product/{product}/review', [ClientProductController::class, 'store'])
+        ->middleware(CheckClientLogin::class)
+        ->name('reviews.store');
+
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
+        Route::get('/order', [ProfileController::class, 'order'])->name('order');
+        Route::get('/address', [ProfileController::class, 'address'])->name('address');
+        Route::get('/account', [ProfileController::class, 'account'])->name('account');
+        Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
+    });
+
+
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);

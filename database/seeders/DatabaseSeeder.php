@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class, // Orders cần Users, PaymentMethods, ShippingMethods
             OtherDataSeeder::class,
             ProductVariantAttributeValueSeeder::class, // Các dữ liệu còn lại
+            ReviewSeeder::class,
         ]);
     }
 }
