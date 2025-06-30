@@ -31,6 +31,9 @@
                 <li class="padding-list-menu">
                     <a href="{{ route('client.page') }}" class="hover-a">Tin tức</a>
                 </li>
+                <li class="padding-list-menu">
+                    <a href="{{ route('client.contact') }}" class="hover-a">Liên hệ</a>
+                </li>
             </ul>
         </nav>
         <div class="box-logo">

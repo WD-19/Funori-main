@@ -21,6 +21,7 @@ use App\Http\Controllers\Client\Auth\RegisterController;
 use App\Http\Controllers\client\ClientController;
 use App\Http\Controllers\client\PageController as ClientPageController;
 use App\Http\Controllers\client\ProductController as ClientProductController;
+use App\Http\Controllers\client\ContactController as ClientContactCController;
 use App\Http\Controllers\client\ShopController;
 use App\Http\Middleware\CheckClientLogin;
 // Middleware
@@ -146,13 +147,13 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
-    Route::get('/', [ClientController::class, 'index'])->name('home');
-    Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+Route::get('/', [ClientController::class, 'index'])->name('home');
+Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
-
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
@@ -163,6 +164,9 @@ Route::prefix('/')->name('client.')->group(function () {
 
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/about', [AboutController::class, 'index'])->name('about');
+
+    Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
+    Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
