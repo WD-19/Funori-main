@@ -75,6 +75,9 @@
                             <div class="body-title">Bình luận</div>
                         </li>
                         <li>
+                            <div class="body-title">Phản hồi Admin</div>
+                        </li>
+                        <li>
                             <div class="body-title">Trạng thái</div>
                         </li>
                         <li>
@@ -101,7 +104,12 @@
                                 </div>
                                 {{-- Comment --}}
                                 <div class="body-text text-main-dark mt-4">
-                                    {{ Str::limit($value->comment, 30) }}</div>
+                                    {{ Str::limit($value->comment, 30) }}
+                                </div>
+                                {{-- Admin Reply --}}
+                                <div class="body-text text-main-dark mt-4">
+                                    {{ Str::limit($value->admin_reply, 30) ?? '-' }}
+                                </div>
                                 {{-- Status --}}
                                 <div class="body-text text-main-dark mt-4">
                                     @php

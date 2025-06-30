@@ -71,12 +71,6 @@
                             <div class="body-title">Họ tên</div>
                         </li>
                         <li>
-                            <div class="body-title">Số điện thoại</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Tiêu đề</div>
-                        </li>
-                        <li>
                             <div class="body-title">Nội dung</div>
                         </li>
                         <li>
@@ -100,8 +94,6 @@
                             <li class="wg-product item-row gap20">
                                 <div class="body-text text-main-dark mt-4">{{ $value->email }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ Str::limit($value->name, 30) }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ $value->phone }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ Str::limit($value->subject, 30) }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ Str::limit($value->message, 30) }}</div>
                                 <div>
                                     <div class="block-available status-{{ $value->status }} fw-7">
@@ -167,16 +159,7 @@
                                                             <strong>Email:</strong>
                                                             <span class="text-dark ms-1 fs-5">{{ $value->email }}</span>
                                                         </div>
-                                                        <div class="col-md-6 mb-2">
-                                                            <i class="fa-solid fa-phone me-2 text-primary"></i>
-                                                            <strong>Số điện thoại:</strong>
-                                                            <span class="text-dark ms-1 fs-5">{{ $value->phone }}</span>
-                                                        </div>
-                                                        <div class="col-md-6 mb-2">
-                                                            <i class="fa-solid fa-tag me-2 text-primary"></i>
-                                                            <strong>Tiêu đề:</strong>
-                                                            <span class="text-dark ms-1 fs-5">{{ $value->subject }}</span>
-                                                        </div>
+
                                                         <div class="col-12 mb-2">
                                                             <i class="fa-solid fa-message me-2 text-primary"></i>
                                                             <strong>Nội dung:</strong>

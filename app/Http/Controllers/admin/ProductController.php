@@ -97,7 +97,7 @@ class ProductController
             'variants.*.size' => 'required|string|max:100',
             'variants.*.price_modifier' => 'required|numeric',
             'variants.*.stock_quantity' => 'required|integer|min:0',
-            'variants.*.image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'variants.*.image' => 'required|image|mimes:jpeg,png,jpg, gif,svg|max:2048',
         ], [
             'name.required' => 'Tên sản phẩm là bắt buộc.',
             'name.max' => 'Tên sản phẩm không được vượt quá 100 ký tự.',
@@ -134,6 +134,18 @@ class ProductController
         ]);
 
         $slug = Str::slug($validated['name']);
+
+        // Kiểm tra trùng tên hoặc slug
+        $exists = Product::where('name', $validated['name'])
+            ->orWhere('slug', $slug)
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors(['name' => 'Tên sản phẩm hoặc đường dẫn (slug) đã tồn tại.'])
+                ->withInput();
+        }
+
         $product = Product::create([
             'name' => $validated['name'],
             'slug' => $slug,
@@ -258,6 +270,27 @@ class ProductController
             'variants.*.new_image.max' => 'Ảnh biến thể không được vượt quá 2MB.',
         ]);
 
+        $slug = Str::slug($validated['name']);
+
+        // Kiểm tra trùng tên hoặc slug (trừ sản phẩm hiện tại)
+        $exists = Product::where(function($q) use ($validated, $slug, $id) {
+                $q->where('name', $validated['name'])
+                  ->orWhere('slug', $slug);
+            })
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors(['name' => 'Tên sản phẩm hoặc đường dẫn (slug) đã tồn tại.'])
+                ->withInput();
+        }
+
+        // Đếm số ảnh sẽ còn lại sau khi cập nhật
+        $keepImages = $request->input('keep_images', []);
+        $newImages = $request->file('images', []);
+        $totalImages = count($keepImages) + (is_array($newImages) ? count($newImages) : 0);
+
         // Validate bắt buộc phải còn ít nhất 1 ảnh sau khi cập nhật
         if ($totalImages < 1) {
             return back()
@@ -299,7 +332,7 @@ class ProductController
         // Cập nhật sản phẩm cha
         $product->update([
             'name' => $validated['name'],
-            'slug' => \Illuminate\Support\Str::slug($validated['name']),
+            'slug' => Str::slug($validated['name']),
             'category_id' => $validated['category_id'],
             'brand_id' => $validated['brand_id'],
             'regular_price' => $validated['regular_price'],
@@ -310,13 +343,14 @@ class ProductController
         // Xử lý variants
         $variantIds = [];
         if ($request->has('variants')) {
-            foreach ($request->variants as $variantData) {
+            foreach ($request->variants as $i => $variantData) {
                 if (!empty($variantData['id'])) {
                     // Update variant cũ
                     $variant = $product->variants()->find($variantData['id']);
                     if ($variant) {
                         // Upload ảnh mới nếu có
-                        if (isset($variantData['new_image']) && $variantData['new_image']) {
+                        $file = $request->file("variants.$i.new_image");
+                        if ($file) {
                             // Xóa ảnh cũ nếu có
                             if ($variant->image) {
                                 $oldPath = public_path($variant->image->image_url);
@@ -326,7 +360,6 @@ class ProductController
                                 $variant->image->delete();
                             }
                             // Upload ảnh mới
-                            $file = $variantData['new_image'];
                             $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
                             $file->move(public_path('images/products'), $fileName);
                             $img = $product->images()->create([
@@ -351,8 +384,8 @@ class ProductController
                 } else {
                     // Tạo mới variant
                     $variantImageId = null;
-                    if (isset($variantData['new_image']) && $variantData['new_image']) {
-                        $file = $variantData['new_image'];
+                    $file = $request->file("variants.$i.new_image");
+                    if ($file) {
                         $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
                         $file->move(public_path('images/products'), $fileName);
                         $img = $product->images()->create([

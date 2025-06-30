@@ -26,7 +26,7 @@ class Product extends Model
     protected $casts = [
         'regular_price' => 'decimal:2',
         'is_featured' => 'boolean',
-        'status' => 'string', 
+        'status' => 'string',
     ];
 
     public function category()
@@ -34,10 +34,9 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
     public function thumbnail()
-{
-    return $this->hasOne(ProductImage::class)->oldestOfMany();
-}
-  
+    {
+        return $this->hasOne(ProductImage::class)->oldestOfMany();
+    }
 
     public function brand()
     {
@@ -48,7 +47,7 @@ class Product extends Model
     {
         return $this->hasMany(ProductImage::class);
     }
-    
+
     public function variants()
     {
         return $this->hasMany(ProductVariant::class);

@@ -54,7 +54,8 @@
                     </fieldset>
                     <fieldset>
                         <div class="body-title mb-10">Bình luận</div>
-                        <input name="comment" type="text" class="form-control" value="{{ old('comment', $review->comment) }}" readonly></input>
+                        <input name="comment" type="text" class="form-control"
+                            value="{{ old('comment', $review->comment) }}" readonly></input>
                     </fieldset>
                     <fieldset>
                         <div class="body-title mb-10">Trạng thái*</div>
@@ -66,6 +67,11 @@
                             <option value="rejected" {{ $review->status == 'rejected' ? 'selected' : '' }}>Từ chối
                             </option>
                         </select>
+                    </fieldset>
+                    <fieldset>
+                        <div class="body-title mb-10">Phản hồi admin</div>
+                        <input name="admin_reply" type="text" class="form-control"
+                            value="{{ old('admin_reply', $review->admin_reply) }}"></input>
                     </fieldset>
                     <fieldset>
                         <div class="body-title mb-10">Ngày tạo</div>

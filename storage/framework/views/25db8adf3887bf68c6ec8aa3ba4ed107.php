@@ -1,19 +1,5 @@
 <?php $__env->startSection('title', 'Tin Tức'); ?>
 
-<div class="inspiration-banner" style="position: relative; width: 100%; overflow: hidden;">
-    <img src="<?php echo e(asset('client/Picture/Banner/your-banner.jpg')); ?>" alt="Ý tưởng không gian sống" style="width: 100%; height: auto; object-fit: cover;">
-    <div style="position: absolute; top: 20%; left: 10%; color: white; z-index: 2; max-width: 500px;">
-        <div style="font-style: italic; font-size: 20px; margin-bottom: 10px;">Góc cảm hứng...</div>
-        <div style="font-size: 48px; font-weight: bold; line-height: 1.2;">
-            Ý TƯỞNG<br>
-            KHÔNG GIAN<br>
-            SỐNG
-        </div>
-        <a href="#" style="display: inline-block; margin-top: 20px; padding: 10px 20px; border: 1px solid white; color: white; text-decoration: none; font-weight: bold;">
-            XEM THÊM
-        </a>
-    </div>
-</div>
 <?php $__env->startSection('content'); ?>
     <div class="box-banner-about" style="background-position: 50%;">
         <div class="in-banner-about">

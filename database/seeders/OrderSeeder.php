@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Promotion;
 use App\Models\Cart;
 use App\Models\Review;
+use App\Models\User;
 use Faker\Factory;
 use Illuminate\Support\Str;
 
@@ -23,12 +24,19 @@ class OrderSeeder extends Seeder
         $faker = Factory::create('vi_VN');
         for ($i = 0; $i < 20; $i++) {
             $order = Order::create([
-                'user_id'           => 1, // hoặc random user_id nếu muốn
+                'user_id'           => User::inRandomOrder()->value('id'), // hoặc random user_id nếu muốn
                 'order_code'        => 'ORD-' . strtoupper(Str::random(8)),
                 'customer_name'     => $faker->name(),
                 'customer_email'    => $faker->unique()->safeEmail(),
                 'customer_phone'    => '09' . rand(10000000, 99999999),
                 'shipping_address'  => $faker->address(),
+                'buyer_name'      => $faker->name(),
+                'buyer_email'     => $faker->unique()->safeEmail(),
+                'buyer_phone'     => '09' . rand(10000000, 99999999),
+                'buyer_address'   => $faker->address(),
+                'shipping_name'     => $faker->name(),
+                'shipping_phone'    => '09' . rand(10000000, 99999999),
+                'shipping_email'    => $faker->unique()->safeEmail(),
                 'subtotal_amount'   => $faker->randomFloat(2, 100, 500),
                 'shipping_fee'      => 0,
                 'discount_amount'   => $faker->randomFloat(2, 0, 50),
@@ -37,7 +45,7 @@ class OrderSeeder extends Seeder
                 'payment_method_id' => 1,
                 'payment_status'    => 'paid',
                 'shipping_method_id'=> 1,
-                'order_status'      => 'delivered',
+                'order_status'      => 'pending_confirmation', // Trạng thái đơn hàng
                 'customer_note'     => $faker->sentence(),
                 'admin_note'        => $faker->sentence(),
                 'ordered_at'        => $faker->dateTimeBetween('-6 months', 'now'),

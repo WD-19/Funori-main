@@ -251,7 +251,7 @@ foreach($attributes as $attribute) {
                 <input type="text" name="variants[${variantIndex}][size]" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
                 <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
                 <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
-                <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="width:180px;">
+                <input type="file" name="variants[${variantIndex}][new_image]" accept="image/*" style="width:180px;">
                 <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">&times;</button> <br>
             `;
             variantList.appendChild(variantDiv);

@@ -165,6 +165,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'C' => 
         array (
             'Cron\\' => 5,
+            'Composer\\Semver\\' => 16,
             'Carbon\\Doctrine\\' => 16,
             'Carbon\\' => 7,
         ),
@@ -501,6 +502,10 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         array (
             0 => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron',
         ),
+        'Composer\\Semver\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/semver/src',
+        ),
         'Carbon\\Doctrine\\' => 
         array (
             0 => __DIR__ . '/..' . '/carbonphp/carbon-doctrine-types/src/Carbon/Doctrine',
@@ -539,10 +544,17 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
 
     public static $classMap = array (
         'App\\Http\\Controllers\\API\\admin\\ContactController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/admin/ContactController.php',
+        'App\\Http\\Controllers\\API\\admin\\ReviewController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/admin/ReviewController.php',
         'App\\Http\\Controllers\\API\\client\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/client/LoginController.php',
         'App\\Http\\Controllers\\API\\client\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/client/RegisterController.php',
         'App\\Http\\Controllers\\admin\\ReviewController' => __DIR__ . '/../..' . '/app/Http/Controllers/admin/ReviewController.php',
+        'App\\Http\\Controllers\\client\\AboutController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/AboutController.php',
+        'App\\Http\\Controllers\\client\\ClientController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/ClientController.php',
+        'App\\Http\\Controllers\\client\\PageController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/PageController.php',
+        'App\\Http\\Controllers\\client\\ProductController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/ProductController.php',
+        'App\\Http\\Controllers\\client\\ShopController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/ShopController.php',
         'App\\Http\\Controllers\\client\\auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/auth/LoginController.php',
+        'App\\Http\\Middleware\\CheckClientLogin' => __DIR__ . '/../..' . '/app/Http/Middleware/CheckClientLogin.php',
         'App\\Http\\Middleware\\CheckLogin' => __DIR__ . '/../..' . '/app/Http/Middleware/CheckLogin.php',
         'App\\Models\\Address' => __DIR__ . '/../..' . '/app/Models/Address.php',
         'App\\Models\\Attribute' => __DIR__ . '/../..' . '/app/Models/Attribute.php',
@@ -556,6 +568,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'App\\Models\\Order' => __DIR__ . '/../..' . '/app/Models/Order.php',
         'App\\Models\\OrderItem' => __DIR__ . '/../..' . '/app/Models/OrderItem.php',
         'App\\Models\\OrderPromotion' => __DIR__ . '/../..' . '/app/Models/OrderPromotion.php',
+        'App\\Models\\OrderStatusHistory' => __DIR__ . '/../..' . '/app/Models/OrderStatusHistory.php',
         'App\\Models\\Page' => __DIR__ . '/../..' . '/app/Models/Page.php',
         'App\\Models\\PaymentMethod' => __DIR__ . '/../..' . '/app/Models/PaymentMethod.php',
         'App\\Models\\Product' => __DIR__ . '/../..' . '/app/Models/Product.php',
@@ -679,6 +692,18 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'Carbon\\WeekDay' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/WeekDay.php',
         'Carbon\\WrapperClock' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/WrapperClock.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Composer\\Semver\\Comparator' => __DIR__ . '/..' . '/composer/semver/src/Comparator.php',
+        'Composer\\Semver\\CompilingMatcher' => __DIR__ . '/..' . '/composer/semver/src/CompilingMatcher.php',
+        'Composer\\Semver\\Constraint\\Bound' => __DIR__ . '/..' . '/composer/semver/src/Constraint/Bound.php',
+        'Composer\\Semver\\Constraint\\Constraint' => __DIR__ . '/..' . '/composer/semver/src/Constraint/Constraint.php',
+        'Composer\\Semver\\Constraint\\ConstraintInterface' => __DIR__ . '/..' . '/composer/semver/src/Constraint/ConstraintInterface.php',
+        'Composer\\Semver\\Constraint\\MatchAllConstraint' => __DIR__ . '/..' . '/composer/semver/src/Constraint/MatchAllConstraint.php',
+        'Composer\\Semver\\Constraint\\MatchNoneConstraint' => __DIR__ . '/..' . '/composer/semver/src/Constraint/MatchNoneConstraint.php',
+        'Composer\\Semver\\Constraint\\MultiConstraint' => __DIR__ . '/..' . '/composer/semver/src/Constraint/MultiConstraint.php',
+        'Composer\\Semver\\Interval' => __DIR__ . '/..' . '/composer/semver/src/Interval.php',
+        'Composer\\Semver\\Intervals' => __DIR__ . '/..' . '/composer/semver/src/Intervals.php',
+        'Composer\\Semver\\Semver' => __DIR__ . '/..' . '/composer/semver/src/Semver.php',
+        'Composer\\Semver\\VersionParser' => __DIR__ . '/..' . '/composer/semver/src/VersionParser.php',
         'Cron\\AbstractField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/AbstractField.php',
         'Cron\\CronExpression' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/CronExpression.php',
         'Cron\\DayOfMonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/DayOfMonthField.php',
@@ -718,6 +743,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'Database\\Seeders\\PaymentMethodSeeder' => __DIR__ . '/../..' . '/database/seeders/PaymentMethodSeeder.php',
         'Database\\Seeders\\ProductSeeder' => __DIR__ . '/../..' . '/database/seeders/ProductSeeder.php',
         'Database\\Seeders\\ProductVariantAttributeValueSeeder' => __DIR__ . '/../..' . '/database/seeders/ProductVariantAttributeValueSeeder.php',
+        'Database\\Seeders\\ReviewSeeder' => __DIR__ . '/../..' . '/database/seeders/ReviewSeeder.php',
         'Database\\Seeders\\ShippingMethodSeeder' => __DIR__ . '/../..' . '/database/seeders/ShippingMethodSeeder.php',
         'Database\\Seeders\\UserSeeder' => __DIR__ . '/../..' . '/database/seeders/UserSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',

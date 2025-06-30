@@ -17,6 +17,8 @@ class Review extends Model
         'rating',
         'comment',
         'status',
+        'admin_reply',
+        'admin_reply_created_at'
     ];
 
     protected $casts = [
