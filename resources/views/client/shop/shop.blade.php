@@ -8,9 +8,9 @@
             style="background: url('{{ asset('storage/'.$mainBanner->image_url) }}') center center/cover no-repeat; border-radius: 16px; min-height: 260px; position: relative;"
         @endif
     >
-        <div class="in-box-banner" style="background: rgba(255,255,255,0.85); border-radius: 16px; padding: 32px;">
+        <div class="in-box-banner" style=" border-radius: 16px; padding: 32px;">
             <div class="text-title-banner">
-                {{ $mainBanner->title ?? 'Shop' }}
+             Shop
             </div>
             <div class="box-path">
                 <div>Home</div>
@@ -18,38 +18,16 @@
                 <div>Shop</div>
             </div>
             <div class="box-list-product">
-                <div class="box-shop-product">
-                    <a href="">
-                        <img src="../Picture/Shop/categories-19.jpg" alt="">
-                        <div class="name-product">
-                            <p>Armchairs</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="box-shop-product">
-                    <a href="">
-                        <img src="../Picture/Shop/categories-18.jpg" alt="">
-                        <div class="name-product">
-                            <p>Outdoor</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="box-shop-product">
-                    <a href="">
-                        <img src="../Picture/Shop/categories-6.jpg" alt="">
-                        <div class="name-product">
-                            <p>Sofas</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="box-shop-product">
-                    <a href="">
-                        <img src="../Picture/Shop/categories-10.jpg" alt="">
-                        <div class="name-product">
-                            <p>Storage</p>
-                        </div>
-                    </a>
-                </div>
+                @foreach($randomParentCategories as $category)
+                    <div class="box-shop-product">
+                        <a href="{{ route('shop', ['category_id' => $category->id]) }}">
+                            <img src="{{ $category->image_url ? asset('storage/'.$category->image_url) : asset('images/no-image.png') }}" alt="{{ $category->name }}">
+                            <div class="name-product">
+                                <p>{{ $category->name }}</p>
+                            </div>
+                        </a>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
@@ -72,7 +50,7 @@
                     </div>
                 @endforeach
             </div>
-   <div class="box-price">
+   {{-- <div class="box-price">
                 <div class="price-title">Price</div>
                 <input type="range" name="" id="">
                 <div class="box-range">
@@ -81,7 +59,7 @@
                     <span>-</span>
                     <span>$500</span>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="all-box-brands">
                 <div class="title-brands">Brands</div>
@@ -209,13 +187,8 @@
                     <span style="font-weight: bold;">{{ $products->total() }}</span>
                     sản phẩm
                 </div>
-                <div class="box-percent" style="flex: 1; margin: 0 24px;">
-                    <div class="in-percent" style="height: 6px; background: #e0e0e0; border-radius: 3px; position: relative;">
-                        <div style="height: 100%; background: #fcad02; border-radius: 3px; width: {{ $products->lastItem()/$products->total()*100 }}%; transition: width 0.3s;"></div>
-                    </div>
-                </div>
-                <div class="buttom-load" style="min-width: 180px; display: flex; justify-content: flex-end;">
-                    {{ $products->links('vendor.pagination.bootstrap-4') }}
+                <div class="buttom-load" style="min-width: 180px; display: flex; justify-content: flex-end; padding-left: 44%;">
+                    {{ $products->links('ecomus.pagination') }}
                 </div>
             </div>
         </div>

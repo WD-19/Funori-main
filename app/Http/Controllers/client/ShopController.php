@@ -24,12 +24,6 @@ class ShopController
     if ($request->filled('brand_id')) {
         $query->where('brand_id', $request->brand_id);
     }
-    if ($request->filled('min_price')) {
-        $query->where('regular_price', '>=', $request->min_price);
-    }
-    if ($request->filled('max_price')) {
-        $query->where('regular_price', '<=', $request->max_price);
-    }
 
     switch ($request->sort) {
         case 'popularity':
@@ -62,6 +56,11 @@ class ShopController
         ->orderBy('order')
         ->first();
 
-    return view('client.shop.shop', compact('products', 'categories', 'brands', 'featuredProducts', 'mainBanner'));
+// Lấy 4 danh mục cha ngẫu nhiên
+$randomParentCategories = Category::whereNull('parent_id')->inRandomOrder()->take(4)->get();
+
+    return view('client.shop.shop', compact(
+        'products', 'categories', 'brands', 'featuredProducts', 'mainBanner', 'randomParentCategories'
+    ));
 }
 }
