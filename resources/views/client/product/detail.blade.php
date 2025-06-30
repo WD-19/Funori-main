@@ -1020,6 +1020,13 @@
             let variantInput = document.querySelector('input[name="variant_id"]:checked');
             let productVariantId = variantInput ? variantInput.value : null;
 
+            // Nếu có biến thể nhưng chưa chọn thì báo lỗi
+            const hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
+            if (hasVariants && !productVariantId) {
+                toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
+                return;
+            }
+
             fetch('{{ route('client.cart.add') }}', {
                 method: 'POST',
                 headers: {

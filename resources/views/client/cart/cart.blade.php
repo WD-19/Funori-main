@@ -5,7 +5,7 @@
 @section('content')
        <div class="tf-page-title">
             <div class="container-full">
-                <div class="heading text-center">Shopping Cart</div>
+                <div class="heading text-center">Giỏ hàng</div>
             </div>
         </div>
         <!-- /page-title -->
@@ -13,22 +13,16 @@
         <!-- page-cart -->
         <section class="flat-spacing-11">
             <div class="container1">
-                <!-- <div class="tf-page-cart text-center mt_140 mb_200">
-                    <h5 class="mb_24">Your cart is empty</h5>
-                    <p class="mb_24">You may check out all the available products and buy some in the shop</p>
-                    <a href="shop-default.html" class="tf-btn btn-sm radius-3 btn-fill btn-icon animate-hover-btn">Return to shop<i class="icon icon-arrow1-top-left"></i></a>
-                </div> -->
-             
                 <div class="tf-page-cart-wrap">
                     <div class="tf-page-cart-item">
                         <form>
                             <table class="tf-table-page-cart">
                                 <thead>
                                     <tr>
-                                        <th>Product</th>
-                                        <th>Price</th>
-                                        <th>Quantity</th>
-                                        <th>Total</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Giá</th>
+                                        <th>Số lượng</th>
+                                        <th>Thành tiền</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -50,13 +44,13 @@
                                                             {{ $variant ? 'Biến thể: '.$variant->size : '' }}
                                                         </div>
                                                     @endif
-                                                    <span class="remove-cart link remove" data-item-id="{{ $item->id }}">Xóa</span>
+                                                    <span class="remove-cart link remove text-danger" data-item-id="{{ $item->id }}">Xóa</span>
                                                 </div>
                                             </td>
-                                            <td class="tf-cart-item_price" cart-data-title="Price">
+                                            <td class="tf-cart-item_price" cart-data-title="Giá">
                                                 <div class="cart-price">{{ number_format($item->price_at_addition, 0, ',', '.') }}đ</div>
                                             </td>
-                                            <td class="tf-cart-item_quantity" cart-data-title="Quantity">
+                                            <td class="tf-cart-item_quantity" cart-data-title="Số lượng">
                                                 <div class="cart-quantity">
                                                     <div class="wg-quantity">
                                                         <span class="btn-quantity minus-btn" data-item-id="{{ $item->id }}">-</span>
@@ -65,7 +59,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="tf-cart-item_total" cart-data-title="Total">
+                                            <td class="tf-cart-item_total" cart-data-title="Thành tiền">
                                                 <div class="cart-total">{{ number_format($item->quantity * $item->price_at_addition, 0, ',', '.') }}đ</div>
                                             </td>
                                         </tr>
@@ -76,10 +70,10 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            <div class="tf-page-cart-note">
-                                <label for="cart-note">Add Order Note</label>
-                                <textarea name="note" id="cart-note" placeholder="How can we help you?"></textarea>
-                            </div>
+                            {{-- <div class="tf-page-cart-note">
+                                <label for="cart-note">Ghi chú đơn hàng</label>
+                                <textarea name="note" id="cart-note" placeholder="Bạn cần hỗ trợ gì?"></textarea>
+                            </div> --}}
                         </form>
                     </div>
                     <div class="tf-page-cart-footer">
@@ -94,20 +88,20 @@
                                         </div>
                                     </span>
                                 </div>
-                                <div class="tf-progress-msg">
-                                    Buy <span class="price fw-6">{{ number_format($total, 0, ',', '.') }}đ</span> more to enjoy <span class="fw-6">Free Shipping</span>
-                                </div>
+                                {{-- <div class="tf-progress-msg">
+                                    Mua thêm <span class="price fw-6">{{ number_format($total, 0, ',', '.') }}đ</span> để được <span class="fw-6">Miễn phí vận chuyển</span>
+                                </div> --}}
                             </div>
                             <div class="tf-page-cart-checkout">
-                                <div class="shipping-calculator">
+                                {{-- <div class="shipping-calculator">
                                     <summary class="accordion-shipping-header d-flex justify-content-between align-items-center collapsed" data-bs-target="#shipping" data-bs-toggle="collapse" aria-controls="shipping">
-                                        <h3 class="shipping-calculator-title">Estimate Shipping</h3>
+                                        <h3 class="shipping-calculator-title">Tính phí vận chuyển</h3>
                                         <span class="shipping-calculator_accordion-icon"></span>
                                     </summary>
                                     <div class="collapse" id="shipping">
                                         <div class="accordion-shipping-content">
                                             <fieldset class="field">
-                                                <label class="label">Country</label>
+                                                <label class="label">Quốc gia</label>
                                                 <select class="tf-select w-100" id="ShippingCountry_CartDrawer-Form" name="address[country]" data-default="">
                                                     <option value="---" data-provinces="[]">---</option>
                                                     <option value="Australia" data-provinces="[['Australian Capital Territory','Australian Capital Territory'],['New South Wales','New South Wales'],['Northern Territory','Northern Territory'],['Queensland','Queensland'],['South Australia','South Australia'],['Tasmania','Tasmania'],['Victoria','Victoria'],['Western Australia','Western Australia']]">Australia</option>
@@ -142,41 +136,36 @@
                                                 </select>
                                             </fieldset>
                                             <fieldset class="field">
-                                                <label class="label">Zip code</label>
+                                                <label class="label">Mã bưu điện</label>
                                                 <input type="text" name="text" placeholder="">
                                             </fieldset>
                                             <button class="tf-btn btn-fill animate-hover-btn radius-3 justify-content-center">
-                                                <span>Estimate</span>
+                                                <span>Ước tính</span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="cart-checkbox">
-                                    <input type="checkbox" class="tf-check" id="cart-gift-checkbox">
-                                    <label for="cart-gift-checkbox" class="fw-4">
-                                        <span>Do you want a gift wrap?</span> Only <span class="fw-5">$5.00</span>
-                                    </label>
-                                </div>
+                                 --}}
                                 <div class="tf-cart-totals-discounts">
-                                    <h3>Subtotal</h3>
+                                    <h3>Tổng tiền</h3>
                                     <span class="total-value">{{ number_format($total, 0, ',', '.') }}đ</span>
                                 </div>
                                 <p class="tf-cart-tax">
-                                    Taxes and <a href="shipping-delivery.html">shipping</a>  calculated at checkout
+                                    Thuế và <a href="shipping-delivery.html">phí vận chuyển</a> sẽ được tính ở bước thanh toán
                                 </p>
                                 <div class="cart-checkbox">
                                     <input type="checkbox" class="tf-check" id="check-agree">
                                     <label for="check-agree" class="fw-4">
-                                        I agree with the <a href="terms-conditions.html">terms and conditions</a>
+                                        Tôi đồng ý với <a href="terms-conditions.html">điều khoản & điều kiện</a>
                                     </label>
                                 </div>
                                 <div class="cart-checkout-btn">
                                     <a href="checkout.html" class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center">
-                                        <span>Check out</span>
+                                        <span>Thanh toán</span>
                                     </a>
                                 </div>
-                                <div class="tf-page-cart_imgtrust">
-                                    <p class="text-center fw-6">Guarantee Safe Checkout</p>
+                                {{-- <div class="tf-page-cart_imgtrust">
+                                    <p class="text-center fw-6">Thanh toán an toàn</p>
                                     <div class="cart-list-social">
                                         <div class="payment-item">
                                             <svg viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" width="38" height="24" aria-labelledby="pi-visa"><title id="pi-visa">Visa</title><path opacity=".07" d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z"></path><path fill="#fff" d="M35 1c1.1 0 2 .9 2 2v18c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V3c0-1.1.9-2 2-2h32"></path><path d="M28.3 10.1H28c-.4 1-.7 1.5-1 3h1.9c-.3-1.5-.3-2.2-.6-3zm2.9 5.9h-1.7c-.1 0-.1 0-.2-.1l-.2-.9-.1-.2h-2.4c-.1 0-.2 0-.2.2l-.3.9c0 .1-.1.1-.1.1h-2.1l.2-.5L27 8.7c0-.5.3-.7.8-.7h1.5c.1 0 .2 0 .2.2l1.4 6.5c.1.4.2.7.2 1.1.1.1.1.1.1.2zm-13.4-.3l.4-1.8c.1 0 .2.1.2.1.7.3 1.4.5 2.1.4.2 0 .5-.1.7-.2.5-.2.5-.7.1-1.1-.2-.2-.5-.3-.8-.5-.4-.2-.8-.4-1.1-.7-1.2-1-.8-2.4-.1-3.1.6-.4.9-.8 1.7-.8 1.2 0 2.5 0 3.1.2h.1c-.1.6-.2 1.1-.4 1.7-.5-.2-1-.4-1.5-.4-.3 0-.6 0-.9.1-.2 0-.3.1-.4.2-.2.2-.2.5 0 .7l.5.4c.4.2.8.4 1.1.6.5.3 1 .8 1.1 1.4.2.9-.1 1.7-.9 2.3-.5.4-.7.6-1.4.6-1.4 0-2.5.1-3.4-.2-.1.2-.1.2-.2.1zm-3.5.3c.1-.7.1-.7.2-1 .5-2.2 1-4.5 1.4-6.7.1-.2.1-.3.3-.3H18c-.2 1.2-.4 2.1-.7 3.2-.3 1.5-.6 3-1 4.5 0 .2-.1.2-.3.2M5 8.2c0-.1.2-.2.3-.2h3.4c.5 0 .9.3 1 .8l.9 4.4c0 .1 0 .1.1.2 0-.1.1-.1.1-.1l2.1-5.1c-.1-.1 0-.2.1-.2h2.1c0 .1 0 .1-.1.2l-3.1 7.3c-.1.2-.1.3-.2.4-.1.1-.3 0-.5 0H9.7c-.1 0-.2 0-.2-.2L7.9 9.5c-.2-.2-.5-.5-.9-.6-.6-.3-1.7-.5-1.9-.5L5 8.2z" fill="#142688"></path></svg>
@@ -194,7 +183,7 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 38 24" width="38" height="24" aria-labelledby="pi-amazon"><title id="pi-amazon">Amazon</title><path d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z" fill="#000" fill-rule="nonzero" opacity=".07"></path><path d="M35 1c1.1 0 2 .9 2 2v18c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V3c0-1.1.9-2 2-2h32" fill="#FFF" fill-rule="nonzero"></path><path d="M25.26 16.23c-1.697 1.48-4.157 2.27-6.275 2.27-2.97 0-5.644-1.3-7.666-3.463-.16-.17-.018-.402.173-.27 2.183 1.504 4.882 2.408 7.67 2.408 1.88 0 3.95-.46 5.85-1.416.288-.145.53.222.248.47v.001zm.706-.957c-.216-.328-1.434-.155-1.98-.078-.167.024-.193-.148-.043-.27.97-.81 2.562-.576 2.748-.305.187.272-.047 2.16-.96 3.063-.14.138-.272.064-.21-.12.205-.604.664-1.96.446-2.29h-.001z" fill="#F90" fill-rule="nonzero"></path><path d="M21.814 15.291c-.574-.498-.676-.73-.993-1.205-.947 1.012-1.618 1.315-2.85 1.315-1.453 0-2.587-.938-2.587-2.818 0-1.467.762-2.467 1.844-2.955.94-.433 2.25-.51 3.25-.628v-.235c0-.43.033-.94-.208-1.31-.212-.333-.616-.47-.97-.47-.66 0-1.25.353-1.392 1.085-.03.163-.144.323-.3.33l-1.677-.187c-.14-.033-.296-.153-.257-.38.386-2.125 2.223-2.766 3.867-2.766.84 0 1.94.234 2.604.9.842.82.762 1.918.762 3.11v2.818c0 .847.335 1.22.65 1.676.113.164.138.36-.003.482-.353.308-.98.88-1.326 1.2a.367.367 0 0 1-.414.038zm-1.659-2.533c.34-.626.323-1.214.323-1.918v-.392c-1.25 0-2.57.28-2.57 1.82 0 .782.386 1.31 1.05 1.31.487 0 .922-.312 1.197-.82z" fill="#221F1F"></path></svg>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                                 
                             </div>
                         </div>
@@ -205,7 +194,7 @@
         <!-- page-cart -->
 
         <!-- Testimonial -->
-        <section class="flat-spacing-17 pt_0 flat-testimonial">
+        {{-- <section class="flat-spacing-17 pt_0 flat-testimonial">
             <div class="container1">
                 <div class="flat-title">
                     <span class="title">Happy Clients</span>
@@ -352,11 +341,11 @@
                     <div class="sw-dots style-2 sw-pagination-testimonial justify-content-center"></div>
                 </div>
             </div>
-        </section>
+        </section> --}}
         <!-- /Testimonial -->
 
         <!-- product -->
-        <section class="flat-spacing-17 pt_0">
+        {{-- <section class="flat-spacing-17 pt_0">
             <div class="container1">
                 <div class="flat-title">
                     <span class="title">You may also like</span>
@@ -705,7 +694,7 @@
                     <div class="sw-dots style-2 sw-pagination-product justify-content-center"></div>
                 </div>
             </div>
-        </section>
+        </section> --}}
 @endsection
 
 <script>
@@ -769,9 +758,42 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            toastr.error('Có lỗi xảy ra khi kết nối đến server!');
+            console.error('Lỗi:', error);
+            toastr.error('Có lỗi xảy ra khi kết nối đến máy chủ!');
         });
     }
+
+    // Xóa sản phẩm khỏi giỏ hàng
+    document.querySelectorAll('.remove-cart').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) return;
+            fetch("{{ route('client.cart.remove') }}", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    item_id: itemId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Xóa dòng sản phẩm khỏi bảng
+                    const row = btn.closest('tr');
+                    row.parentNode.removeChild(row);
+                    // Cập nhật lại tổng tiền
+                    location.reload(); // Đơn giản nhất, reload lại để cập nhật tổng tiền và trạng thái
+                } else {
+                    toastr.error(data.message || 'Có lỗi xảy ra khi xóa sản phẩm!');
+                }
+            })
+            .catch(error => {
+                toastr.error('Có lỗi xảy ra khi kết nối đến máy chủ!');
+            });
+        });
+    });
 });
 </script>
