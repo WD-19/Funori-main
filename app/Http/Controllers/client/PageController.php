@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\client;
 
+use App\Models\Page;
 use Illuminate\Http\Request;
 
 class PageController
@@ -11,9 +12,23 @@ class PageController
      */
     public function index(Request $request)
     {
-        // Xử lý logic để lấy dữ liệu cần thiết cho trang
-        // Ví dụ: lấy thông tin người dùng, bài viết, v.v.
+        $posts = Page::with('author')
+            ->where('status', 'published')
+            ->where('page_type', 'blog_post')
+            ->orderByDesc('published_at')
+            ->get();
 
-        return view('client.page.page'); // Trả về view tương ứng
+        return view('client.page.page', compact('posts'));
+    }
+
+    public function show($slug)
+    {
+        $post = Page::with('author')
+            ->where('status', 'published')
+            ->where('page_type', 'blog_post')
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return view('client.page.show', compact('post'));
     }
 }

@@ -44,7 +44,7 @@ class PageController
      */
     public function create()
     {
-        $authors = User::all();
+        $authors = User::where('role', 'admin')->get();
         return view('admin.pages.create', compact('authors'));
     }
 
@@ -68,7 +68,7 @@ class PageController
 
         $imagePath = null;
         if ($request->hasFile('featured_image_url')) {
-            $imagePath = $request->file('featured_image_url')->store('uploads/pages', 'public');
+            $imagePath = $request->file('featured_image_url')->store('pages', 'public');
         }
 
         Page::create([
@@ -102,7 +102,8 @@ class PageController
     public function edit($id)
     {
         $page = Page::findOrFail($id);
-        $authors = User::all();
+        // Chỉ lấy các user là admin
+        $authors = User::where('role', 'admin')->get();
         return view('admin.pages.edit', compact('page', 'authors'));
     }
 
@@ -132,7 +133,7 @@ class PageController
             if ($page->featured_image_url && Storage::disk('public')->exists($page->featured_image_url)) {
                 Storage::disk('public')->delete($page->featured_image_url);
             }
-            $imagePath = $request->file('featured_image_url')->store('uploads/pages', 'public');
+            $imagePath = $request->file('featured_image_url')->store('pages', 'public');
         }
 
         $page->update([

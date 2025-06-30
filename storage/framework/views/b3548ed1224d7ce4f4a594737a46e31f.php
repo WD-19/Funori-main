@@ -79,7 +79,7 @@
                     <thead>
                         <ul class="table-title flex gap20 mb-14">
                             <li>
-                                <div class="body-title">ID</div>
+                                <div class="body-title">STT</div>
                             </li>
                             <li>
                                 <div class="body-title">Tên danh mục</div>
@@ -100,7 +100,7 @@
                             <?php if($isSearching): ?>
                                 <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <li class="attribute-item item-row flex items-center justify-between gap20">
-                                        <div class="body-text"><?php echo e($category->id); ?></div>
+                                        <div class="body-text"><?php echo e($categories->firstItem() + $loop->index); ?></div>
                                         <div class="name d-flex align-items-center">
                                             <span class="body-title-2"><?php echo e($category->name); ?></span>
                                         </div>
@@ -226,7 +226,7 @@
                                     <li class="attribute-item item-row flex items-center justify-between gap20
                                         <?php echo e(request('new_id') == $category->id ? 'bg-warning bg-opacity-25 border border-warning' : ''); ?>"
                                         style="align-items: flex-start;">
-                                        <div class="body-text"><?php echo e($category->id); ?></div>
+                                        <div class="body-text"><?php echo e($categories->firstItem() + $loop->index); ?></div>
                                         <div class="name d-flex align-items-center">
                                             <?php if($category->children->count()): ?>
                                                 <button class="btn btn-sm btn-outline-secondary me-2" type="button"
@@ -363,7 +363,7 @@
                                                     <li
                                                         class="attribute-item item-row flex items-center justify-between gap20
                                                         <?php echo e(request('new_id') == $child->id ? 'bg-warning bg-opacity-25 border border-warning' : ''); ?>">
-                                                        <div class="body-text"><?php echo e($child->id); ?></div>
+                                                        <div class="body-text"><?php echo e($loop->iteration); ?></div>
                                                         <div class="name">
                                                             <span class="body-title-2"><?php echo e($child->name); ?></span>
                                                         </div>

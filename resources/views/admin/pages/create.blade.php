@@ -73,9 +73,9 @@
                     <div class="body-title">Loại trang <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="page_type" id="page_type" class="@error('page_type') is-invalid @enderror">
-                            <option value="page" {{ old('page_type', 'page') == 'page' ? 'selected' : '' }}>Page</option>
-                            <option value="blog_post" {{ old('page_type') == 'blog_post' ? 'selected' : '' }}>Blog Post
-                            </option>
+                            <option value="blog_post" {{ old('page_type', 'blog_post') == 'blog_post' ? 'selected' : '' }}>
+                                Blog Post</option>
+                            <option value="page" {{ old('page_type') == 'page' ? 'selected' : '' }}>Page</option>
                         </select>
                         @error('page_type')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
@@ -134,7 +134,7 @@
                     @enderror
                 </fieldset>
                 <fieldset>
-                    <div class="body-title">Ngày xuất bản</div>
+                    <div class="body-title">Ngày xuất bản <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('published_at') is-invalid @enderror"
                         type="datetime-local" name="published_at" id="published_at" value="{{ old('published_at') }}">
                     @error('published_at')

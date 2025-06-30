@@ -146,6 +146,11 @@ Route::prefix('admin')->name('admin.')
     });
 
 Route::get('/', [ClientController::class, 'index'])->name('client.home');
+// Danh sách bài viết
+Route::get('/page', [ClientPageController::class, 'index'])->name('client.page');
+
+// Chi tiết bài viết
+Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('client.page.show');
 
 Route::prefix('client')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
@@ -159,7 +164,6 @@ Route::prefix('client')->name('client.')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/about', [AboutController::class, 'index'])->name('about');
     Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 

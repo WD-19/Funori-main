@@ -121,94 +121,36 @@
             </div>
         </div> --}}
         <div class="box-content-blog">
-            <div class="blog-1">
-                <a href="">
-                    <img src="{{ asset('client/Picture/Blog/Blog_01.jpg') }}" alt="">
-                </a>
-                <div class="content-blog-1">
-                    <div class="list-link">
-                        <a href="">Ba lô</a>
-                        <span>,</span>
-                        <a href="">Thời trang</a>
-                        <span>,</span>
-                        <a href="">Phong cách sống</a>
-                    </div>
-                    <div class="title">
-                        <a href="">Giải pháp đơn giản cho trang trí nhà cửa</a>
-                    </div>
-                    <div class="box-by">
-                        <span>Bởi: Wpbingo</span>
-                        <span>|</span>
-                        <span>4 Bình luận</span>
-                    </div>
-                </div>
-            </div>
-            <div class="blog-2">
-                <div class="box-1 pading-img-1">
-                    <img src="{{ asset('client/Picture/Blog/Blog_02.jpg') }}" alt="">
-                    <div class="content-box-1">
-                        <div class="first-content">
-                            <a href="">Ba lô</a>
-                            <span>,</span>
-                            <a href="">Thời trang</a>
-                            <span>,</span>
-                            <a href="">Phong cách sống</a>
-                        </div>
-                        <div class="second-content">
-                            <a href="">Cách biến ngôi nhà của bạn thành nơi đáng sống</a>
-                        </div>
-                        <div class="three-content">
-                            <span>Bởi: Wpbingo</span>
-                            <span>|</span>
-                            <span>1 Bình luận</span>
+            <div class="row" style="display: flex; flex-wrap: wrap; gap: 30px;">
+                @forelse($posts as $post)
+                    <div class="blog-1" style="flex: 1 1 45%; max-width: 48%; box-sizing: border-box; margin-bottom: 30px;">
+                        <a href="{{ route('client.page.show', $post->slug) }}">
+                            <img src="{{ $post->featured_image_url ? asset('storage/' . $post->featured_image_url) : asset('client/Picture/Blog/default.jpg') }}"
+                                alt="{{ $post->title }}" style="width:100%;height:350px;object-fit:cover;display:block;">
+                        </a>
+                        <div class="content-blog-1">
+                            <div class="list-link">
+                                {{-- Nếu có categories, foreach ở đây --}}
+                            </div>
+                            <div class="title">
+                                <a href="{{ route('client.page.show', $post->slug) }}">{{ $post->title }}</a>
+                            </div>
+                            <div class="box-by">
+                                <span>Bởi: {{ $post->author->name ?? 'N/A' }}</span>
+                                <span>|</span>
+                                <span>{{ $post->published_at ? $post->published_at->format('d/m/Y') : '' }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="box-1 pading-img-2">
-                    <img src="{{ asset('client/Picture/Blog/Blog_03.jpg') }}" alt="">
-                    <div class="content-box-1">
-                        <div class="first-content">
-                            <a href="">Ba lô</a>
-                            <span>,</span>
-                            <a href="">Thời trang</a>
-                            <span>,</span>
-                            <a href="">Phong cách sống</a>
-                        </div>
-                        <div class="second-content">
-                            <a href="">Nội thất ấn tượng với vẻ đẹp thẩm mỹ</a>
-                        </div>
-                        <div class="three-content">
-                            <span>Bởi: Wpbingo</span>
-                            <span>|</span>
-                            <span>1 Bình luận</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="blog-1">
-                <a href="">
-                    <img src="{{ asset('client/Picture/Blog/Blog_04.jpg') }}" alt="">
-                </a>
-                <div class="content-blog-1">
-                    <div class="list-link">
-                        <a href="">Ba lô</a>
-                        <span>,</span>
-                        <a href="">Thời trang</a>
-                        <span>,</span>
-                        <a href="">Phong cách sống</a>
-                        <span>,</span>
-                        <a href="">Đồ bơi</a>
-                    </div>
-                    <div class="title">
-                        <a href="">Cách chọn ghế sofa phù hợp</a>
-                    </div>
-                    <div class="box-by">
-                        <span>Bởi: Wpbingo</span>
-                        <span>|</span>
-                        <span>0 Bình luận</span>
-                    </div>
-                </div>
+                @empty
+                    <p>Không có bài viết nào.</p>
+                @endforelse
             </div>
         </div>
+        {{-- <div class="mt-3">
+            {{ $posts->links() }}
+        </div> --}}
     </div>
+
+
 @endsection

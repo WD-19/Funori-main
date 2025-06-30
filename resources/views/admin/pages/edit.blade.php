@@ -76,11 +76,11 @@
                     <div class="body-title">Loại trang <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="page_type" id="page_type" class="@error('page_type') is-invalid @enderror">
-                            <option value="page" {{ old('page_type', $page->page_type) == 'page' ? 'selected' : '' }}>
-                                Page</option>
                             <option value="blog_post"
                                 {{ old('page_type', $page->page_type) == 'blog_post' ? 'selected' : '' }}>Blog Post
                             </option>
+                            <option value="page" {{ old('page_type', $page->page_type) == 'page' ? 'selected' : '' }}>
+                                Page</option>
                         </select>
                         @error('page_type')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>

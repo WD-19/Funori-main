@@ -83,7 +83,7 @@
                     <thead>
                         <ul class="table-title flex gap20 mb-14">
                             <li>
-                                <div class="body-title">ID</div>
+                                <div class="body-title">STT</div>
                             </li>
                             <li>
                                 <div class="body-title">Tiêu đề</div>
@@ -113,7 +113,7 @@
                         <ul class="flex flex-column">
                             <?php $__currentLoopData = $pages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <li class="attribute-item item-row flex items-center justify-between gap20">
-                                    <div class="body-text"><?php echo e($page->id); ?></div>
+                                    <div class="body-text"><?php echo e($pages->firstItem() + $loop->index); ?></div>
                                     <div class="body-text"><?php echo e($page->title); ?></div>
                                     
                                     <div class="body-text"><?php echo e($page->author ? $page->author->full_name : 'N/A'); ?></div>
