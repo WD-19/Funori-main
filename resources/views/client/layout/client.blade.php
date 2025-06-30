@@ -20,6 +20,9 @@
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <title>@yield('title')</title>
 </head>
 
@@ -27,17 +30,8 @@
     <!-- Phần header -->
     @include('client.partials.header')
 
-    @if (session('success'))
-        <x-alert type="success">
-            {{ session('success') }}
-        </x-alert>
-    @endif
-
-    @if (session('error'))
-        <x-alert type="danger">
-            {{ session('error') }}
-        </x-alert>
-    @endif
+    <!-- Toastr hiển thị thông báo session -->
+   
 
     <!-- Phần nội dung chính -->
     @yield('content')
@@ -61,5 +55,9 @@
 <script src="{{ asset('client/ecomus/js/wow.min.js') }}"></script>
 <script src="{{ asset('client/ecomus/js/multiple-modal.js') }}"></script>
 <script src="{{ asset('client/ecomus/js/main.js') }}"></script>
+<script type="text/javascript" src="js/rangle-slider.js"></script>
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 </html>
