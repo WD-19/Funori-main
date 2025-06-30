@@ -26,8 +26,6 @@ class ContactSubmissionFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
-            'phone' => $this->faker->boolean(80) ? $this->faker->phoneNumber() : null,
-            'subject' => $this->faker->sentence(5),
             'message' => $this->faker->paragraph(3),
             'status' => $status,
             'admin_reply' => $adminReply,

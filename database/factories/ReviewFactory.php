@@ -28,6 +28,10 @@ class ReviewFactory extends Factory
             'rating' => $this->faker->numberBetween(1, 5),
             'comment' => $this->faker->boolean(80) ? $this->faker->paragraph() : null,
             'status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
+            'admin_reply' => $this->faker->boolean(40) ? $this->faker->sentence() : null,
+            'admin_reply_created_at' => function (array $attributes) {
+                return $attributes['admin_reply'] ? now()->subDays(rand(0, 10)) : null;
+            },
             'created_at' => $this->faker->dateTimeBetween($orderItem->created_at, 'now'),
             'updated_at' => $this->faker->dateTimeBetween($orderItem->created_at, 'now'),
         ];

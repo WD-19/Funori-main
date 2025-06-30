@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Promotion;
 use App\Models\Cart;
 use App\Models\Review;
+use App\Models\User;
 use Faker\Factory;
 use Illuminate\Support\Str;
 
@@ -23,7 +24,7 @@ class OrderSeeder extends Seeder
         $faker = Factory::create('vi_VN');
         for ($i = 0; $i < 20; $i++) {
             $order = Order::create([
-                'user_id'           => 1, // hoặc random user_id nếu muốn
+                'user_id'           => User::inRandomOrder()->value('id'), // hoặc random user_id nếu muốn
                 'order_code'        => 'ORD-' . strtoupper(Str::random(8)),
                 'customer_name'     => $faker->name(),
                 'customer_email'    => $faker->unique()->safeEmail(),
