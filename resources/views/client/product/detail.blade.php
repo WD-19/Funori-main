@@ -994,4 +994,58 @@
     </div>
     <!-- /modal share social -->
 
+    <!-- Toastr hiển thị thông báo session -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        toastr.options = {
+            "positionClass": "toast-bottom-right",
+            "timeOut": "3000",
+            "closeButton": true,
+            "progressBar": true
+        };
+        @if (session('success'))
+            toastr.success("{{ session('success') }}");
+        @endif
+        @if (session('error'))
+            toastr.error("{{ session('error') }}");
+        @endif
+
+        document.querySelector('.btn-add-to-cart').addEventListener('click', function (e) {
+            e.preventDefault();
+
+            let productId = {{ $product->id }};
+            let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
+            let variantInput = document.querySelector('input[name="variant_id"]:checked');
+            let productVariantId = variantInput ? variantInput.value : null;
+
+            fetch('{{ route('client.cart.add') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: quantity,
+                    product_variant_id: productVariantId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Đã thêm vào giỏ hàng!');
+                } else {
+                    toastr.error(data.message || 'Có lỗi xảy ra!');
+                }
+            })
+            .catch(error => {
+                toastr.error('Có lỗi xảy ra!');
+                console.error(error);
+            });
+        });
+    });
+    </script>
+
 @endsection
