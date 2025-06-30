@@ -332,7 +332,7 @@ class ProductController
         // Cập nhật sản phẩm cha
         $product->update([
             'name' => $validated['name'],
-            'slug' => \Illuminate\Support\Str::slug($validated['name']),
+            'slug' => Str::slug($validated['name']),
             'category_id' => $validated['category_id'],
             'brand_id' => $validated['brand_id'],
             'regular_price' => $validated['regular_price'],
@@ -343,13 +343,14 @@ class ProductController
         // Xử lý variants
         $variantIds = [];
         if ($request->has('variants')) {
-            foreach ($request->variants as $variantData) {
+            foreach ($request->variants as $i => $variantData) {
                 if (!empty($variantData['id'])) {
                     // Update variant cũ
                     $variant = $product->variants()->find($variantData['id']);
                     if ($variant) {
                         // Upload ảnh mới nếu có
-                        if (isset($variantData['new_image']) && $variantData['new_image']) {
+                        $file = $request->file("variants.$i.new_image");
+                        if ($file) {
                             // Xóa ảnh cũ nếu có
                             if ($variant->image) {
                                 $oldPath = public_path($variant->image->image_url);
@@ -359,7 +360,6 @@ class ProductController
                                 $variant->image->delete();
                             }
                             // Upload ảnh mới
-                            $file = $variantData['new_image'];
                             $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
                             $file->move(public_path('images/products'), $fileName);
                             $img = $product->images()->create([
@@ -384,8 +384,8 @@ class ProductController
                 } else {
                     // Tạo mới variant
                     $variantImageId = null;
-                    if (isset($variantData['new_image']) && $variantData['new_image']) {
-                        $file = $variantData['new_image'];
+                    $file = $request->file("variants.$i.new_image");
+                    if ($file) {
                         $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
                         $file->move(public_path('images/products'), $fileName);
                         $img = $product->images()->create([
