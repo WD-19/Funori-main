@@ -2543,8 +2543,6 @@ namespace App\Models {
      * @property string|null $admin_reply
      * @property string $status
      * @property string $message
-     * @property string $subject
-     * @property string|null $phone
      * @property string $email
      * @property string $name
      * @property int $id
@@ -2552,8 +2550,6 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereName($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereEmail($value)
-     * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission wherePhone($value)
-     * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereSubject($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereMessage($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<ContactSubmission>|ContactSubmission whereAdminReply($value)

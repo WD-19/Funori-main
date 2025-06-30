@@ -14,11 +14,11 @@ class ClientController
         'category',
         'brand',
         'reviews',
-        'images', 
+        'images',
     ])
     ->where('status', 'published')
     ->orderBy('created_at', 'desc')
-    ->limit(3)
+    ->limit(6)
     ->get();
 
     $banners = Banner::where('is_active', 1)

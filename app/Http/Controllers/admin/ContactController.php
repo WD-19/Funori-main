@@ -76,8 +76,6 @@ class ContactController
         $request->validate([
             'email' => 'required|email',
             'name' => 'required|string',
-            'phone' => 'nullable|string',
-            'subject' => 'nullable|string',
             'message' => 'nullable|string',
             'status' => 'required|string',
             'admin_reply' => 'nullable|string',
@@ -87,8 +85,6 @@ class ContactController
         $contact = ContactSubmission::findOrFail($id);
         $contact->email = $request->email;
         $contact->name = $request->name;
-        $contact->phone = $request->phone;
-        $contact->subject = $request->subject;
         $contact->message = $request->message;
         $contact->status = $request->status;
         $contact->admin_reply = $request->admin_reply;
@@ -122,7 +118,7 @@ class ContactController
             "Expires"             => "0"
         ];
 
-        $columns = ['ID', 'Name', 'Email', 'Phone', 'Subject', 'Message', 'Status', 'Admin Reply', 'Replied By', 'Created At'];
+        $columns = ['ID', 'Name', 'Email', 'Message', 'Status', 'Admin Reply', 'Replied By', 'Created At'];
 
         $callback = function () use ($contacts, $columns) {
             // Xóa output buffer nếu có
@@ -138,8 +134,6 @@ class ContactController
                     $contact->id,
                     $contact->name,
                     $contact->email,
-                    $contact->phone,
-                    $contact->subject,
                     $contact->message,
                     $contact->status,
                     $contact->admin_reply,

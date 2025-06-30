@@ -38,12 +38,6 @@
                             <div class="body-title">Họ tên</div>
                         </li>
                         <li>
-                            <div class="body-title">Số điện thoại</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Tiêu đề</div>
-                        </li>
-                        <li>
                             <div class="body-title">Nội dung</div>
                         </li>
                         <li>
@@ -61,8 +55,6 @@
                             <li class="wg-product item-row gap20">
                                 <div class="body-text text-main-dark mt-4">{{ $value->email }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ $value->name }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ $value->phone }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ $value->subject }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ Str::limit($value->message, 30) }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ $value->status }}</div>
                                 <div class="body-text text-main-dark mt-4">
