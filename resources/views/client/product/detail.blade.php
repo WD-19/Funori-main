@@ -1052,4 +1052,38 @@
     });
     </script>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tab switching
+        document.querySelectorAll('.widget-menu-tab .item-title').forEach(function(tab, idx) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.widget-menu-tab .item-title').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.widget-content-tab .widget-content-inner').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.widget-content-tab .widget-content-inner')[idx].classList.add('active');
+            });
+        });
+
+        // Show/hide review form
+        const writeBtn = document.querySelector('.btn-write-review');
+        const cancelBtn = document.querySelector('.btn-cancel-review');
+        const reviewForm = document.querySelector('.form-write-review');
+        if (writeBtn && cancelBtn && reviewForm) {
+            writeBtn.addEventListener('click', function() {
+                reviewForm.style.display = 'block';
+                writeBtn.style.display = 'none';
+                cancelBtn.style.display = 'inline-block';
+            });
+            cancelBtn.addEventListener('click', function() {
+                reviewForm.style.display = 'none';
+                writeBtn.style.display = 'inline-block';
+                cancelBtn.style.display = 'none';
+            });
+            // Ẩn form mặc định
+            reviewForm.style.display = 'none';
+            cancelBtn.style.display = 'none';
+        }
+    });
+    </script>
+
 @endsection
