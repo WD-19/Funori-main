@@ -15,7 +15,6 @@ class OrderController
     // (1) index: danh sách đơn hàng
     public function index(Request $request)
     {
-        // Khởi tạo query builder cho model Order
         $query = Order::query();
 
         // Lọc theo trạng thái đơn hàng nếu có truyền vào
@@ -23,32 +22,46 @@ class OrderController
             $query->where('order_status', $request->status);
         }
 
-        // Lọc theo mã đơn hàng hoặc tên khách hàng nếu có truyền vào
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(function ($sub) use ($q) {
-                $sub->where('order_code', 'like', "%{$q}%")
-                    ->orWhere('customer_name', 'like', "%{$q}%");
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('order_code', 'like', "%{$q}%")
+                    ->orWhere('buyer_name', 'like', "%{$q}%")
+                    ->orWhere('shipping_name', 'like', "%{$q}%")
+                    ->orWhere('customer_phone', 'like', "%{$q}%")
+                    ->orWhere('buyer_phone', 'like', "%{$q}%")
+                    ->orWhere('shipping_phone', 'like', "%{$q}%");
             });
         }
 
-        // Lọc theo tên sản phẩm nếu có truyền vào
-        if ($request->filled('product')) {
-            $product = $request->product;
-            $query->whereHas('items.product', function ($q) use ($product) {
-                $q->where('name', 'like', "%{$product}%");
+        // Sửa lại logic lọc phương thức thanh toán
+        if ($request->filled('payment_method_id')) {
+            $query->where(function ($q2) use ($request) {
+                $q2->where('payment_method_id', $request->payment_method_id);
             });
+        }
+
+        // Sửa lại logic lọc phương thức vận chuyển
+        if ($request->filled('shipping_method_id')) {
+            $query->where(function ($q2) use ($request) {
+                $q2->where('shipping_method_id', $request->shipping_method_id);
+            });
+        }
+
+        // Lọc theo ngày tạo
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
         }
 
         // Lấy danh sách đơn hàng, sắp xếp mới nhất lên đầu, phân trang 20 bản ghi/trang
         $orders = $query->orderByDesc('created_at')
-            ->paginate(20)
-            ->appends($request->only(['status', 'q', 'product']));
+                        ->paginate(20)
+                        ->appends($request->all());
 
-        // Trả về view danh sách đơn hàng
-        return view('admin.orders.index', compact(
-            'orders'
-        ));
+        return view('admin.orders.index', compact('orders'));
     }
 
     // Xuất file Excel/CSV
@@ -57,25 +70,21 @@ class OrderController
         // Khởi tạo query builder cho model Order
         $query = Order::query();
 
-        // Lọc theo trạng thái
+        // Lọc theo trạng thái (giống trang index)
         if ($request->filled('status')) {
             $query->where('order_status', $request->status);
         }
 
-        // Lọc theo mã đơn hàng hoặc tên khách hàng
+        // Lọc theo từ khóa chung (giống trang index)
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(function ($sub) use ($q) {
-                $sub->where('order_code', 'like', "%{$q}%")
-                    ->orWhere('customer_name', 'like', "%{$q}%");
-            });
-        }
-
-        // Lọc theo tên sản phẩm
-        if ($request->filled('product')) {
-            $product = $request->product;
-            $query->whereHas('items.product', function ($q) use ($product) {
-                $q->where('name', 'like', "%{$product}%");
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('order_code', 'like', "%{$q}%")
+                    ->orWhere('buyer_name', 'like', "%{$q}%")
+                    ->orWhere('shipping_name', 'like', "%{$q}%")
+                    ->orWhere('customer_phone', 'like', "%{$q}%")
+                    ->orWhere('buyer_phone', 'like', "%{$q}%")
+                    ->orWhere('shipping_phone', 'like', "%{$q}%");
             });
         }
 
@@ -90,14 +99,15 @@ class OrderController
 
         // Định nghĩa các cột cho file CSV
         $columns = [
-            'Mã đơn',
-            'Khách hàng',
-            'Email',
-            'SĐT',
-            'Tổng tiền',
-            'Trạng thái',
-            'Ngày đặt',
-            'Sản phẩm'
+            'Ma Don',
+            'Ten Nguoi Mua',
+            'SDT Nguoi Mua',
+            'Ten Nguoi Nhan',
+            'SDT Nguoi Nhan',
+            'Tong Tien',
+            'Trang Thai',
+            'Ngay Dat',
+            'San Pham'
         ];
 
         // Callback để ghi dữ liệu ra file CSV
@@ -109,13 +119,14 @@ class OrderController
                 // Lấy tên các sản phẩm trong đơn hàng
                 $productNames = $order->items->pluck('product.name')->implode('; ');
                 fputcsv($file, [
-                    $order->order_code,
-                    $order->customer_name,
-                    $order->customer_email,
-                    $order->customer_phone,
-                    $order->total_amount,
-                    $order->order_status,
-                    $order->ordered_at,
+                    $order->order_code, // Mã đơn
+                    $order->buyer_name, // Tên người mua
+                    $order->buyer_phone, // SĐT người mua
+                    $order->shipping_name, // Tên người nhận
+                    $order->shipping_phone, // SĐT người nhận
+                    $order->total_amount, // Tổng tiền
+                    $order->order_status, // Trạng thái
+                    $order->created_at->format('Y-m-d H:i:s'), // Ngày đặt
                     $productNames,
                 ]);
             }
