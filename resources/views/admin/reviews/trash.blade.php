@@ -41,13 +41,7 @@
                             <div class="body-title">Đánh giá</div>
                         </li>
                         <li>
-                            <div class="body-title">Bình luận</div>
-                        </li>
-                        <li>
                             <div class="body-title">Trạng thái</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Phản hồi Admin</div>
                         </li>
                         <li>
                             <div class="body-title">Ngày xóa</div>
@@ -73,10 +67,6 @@
                                         ★ {{ $value->rating ?? 'N/A' }}
                                     </span>
                                 </div>
-                                {{-- Comment --}}
-                                <div class="body-text text-main-dark mt-4">
-                                    {{ Str::limit($value->comment, 30) }}
-                                </div>
                                 {{-- Status --}}
                                 <div class="body-text text-main-dark mt-4">
                                     @php
@@ -98,11 +88,7 @@
                                         style="background: {{ $statusColor }}; color: #fff; font-weight: bold;">
                                         {{ $statusText }}
                                     </span>
-                                </div>
-                                {{-- Admin Reply --}}
-                                <div class="body-text text-main-dark mt-4">
-                                    {{ Str::limit($value->admin_reply, 30) ?? '-' }}
-                                </div>
+                                </div>  
                                 {{-- Deleted At --}}
                                 <div class="body-text text-main-dark mt-4">
                                     {{ $value->deleted_at ? $value->deleted_at->format('d-m-Y H:i') : '' }}

@@ -54,9 +54,18 @@
                     <label class="form-label fw-bold fs-5" for="description">Mô tả</label>
                     <textarea name="description" id="description" class="form-control" rows="3">{{ old('description') }}</textarea>
                 </div>
-                <div class="form-group mt-4 d-flex align-items-center gap-2">
-                    <button type="submit" class="tf-button style-1">Thêm mới</button>
-                    <a href="{{ route('admin.brands.index') }}" class="tf-button style-1">Quay lại</a>
+
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <button type="submit" class="tf-button w-100 py-3 fs-5">
+                            <i class="bi bi-pencil-square me-1"></i> Cập nhật
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ route('admin.brands.index') }}" class="tf-button style-3 w-100 py-3 fs-5">
+                            <i class="bi bi-list me-1"></i> Danh sách
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>

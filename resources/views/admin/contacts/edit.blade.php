@@ -79,9 +79,17 @@
                             disabled>
                     </fieldset>
                 </div>
-                <div class="cols gap10">
-                    <button class="tf-button w380" type="submit">Cập nhật liên hệ</button>
-                    <a href="{{ route('admin.contacts.index') }}" class="tf-button style-3 w380">Hủy</a>
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <button type="submit" class="tf-button w-100 py-3 fs-5">
+                            <i class="bi bi-pencil-square me-1"></i> Cập nhật
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ route('admin.contacts.index') }}" class="tf-button style-3 w-100 py-3 fs-5">
+                            <i class="bi bi-list me-1"></i> Danh sách
+                        </a>
+                    </div>
                 </div>
             </form>
             <!-- /form-edit-contact -->

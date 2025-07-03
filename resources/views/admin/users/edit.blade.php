@@ -1,24 +1,32 @@
 {{-- filepath: c:\laragon\www\Funori-main\resources\views\admin\users\edit.blade.php --}}
 @extends('admin.layout.admin')
 
-@section('title', 'Sửa user')
+@section('title', 'Sửa người dùng')
 
 @section('content')
     <div class="main-content-inner">
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>Edit User</h3>
+                <h3>Sửa người dùng</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
-                        <a href="{{ route('admin.users.index') }}">
-                            <div class="text-tiny">User List</div>
+                        <a href="index.html">
+                            <div class="text-tiny">Dashboard</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Edit User</div>
+                        <a href="{{ route('admin.users.index') }}">
+                            <div class="text-tiny">Danh sách người dùng</div>
+                        </a>
+                    </li>
+                    <li>
+                        <i class="icon-chevron-right"></i>
+                    </li>
+                    <li>
+                        <div class="text-tiny">Sửa người dùng</div>
                     </li>
                 </ul>
             </div>
@@ -37,7 +45,7 @@
                     <div class="left">
                         <h5 class="mb-4">Tài khoản</h5>
                         <div class="body-text1">
-                            @if($isSelf)
+                            @if ($isSelf)
                                 Bạn chỉ có thể chỉnh sửa thông tin cá nhân.
                             @elseif($isEditingAdmin)
                                 Không thể chỉnh sửa thông tin của admin khác.
@@ -46,13 +54,13 @@
                             @endif
                         </div>
                         <div class="avatar-upload mt-3 mb-4">
-                            <label @if($isSelf) for="avatarInput" style="cursor:pointer;" @endif>
+                            <label @if ($isSelf) for="avatarInput" style="cursor:pointer;" @endif>
                                 <img src="{{ asset($user->avatar_url ? $user->avatar_url : 'images/images.jpg') }}"
                                     alt="Avatar" class="avatar-preview" id="avatarPreview">
                             </label>
-                            @if($isSelf)
+                            @if ($isSelf)
                                 <input type="file" id="avatarInput" name="avatar_url" accept="image/*"
-                                style="display: none;">
+                                    style="display: none;">
                             @endif
                         </div>
                     </div>
@@ -60,25 +68,25 @@
                         <fieldset class="name mb-24">
                             <div class="body-title mb-10">Tên người dùng</div>
                             <input class="flex-grow" type="text" name="full_name" value="{{ $user->full_name }}"
-                                @if(!$isSelf) readonly @endif>
+                                @if (!$isSelf) readonly @endif>
                         </fieldset>
                         <fieldset class="email mb-24">
                             <div class="body-title mb-10">Email</div>
                             <input class="flex-grow" type="email" name="email" value="{{ $user->email }}"
-                                @if(!$isSelf) readonly @endif>
+                                @if (!$isSelf) readonly @endif>
                         </fieldset>
                         <fieldset class="phone mb-24">
                             <div class="body-title mb-10">Số điện thoại</div>
                             <input class="flex-grow" type="text" name="phone_number" value="{{ $user->phone_number }}"
-                                @if(!$isSelf) readonly @endif>
+                                @if (!$isSelf) readonly @endif>
                         </fieldset>
                         <fieldset class="password mb-24">
                             <div class="body-title mb-10">Mật khẩu</div>
                             <div class="password-input-wrapper">
-                                <input class="password-input" type="password" placeholder="Password" name="password"
+                                <input class="password-input" type="password" placeholder="Mật khẩu" name="password"
                                     value="*********" readonly id="passwordInput" style="padding-right: 36px;">
-                                @if($isSelf)
-                                    <span id="resetPasswordIcon" title="Reset password" style="font-size: 18px">
+                                @if ($isSelf)
+                                    <span id="resetPasswordIcon" title="Đặt lại mật khẩu" style="font-size: 18px">
                                         <i class="fas fa-sync-alt"></i>
                                     </span>
                                 @endif
@@ -97,20 +105,20 @@
                                 <div class="item">
                                     <input type="radio" name="account_status" id="apply-product1" value="active"
                                         {{ old('account_status', $user->account_status) == 'active' ? 'checked' : '' }}
-                                        @if($isSelf || $isEditingAdmin) disabled @endif>
-                                    <label for="apply-product1"><span class="body-title-2">Active</span></label>
+                                        @if ($isSelf || $isEditingAdmin) disabled @endif>
+                                    <label for="apply-product1"><span class="body-title-2">Hoạt động</span></label>
                                 </div>
                                 <div class="item">
                                     <input type="radio" name="account_status" id="apply-product2" value="inactive"
                                         {{ old('account_status', $user->account_status) == 'inactive' ? 'checked' : '' }}
-                                        @if($isSelf || $isEditingAdmin) disabled @endif>
-                                    <label for="apply-product2"><span class="body-title-2">Inactive</span></label>
+                                        @if ($isSelf || $isEditingAdmin) disabled @endif>
+                                    <label for="apply-product2"><span class="body-title-2">Không hoạt động</span></label>
                                 </div>
                                 <div class="item">
                                     <input type="radio" name="account_status" id="apply-product3" value="banned"
                                         {{ old('account_status', $user->account_status) == 'banned' ? 'checked' : '' }}
-                                        @if($isSelf || $isEditingAdmin) disabled @endif>
-                                    <label for="apply-product3"><span class="body-title-2">Banned</span></label>
+                                        @if ($isSelf || $isEditingAdmin) disabled @endif>
+                                    <label for="apply-product3"><span class="body-title-2">Bị khóa</span></label>
                                 </div>
                             </div>
                             @error('account_status')
@@ -123,14 +131,14 @@
                                 <div class="item">
                                     <input type="radio" name="role" id="create-product1" value="admin"
                                         {{ old('role', $user->role) == 'admin' ? 'checked' : '' }}
-                                        @if($isSelf || $isEditingAdmin) disabled @endif>
-                                    <label for="create-product1"><span class="body-title-2">Admin</span></label>
+                                        @if ($isSelf || $isEditingAdmin) disabled @endif>
+                                    <label for="create-product1"><span class="body-title-2">Quản trị viên</span></label>
                                 </div>
                                 <div class="item">
                                     <input type="radio" name="role" id="create-product2" value="user"
                                         {{ old('role', $user->role) == 'user' ? 'checked' : '' }}
-                                        @if($isSelf || $isEditingAdmin) disabled @endif>
-                                    <label for="create-product2"><span class="body-title-2">User</span></label>
+                                        @if ($isSelf || $isEditingAdmin) disabled @endif>
+                                    <label for="create-product2"><span class="body-title-2">Người dùng</span></label>
                                 </div>
                             </div>
                             @error('role')
@@ -139,9 +147,19 @@
                         </fieldset>
                     </div>
                 </div>
-                <div class="bot">
-                    <a href="{{ route('admin.users.index') }}" class="tf-button w180">Back</a>
-                    <button class="tf-button w180" type="submit" id="saveBtn" >Save</button>
+                <div class="wg-box">
+                    <div class="row w-100 d-flex">
+                        <div class="col-md-6">
+                            <button type="submit" class="tf-button w-100 py-3 fs-5">
+                                <i class="bi bi-pencil-square me-1"></i> Cập nhật
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.users.index') }}" class="tf-button style-3 w-100 py-3 fs-5">
+                                <i class="bi bi-list me-1"></i> Danh sách
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </form>
             <!-- /edit-user -->
@@ -154,30 +172,27 @@
                         style="position:absolute; top:12px; right:16px; font-size:28px; cursor:pointer; line-height:1; background:none; border:none; font-family:sans-serif;">
                         &times;
                     </span>
-
-
-
-                    <h3 style="margin-bottom:28px; font-size:2.5rem;">Reset Password</h3>
+                    <h3 style="margin-bottom:28px; font-size:2.5rem;">Đặt lại mật khẩu</h3>
                     <form id="resetPasswordForm" method="POST"
                         action="{{ route('admin.users.resetPassword', $user->id) }}">
                         @csrf
                         <div style="margin-bottom:20px;">
-                            <label style="font-weight:700; font-size: 10px;">Old Password</label>
+                            <label style="font-weight:700; font-size: 10px;">Mật khẩu cũ</label>
                             <input type="password" name="old_password" class="form-control strong-input" required
                                 style="width:100%;margin-top:8px; background-color: #e5e2e2;">
                         </div>
                         <div style="margin-bottom:20px;">
-                            <label style="font-weight:700; font-size: 10px;">New Password</label>
+                            <label style="font-weight:700; font-size: 10px;">Mật khẩu mới</label>
                             <input type="password" name="new_password" class="form-control strong-input" required
                                 style="width:100%;margin-top:8px; background-color: #e5e2e2;">
                         </div>
                         <div style="margin-bottom:28px;">
-                            <label style="font-weight:600; font-size: 10px;">Confirm Password</label>
+                            <label style="font-weight:600; font-size: 10px;">Xác nhận mật khẩu</label>
                             <input type="password" name="new_password_confirmation" class="form-control strong-input"
                                 required style="width:100%;margin-top:8px; background-color: #e5e2e2;">
                         </div>
 
-                        <button type="submit" class="tf-button w100" style="font-size:1.1rem;">Save</button>
+                        <button type="submit" class="tf-button w100" style="font-size:1.1rem;">Lưu</button>
                     </form>
                 </div>
             </div>
@@ -247,5 +262,3 @@
         });
     </script>
 @endpush
-
-
