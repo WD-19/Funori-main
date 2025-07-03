@@ -58,93 +58,101 @@
             <!-- order-list -->
             <div class="wg-box">
                 <div class="wg-table table-all-category mt-2">
-                    <ul class="table-title flex mb-14" style="background:#f3f4f6; padding: 0 12px;">
+                    <ul class="table-title flex gap10 mb-14" style="background:#f3f4f6; padding: 0 12px;">
                         <li style="width: 30px; text-align: center; flex-shrink: 0;">
                             <div class="body-title">STT</div>
                         </li>
-
-                        <li style="min-width:120px; padding-left: 10px;">
-                            <div class="body-title">Mã đơn</div>
+                        <li>
+                            <div class="body-title">Sản phẩm</div>
                         </li>
-                        <li style="min-width:100px; padding-left: 10px;">
-                            <div class="body-title">Giá trị</div>
+                        <li class="w-20">
+                            <div class="body-title">Giá</div>
                         </li>
-                        <li style="min-width:80px; padding-left: 10px;">
-                            <div class="body-title">SL</div>
+                        <li class="w-24">
+                            <div class="body-title">Danh mục</div>
                         </li>
-                        <li style="min-width:120px; padding-left: 10px;">
-                            <div class="body-title">Thanh toán</div>
+                        <li class="w-20">
+                            <div class="body-title">Thương hiệu</div>
                         </li>
-                        <li style="min-width:120px; padding-left: 10px;">
+                        <li class="w-14">
+                            <div class="body-title">Tồn kho</div>
+                        </li>
+                        <li class="w-20">
                             <div class="body-title">Trạng thái</div>
                         </li>
-                        <li style="min-width:90px; padding-left: 10px;">
-                            <div class="body-title">Theo dõi</div>
-                        </li>
-                        <li style="min-width:110px; padding-left: 10px;">
-                            <div class="body-title">Hành động</div>
+                        <li class="w-16">
+                            <div class="body-title">Thao tác</div>
                         </li>
                     </ul>
+
                     <ul class="flex flex-column">
-                        @forelse($orders as $order)
-                            <li class="wg-product item-row"
-                                style="display: flex; align-items:center; border-bottom:1px solid #eee; padding: 12px;">
-                                <div class="body-text text-main-dark" style="width: 30px; text-align: center; flex-shrink: 0;">
-                                    {{ $orders->firstItem() + $loop->index }}
+                        @foreach ($products as $product)
+                            <li class="wg-product item-row gap10">
+                                {{-- Số thứ tự --}}
+                                <div class="body-text text-main-dark"
+                                    style="width: 30px; text-align: center; flex-shrink: 0;">
+                                    {{ $products->firstItem() + $loop->index }}
                                 </div>
 
-                                <div class="body-text text-main-dark" style="min-width:120px; padding-left: 10px;">{{ $order->order_code }}
+                                {{-- Ảnh + Tên --}}
+                                <div class="name flex-1 flex items-center gap10">
+                                    <div class="image w-12 h-12">
+                                        <img class="object-cover rounded"
+                                            src="{{ $product->images->first()->image_url ?? asset('images/no-image.png') }}"
+                                            alt="">
+                                    </div>
+                                    <div class="title line-clamp-2 mb-0">
+                                        <a href="{{ route('admin.products.show', $product->id) }}" class="body-text">
+                                            {{ $product->name }}
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="body-text text-main-dark" style="min-width:100px; padding-left: 10px;">
-                                    {{ number_format($order->total_amount, 0, ',', '.') }}₫</div>
-                                <div class="body-text text-main-dark" style="min-width:80px; padding-left: 10px;">
-                                    {{ $order->items->sum('quantity') }}</div>
-                                <div class="body-text text-main-dark" style="min-width:120px; padding-left: 10px;">
-                                    {{ optional($order->paymentMethod)->name ?? ($order->payment_method ?? 'Không có') }}
-                                </div>
-                                <div style="min-width:120px; padding-left: 10px;">
-                                    @if ($order->order_status === 'delivered')
-                                        <span class="block-available bg-1 fw-7"
-                                            style="padding:2px 8px;border-radius:6px;">Đã giao</span>
-                                    @elseif($order->order_status === 'pending' || $order->order_status === 'pending_confirmation')
-                                        <span class="block-pending bg-1 fw-7" style="padding:2px 8px;border-radius:6px;">Chờ
-                                            xử lý</span>
-                                    @elseif($order->order_status === 'pending_cancellation')
-                                        <span class="block-pending fw-7"
-                                            style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:6px;">Chờ
-                                            hủy</span>
-                                    @elseif($order->order_status === 'cancelled')
-                                        <span class="block-pending bg-1 fw-7"
-                                            style="background:#f87171;padding:2px 8px;border-radius:6px;">Đã hủy</span>
-                                    @elseif($order->order_status === 'processing')
-                                        <span class="block-pending bg-1 fw-7"
-                                            style="padding:2px 8px;border-radius:6px;">Đang xử lý</span>
-                                    @elseif($order->order_status === 'shipped')
-                                        <span class="block-pending bg-1 fw-7"
-                                            style="padding:2px 8px;border-radius:6px;">Đang giao hàng</span>
-                                    @elseif($order->order_status === 'returned')
-                                        <span class="block-pending bg-1 fw-7" style="padding:2px 8px;border-radius:6px;">Đã
-                                            trả hàng</span>
-                                    @else
-                                        <span class="block-pending bg-1 fw-7"
-                                            style="padding:2px 8px;border-radius:6px;">{{ ucfirst(str_replace('_', ' ', $order->order_status)) }}</span>
-                                    @endif
-                                </div>
-                                <div style="min-width:90px; padding-left: 10px;">
-                                    <a href="{{ route('admin.orders.tracking', $order->id) }}" class="block-tracking bg-1"
-                                        style="padding:2px 8px;border-radius:6px;">Theo dõi</a>
-                                </div>
-                                <div class="list-icon-function" style="padding-left: 10px;">
-                                    <a href="{{ route('admin.orders.show', $order->id) }}" class="item eye"
-                                        title="View"><i class="icon-eye"></i></a>
 
+                                {{-- Giá --}}
+                                <div class="body-text text-main-dark mt-4 w-20">
+                                    {{ number_format($product->regular_price, 0, ',', '.') }} đ
+                                </div>
+
+                                {{-- Danh mục --}}
+                                <div class="body-text text-main-dark mt-4 w-24">
+                                    {{ $product->category->name ?? '-' }}
+                                </div>
+
+                                {{-- Thương hiệu --}}
+                                <div class="body-text text-main-dark mt-4 w-20">
+                                    {{ $product->brand->name ?? '-' }}
+                                </div>
+
+                                {{-- Tồn kho --}}
+                                <div class="body-text text-main-dark mt-4 w-14">
+                                    {{ $product->variants->sum('stock_quantity') }}
+                                </div>
+
+                                {{-- Trạng thái hiển thị --}}
+                                <div class="body-text mt-4 w-20">
+                                    <form method="POST" action="{{ route('admin.products.update', $product->id) }}"
+                                        style="display:inline;">
+                                        @csrf @method('PUT')
+                                        <select name="status" onchange="this.form.submit()" class="max-w-[120px]">
+                                            <option value="published" {{ $product->status == 'published' ? 'selected' : '' }}>
+                                                Hiển thị</option>
+                                            <option value="draft" {{ $product->status == 'draft' ? 'selected' : '' }}>Ngừng KD
+                                            </option>
+                                            <option value="archived" {{ $product->status == 'archived' ? 'selected' : '' }}>Lưu
+                                                trữ</option>
+                                        </select>
+                                    </form>
+                                </div>
+
+                                {{-- Thao tác --}}
+                                <div class="list-icon-function mt-4 w-16 flex justify-center gap6">
+                                    <a href="{{ route('admin.products.show', $product->id) }}" class="item eye"><i
+                                            class="icon-eye"></i></a>
+                                    <a href="{{ route('admin.products.edit', $product->id) }}" class="item edit"><i
+                                            class="icon-edit-3"></i></a>
                                 </div>
                             </li>
-                        @empty
-                            <li>
-                                <div class="body-text text-center py-4">Không tìm thấy đơn hàng nào.</div>
-                            </li>
-                        @endforelse
+                        @endforeach
                     </ul>
                 </div>
                 <div class="divider"></div>
@@ -183,5 +191,5 @@
     <!-- /order-list -->
     </div>
     </div>
-    
+
 @endsection

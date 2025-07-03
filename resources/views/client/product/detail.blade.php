@@ -1004,25 +1004,25 @@
             @if (session('success'))
                 toastr.success("{{ session('success') }}");
             @endif
+
             @if (session('error'))
                 toastr.error("{{ session('error') }}");
             @endif
 
             document.querySelector('.btn-add-to-cart').addEventListener('click', function(e) {
                 e.preventDefault();
-
-                let productId = {{ $product->id }};
+                let
+                    productId = {{ $product->id }};
                 let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
-                let variantInput = document.querySelector('input[name="variant_id"]:checked');
-                let productVariantId = variantInput ? variantInput.value : null;
-
-                // Nếu có biến thể nhưng chưa chọn thì báo lỗi
-                const hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
+                let
+                    variantInput = document.querySelector('input[name="variant_id" ]:checked');
+                let productVariantId = variantInput ?
+                    variantInput.value : null; // Nếu có biến thể nhưng chưa chọn thì báo lỗi const
+                hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
                 if (hasVariants && !productVariantId) {
                     toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
                     return;
                 }
-
                 fetch('{{ route('client.cart.add') }}', {
                         method: 'POST',
                         headers: {
@@ -1034,8 +1034,8 @@
                             quantity: quantity,
                             product_variant_id: productVariantId
                         })
-                    })
-                    .then(response => response.json())
+                    }).then(response =>
+                        response.json())
                     .then(data => {
                         if (data.success) {
                             toastr.success('Đã thêm vào giỏ hàng!');
@@ -1061,6 +1061,39 @@
                     tabContents[idx].classList.add('active');
                 });
             });
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const writeBtn = document.querySelector('.btn-write-review');
+            const cancelBtn = document.querySelector('.btn-cancel-review');
+            const formReview = document.querySelector('.form-write-review');
+            const commentWrap = document.querySelector('.reply-comment'); // Phần chứa tất cả bình luận
+
+            if (writeBtn && cancelBtn && formReview && commentWrap) {
+                // Mặc định ẩn form, hiện bình luận
+                formReview.style.display = "none";
+                cancelBtn.style.display = "none";
+                commentWrap.style.display = "block";
+
+                // Khi bấm nút "Viết đánh giá"
+                writeBtn.addEventListener('click', function() {
+                    formReview.style.display = "block";
+                    commentWrap.style.display = "none";
+                    writeBtn.style.display = "none";
+                    cancelBtn.style.display = "inline-block";
+
+                    // Nếu muốn scroll tới form thì mở dòng sau
+                    // formReview.scrollIntoView({ behavior: "smooth" });
+                });
+
+                // Khi bấm nút "Hủy đánh giá"
+                cancelBtn.addEventListener('click', function() {
+                    formReview.style.display = "none";
+                    commentWrap.style.display = "block";
+                    writeBtn.style.display = "inline-block";
+                    cancelBtn.style.display = "none";
+                });
+            }
         });
     </script>
 

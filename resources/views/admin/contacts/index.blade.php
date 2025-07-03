@@ -71,19 +71,7 @@
                             <div class="body-title">Họ tên</div>
                         </li>
                         <li>
-                            <div class="body-title">Nội dung</div>
-                        </li>
-                        <li>
                             <div class="body-title">Trạng thái</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Phản hồi của admin</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Người trả lời</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Ngày tạo</div>
                         </li>
                         <li>
                             <div class="body-title">Thao tác</div>
@@ -94,7 +82,6 @@
                             <li class="wg-product item-row gap20">
                                 <div class="body-text text-main-dark mt-4">{{ $value->email }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ Str::limit($value->name, 30) }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ Str::limit($value->message, 30) }}</div>
                                 <div>
                                     <div class="block-available status-{{ $value->status }} fw-7">
                                         @php
@@ -108,23 +95,6 @@
                                         @endphp
                                         {{ $statusText }}
                                     </div>
-                                </div>
-                                <div class="body-text text-main-dark mt-4">
-                                    @if ($value->admin_reply)
-                                        {{ Str::limit($value->admin_reply, 30) }}
-                                    @else
-                                        <span class="badge bg-danger">Chưa phản hồi</span>
-                                    @endif
-                                </div>
-                                <div class="body-text text-main-dark mt-4">
-                                    @if ($value->replied_by)
-                                        {{ \App\Models\User::find($value->replied_by)->full_name ?? 'Không rõ' }}
-                                    @else
-                                        <span class="badge bg-danger">Không rõ</span>
-                                    @endif
-                                </div>
-                                <div class="body-text text-main-dark mt-4">
-                                    {{ $value->created_at->format('d-m-Y') }}
                                 </div>
                                 <div class="list-icon-function">
                                     <div class="item eye" data-bs-toggle="modal"
@@ -207,7 +177,7 @@
                                         </div>
                                     </div>
                                     <div class="item edit">
-                                        <a href="{{ route('admin.contacts.edit', $value->id) }}"><i
+                                        <a href="{{ route('admin.contacts.edit', $value->id) }}" class="item edit"><i
                                                 class="icon-edit-3"></i></a>
                                     </div>
                                     <div class="item trash">
