@@ -1,6 +1,7 @@
 @extends('admin.layout.admin')
 @section('title', 'Danh sách đơn hàng')
 @section('content')
+
     <div class="main-content-inner">
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
@@ -20,139 +21,204 @@
                         </li>
                     </ul>
                 </div>
-                <form class="form-search flex gap9 items-end" method="get" action="{{ route('admin.orders.index') }}"
-                    style="background:#f9fafb;padding:12px 18px;border-radius:10px;">
-                    <fieldset class="mb-0">
-                        <label class="body-title mb-2 block">Mã đơn/Khách</label>
-                        <input type="text" placeholder="Nhập mã đơn hoặc tên khách..." name="q"
-                            value="{{ request('q') }}" class="input-field" style="min-width:150px;">
-                    </fieldset>
-                    <fieldset class="mb-0">
-                        <label class="body-title mb-2 block">Sản phẩm</label>
-                        <input type="text" placeholder="Tên sản phẩm..." name="product" value="{{ request('product') }}"
-                            class="input-field" style="min-width:120px;">
-                    </fieldset>
-                    <fieldset class="mb-0">
-                        <label class="body-title mb-2 block">Trạng thái</label>
-                        <select name="status" class="form-select" style="min-width:120px;">
-                            <option value="">-- Tất cả --</option>
-                            <option value="pending_confirmation" @if (request('status') == 'pending_confirmation') selected @endif>Chờ xử lý
-                            </option>
-                            <option value="processing" @if (request('status') == 'processing') selected @endif>Đang xử lý</option>
-                            <option value="shipped" @if (request('status') == 'shipped') selected @endif>Đang giao hàng
-                            </option>
-                            <option value="delivered" @if (request('status') == 'delivered') selected @endif>Đã giao</option>
-                            <option value="cancelled" @if (request('status') == 'cancelled') selected @endif>Đã hủy</option>
-                            <option value="returned" @if (request('status') == 'returned') selected @endif>Đã trả hàng</option>
-
-                        </select>
-                    </fieldset>
-                    <button class="btn btn-primary flex items-center gap-2 mt-6 px-2 py-1" type="submit"
-                        style="font-size:12px; border-radius:6px;">
-                        <i class="icon-search" style="font-size:14px;"></i>
-                        <span>Tìm</span>
+                {{-- Nút bật bộ lọc --}}
+                <div class="mb-3">
+                    <button type="button" onclick="toggleOrderFilter()"
+                        class="btn btn-outline-primary flex items-center gap-1 px-3 py-1 rounded-md"
+                        style="color: #f59e0b; border: 1px solid #f59e0b; hover: border-color: #f59e0b; background-color: #fff;">>
+                        <i class="icon-filter"></i>
+                        <span>Lọc đơn hàng</span>
                     </button>
+                </div>
 
-                </form>
+                {{-- FORM LỌC - Ẩn mặc định --}}
+                <div id="order-filter-form" class="form-search bg-gray-50 p-4 rounded-lg mb-4 hidden">
+                    <form method="get" action="{{ route('admin.orders.index') }}" class="flex flex-wrap gap-4 items-end">
+                        {{-- Tìm kiếm --}}
+                        <div class="flex flex-col">
+                            <label class="body-title mb-1">Tìm kiếm</label>
+                            <input type="text" name="q" value="{{ request('q') }}"
+                                placeholder="Mã đơn, tên khách, SĐT..." class="input-field"
+                                style="min-width:220px; height:36px;">
+                        </div>
+
+                        {{-- Trạng thái --}}
+                        <div class="flex flex-col">
+                            <label class="body-title mb-1">Trạng thái</label>
+                            <select name="status" class="form-select" style="min-width:160px; height:36px;">
+                                <option value="">-- Tất cả --</option>
+                                <option value="pending_confirmation" @selected(request('status') == 'pending_confirmation')>Chờ xử lý</option>
+                                <option value="processing" @selected(request('status') == 'processing')>Đang xử lý</option>
+                                <option value="shipped" @selected(request('status') == 'shipped')>Đang giao hàng</option>
+                                <option value="delivered" @selected(request('status') == 'delivered')>Đã giao</option>
+                                <option value="cancelled" @selected(request('status') == 'cancelled')>Đã hủy</option>
+                                <option value="returned" @selected(request('status') == 'returned')>Đã trả hàng</option>
+                            </select>
+                        </div>
+
+                        {{-- Phương thức thanh toán --}}
+                        <div class="flex flex-col">
+                            <label class="body-title mb-1">Phương thức thanh toán</label>
+                            <select name="payment_method_id" class="form-select" style="min-width:160px; height:36px;">
+                                <option value="">-- Tất cả --</option>
+                                <option value="1" @selected(request('payment_method_id') == '1')>COD</option>
+                                <option value="2" @selected(request('payment_method_id') == '2')>Chuyển khoản</option>
+                                <option value="3" @selected(request('payment_method_id') == '3')>Momo</option>
+                            </select>
+                        </div>
+
+                        {{-- Phương thức vận chuyển --}}
+                        <div class="flex flex-col">
+                            <label class="body-title mb-1">Vận chuyển</label>
+                            <select name="shipping_method_id" class="form-select" style="min-width:160px; height:36px;">
+                                <option value="">-- Tất cả --</option>
+                                <option value="1" @selected(request('shipping_method_id') == '1')>Giao hàng tiêu chuẩn</option>
+                                <option value="2" @selected(request('shipping_method_id') == '2')>Giao hàng nhanh</option>
+                                <option value="3" @selected(request('shipping_method_id') == '3')>Nhận tại cửa hàng</option>
+                            </select>
+                        </div>
+                        {{-- Nút tìm kiếm --}}
+                        <div class="flex items-end">
+                            <button class="btn btn-primary flex items-center gap-1 px-3 py-1 rounded-md"
+                                style="color: #fff; border: 1px solid #f59e0b; background-color: #f59e0b ;" type="submit"
+                                style="height:36px;">
+                                <i class="icon-search text-sm"></i>
+                                <span>Tìm</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {{-- SCRIPT --}}
+                <script>
+                    function toggleOrderFilter() {
+                        const filter = document.getElementById('order-filter-form');
+                        filter.classList.toggle('hidden');
+                    }
+                </script>
+
+
+
             </div>
-            <!-- order-list -->
             <div class="wg-box">
                 <div class="wg-table table-all-category mt-2">
                     <ul class="table-title flex gap10 mb-14" style="background:#f3f4f6; padding: 0 12px;">
                         <li style="width: 30px; text-align: center; flex-shrink: 0;">
                             <div class="body-title">STT</div>
                         </li>
-                        <li>
-                            <div class="body-title">Sản phẩm</div>
+
+                        <li style="min-width: 120px; padding-left: 10px;">
+                            <div class="body-title">Mã đơn</div>
                         </li>
-                        <li class="w-20">
-                            <div class="body-title">Giá</div>
+
+                        <li style="min-width: 100px; padding-left: 10px;">
+                            <div class="body-title">Giá trị</div>
                         </li>
-                        <li class="w-24">
-                            <div class="body-title">Danh mục</div>
+
+                        <li style="min-width: 180px; padding-left: 10px;">
+                            <div class="body-title">Khách hàng</div>
                         </li>
-                        <li class="w-20">
-                            <div class="body-title">Thương hiệu</div>
+
+                        <li style="min-width: 120px; padding-left: 10px;">
+                            <div class="body-title">Ngày đặt</div>
                         </li>
-                        <li class="w-14">
-                            <div class="body-title">Tồn kho</div>
+
+                        <li style="min-width: 100px; padding-left: 10px;">
+                            <div class="body-title">Hình thức</div>
                         </li>
-                        <li class="w-20">
+
+                        <li style="min-width: 120px; padding-left: 10px;">
+                            <div class="body-title">Vận chuyển</div>
+                        </li>
+
+                        <li style="min-width: 120px; padding-left: 10px;">
                             <div class="body-title">Trạng thái</div>
                         </li>
-                        <li class="w-16">
-                            <div class="body-title">Thao tác</div>
+
+                        <li style="min-width: 50px; padding-left: 10px;">
+                            <div class="body-title"></div>
                         </li>
                     </ul>
 
                     <ul class="flex flex-column">
-                        @foreach ($products as $product)
-                            <li class="wg-product item-row gap10">
-                                {{-- Số thứ tự --}}
+                        @forelse($orders as $order)
+                            <li class="wg-product item-row "
+                                style="display: flex; align-items:center; border-bottom:1px solid #eee; padding: 12px;">
                                 <div class="body-text text-main-dark"
                                     style="width: 30px; text-align: center; flex-shrink: 0;">
-                                    {{ $products->firstItem() + $loop->index }}
+                                    {{ $orders->firstItem() + $loop->index }}
                                 </div>
-
-                                {{-- Ảnh + Tên --}}
-                                <div class="name flex-1 flex items-center gap10">
-                                    <div class="image w-12 h-12">
-                                        <img class="object-cover rounded"
-                                            src="{{ $product->images->first()->image_url ?? asset('images/no-image.png') }}"
-                                            alt="">
+                                <div class="body-text text-main-dark" style="min-width:120px; padding-left: 10px;">
+                                    {{ $order->order_code }}
+                                </div>
+                                <div class="body-text text-main-dark" style="min-width: 100px; padding-left: 10px;">
+                                    {{ number_format($order->total_amount, 0, ',', '.') }}₫
+                                </div>
+                                <div class="body-text text-main-dark" style="min-width: 180px; padding-left: 10px;">
+                                    <div>{{ $order->buyer_name ?? $order->shipping_name }}</div>
+                                    <div class="text-xs" style="color: #2563eb; font-weight: 500;">
+                                        {{ $order->buyer_phone ?? $order->shipping_phone }}
                                     </div>
-                                    <div class="title line-clamp-2 mb-0">
-                                        <a href="{{ route('admin.products.show', $product->id) }}" class="body-text">
-                                            {{ $product->name }}
-                                        </a>
-                                    </div>
+                                    @if ($order->buyer_name && $order->shipping_name && $order->buyer_name != $order->shipping_name)
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            Ship to: {{ $order->shipping_name }}
+                                            (<span
+                                                style="color: #2563eb; font-weight: 500;">{{ $order->shipping_phone }}</span>)
+                                        </div>
+                                    @endif
                                 </div>
-
-                                {{-- Giá --}}
-                                <div class="body-text text-main-dark mt-4 w-20">
-                                    {{ number_format($product->regular_price, 0, ',', '.') }} đ
+                                <div class="body-text text-main-dark" style="min-width: 120px; padding-left: 10px;">
+                                    {{ optional($order->created_at)->format('d/m/Y H:i') }}
                                 </div>
-
-                                {{-- Danh mục --}}
-                                <div class="body-text text-main-dark mt-4 w-24">
-                                    {{ $product->category->name ?? '-' }}
+                                <div class="body-text text-main-dark" style="min-width: 100px; padding-left: 10px;">
+                                    {{ optional($order->paymentMethod)->name ?? 'Không có' }}
                                 </div>
-
-                                {{-- Thương hiệu --}}
-                                <div class="body-text text-main-dark mt-4 w-20">
-                                    {{ $product->brand->name ?? '-' }}
+                                <div class="body-text text-main-dark" style="min-width: 120px; padding-left: 10px;">
+                                    {{ optional($order->shippingMethod)->name ?? 'Không có' }}
                                 </div>
-
-                                {{-- Tồn kho --}}
-                                <div class="body-text text-main-dark mt-4 w-14">
-                                    {{ $product->variants->sum('stock_quantity') }}
+                                <div style="min-width:120px; padding-left: 10px;">
+                                    @if ($order->order_status === 'delivered')
+                                        <span class="block-available bg-1 fw-7"
+                                            style="padding:2px 8px;border-radius:6px;">Đã giao</span>
+                                    @elseif($order->order_status === 'pending' || $order->order_status === 'pending_confirmation')
+                                        <span class="block-pending bg-1 fw-7"
+                                            style="padding:2px 8px;border-radius:6px;">Chờ
+                                            xử lý</span>
+                                    @elseif($order->order_status === 'pending_cancellation')
+                                        <span class="block-pending fw-7"
+                                            style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:6px;">Chờ
+                                            hủy</span>
+                                    @elseif($order->order_status === 'cancelled')
+                                        <span class="block-pending bg-1 fw-7"
+                                            style="background:#f87171;padding:2px 8px;border-radius:6px;">Đã hủy</span>
+                                    @elseif($order->order_status === 'processing')
+                                        <span class="block-pending bg-1 fw-7"
+                                            style="padding:2px 8px;border-radius:6px;">Đang xử lý</span>
+                                    @elseif($order->order_status === 'shipped')
+                                        <span class="block-pending bg-1 fw-7"
+                                            style="padding:2px 8px;border-radius:6px;">Đang giao hàng</span>
+                                    @elseif($order->order_status === 'returned')
+                                        <span class="block-pending bg-1 fw-7"
+                                            style="padding:2px 8px;border-radius:6px;">Đã
+                                            trả hàng</span>
+                                    @else
+                                        <span class="block-pending bg-1 fw-7" style="padding:2px 8px;border-radius:6px;">
+                                            {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
+                                        </span>
+                                    @endif
                                 </div>
-
-                                {{-- Trạng thái hiển thị --}}
-                                <div class="body-text mt-4 w-20">
-                                    <form method="POST" action="{{ route('admin.products.update', $product->id) }}"
-                                        style="display:inline;">
-                                        @csrf @method('PUT')
-                                        <select name="status" onchange="this.form.submit()" class="max-w-[120px]">
-                                            <option value="published" {{ $product->status == 'published' ? 'selected' : '' }}>
-                                                Hiển thị</option>
-                                            <option value="draft" {{ $product->status == 'draft' ? 'selected' : '' }}>Ngừng KD
-                                            </option>
-                                            <option value="archived" {{ $product->status == 'archived' ? 'selected' : '' }}>Lưu
-                                                trữ</option>
-                                        </select>
-                                    </form>
-                                </div>
-
-                                {{-- Thao tác --}}
-                                <div class="list-icon-function mt-4 w-16 flex justify-center gap6">
-                                    <a href="{{ route('admin.products.show', $product->id) }}" class="item eye"><i
-                                            class="icon-eye"></i></a>
-                                    <a href="{{ route('admin.products.edit', $product->id) }}" class="item edit"><i
-                                            class="icon-edit-3"></i></a>
+                                <div class="list-icon-function" style="padding-left: 10px;">
+                                    <a href="{{ route('admin.orders.show', $order->id) }}" class="item eye"
+                                        title="View"><i class="icon-eye"></i></a>
                                 </div>
                             </li>
-                        @endforeach
+
+                        @empty
+
+                            <li>
+                                <div class="body-text text-center py-4">Không tìm thấy đơn hàng nào.</div>
+                            </li>
+                        @endforelse
                     </ul>
                 </div>
                 <div class="divider"></div>
@@ -171,7 +237,8 @@
                         </li>
                         @foreach ($orders->getUrlRange(1, $orders->lastPage()) as $page => $url)
                             <li class="{{ $page == $orders->currentPage() ? 'active' : '' }}">
-                                <a href="{{ $page == $orders->currentPage() ? 'javascript:void(0);' : $url }}">{{ $page }}</a>
+                                <a
+                                    href="{{ $page == $orders->currentPage() ? 'javascript:void(0);' : $url }}">{{ $page }}</a>
                             </li>
                         @endforeach
                         <li>
@@ -184,12 +251,6 @@
                     </ul>
                 </div>
             </div>
-            <!-- /order-list -->
         </div>
     </div>
-
-    <!-- /order-list -->
-    </div>
-    </div>
-
 @endsection
