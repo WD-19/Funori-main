@@ -42,7 +42,7 @@
                             <div class="body-title">STT</div>
                         </li>
                         <li><div class="body-title">Sản phẩm</div></li>
-                        <li class="w-24"><div class="body-title">Giá</div></li>
+                        <li  class="w-24"><div class="body-title">Giá</div></li>
                         <li class="w-20"><div class="body-title">Tồn kho</div></li>
                         <li class="w-20"><div class="body-title">Kho</div></li>
                         <li class="w-32"><div class="body-title">Trạng thái</div></li>
