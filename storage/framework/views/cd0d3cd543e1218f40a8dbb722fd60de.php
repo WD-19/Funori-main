@@ -165,7 +165,7 @@ unset($__errorArgs, $__bag); ?>
                 </fieldset>
                 <!-- Ảnh đại diện -->
                 <fieldset>
-                    <div class="body-title">Ảnh đại diện</div>
+                    <div class="body-title">Ảnh đại diện <span class="tf-color-1">*</span></div>
                     <div class="upload-image flex-grow d-block">
                         <div class="item up-load">
                             <label class="uploadfile h250" for="featured_image_url">
@@ -200,7 +200,7 @@ unset($__errorArgs, $__bag); ?>
                     </div>
                 </fieldset>
                 <fieldset>
-                    <div class="body-title">Meta title</div>
+                    <div class="body-title">Meta title <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control <?php $__errorArgs = ['meta_title'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -222,7 +222,7 @@ endif;
 unset($__errorArgs, $__bag); ?>
                 </fieldset>
                 <fieldset>
-                    <div class="body-title">Meta description</div>
+                    <div class="body-title">Meta description <span class="tf-color-1">*</span></div>
                     <textarea class="flex-grow <?php $__errorArgs = ['meta_description'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

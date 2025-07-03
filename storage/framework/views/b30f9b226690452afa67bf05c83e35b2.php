@@ -1,6 +1,3 @@
-
-
-
 <?php $__env->startSection('title', $post->title); ?>
 
 <?php $__env->startSection('content'); ?>

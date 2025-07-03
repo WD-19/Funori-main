@@ -18,7 +18,8 @@ use App\Http\Controllers\Client\AboutController;
 //Client Controller
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
-use App\Http\Controllers\client\ClientController;
+use App\Http\Controllers\client\CartController;
+use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\client\PageController as ClientPageController;
 use App\Http\Controllers\client\ProductController as ClientProductController;
 use App\Http\Controllers\client\ContactController as ClientContactCController;
@@ -185,9 +186,21 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
+    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+    Route::delete('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 
     Route::prefix('profile')->name('profile.')->group(function () {
+    Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
+    Route::get('/order', [ProfileController::class, 'order'])->name('order');
+    Route::get('/address', [ProfileController::class, 'address'])->name('address');
+    Route::get('/account', [ProfileController::class, 'account'])->name('account');
+    Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
+    });
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('order');
         Route::get('/address', [ProfileController::class, 'address'])->name('address');
@@ -196,8 +209,9 @@ Route::prefix('/')->name('client.')->group(function () {
     });
 
 
+    
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);
     });
-});
+

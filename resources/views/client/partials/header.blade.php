@@ -88,7 +88,7 @@
             <a href="" class="box-heart">
                 <i class="fa-regular fa-heart heart"></i>
             </a>
-            <a href="" class="box-cart">
+            <a href="{{ route('client.view-cart') }}" class="box-cart">
                 <i class="fa-solid fa-cart-shopping cart"></i>
             </a>
         </div>

@@ -60,10 +60,12 @@ class PageController
             'author_id' => 'required|exists:users,id',
             'page_type' => 'required|string|max:100',
             'status' => 'required|in:draft,published',
-            'featured_image_url' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
-            'published_at' => 'required|date',
+            'featured_image_url' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'meta_title' => 'required|string|max:255',
+            'meta_description' => 'required|string|max:500',
+            'published_at' => 'required|date|before_or_equal:now',
+        ], [
+            'published_at.before_or_equal' => 'Ngày xuất bản không được vượt quá thời điểm hiện tại.',
         ]);
 
         $imagePath = null;
@@ -122,9 +124,11 @@ class PageController
             'page_type' => 'required|string|max:100',
             'status' => 'required|in:draft,published',
             'featured_image_url' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
-            'published_at' => 'nullable|date',
+            'meta_title' => 'required|string|max:255',
+            'meta_description' => 'required|string|max:500',
+            'published_at' => 'required|date|before_or_equal:now',
+        ], [
+            'published_at.before_or_equal' => 'Ngày xuất bản không được vượt quá thời điểm hiện tại.',
         ]);
 
         $imagePath = $page->featured_image_url;

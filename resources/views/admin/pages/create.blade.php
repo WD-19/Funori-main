@@ -97,7 +97,7 @@
                 </fieldset>
                 <!-- Ảnh đại diện -->
                 <fieldset>
-                    <div class="body-title">Ảnh đại diện</div>
+                    <div class="body-title">Ảnh đại diện <span class="tf-color-1">*</span></div>
                     <div class="upload-image flex-grow d-block">
                         <div class="item up-load">
                             <label class="uploadfile h250" for="featured_image_url">
@@ -118,7 +118,7 @@
                     </div>
                 </fieldset>
                 <fieldset>
-                    <div class="body-title">Meta title</div>
+                    <div class="body-title">Meta title <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('meta_title') is-invalid @enderror" type="text"
                         placeholder="Meta title" name="meta_title" id="meta_title" value="{{ old('meta_title') }}">
                     @error('meta_title')
@@ -126,7 +126,7 @@
                     @enderror
                 </fieldset>
                 <fieldset>
-                    <div class="body-title">Meta description</div>
+                    <div class="body-title">Meta description <span class="tf-color-1">*</span></div>
                     <textarea class="flex-grow @error('meta_description') is-invalid @enderror" name="meta_description"
                         id="meta_description" rows="2" placeholder="Meta description">{{ old('meta_description') }}</textarea>
                     @error('meta_description')

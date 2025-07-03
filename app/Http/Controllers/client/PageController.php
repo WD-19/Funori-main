@@ -16,7 +16,7 @@ class PageController
             ->where('status', 'published')
             ->where('page_type', 'blog_post')
             ->orderByDesc('published_at')
-            ->get();
+            ->paginate(15); // Thay get() bằng paginate(15)
 
         return view('client.page.page', compact('posts'));
     }
