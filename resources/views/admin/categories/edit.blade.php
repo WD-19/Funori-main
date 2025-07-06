@@ -3,6 +3,26 @@
 
 @section('content')
     <div class="main-content-wrap">
+        <div class="flex items-center flex-wrap justify-between gap20 mb-30">
+            <h3>Chỉnh sửa danh mục</h3>
+            <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
+                <li>
+                    <a href="{{ route('admin.dashboard') }}">
+                        <div class="text-tiny">Dashboard</div>
+                    </a>
+                </li>
+                <li><i class="icon-chevron-right"></i></li>
+                <li>
+                    <a href="{{ route('admin.categories.index') }}">
+                        <div class="text-tiny">Danh mục</div>
+                    </a>
+                </li>
+                <li><i class="icon-chevron-right"></i></li>
+                <li>
+                    <div class="text-tiny">Chỉnh sửa danh mục</div>
+                </li>
+            </ul>
+        </div>
         <div class="wg-box">
             <form class="form-new-product form-style-1" action="{{ route('admin.categories.update', $category->id) }}"
                 method="POST" enctype="multipart/form-data">
@@ -26,15 +46,9 @@
                         <select name="parent_id" id="parent_id" class="@error('parent_id') is-invalid @enderror">
                             <option value="">-- Danh mục cha --</option>
                             @foreach ($parents as $parent)
-                                <option value="{{ $parent->id }}"
-                                    @if (
-                                        (session('error') && is_null($category->parent_id) && $category->children()->count() > 0)
-                                            ? ($category->parent_id == $parent->id)
-                                            : (old('parent_id', $category->parent_id) == $parent->id)
-                                    )
-                                        selected
-                                    @endif
-                                >
+                                <option value="{{ $parent->id }}" @if (session('error') && is_null($category->parent_id) && $category->children()->count() > 0
+                                        ? $category->parent_id == $parent->id
+                                        : old('parent_id', $category->parent_id) == $parent->id) selected @endif>
                                     {{ $parent->name }}
                                 </option>
                             @endforeach
@@ -71,7 +85,7 @@
                         @enderror
                     </div>
                 </fieldset>
-                
+
                 {{-- Ảnh cũ --}}
                 @if ($category->image_url)
                     <div id="old-image-wrap" style="text-align:center;">
@@ -106,11 +120,17 @@
                     <input type="text" class="form-control" value="{{ $category->updated_at }}" readonly>
                 </fieldset>
 
-                <div class="bot">
-                    <div></div>
-                    <button class="tf-button w208" type="submit">Cập nhật</button>
-                    <a href="{{ route('admin.categories.index') }}" class="tf-button w208"
-                        style="background-color: #6c757d;">Quay lại</a>
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <button type="submit" class="tf-button w-100 py-3 fs-5">
+                            <i class="bi bi-pencil-square me-1"></i> Cập nhật
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ route('admin.categories.index') }}" class="tf-button style-3 w-100 py-3 fs-5">
+                            <i class="bi bi-list me-1"></i> Danh sách
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -125,6 +145,5 @@
                 .trim().replace(/\s+/g, '-');
             document.getElementById('slug').value = slug;
         });
-
     </script>
 @endsection

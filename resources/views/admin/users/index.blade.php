@@ -7,7 +7,9 @@
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <a href="{{ route('admin.users.index') }}"><h3>All User</h3></a>
+                <a href="{{ route('admin.users.index') }}">
+                    <h3>Đanh sách người dùng</h3>
+                </a>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="index.html">
@@ -19,14 +21,14 @@
                     </li>
                     <li>
                         <a href="#">
-                            <div class="text-tiny">User</div>
+                            <div class="text-tiny">Người dùng</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">All User</div>
+                        <div class="text-tiny">Danh sách người dùng</div>
                     </li>
                 </ul>
             </div>
@@ -36,25 +38,29 @@
                     <div class="wg-filter flex-grow">
                         <form class="form-search" method="GET" action="{{ route('admin.users.index') }}">
                             <fieldset class="name">
-                                <input type="text" placeholder="Search here..." class="" name="name"
+                                <input type="text" placeholder="Nhập tên người dùng..." class="" name="name"
                                     value="{{ request('name') }}">
                             </fieldset>
                             <div class="button-submit">
                                 <button class="" type="submit"><i class="icon-search"></i></button>
                             </div>
                         </form>
-                         <form class="flex items-center gap10" method="GET" action="{{ route('admin.users.index') }}" id="filterForm" style="margin-left: 10px;">
-                            <select name="filter" class="form-select" style="margin-bottom:0; width: 180px; font-size: 14px; padding: 4px 8px;" onchange="document.getElementById('filterForm').submit();">
-                                <option value="">-- Tất cả --</option>
+                        <form class="flex items-center" method="GET" action="{{ route('admin.users.index') }}"
+                            id="filterForm" style="margin-left: 10px;">
+                            <select name="filter" onchange="document.getElementById('filterForm').submit();">
+                                <option value="">Tất cả</option>
                                 <option value="admin" {{ request('filter') == 'admin' ? 'selected' : '' }}>Admin</option>
                                 <option value="user" {{ request('filter') == 'user' ? 'selected' : '' }}>User</option>
                                 <option value="active" {{ request('filter') == 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="inactive" {{ request('filter') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                <option value="banned" {{ request('filter') == 'banned' ? 'selected' : '' }}>Banned</option>
+                                <option value="inactive" {{ request('filter') == 'inactive' ? 'selected' : '' }}>Inactive
+                                </option>
+                                <option value="banned" {{ request('filter') == 'banned' ? 'selected' : '' }}>Banned
+                                </option>
                             </select>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}"><i class="icon-plus"></i>Thêm tài khoản</a>
+                    <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}"><i class="icon-plus"></i>Thêm
+                        tài khoản</a>
                 </div>
                 <div class="wg-table table-all-user">
                     @php
@@ -80,7 +86,7 @@
                     @endphp
 
                     <ul class="table-title flex gap20 mb-14">
-                         <li>
+                        <li>
                             <div class="body-title">ID</div>
                         </li>
                         <li>
@@ -113,7 +119,6 @@
 
                     <ul class="flex flex-column">
                         @foreach ($users as $user)
-                        
                             <li class="wg-product item-row">
                                 <div class="body-text">{{ $user->id }}</div>
 
@@ -162,17 +167,19 @@
                                         <a style="color:orange " href="{{ route('admin.users.show', $user->id) }}"> <i
                                                 class="icon-eye"></i></a>
                                     </div>
+                                    
                                     <div class="item edit">
-                                         @php
+                                        @php
                                             $isSelf = auth()->id() == $user->id;
                                             $isEditingAdmin = $user->role === 'admin';
                                         @endphp
 
-                                        @if($isEditingAdmin && !$isSelf)
-                                            <i class="fa fa-edit" style="color: #28a745; opacity: 0.4; cursor: not-allowed;" title="Không thể chỉnh sửa admin khác"></i>
+                                        @if ($isEditingAdmin && !$isSelf)
+                                            <i class="icon-edit-3" style="color: #28a745; opacity: 0.4; cursor: not-allowed;"
+                                                title="Không thể chỉnh sửa admin khác"></i>
                                         @else
                                             <a href="{{ route('admin.users.edit', $user->id) }}" title="Chỉnh sửa">
-                                                <i class="fa fa-edit" style="color: #28a745;"></i>
+                                                <i class="icon-edit-3" style="color: #28a745;"></i>
                                             </a>
                                         @endif
                                     </div>
@@ -180,7 +187,6 @@
                             </li>
                         @endforeach
                     </ul>
-
 
                 </div>
                 <div class="divider"></div>
@@ -191,25 +197,25 @@
                     <ul class="wg-pagination">
                         <li>
                             @if ($users->onFirstPage())
-                            <span><i class="icon-chevron-left"></i></span>
+                                <span><i class="icon-chevron-left"></i></span>
                             @else
-                            <a href="{{ $users->previousPageUrl() }}"><i class="icon-chevron-left"></i></a>
+                                <a href="{{ $users->previousPageUrl() }}"><i class="icon-chevron-left"></i></a>
                             @endif
                         </li>
                         @foreach ($users->getUrlRange(1, $users->lastPage()) as $page => $url)
-                        <li class="{{ $page == $users->currentPage() ? 'active' : '' }}">
-                            @if ($page == $users->currentPage())
-                            <span>{{ $page }}</span>
-                            @else
-                            <a href="{{ $url }}">{{ $page }}</a>
-                            @endif
-                        </li>
+                            <li class="{{ $page == $users->currentPage() ? 'active' : '' }}">
+                                @if ($page == $users->currentPage())
+                                    <span>{{ $page }}</span>
+                                @else
+                                    <a href="{{ $url }}">{{ $page }}</a>
+                                @endif
+                            </li>
                         @endforeach
                         <li>
                             @if ($users->hasMorePages())
-                            <a href="{{ $users->nextPageUrl() }}"><i class="icon-chevron-right"></i></a>
+                                <a href="{{ $users->nextPageUrl() }}"><i class="icon-chevron-right"></i></a>
                             @else
-                            <span><i class="icon-chevron-right"></i></span>
+                                <span><i class="icon-chevron-right"></i></span>
                             @endif
                         </li>
                     </ul>
@@ -219,6 +225,6 @@
         </div>
         <!-- /main-content-wrap -->
     </div>
-                                   
+
 
 @endsection

@@ -29,6 +29,10 @@ class ReviewController
                 });
             });
         }
+        // Lọc theo rating
+        if ($request->filled('rating')) {
+            $query->where('rating', $request->rating);
+        }
 
         // Lọc theo status
         if ($request->filled('status')) {
