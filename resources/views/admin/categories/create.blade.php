@@ -3,6 +3,7 @@
 
 @section('content')
     <div class="main-content-wrap">
+
         <div class="flex items-center flex-wrap justify-between gap20 mb-30">
             <h3>Thêm danh mục</h3>
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
@@ -94,11 +95,17 @@
                         @enderror
                     </div>
                 </fieldset>
-                <div class="bot">
-                    <div></div>
-                    <button class="tf-button w208" type="submit">Tạo</button>
-                    <a href="{{ route('admin.categories.index') }}" class="tf-button w208"
-                        style="background-color: #6c757d;">Quay lại</a>
+                <div class="row mt-5">
+                    <div class="col-md-6 mb-2">
+                        <button type="submit" class="tf-button w-100 py-3 fs-5">
+                            <i class="bi bi-pencil-square me-1"></i> Thêm Mới
+                        </button>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <a href="{{ route('admin.categories.index') }}" class="tf-button style-3 w-100 py-3 fs-5">
+                            <i class="bi bi-list me-1"></i> Danh sách
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>

@@ -265,11 +265,17 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                 </fieldset>
-                <div class="bot">
-                    <div></div>
-                    <button class="tf-button w208" type="submit">Tạo trang</button>
-                    <a href="<?php echo e(route('admin.pages.index')); ?>" class="tf-button w208"
-                        style="background-color: #6c757d;">Quay lại</a>
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <button type="submit" class="tf-button w-100 py-3 fs-5">
+                            <i class="bi bi-pencil-square me-1"></i> Thêm mới
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="<?php echo e(route('admin.pages.index')); ?>" class="tf-button style-3 w-100 py-3 fs-5">
+                            <i class="bi bi-list me-1"></i> Danh sách
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -299,58 +305,45 @@ unset($__errorArgs, $__bag); ?>
             }
         });
     </script>
-
-    
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <?php $__env->startPush('scripts'); ?>
+        <script src="https://cdn.tiny.cloud/1/hs04m6101y0gorgukhuffqutjnhs52o68gb16y52y7nvuj6u/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
         <script>
-            ClassicEditor
-                .create(document.querySelector('#content'), {
-                    simpleUpload: {
-                        uploadUrl: '<?php echo e(route('admin.pages.upload-image')); ?>', // Đảm bảo route đúng
-                        withCredentials: true, // Cho phép gửi cookie/CSRF token
+            tinymce.init({
+                selector: '#content',
+                plugins: 'image media link table lists advlist',
+                toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
+                height: 400,
+                menubar: false,
+                images_upload_url: '<?php echo e(route('admin.pages.upload-image')); ?>',
+                images_upload_credentials: true,
+                images_upload_handler: async (blobInfo, progress) => {
+                    let formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    formData.append('_token', '<?php echo e(csrf_token()); ?>');
+
+                    const response = await fetch('<?php echo e(route('admin.pages.upload-image')); ?>', {
+                        method: 'POST',
+                        body: formData,
                         headers: {
-                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>', // Token CSRF từ Laravel
-                            'Accept': 'application/json' // Đảm bảo server trả về JSON
+                            'Accept': 'application/json'
                         }
-                    },
-                    toolbar: {
-                        items: [
-                            'heading', '|',
-                            'bold', 'italic', 'underline', 'strikethrough', '|',
-                            'link', 'imageUpload', 'mediaEmbed', 'insertTable', '|',
-                            'bulletedList', 'numberedList', 'blockQuote', '|',
-                            'fontSize', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
-                            'alignment', 'indent', 'outdent', '|',
-                            'undo', 'redo'
-                        ]
-                    },
-                    image: {
-                        toolbar: [
-                            'imageStyle:inline',
-                            'imageStyle:block',
-                            'imageStyle:side',
-                            'linkImage',
-                            'imageResize'
-                        ]
-                    },
-                    table: {
-                        contentToolbar: [
-                            'tableColumn', 'tableRow', 'mergeTableCells'
-                        ]
+                    });
+                    const json = await response.json();
+                    if (!json.location) {
+                        throw new Error('Tải ảnh thất bại: ' + (json.error || 'Lỗi không xác định'));
                     }
-                })
-                .then(editor => {
-                    console.log('Editor initialized:', editor);
-                })
-                .catch(error => {
-                    console.error('Error initializing editor:', error);
-                });
+                    return json.location;
+                },
+                readonly: false,
+                image_caption: true,
+                image_advtab: true,
+                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
+            });
         </script>
     <?php $__env->stopPush(); ?>
     <?php $__env->startPush('head'); ?>
         <style>
-            .ck-editor__editable {
+            .tox-tinymce {
                 min-height: 300px;
                 max-height: 600px;
                 overflow-y: auto;
@@ -359,36 +352,22 @@ unset($__errorArgs, $__bag); ?>
                 word-break: break-word;
                 overflow-wrap: break-word;
                 max-width: 100%;
+                border: 1px solid #ccc;
+                border-radius: 4px;
             }
-
-            .ck-editor__main {
-                width: 100%;
-                padding: 10px;
-            }
-
             .wg-box {
                 width: 100%;
                 overflow-x: hidden;
             }
-
             .form-new-product {
                 max-width: 100%;
             }
-
             .ck-editor-container {
                 width: 100%;
                 max-width: 100%;
                 margin-bottom: 15px;
             }
-
-            .ck-editor__editable,
-            .ck-editor__main {
-                position: relative !important;
-                float: none !important;
-                width: 100% !important;
-            }
         </style>
     <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('admin.layout.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\Funori-main\resources\views/admin/pages/create.blade.php ENDPATH**/ ?>

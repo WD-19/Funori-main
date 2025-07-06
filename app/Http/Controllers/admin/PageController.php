@@ -174,25 +174,21 @@ class PageController
      */
     public function uploadImage(Request $request)
     {
-        $request->validate([
-            'upload' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
-        ]);
-
-        if ($request->hasFile('upload')) {
-            $file = $request->file('upload');
-            $path = $file->store('uploads/pages', 'public');
-            $url = asset('storage/' . $path);
-
-            return response()->json([
-                'uploaded' => 1,
-                'fileName' => $file->getClientOriginalName(),
-                'url' => $url
+        try {
+            $request->validate([
+                'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
             ]);
-        }
 
-        return response()->json([
-            'uploaded' => 0,
-            'error' => ['message' => 'No file uploaded or invalid file.']
-        ], 400);
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $path = $file->store('uploads/pages', 'public');
+                $url = asset('storage/' . $path);
+                return response()->json(['location' => $url]);
+            }
+
+            return response()->json(['error' => 'Không có file được tải lên hoặc file không hợp lệ.'], 400);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Tải file thất bại: ' . $e->getMessage()], 500);
+        }
     }
 }

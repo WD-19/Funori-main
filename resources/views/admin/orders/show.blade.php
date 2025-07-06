@@ -18,9 +18,13 @@
                         </a>
                     </li>
                     <li><i class="icon-chevron-right"></i></li>
-                    <li><div class="text-tiny">Chi tiết đơn hàng</div></li>
+                    <li>
+                        <div class="text-tiny">Chi tiết đơn hàng</div>
+                    </li>
                     <li><i class="icon-chevron-right"></i></li>
-                    <li><div class="text-tiny">#{{ $order->order_code }}</div></li>
+                    <li>
+                        <div class="text-tiny">#{{ $order->order_code }}</div>
+                    </li>
                 </ul>
             </div>
 
@@ -40,15 +44,19 @@
                                         <div class="name">
                                             <div class="image">
                                                 @php
-                                                    $imageUrl = optional(optional($item->product)->images->first())->image_url;
+                                                    $imageUrl = optional(optional($item->product)->images->first())
+                                                        ->image_url;
                                                 @endphp
-                                                <img src="{{ $imageUrl ? asset($imageUrl) : asset('images/products/default.jpg') }}" alt="">
+                                                <img src="{{ $imageUrl ? asset($imageUrl) : asset('images/products/default.jpg') }}"
+                                                    alt="">
                                             </div>
                                             <div>
                                                 <div class="text-tiny">Tên sản phẩm</div>
                                                 <div class="title">
-                                                    <a href="#" class="body-title-2">{{ $item->product->name ?? 'Không xác định' }}</a>
-                                                    <span class="body-text" style="margin-left: 10px;">({{ number_format($item->price ?? optional($item->product)->regular_price ?? 0, 0, ',', '.') }}₫)</span>
+                                                    <a href="#"
+                                                        class="body-title-2">{{ $item->product->name ?? 'Không xác định' }}</a>
+                                                    <span class="body-text"
+                                                        style="margin-left: 10px;">({{ number_format($item->price ?? (optional($item->product)->regular_price ?? 0), 0, ',', '.') }}₫)</span>
                                                 </div>
                                                 {{-- Hiển thị biến thể nếu có --}}
                                                 @php
@@ -58,18 +66,25 @@
                                                         $variantAttrs = json_decode($variantAttrs, true);
                                                     }
                                                 @endphp
-                                                @if(!empty($variantAttrs) && is_array($variantAttrs))
+                                                @if (!empty($variantAttrs) && is_array($variantAttrs))
                                                     <div class="text-tiny" style="color:#888;">
-                                                        @foreach($variantAttrs as $attr => $val)
-                                                            <span>{{ $attr }}: {{ $val }}</span>@if(!$loop->last), @endif
+                                                        @foreach ($variantAttrs as $attr => $val)
+                                                            <span>{{ $attr }}: {{ $val }}</span>
+                                                            @if (!$loop->last)
+                                                                ,
+                                                            @endif
                                                         @endforeach
                                                     </div>
                                                 @elseif($item->product_variant_id && $item->productVariant && isset($item->productVariant->attributeValues))
                                                     <div class="text-tiny" style="color:#888;">
-                                                        @foreach($item->productVariant->attributeValues as $attrValue)
+                                                        @foreach ($item->productVariant->attributeValues as $attrValue)
                                                             <span>
-                                                                {{ $attrValue->attribute->name ?? '' }}: {{ $attrValue->value ?? '' }}
-                                                            </span>@if(!$loop->last), @endif
+                                                                {{ $attrValue->attribute->name ?? '' }}:
+                                                                {{ $attrValue->value ?? '' }}
+                                                            </span>
+                                                            @if (!$loop->last)
+                                                                ,
+                                                            @endif
                                                         @endforeach
                                                     </div>
                                                 @endif
@@ -87,34 +102,58 @@
                         </div>
                     </div>
 
-                    <div class="wg-box">
+                    <div class="wg-box mb-20 gap10">
                         <div class="wg-table table-cart-totals">
                             <ul class="table-title flex mb-24">
-                                <li><div class="body-title">Thông tin đơn hàng</div></li>
-                                <li><div class="body-title">Giá</div></li>
+                                <li>
+                                    <div class="body-title">Thông tin đơn hàng</div>
+                                </li>
+                                <li>
+                                    <div class="body-title">Giá</div>
+                                </li>
                             </ul>
                             <ul class="flex flex-column gap14">
                                 <li class="divider"></li>
                                 <li class="cart-totals-item">
                                     <span class="body-text">Phí vận chuyển:</span>
-                                    <span class="body-title-2">{{ number_format($order->shipping_fee, 0, ',', '.') }}₫</span>
+                                    <span
+                                        class="body-title-2">{{ number_format($order->shipping_fee, 0, ',', '.') }}₫</span>
                                 </li>
                                 @if ($order->discount_amount)
                                     <li class="divider"></li>
                                     <li class="cart-totals-item">
                                         <span class="body-text">Giảm giá:</span>
-                                        <span class="body-title-2">- {{ number_format($order->discount_amount, 0, ',', '.') }}₫</span>
+                                        <span class="body-title-2">-
+                                            {{ number_format($order->discount_amount, 0, ',', '.') }}₫</span>
                                     </li>
                                 @endif
                                 <li class="divider"></li>
-                                
+
                                 <li class="divider"></li>
                                 <li class="cart-totals-item">
                                     <span class="body-title">Tổng cộng:</span>
-                                    <span class="body-title tf-color-1">{{ number_format($order->total_amount, 0, ',', '.') }}₫</span>
+                                    <span
+                                        class="body-title tf-color-1">{{ number_format($order->total_amount, 0, ',', '.') }}₫</span>
                                 </li>
                             </ul>
                         </div>
+                    </div>
+
+                    <div class="wg-box mb-20 gap10">
+                        <div class="body-title">Phương thức thanh toán</div>
+                        <div class="body-text">{{ $order->paymentMethod->name ?? ($order->payment_method ?? 'Không rõ') }}
+                        </div>
+                    </div>
+
+                    <div class="wg-box mb-20 gap10">
+                        <div class="body-title">Phương thức vận chuyển</div>
+                        <div class="body-text">
+                            {{ $order->shippingMethod->name ?? ($order->shipping_method ?? 'Không rõ') }}</div>
+                    </div>
+
+                    <div class="wg-box gap10">
+                        <a class="tf-button style-1 w-full" href="{{ route('admin.orders.tracking', $order->id) }}"><i
+                                class="icon-truck"></i> Theo dõi đơn hàng</a>
                     </div>
                 </div>
 
@@ -135,17 +174,20 @@
                                 @elseif($order->order_status === 'cancelled')
                                     <span class="block-pending bg-1 fw-7" style="background:#f87171">Đã hủy</span>
                                 @else
-                                    <span class="block-pending bg-1 fw-7">{{ ucfirst(str_replace('_', ' ', $order->order_status)) }}</span>
+                                    <span
+                                        class="block-pending bg-1 fw-7">{{ ucfirst(str_replace('_', ' ', $order->order_status)) }}</span>
                                 @endif
                             </div>
                         </div>
                         <div class="summary-item">
                             <div class="body-text">Ngày đặt</div>
-                            <div class="body-title-2">{{ $order->ordered_at ? $order->ordered_at->format('d/m/Y H:i') : '-' }}</div>
+                            <div class="body-title-2">
+                                {{ $order->ordered_at ? $order->ordered_at->format('d/m/Y H:i') : '-' }}</div>
                         </div>
                         <div class="summary-item">
                             <div class="body-text">Tổng cộng</div>
-                            <div class="body-title-2 tf-color-1">{{ number_format($order->total_amount, 0, ',', '.') }}₫</div>
+                            <div class="body-title-2 tf-color-1">{{ number_format($order->total_amount, 0, ',', '.') }}₫
+                            </div>
                         </div>
                         @if ($order->customer_note)
                             <div class="summary-item">
@@ -162,16 +204,6 @@
                     </div>
 
                     <div class="wg-box mb-20 gap10">
-                        <div class="body-title">Địa chỉ giao hàng</div>
-                        <div class="body-text">{{ $order->shipping_address }}</div>
-                        <div class="body-text" style="margin-top:8px;">
-                            <b>Họ tên người nhận:</b> {{ $order->shipping_name ?? $order->buyer_name ?? '-' }}<br>
-                            <b>SĐT người nhận:</b> {{ $order->shipping_phone ?? $order->buyer_phone ?? '-' }}<br>
-                            <b>Email người nhận:</b> {{ $order->shipping_email ?? $order->buyer_email ?? '-' }}
-                        </div>
-                    </div>
-
-                    <div class="wg-box mb-20 gap10">
                         <div class="body-title">Thông tin người đặt hàng</div>
                         <div class="body-text">
                             <b>Họ tên:</b> {{ $order->buyer_name ?? '-' }}<br>
@@ -182,24 +214,28 @@
                     </div>
 
                     <div class="wg-box mb-20 gap10">
-                        <div class="body-title">Phương thức thanh toán</div>
-                        <div class="body-text">{{ $order->paymentMethod->name ?? ($order->payment_method ?? 'Không rõ') }}</div>
-                    </div>
-
-                    <div class="wg-box mb-20 gap10">
-                        <div class="body-title">Phương thức vận chuyển</div>
-                        <div class="body-text">{{ $order->shippingMethod->name ?? ($order->shipping_method ?? 'Không rõ') }}</div>
+                        <div class="body-title">Địa chỉ giao hàng</div>
+                        <div class="body-text">{{ $order->shipping_address }}</div>
+                        <div class="body-text" style="margin-top:8px;">
+                            <b>Họ tên người nhận:</b> {{ $order->shipping_name ?? ($order->buyer_name ?? '-') }}<br>
+                            <b>SĐT người nhận:</b> {{ $order->shipping_phone ?? ($order->buyer_phone ?? '-') }}<br>
+                            <b>Email người nhận:</b> {{ $order->shipping_email ?? ($order->buyer_email ?? '-') }}
+                        </div>
                     </div>
 
                     <div class="wg-box gap10">
-                       
-                        <a class="tf-button style-1 w-full" href="{{ route('admin.orders.tracking', $order->id) }}"><i class="icon-truck"></i> Theo dõi đơn hàng</a>
-                        <a class="tf-button w-full" target="_blank" href="{{ route('admin.orders.printInvoice', $order->id) }}"><i class="icon-file-text"></i> In hóa đơn</a>
-                        <a class="tf-button w-full" target="_blank" href="{{ route('admin.orders.printShipping', $order->id) }}"><i class="icon-file-text"></i> In phiếu giao hàng</a>
-                        @if($order->order_status === 'pending_cancellation')
-                        <button type="button" class="tf-button w-full style-2 mt-2" data-bs-toggle="modal" data-bs-target="#modalCancelOrder">
-                            Xác nhận hủy đơn
-                        </button>
+                        <a class="tf-button w-full" target="_blank"
+                            href="{{ route('admin.orders.printInvoice', $order->id) }}"><i class="icon-file-text"></i> In
+                            hóa đơn</a>
+                        <a class="tf-button w-full" target="_blank"
+                            href="{{ route('admin.orders.printShipping', $order->id) }}"><i class="icon-file-text"></i>
+                            In
+                            phiếu giao hàng</a>
+                        @if ($order->order_status === 'pending_cancellation')
+                            <button type="button" class="tf-button w-full style-2 mt-2" data-bs-toggle="modal"
+                                data-bs-target="#modalCancelOrder">
+                                Xác nhận hủy đơn
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -208,39 +244,42 @@
         </div>
     </div>
     <!-- Modal xác nhận hủy đơn -->
-    @if($order->order_status === 'pending_cancellation')
-    <div class="modal fade" id="modalCancelOrder" tabindex="-1" aria-labelledby="modalCancelOrderLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <form method="POST" action="{{ route('admin.orders.processCancel', $order->id) }}">
-            @csrf
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="modalCancelOrderLabel">Xác nhận hủy đơn hàng #{{ $order->order_code }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-              </div>
-              <div class="modal-body">
-                <div class="mb-3">
-                    <label for="cancellation_reason" class="form-label">Lý do hủy đơn (bắt buộc):</label>
-                    <textarea name="cancellation_reason" id="cancellation_reason" class="form-control" required rows="2">{{ old('cancellation_reason', $order->cancellation_reason) }}</textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="admin_note_cancel" class="form-label">Ghi chú của quản trị viên (không bắt buộc):</label>
-                    <textarea name="admin_note_cancel" id="admin_note_cancel" class="form-control" rows="2">{{ old('admin_note_cancel') }}</textarea>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="submit" name="action" value="approve" class="btn btn-danger">Duyệt hủy & trả tồn kho</button>
-                <button type="submit" name="action" value="reject" class="btn btn-secondary">Từ chối hủy</button>
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
-              </div>
+    @if ($order->order_status === 'pending_cancellation')
+        <div class="modal fade" id="modalCancelOrder" tabindex="-1" aria-labelledby="modalCancelOrderLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="POST" action="{{ route('admin.orders.processCancel', $order->id) }}">
+                    @csrf
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalCancelOrderLabel">Xác nhận hủy đơn hàng
+                                #{{ $order->order_code }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="cancellation_reason" class="form-label">Lý do hủy đơn (bắt buộc):</label>
+                                <textarea name="cancellation_reason" id="cancellation_reason" class="form-control" required rows="2">{{ old('cancellation_reason', $order->cancellation_reason) }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="admin_note_cancel" class="form-label">Ghi chú của quản trị viên (không bắt
+                                    buộc):</label>
+                                <textarea name="admin_note_cancel" id="admin_note_cancel" class="form-control" rows="2">{{ old('admin_note_cancel') }}</textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" name="action" value="approve" class="btn btn-danger">Duyệt hủy & trả
+                                tồn kho</button>
+                            <button type="submit" name="action" value="reject" class="btn btn-secondary">Từ chối
+                                hủy</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-        </form>
-      </div>
-    </div>
+        </div>
     @endif
 @endsection
 @push('scripts')
-<script>
-
-</script>
+    <script></script>
 @endpush

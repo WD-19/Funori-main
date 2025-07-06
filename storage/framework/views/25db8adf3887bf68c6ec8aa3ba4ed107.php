@@ -16,12 +16,13 @@
         
         <div class="box-content-blog">
             <style>
-                /* CSS banner */
+                /* Banner */
                 .custom-banner {
                     width: 100%;
                     position: relative;
                     overflow: hidden;
-                    border-radius: 12px;
+                    /* border-radius: 12px; */
+                    /* Bỏ bo góc */
                     margin-bottom: 40px;
                 }
 
@@ -37,6 +38,8 @@
                     height: 100%;
                     object-fit: cover;
                     transition: transform 0.5s ease;
+                    /* border-radius: 0; */
+                    /* Không cần bo góc */
                 }
 
                 .banner-image:hover img {
@@ -74,7 +77,8 @@
 
                 .blog-card {
                     background: #fff;
-                    border-radius: 14px;
+                    /* border-radius: 14px; */
+                    /* Bỏ bo góc */
                     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
                     overflow: hidden;
                     display: flex;
@@ -95,6 +99,11 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    /* border-radius: 16px 16px 0 0; */
+                    /* Bỏ bo góc */
+                    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+                    position: relative;
+                    transition: box-shadow 0.2s;
                 }
 
                 .blog-card-img-wrap img {
@@ -102,6 +111,9 @@
                     height: 100%;
                     object-fit: cover;
                     display: block;
+                    /* border-radius: 16px 16px 0 0; */
+                    /* Bỏ bo góc */
+                    transition: transform 0.3s;
                 }
 
                 .blog-card-body {
@@ -198,7 +210,7 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border-radius: 16px 16px 0 0;
+                    /* border-radius: 16px 16px 0 0; */
                     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
                     position: relative;
                     transition: box-shadow 0.2s;
@@ -209,7 +221,7 @@
                     height: 100%;
                     object-fit: cover;
                     display: block;
-                    border-radius: 16px 16px 0 0;
+                    /* border-radius: 16px 16px 0 0; */
                     transition: transform 0.3s;
                 }
 
@@ -242,6 +254,7 @@
                     color: #888;
                     margin-top: 1px;
                 }
+                
             </style>
 
         </div>

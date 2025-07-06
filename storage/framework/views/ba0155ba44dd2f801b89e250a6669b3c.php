@@ -1,5 +1,25 @@
 <?php $__env->startSection('content'); ?>
     <div class="main-content-wrap">
+        <div class="flex items-center flex-wrap justify-between gap20 mb-30">
+            <h3>Chỉnh sửa danh mục</h3>
+            <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
+                <li>
+                    <a href="<?php echo e(route('admin.dashboard')); ?>">
+                        <div class="text-tiny">Dashboard</div>
+                    </a>
+                </li>
+                <li><i class="icon-chevron-right"></i></li>
+                <li>
+                    <a href="<?php echo e(route('admin.categories.index')); ?>">
+                        <div class="text-tiny">Danh mục</div>
+                    </a>
+                </li>
+                <li><i class="icon-chevron-right"></i></li>
+                <li>
+                    <div class="text-tiny">Chỉnh sửa danh mục</div>
+                </li>
+            </ul>
+        </div>
         <div class="wg-box">
             <form class="form-new-product form-style-1" action="<?php echo e(route('admin.categories.update', $category->id)); ?>"
                 method="POST" enctype="multipart/form-data">
@@ -44,15 +64,9 @@ endif;
 unset($__errorArgs, $__bag); ?>">
                             <option value="">-- Danh mục cha --</option>
                             <?php $__currentLoopData = $parents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $parent): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($parent->id); ?>"
-                                    <?php if(
-                                        (session('error') && is_null($category->parent_id) && $category->children()->count() > 0)
-                                            ? ($category->parent_id == $parent->id)
-                                            : (old('parent_id', $category->parent_id) == $parent->id)
-                                    ): ?>
-                                        selected
-                                    <?php endif; ?>
-                                >
+                                <option value="<?php echo e($parent->id); ?>" <?php if(session('error') && is_null($category->parent_id) && $category->children()->count() > 0
+                                        ? $category->parent_id == $parent->id
+                                        : old('parent_id', $category->parent_id) == $parent->id): ?> selected <?php endif; ?>>
                                     <?php echo e($parent->name); ?>
 
                                 </option>
@@ -111,7 +125,7 @@ endif;
 unset($__errorArgs, $__bag); ?>
                     </div>
                 </fieldset>
-                
+
                 
                 <?php if($category->image_url): ?>
                     <div id="old-image-wrap" style="text-align:center;">
@@ -160,11 +174,17 @@ unset($__errorArgs, $__bag); ?>
                     <input type="text" class="form-control" value="<?php echo e($category->updated_at); ?>" readonly>
                 </fieldset>
 
-                <div class="bot">
-                    <div></div>
-                    <button class="tf-button w208" type="submit">Cập nhật</button>
-                    <a href="<?php echo e(route('admin.categories.index')); ?>" class="tf-button w208"
-                        style="background-color: #6c757d;">Quay lại</a>
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <button type="submit" class="tf-button w-100 py-3 fs-5">
+                            <i class="bi bi-pencil-square me-1"></i> Cập nhật
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="<?php echo e(route('admin.categories.index')); ?>" class="tf-button style-3 w-100 py-3 fs-5">
+                            <i class="bi bi-list me-1"></i> Danh sách
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -179,7 +199,6 @@ unset($__errorArgs, $__bag); ?>
                 .trim().replace(/\s+/g, '-');
             document.getElementById('slug').value = slug;
         });
-
     </script>
 <?php $__env->stopSection(); ?>
 

@@ -341,7 +341,7 @@
                                             <!-- End Quick View Modal for Category Parent -->
 
                                             <div class="item edit">
-                                                <a href="<?php echo e(route('admin.categories.edit', $category->id)); ?>"><i
+                                                <a href="<?php echo e(route('admin.categories.edit', $category->id)); ?>" class="item edit"><i
                                                         class="icon-edit-3"></i></a>
                                             </div>
                                             <form action="<?php echo e(route('admin.categories.destroy', $category->id)); ?>"

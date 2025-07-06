@@ -35,6 +35,12 @@
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
+                        <div class="text-tiny">Trang</div>
+                    </li>
+                    <li>
+                        <i class="icon-chevron-right"></i>
+                    </li>
+                    <li>
                         <div class="text-tiny">Tất cả trang</div>
                     </li>
                 </ul>
@@ -142,7 +148,7 @@
                                         
 
                                         <div class="item edit">
-                                            <a href="<?php echo e(route('admin.pages.edit', $page->id)); ?>"><i
+                                            <a href="<?php echo e(route('admin.pages.edit', $page->id)); ?>" class="item edit"><i
                                                     class="icon-edit-3"></i></a>
                                         </div>
                                         <form action="<?php echo e(route('admin.pages.destroy', $page->id)); ?>" method="POST"

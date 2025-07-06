@@ -337,7 +337,7 @@
                                             <!-- End Quick View Modal for Category Parent -->
 
                                             <div class="item edit">
-                                                <a href="{{ route('admin.categories.edit', $category->id) }}"><i
+                                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="item edit"><i
                                                         class="icon-edit-3"></i></a>
                                             </div>
                                             <form action="{{ route('admin.categories.destroy', $category->id) }}"

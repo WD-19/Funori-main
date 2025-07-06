@@ -39,13 +39,23 @@
                             </fieldset>
                             <fieldset>
                                 <select name="status">
-                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="">Trạng thái</option>
                                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Chờ duyệt
                                     </option>
                                     <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
                                         Đã duyệt</option>
                                     <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
                                         Từ chối</option>
+                                </select>
+                            </fieldset>
+                            <fieldset>
+                                <select name="rating">
+                                    <option value="">Đánh giá</option>
+                                    <option value="1" {{ request('rating') == '1' ? 'selected' : '' }}>1 sao</option>
+                                    <option value="2" {{ request('rating') == '2' ? 'selected' : '' }}>2 sao</option>
+                                    <option value="3" {{ request('rating') == '3' ? 'selected' : '' }}>3 sao</option>
+                                    <option value="4" {{ request('rating') == '4' ? 'selected' : '' }}>4 sao</option>
+                                    <option value="5" {{ request('rating') == '5' ? 'selected' : '' }}>5 sao</option>
                                 </select>
                             </fieldset>
                             <div class="button-submit">
@@ -72,12 +82,6 @@
                             <div class="body-title">Đánh giá</div>
                         </li>
                         <li>
-                            <div class="body-title">Bình luận</div>
-                        </li>
-                        <li>
-                            <div class="body-title">Phản hồi Admin</div>
-                        </li>
-                        <li>
                             <div class="body-title">Trạng thái</div>
                         </li>
                         <li>
@@ -101,14 +105,6 @@
                                     <span class="badge" style="background: #ffc107; color: #111; font-weight: bold;">
                                         ★ {{ $value->rating ?? 'N/A' }}
                                     </span>
-                                </div>
-                                {{-- Comment --}}
-                                <div class="body-text text-main-dark mt-4">
-                                    {{ Str::limit($value->comment, 30) }}
-                                </div>
-                                {{-- Admin Reply --}}
-                                <div class="body-text text-main-dark mt-4">
-                                    {{ Str::limit($value->admin_reply, 30) ?? '-' }}
                                 </div>
                                 {{-- Status --}}
                                 <div class="body-text text-main-dark mt-4">

@@ -18,6 +18,8 @@ class Category extends Model
         'is_active',
     ];
 
+    protected $table = 'categories';
+
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
