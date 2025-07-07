@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 use App\Models\Product;
+use App\Models\Wishlist;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -85,5 +86,18 @@ class AppServiceProvider extends ServiceProvider
 });
 
 
+        PaginationPaginator::useBootstrapFive();
+        View::composer('*', function ($view) {
+            $wishlistCount = 0;
+            $wishlistItems = collect();
+            if (Auth::check()) {
+                $wishlist = Auth::user()->wishlist;
+                if ($wishlist) {
+                    $wishlistItems = $wishlist->items()->with('product.images')->get();
+                    $wishlistCount = $wishlistItems->count();
+                }
+            }
+            $view->with('headerWishlistCount', $wishlistCount)->with('headerWishlistItems', $wishlistItems);
+        });
     }
 }
