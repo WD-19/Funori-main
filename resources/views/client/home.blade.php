@@ -283,7 +283,7 @@
             </div>
             <div class="box-button">
                 <button
-                    style="background: #ff9b42; color: #fff; border: none; padding: 10px 32px; border-radius: 6px; font-weight: bold;">Khám
+                    style="background: #ff9b42; color: #fff; border: none; padding: 10px 23px; border-radius: 6px; font-weight: bold;">Khám
                     phá</button>
             </div>
         </div>

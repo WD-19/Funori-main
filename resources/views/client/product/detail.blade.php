@@ -1050,6 +1050,52 @@
             });
         });
     });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
+    const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
+    tabTitles.forEach((tab, idx) => {
+        tab.addEventListener('click', function () {
+            tabTitles.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            tabContents[idx].classList.add('active');
+        });
+    });
+});
+document.addEventListener("DOMContentLoaded", function () {
+        const writeBtn = document.querySelector('.btn-write-review');
+        const cancelBtn = document.querySelector('.btn-cancel-review');
+        const formReview = document.querySelector('.form-write-review');
+        const commentWrap = document.querySelector('.reply-comment'); // Phần chứa tất cả bình luận
+
+        if (writeBtn && cancelBtn && formReview && commentWrap) {
+            // Mặc định ẩn form, hiện bình luận
+            formReview.style.display = "none";
+            cancelBtn.style.display = "none";
+            commentWrap.style.display = "block";
+
+            // Khi bấm nút "Viết đánh giá"
+            writeBtn.addEventListener('click', function () {
+                formReview.style.display = "block";
+                commentWrap.style.display = "none";
+                writeBtn.style.display = "none";
+                cancelBtn.style.display = "inline-block";
+
+                // Nếu muốn scroll tới form thì mở dòng sau
+                // formReview.scrollIntoView({ behavior: "smooth" });
+            });
+
+            // Khi bấm nút "Hủy đánh giá"
+            cancelBtn.addEventListener('click', function () {
+                formReview.style.display = "none";
+                commentWrap.style.display = "block";
+                writeBtn.style.display = "inline-block";
+                cancelBtn.style.display = "none";
+            });
+        }
+    });
+
     </script>
 
 @endsection

@@ -153,12 +153,6 @@
                                 <p class="tf-cart-tax">
                                     Thuế và <a href="shipping-delivery.html">phí vận chuyển</a> sẽ được tính ở bước thanh toán
                                 </p>
-                                <div class="cart-checkbox">
-                                    <input type="checkbox" class="tf-check" id="check-agree">
-                                    <label for="check-agree" class="fw-4">
-                                        Tôi đồng ý với <a href="terms-conditions.html">điều khoản & điều kiện</a>
-                                    </label>
-                                </div>
                                 <div class="cart-checkout-btn">
                                     <a href="checkout.html" class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center">
                                         <span>Thanh toán</span>
