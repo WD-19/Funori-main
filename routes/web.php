@@ -25,6 +25,7 @@ use App\Http\Controllers\client\ProductController as ClientProductController;
 use App\Http\Controllers\client\ContactController as ClientContactCController;
 use App\Http\Controllers\client\ProfileController as ProfileController;
 use App\Http\Controllers\client\ShopController;
+use App\Http\Controllers\client\WishlistController;
 use App\Http\Middleware\CheckClientLogin;
 // Middleware
 use App\Http\Middleware\CheckLogin;
@@ -151,7 +152,14 @@ Route::prefix('admin')->name('admin.')
 
 Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+// thêm vào yêu thích
+Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
 
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
+    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
+});
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
@@ -204,7 +212,6 @@ Route::prefix('/')->name('client.')->group(function () {
     });
 
 
-    
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);

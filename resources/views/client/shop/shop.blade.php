@@ -35,7 +35,7 @@
         <div class="box-sidebar">
             <div class="first-sidebar" style="margin-bottom: 20px;">
                 <div class="title-sidebar">
-                    Categories
+                   Danh mục
                 </div>
                 @foreach($categories as $category)
                     <div class="in-sidebar">
@@ -62,7 +62,7 @@
             </div> --}}
 
             <div class="all-box-brands">
-                <div class="title-brands">Brands</div>
+                <div class="title-brands">Thương hiệu</div>
                 <div class="box-list-brands">
                     @foreach($brands as $brand)
                         <div class="box-img-brands" style="margin-bottom: 10px;">
@@ -121,22 +121,49 @@
             </div>
         </div>
         <div class="box-all-product">
+            @if(session('success'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        toastr.success("{{ session('success') }}");
+                    });
+                </script>
+            @endif
+            @if(session('info'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        toastr.info("{{ session('info') }}");
+                    });
+                </script>
+            @endif
+            @if(session('error'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        toastr.error("{{ session('error') }}");
+                    });
+                </script>
+            @endif
             <div class="header-product">
                 <form method="GET" id="sort-form" style="display:inline;">
                     @foreach(request()->except(['sort','page']) as $key => $value)
                         <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                     @endforeach
                     <select name="sort" id="box-all-list" onchange="document.getElementById('sort-form').submit()">
-                        <option value="">Default Sorting</option>
-                        <option value="popularity" {{ request('sort') == 'popularity' ? 'selected' : '' }}>Sort By Popularity</option>
-                        <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Sort By Average Rating</option>
-                        <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Sort By Latest</option>
-                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Sort By Price: Low To High</option>
-                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Sort By Price: High To Low</option>
-                    </select>
+    <option value="">Sắp xếp mặc định</option>
+    <option value="popularity" {{ request('sort') == 'popularity' ? 'selected' : '' }}>Phổ biến nhất</option>
+    <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Đánh giá cao nhất</option>
+    <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Mới nhất</option>
+    <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến Cao</option>
+    <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá: Cao đến Thấp</option>
+</select>
                 </form>
             </div>
             <div class="all-box-new-product" style="display: flex; flex-wrap: wrap; gap: 24px;">
+                @php
+                    $wishlistProductIds = [];
+                    if(Auth::check() && Auth::user()->wishlist) {
+                        $wishlistProductIds = Auth::user()->wishlist->items->pluck('product_id')->toArray();
+                    }
+                @endphp
                 @foreach($products as $product)
                     <div class="new-product-1">
                         <div class="pic-product-1">
@@ -145,12 +172,14 @@
                                     alt="{{ $product->name }}"
                                     onmouseover="this.src='{{ $product->images->get(1) ? asset($product->images->get(1)->image_url) : asset($product->images->first() ? $product->images->first()->image_url : 'images/no-image.png') }}'"
                                     onmouseout="this.src='{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}'">
-                                <div class="box-icon-new-product">
-                                    <i style="font-size: 19px;" id="cart-Product" class="fa-solid fa-cart-shopping"></i>
-                                    <i style="font-size: 18px;" id="heart-Product" class="fa-solid fa-heart"></i>
-                                    <i style="font-size: 18px;" id="search-Product" class="fa-solid fa-magnifying-glass"></i>
-                                </div>
                             </a>
+                            <div class="box-icon-new-product">
+                                <a href="{{ route('client.product.show', $product->slug) }}"><i style="font-size: 19px;" id="cart-Product" class="fa-solid fa-cart-shopping"></i></a>
+                                <button class="wishlist-btn" data-product-id="{{ $product->id }}" style="background:none;border:none;padding:0;cursor:pointer;">
+                                    <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};" class="fa-solid fa-heart" id="heart-Product"></i>
+                                </button>
+                                <i style="font-size: 18px;" id="search-Product" class="fa-solid fa-magnifying-glass"></i>
+                            </div>
                         </div>
                         <div class="box-star" style="width: 100%; height: 23px;">
                             @php
@@ -193,5 +222,80 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    toastr.options = {
+        "positionClass": "toast-top-right",
+        "timeOut": "3000",
+        "closeButton": true,
+        "progressBar": true
+    };
+    document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Kiểm tra đăng nhập qua biến blade
+            var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+            if (!isLoggedIn) {
+                toastr.error('Bạn cần đăng nhập!');
+                return;
+            }
+            var productId = this.getAttribute('data-product-id');
+            var icon = this.querySelector('i');
+            fetch("{{ route('wishlist.add') }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success !== false) {
+                    toastr.success(data.message || 'Đã thêm vào yêu thích!');
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    icon.style.color = 'red';
+                    // Cập nhật badge wishlist ở header
+                    var badge = document.querySelector('.wishlist-badge');
+                    if (badge) {
+                        let count = parseInt(badge.textContent) || 0;
+                        badge.textContent = count + 1;
+                    } else {
+                        var heartIcon = document.querySelector('#wishlist-header-btn .fa-heart');
+                        if (heartIcon) {
+                            var span = document.createElement('span');
+                            span.className = 'wishlist-badge';
+                            span.style = 'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
+                            span.textContent = '1';
+                            heartIcon.parentNode.appendChild(span);
+                        }
+                    }
+                    // Cập nhật mini-wishlist
+                    fetch('/wishlist/mini-list')
+                        .then(res => res.text())
+                        .then(html => {
+                            var miniWishlist = document.querySelector('#mini-wishlist-content');
+                            if (miniWishlist) miniWishlist.innerHTML = html;
+                        });
+                } else {
+                    if(data.message && data.message.includes('đăng nhập')) {
+                        toastr.error(data.message);
+                    } else {
+                        toastr.info(data.message || 'Sản phẩm đã có trong yêu thích!');
+                    }
+                }
+            })
+            .catch(error => {
+                toastr.error('Lỗi xảy ra!');
+                console.error(error);
+            });
+        });
+    });
+});
+</script>
 
 @endsection

@@ -116,11 +116,12 @@
                                 </div>
 
                                 {{-- Ảnh + Tên --}}
-                                <div class="name flex-1 flex items-center gap2">
-                                    <div class="image w-8 h-8">
+                                <div class="name flex-1 flex items-center gap10">
+                                    <div class="image w-12 h-12">
                                         <img class="object-cover rounded"
-                                            src="{{ $product->images->first()->image_url ?? asset('images/no-image.png') }}"
-                                            alt="">
+                                        src="{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}"
+                                        alt="">
+
                                     </div>
                                     <div class="title line-clamp-2 mb-0">
                                         <a href="{{ route('admin.products.show', $product->id) }}" class="body-text">
