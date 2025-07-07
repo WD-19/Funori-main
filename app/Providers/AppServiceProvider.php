@@ -27,63 +27,67 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       View::composer('*', function ($view) {
-    $globalCartItems = [];
-    $cartCount = 0;
+        View::composer('*', function ($view) {
+            $globalCartItems = [];
+            $cartCount = 0;
 
-    if (Auth::check()) {
-        $cart = Cart::where('user_id', Auth::id())->first();
+            if (Auth::check()) {
+                $cart = Cart::where('user_id', Auth::id())->first();
 
-        if ($cart) {
-            $globalCartItems = $cart->items()
-                ->with([
-                    'product.images',
-                    'productVariant.image',
-                    'productVariant.attributeValues.attribute'
-                ])
-                ->get()
-                ->map(function ($item) {
+                if ($cart) {
+                    $globalCartItems = $cart->items()
+                        ->with([
+                            'product.images',
+                            'productVariant.image',
+                            'productVariant.attributeValues.attribute'
+                        ])
+                        ->get()
+                        ->map(function ($item) {
+                            return [
+                                'id' => $item->id,
+                                'product' => $item->product ? $item->product->toArray() : null,
+                                'variant' => $item->productVariant ? $item->productVariant->toArray() : null,
+                                'variant_attributes' => $item->productVariant?->attributeValues->map(function ($attrVal) {
+                                    return $attrVal->attribute->name . ': ' . $attrVal->value;
+                                })->all() ?? [],
+                                'quantity' => $item->quantity,
+                                'price_at_addition' => $item->price_at_addition,
+                                'image_url' => $item->productVariant->image->image_url ?? ($item->product->images[0]->image_url ?? null),
+                            ];
+                        })
+                        ->all();
+
+                    $cartCount = count($globalCartItems);
+                }
+            } else {
+                $cart = session('cart', []);
+                $globalCartItems = collect($cart)->map(function ($item) {
+                    $product = Product::with([
+                        'images',
+                        'variants.image',
+                        'variants.attributeValues.attribute'
+                    ])->find($item['product_id']);
+                    $variant = $product?->variants?->firstWhere('id', $item['product_variant_id']);
+
                     return [
-                        'id' => $item->id,
-                        'product' => $item->product ? $item->product->toArray() : null,
-                        'variant' => $item->productVariant ? $item->productVariant->toArray() : null,
-                        'variant_attributes' => $item->productVariant?->attributeValues->map(function ($attrVal) {
+                        'id' => $item['product_id'] . '_' . ($item['product_variant_id'] ?? 'null'),
+                        'product' => $product ? $product->toArray() : null,
+                        'variant' => $variant ? $variant->toArray() : null,
+                        'variant_attributes' => $variant?->attributeValues->map(function ($attrVal) {
                             return $attrVal->attribute->name . ': ' . $attrVal->value;
                         })->all() ?? [],
-                        'quantity' => $item->quantity,
-                        'price_at_addition' => $item->price_at_addition,
-                        'image_url' => $item->productVariant->image->image_url ?? ($item->product->images[0]->image_url ?? null),
+                        'quantity' => $item['quantity'],
+                        'price_at_addition' => $item['price'],
+                        'image_url' => $variant->image->image_url ?? ($product->images[0]->image_url ?? null),
                     ];
-                })
-                ->all();
+                })->all();
 
-            $cartCount = count($globalCartItems);
-        }
-    } else {
-        $cart = session('cart', []);
-        $globalCartItems = collect($cart)->map(function ($item) {
-            $product = Product::with(['images', 'variants.attributeValues.attribute'])->find($item['product_id']);
-            $variant = $product?->variants?->firstWhere('id', $item['product_variant_id']);
+                $cartCount = count($globalCartItems);
+            }
 
-            return [
-                'id' => $item['product_id'] . '_' . ($item['product_variant_id'] ?? 'null'),
-                'product' => $product ? $product->toArray() : null,
-                'variant' => $variant ? $variant->toArray() : null,
-                'variant_attributes' => $variant?->attributeValues->map(function ($attrVal) {
-                    return $attrVal->attribute->name . ': ' . $attrVal->value;
-                })->all() ?? [],
-                'quantity' => $item['quantity'],
-                'price_at_addition' => $item['price'],
-                'image_url' => $variant->image->image_url ?? ($product->images[0]->image_url ?? null),
-            ];
-        })->all();
-
-        $cartCount = count($globalCartItems);
-    }
-
-    $view->with('globalCartItems', $globalCartItems)
-         ->with('cartCount', $cartCount);
-});
+            $view->with('globalCartItems', $globalCartItems)
+                ->with('cartCount', $cartCount);
+        });
 
 
         PaginationPaginator::useBootstrapFive();
