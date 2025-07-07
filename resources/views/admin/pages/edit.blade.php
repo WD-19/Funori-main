@@ -167,11 +167,18 @@
                     <div class="body-title">Ngày cập nhật</div>
                     <input type="text" class="form-control" value="{{ $page->updated_at }}" readonly>
                 </fieldset>
-                <div class="bot">
-                    <div></div>
-                    <button class="tf-button w208" type="submit">Cập nhật</button>
-                    <a href="{{ route('admin.pages.index') }}" class="tf-button w208"
-                        style="background-color: #6c757d;">Quay lại</a>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <button type="submit" class="tf-button w-100 py-3 fs-5">
+                            <i class="bi bi-pencil-square me-1"></i> Cập nhật
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ route('admin.pages.index') }}" class="tf-button style-3 w-100 py-3 fs-5">
+                            <i class="bi bi-list me-1"></i> Danh sách
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>

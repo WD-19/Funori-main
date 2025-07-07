@@ -141,11 +141,17 @@
                         <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
-                <div class="bot">
-                    <div></div>
-                    <button class="tf-button w208" type="submit">Tạo trang</button>
-                    <a href="{{ route('admin.pages.index') }}" class="tf-button w208"
-                        style="background-color: #6c757d;">Quay lại</a>
+                <div class="row mt-5">
+                    <div class="col-md-6">
+                        <button type="submit" class="tf-button w-100 py-3 fs-5">
+                            <i class="bi bi-pencil-square me-1"></i> Thêm mới
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ route('admin.pages.index') }}" class="tf-button style-3 w-100 py-3 fs-5">
+                            <i class="bi bi-list me-1"></i> Danh sách
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
