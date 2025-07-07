@@ -142,7 +142,7 @@
                 <?php $__currentLoopData = $suggestedProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="product-card">
                         <a href="<?php echo e(route('client.product.show', $product->slug)); ?>">
-                            <img src="<?php echo e($product->image ? asset('storage/' . $product->image) : asset('client/Picture/Product/default.jpg')); ?>"
+                            <img src="<?php echo e($product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png')); ?>"
                                 alt="<?php echo e($product->name); ?>" style="width:100%;height:120px;object-fit:cover;">
                             <div style="font-weight:600;margin:10px 0 6px 0;"><?php echo e($product->name); ?></div>
                             <div style="font-size:0.97rem;color:#666;"><?php echo e(number_format($product->price, 0, ',', '.')); ?> đ

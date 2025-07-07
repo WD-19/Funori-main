@@ -119,7 +119,7 @@
                                 <div class="name flex-1 flex items-center gap2">
                                     <div class="image w-8 h-8">
                                         <img class="object-cover rounded"
-                                            src="{{ $product->images->first()->image_url ?? asset('images/no-image.png') }}"
+                                            src="{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}"
                                             alt="">
                                     </div>
                                     <div class="title line-clamp-2 mb-0">
