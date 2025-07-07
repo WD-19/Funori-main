@@ -49,40 +49,49 @@
                 <i class="fa-solid fa-magnifying-glass search"></i>
             </a>
             <div class="box-user dropdown d-flex align-items-center" style="position: relative;">
-                <a href="{{ Auth::check() ? '#' : route('client.login') }}" id="userDropdown" style="padding: 0; border: none; background: none; display: flex; align-items: center; vertical-align: middle;">
-                    @if(Auth::check())
-                        <img src="{{ asset(Auth::user()->avatar_url ? Auth::user()->avatar_url : 'images/images.jpg') }}" alt="avatar" style="width:32px;height:32px;object-fit:cover;border-radius:50%; display: block; vertical-align: middle;">
+                <a href="{{ Auth::check() ? '#' : route('client.login') }}" id="userDropdown"
+                    style="padding: 0; border: none; background: none; display: flex; align-items: center; vertical-align: middle;">
+                    @if (Auth::check())
+                        <img src="{{ asset(Auth::user()->avatar_url ? Auth::user()->avatar_url : 'images/images.jpg') }}"
+                            alt="avatar"
+                            style="width:32px;height:32px;object-fit:cover;border-radius:50%; display: block; vertical-align: middle;">
                     @else
                         <i class="fa-regular fa-user user"></i>
                     @endif
                 </a>
-                @if(Auth::check())
-                <div class="dropdown-menu" style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 10px; overflow: hidden; padding: 18px 0;">
-                    <a href="{{ route('client.profile.dashboard') }}" class="dropdown-item d-flex align-items-center" style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
-                        <i class="fa-regular fa-user" style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i> Profile
-                    </a>
-                    <form action="{{ route('client.logout') }}" method="POST" style="margin: 0;">
-                        @csrf
-                        <button type="submit" class="dropdown-item d-flex align-items-center" style="background: none; border: none; padding: 16px 28px; color: #e53935; font-size: 15px; font-weight: 500; cursor: pointer;">
-                            <i class="fa-solid fa-right-from-bracket" style="font-size: 18px; color: #e53935; margin-right: 16px;"></i> Đăng xuất
-                        </button>
-                    </form>
-                </div>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        var userDropdown = document.getElementById('userDropdown');
-                        var dropdownMenu = userDropdown.nextElementSibling;
-                        userDropdown.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+                @if (Auth::check())
+                    <div class="dropdown-menu"
+                        style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 10px; overflow: hidden; padding: 18px 0;">
+                        <a href="{{ route('client.profile.dashboard') }}"
+                            class="dropdown-item d-flex align-items-center"
+                            style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
+                            <i class="fa-regular fa-user"
+                                style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i> Profile
+                        </a>
+                        <form action="{{ route('client.logout') }}" method="POST" style="margin: 0;">
+                            @csrf
+                            <button type="submit" class="dropdown-item d-flex align-items-center"
+                                style="background: none; border: none; padding: 16px 28px; color: #e53935; font-size: 15px; font-weight: 500; cursor: pointer;">
+                                <i class="fa-solid fa-right-from-bracket"
+                                    style="font-size: 18px; color: #e53935; margin-right: 16px;"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var userDropdown = document.getElementById('userDropdown');
+                            var dropdownMenu = userDropdown.nextElementSibling;
+                            userDropdown.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+                            });
+                            document.addEventListener('click', function(e) {
+                                if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                                    dropdownMenu.style.display = 'none';
+                                }
+                            });
                         });
-                        document.addEventListener('click', function(e) {
-                            if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                                dropdownMenu.style.display = 'none';
-                            }
-                        });
-                    });
-                </script>
+                    </script>
                 @endif
             </div>
             <a href="" class="box-heart">
@@ -91,38 +100,66 @@
             <div class="cart-popup-group" style="position: relative; display: inline-block;">
                 <a href="{{ route('client.view-cart') }}" class="box-cart" style="position: relative; z-index: 10;">
                     <i class="fa-solid fa-cart-shopping cart"></i>
-                    @if(isset($cartCount) && $cartCount > 0)
-                        <span class="cart-count-badge" style="position: absolute; top: -14px; right: -10px; background: #e53935; color: #fff; border-radius: 50%; padding: 0 5px; font-size: 11px; font-weight: bold; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 2;">
+                    @if (isset($cartCount) && $cartCount > 0)
+                        <span class="cart-count-badge" id="cart-count-badge"
+                            style="position: absolute; top: -14px; right: -10px; background: #e53935; color: #fff; border-radius: 50%; padding: 0 5px; font-size: 11px; font-weight: bold; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 2;">
                             {{ $cartCount }}
                         </span>
                     @endif
                 </a>
                 <div id="cart-popup-modal"
-                     style="display:none; position:absolute; top:100%; right:0; background:#fff; border-radius:12px; box-shadow:0 4px 32px rgba(0,0,0,0.15); z-index:100; min-width:340px; max-width:96vw; min-height:80px; max-height:80vh; overflow:auto; padding:0;">
-                    <div style="padding: 18px 24px 0 24px; border-radius:12px 12px 0 0; color:#bbb; font-weight:600; font-size:16px;">
+                    style="display:none; position:absolute; top:120%; right:0; background:#fff; border-radius:12px; box-shadow:0 4px 32px rgba(0,0,0,0.15); z-index:100; min-width:400px; max-width:99vw; min-height:80px; max-height:80vh; overflow:auto; padding:0;">
+                    <div
+                        style="padding: 18px 32px 0 32px; border-radius:12px 12px 0 0; color:#bbb; font-weight:600; font-size:16px;">
                         Sản Phẩm Mới Thêm
                     </div>
-                    <div id="cart-popup-content" style="padding: 12px 24px 0 24px;">
-                        @if(isset($cartItems) && count($cartItems) > 0)
-                            @foreach($cartItems as $item)
-                                <div style="display:flex;align-items:center;margin-bottom:14px;">
-                                    <img src="{{ asset($item['product']['images'][0]['image_url'] ?? 'images/products/no-image.png') }}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;margin-right:12px;">
-                                    <div style="flex:1;overflow:hidden;">
-                                        <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;">
-                                            {{ $item['product']['name'] ?? '' }}
+                    <div id="cart-popup-content" style="padding: 12px 32px 0 32px;">
+                        @if (isset($globalCartItems) && count($globalCartItems) > 0)
+                            @foreach ($globalCartItems as $i => $cartItem)
+                                @if ($i < 3)
+                                    <div style="display:flex;align-items:center;margin-bottom:14px;">
+                                        @if (!empty($cartItem['variant']['image']['image_url']))
+                                            <img src="{{ asset($cartItem['variant']['image']['image_url']) }}"
+                                                alt="Biến thể"
+                                                style="object-fit: cover; border-radius: 6px; margin-bottom: 6px; width: 80px">
+                                        @endif
+                                        <div style="flex:1; overflow:hidden; padding-left: 12px;">
+                                            <div
+                                                style="font-weight:600; font-size: 14px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+                                                {{ $cartItem['product']['name'] ?? 'Sản phẩm đã xóa' }}
+                                            </div>
+
+                                            @if (!empty($cartItem['variant_attributes']))
+                                                <div class="cart-meta-variant"
+                                                    style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px;">
+                                                    @foreach ($cartItem['variant_attributes'] as $attr)
+                                                        <span class="badge bg-light text-dark border"
+                                                            style="font-size: 12px; padding: 4px 6px;">
+                                                            {{ $attr }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div style="color:#e53935;font-weight:500;min-width:70px;text-align:right;">
+                                            {{ number_format($cartItem['price_at_addition'], 0, ',', '.') }}đ
                                         </div>
                                     </div>
-                                    <div style="color:#e53935;font-weight:500;min-width:70px;text-align:right;">
-                                        {{ number_format($item['price_at_addition'], 0, ',', '.') }}đ                                    
-                                    </div>
-                                </div>
+                                @endif
                             @endforeach
+                            @if (count($globalCartItems) > 3)
+                                <div style="text-align:center; color:#888; font-size:14px; margin-bottom:8px;">
+                                    ...và {{ count($globalCartItems) - 3 }} sản phẩm khác
+                                </div>
+                            @endif
                         @else
                             <div style="padding: 12px 0;">Giỏ hàng của bạn đang trống.</div>
                         @endif
                     </div>
-                    <div style="padding: 0 24px 18px 24px;">
-                        <a href="{{ route('client.view-cart') }}" class="btn btn-danger w-100" style="margin-top:8px;font-weight:600;font-size:16px;">
+                    <div style="padding: 0 32px 18px 32px;">
+                        <a href="{{ route('client.view-cart') }}" class="btn btn-danger w-100"
+                            style="margin-top:8px;font-weight:600;font-size:16px;">
                             Xem Giỏ Hàng
                         </a>
                     </div>
@@ -132,16 +169,41 @@
     </div>
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var group = document.querySelector('.cart-popup-group');
-    var popup = document.getElementById('cart-popup-modal');
-    if(group && popup) {
-        group.addEventListener('mouseenter', function() {
-            popup.style.display = 'block';
-        });
-        group.addEventListener('mouseleave', function() {
-            popup.style.display = 'none';
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        var group = document.querySelector('.cart-popup-group');
+        var popup = document.getElementById('cart-popup-modal');
+        if (group && popup) {
+            group.addEventListener('mouseenter', function() {
+                popup.style.display = 'block';
+            });
+            group.addEventListener('mouseleave', function() {
+                popup.style.display = 'none';
+            });
+        }
+    });
+
+    // Sau khi thêm/xóa/cập nhật giỏ hàng thành công:
+    function updateCartCountBadge(newCount) {
+        const badge = document.getElementById('cart-count-badge');
+        if (badge) {
+            badge.textContent = newCount;
+            badge.style.display = newCount > 0 ? 'flex' : 'none';
+        }
     }
-});
+
+    // Ví dụ về fetch để thêm sản phẩm vào giỏ hàng và cập nhật badge
+    fetch('/cart/add', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.cartCount !== undefined) {
+                updateCartCountBadge(data.cartCount);
+            }
+            // ...xử lý khác
+        });
 </script>
