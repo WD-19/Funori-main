@@ -475,12 +475,11 @@ html {
 .all-box-new-product {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
 }
 
 .all-box-new-product .new-product-1 {
     /* width: 317px; */
-    width: 287px;
+    width: 275px;
     height: 434px;
     /* padding: 0 15px; */
     /* background-color: blueviolet; */

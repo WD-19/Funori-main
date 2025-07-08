@@ -18,7 +18,7 @@ class ClientController
     ])
     ->where('status', 'published')
     ->orderBy('created_at', 'desc')
-    ->limit(6)
+    ->limit(3)
     ->get();
 
     $banners = Banner::where('is_active', 1)

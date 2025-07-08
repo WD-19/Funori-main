@@ -20,10 +20,14 @@
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 
+
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>@yield('title')</title>
 </head>
 
@@ -71,5 +75,4 @@
 
 <!-- Toastr JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
 </html>
