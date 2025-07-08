@@ -180,6 +180,17 @@ Route::prefix('/')->name('client.')->group(function () {
 
     Route::get('/search', [ClientProductController::class, 'search'])->name('search');
 
+
+    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+    Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update.post');
+    Route::delete('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+    Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove.post');
+    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear.post');
+
+
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);
@@ -189,21 +200,11 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
-    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
-    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
-    Route::delete('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
-    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+    // Cart routes - phải đặt trước route {slug}
+   
 
-    Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
-
+    // Profile routes
     Route::prefix('profile')->name('profile.')->group(function () {
-    Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
-    Route::get('/order', [ProfileController::class, 'order'])->name('order');
-    Route::get('/address', [ProfileController::class, 'address'])->name('address');
-    Route::get('/account', [ProfileController::class, 'account'])->name('account');
-    Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
-    });
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('order');
         Route::get('/address', [ProfileController::class, 'address'])->name('address');
@@ -211,9 +212,12 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
     });
 
+    // Product route - phải đặt cuối cùng
+    Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 
 
     Route::fallback(function () {
         return response()->view('client.errors.404', [], 404);
     });
+});
 
