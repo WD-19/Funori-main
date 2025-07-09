@@ -1039,9 +1039,24 @@
                     .then(data => {
                         if (data.success) {
                             toastr.success('Đã thêm vào giỏ hàng!');
-                        } else {
-                            toastr.error(data.message || 'Có lỗi xảy ra!');
+
+                            let cartBadge = document.getElementById('cart-count-badge');
+                            if (cartBadge) {
+                                let currentCount = parseInt(cartBadge.textContent) || 0;
+                                cartBadge.textContent = currentCount + quantity;
+                            } else {
+                                let cartIcon = document.querySelector('.box-cart');
+                                if (cartIcon) {
+                                    let span = document.createElement('span');
+                                    span.id = 'cart-count-badge';
+                                    span.className = 'cart-count-badge';
+                                    span.style = '...'; // style như ở trên
+                                    span.textContent = quantity;
+                                    cartIcon.appendChild(span);
+                                }
+                            }
                         }
+
                     })
                     .catch(error => {
                         toastr.error('Có lỗi xảy ra!');

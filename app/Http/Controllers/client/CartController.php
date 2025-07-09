@@ -360,7 +360,7 @@ class CartController
             return response()->json([
                 'success' => true,
                 'message' => 'Đã xóa sản phẩm khỏi giỏ hàng!',
-                'cart_count' => $cartCount
+                'cartCount' => $cartCount 
             ]);
         } else {
             // Guest: vẫn dùng key như cũ

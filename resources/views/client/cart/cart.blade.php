@@ -721,6 +721,31 @@
             }
         }
 
+        function updateCartCountBadge(count) {
+            let badge = document.getElementById('cart-count-badge');
+
+            if (count > 0) {
+                if (!badge) {
+                    // Nếu chưa có badge thì tạo mới
+                    const cartIcon = document.querySelector('.box-cart');
+                    badge = document.createElement('span');
+                    badge.id = 'cart-count-badge';
+                    badge.className = 'cart-count-badge';
+                    badge.style =
+                        'position: absolute; top: -14px; right: -10px; background: #e53935; color: #fff; border-radius: 50%; padding: 0 5px; font-size: 11px; font-weight: bold; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 2;';
+                    cartIcon.appendChild(badge);
+                }
+
+                badge.textContent = count;
+                badge.style.display = 'flex';
+            } else {
+                if (badge) badge.remove(); // hoặc: badge.style.display = 'none';
+            }
+        }
+
+
+
+
         // Hàm gọi API để cập nhật database (không block UI)
         function updateCartOnServer(itemId, quantity, input) {
             const url = "/cart/update";
@@ -850,13 +875,6 @@
             });
         }
 
-        function updateCartCountBadge(newCount) {
-            const badge = document.getElementById('cart-count-badge');
-            if (badge) {
-                badge.textContent = newCount;
-                badge.style.display = newCount > 0 ? 'flex' : 'none';
-            }
-        }
 
         const agreeCheckbox = document.getElementById('check-agree');
         const checkoutBtn = document.querySelector('.cart-checkout-btn a');
