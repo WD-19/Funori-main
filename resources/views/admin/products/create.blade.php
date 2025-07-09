@@ -122,7 +122,7 @@
         $attributeSelects = '';
         foreach ($attributes as $attribute) {
             $attributeSelects .=
-                '<select style="width: 60%;" name="VARIANT_NAME[attribute_values][' . $attribute->id . ']" >';
+                '<select style="width: 20%;" name="VARIANT_NAME[attribute_values][' . $attribute->id . ']" >';
             $attributeSelects .= '<option value="">-- ' . $attribute->name . ' --</option>';
             foreach ($attribute->values as $value) {
                 $attributeSelects .= '<option value="' . $value->id . '">' . $value->value . '</option>';
@@ -205,6 +205,7 @@
                     `variants[${variantIndex}]`);
                 variantDiv.innerHTML = `
             ${selects}
+            <input type="text" name="variants[${variantIndex}][name_variant]" value="" placeholder="Tên biến thể" style="width:28%;">
             <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
             <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
             <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">

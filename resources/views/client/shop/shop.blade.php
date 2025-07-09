@@ -38,16 +38,17 @@
                    Danh mục
                 </div>
                 @foreach($categories as $category)
-                    <div class="in-sidebar">
-                        <a href="{{ route('shop', ['category_id' => $category->id]) }}"
-                            style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit;">
-                            <div class="name" @if(request('category_id') == $category->id) style="font-weight:bold;color:#fcad02;"
-                            @endif>
-                                {{ $category->name }}
-                            </div>
-                            <div class="box-number">{{ $category->products_count }}</div>
-                        </a>
-                    </div>
+                    @if($category->products_count > 0)
+                        <div class="in-sidebar">
+                            <a href="{{ route('shop', ['category_id' => $category->id]) }}"
+                                style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit;">
+                                <div class="name" @if(request('category_id') == $category->id) style="font-weight:bold;color:#fcad02;" @endif>
+                                    {{ $category->name }}
+                                </div>
+                                <div class="box-number">{{ $category->products_count }}</div>
+                            </a>
+                        </div>
+                    @endif
                 @endforeach
             </div>
    {{-- <div class="box-price">

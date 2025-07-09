@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('client/css/shop.css') }}">
     <link rel="stylesheet" href="{{ asset('client/css/main-mobile.css') }}">
 
+
     <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">

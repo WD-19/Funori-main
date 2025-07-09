@@ -186,6 +186,7 @@ class ProductController
                     $variantImageId = $img->id;
                 }
                 $variantModel = $product->variants()->create([
+                    'name_variant' => $variant['name_variant'] ?? null,
                     'size' => $variant['size'] ?? null,
                     'price_modifier' => $variant['price_modifier'] ?? 0,
                     'stock_quantity' => $variant['stock_quantity'] ?? 0,
@@ -371,6 +372,7 @@ class ProductController
                         }
                         // Cập nhật các trường khác
                         $variant->update([
+                            'name_variant' => $variantData['name_variant'] ?? null,
                             'size' => $variantData['size'] ?? null,
                             'price_modifier' => $variantData['price_modifier'] ?? 0,
                             'stock_quantity' => $variantData['stock_quantity'] ?? 0,
@@ -395,6 +397,7 @@ class ProductController
                         $variantImageId = $img->id;
                     }
                     $newVariant = $product->variants()->create([
+                        'name_variant' => $variantData['name_variant'] ?? null,
                         'size' => $variantData['size'] ?? null,
                         'price_modifier' => $variantData['price_modifier'] ?? 0,
                         'stock_quantity' => $variantData['stock_quantity'] ?? 0,
