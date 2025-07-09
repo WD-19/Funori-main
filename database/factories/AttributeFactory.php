@@ -14,7 +14,7 @@ class AttributeFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique()->randomElement(['Color', 'Size', 'Material', 'Style', 'Finish']),
+            'name' => $this->faker->unique()->randomElement([ 'Material']),
             'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
         ];
