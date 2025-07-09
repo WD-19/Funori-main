@@ -203,8 +203,15 @@
                         <div class="title-new-product">
                             <a href="{{ route('client.product.show', $product->slug) }}">{{ $product->name }}</a>
                         </div>
+                        @php
+                            $totalStock = $product->variants->sum('stock_quantity');
+                        @endphp
                         <div style="font-size: 16px; color: rgb(170, 167, 167);">
-                            {{ number_format($product->regular_price, 0, ',', '.') }} đ
+                            @if($product->variants->count() > 0 && $totalStock <= 0)
+                                <span style="color:red;font-weight:bold;">Hết hàng</span>
+                            @else
+                                {{ number_format($product->regular_price, 0, ',', '.') }} đ
+                            @endif
                         </div>
                     </div>
                 @endforeach

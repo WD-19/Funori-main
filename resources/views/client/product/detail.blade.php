@@ -30,7 +30,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="tf-product-media-wrap sticky-top">
+                        <div class="tf-product-media-wrap">
                             <div class="thumbs-slider">
                                 <div dir="ltr" class="swiper tf-product-media-thumbs other-image-zoom"
                                     id="thumbs-swiper" data-direction="vertical">
@@ -253,16 +253,20 @@
                                                     @endif
                                                     <div>
                                                         <br>
-                                                        <strong>Giá:</strong>
-                                                        {{ number_format($product->regular_price + $variant->price_modifier, 0, ',', '.') }}đ<br>
-                                                        <strong>Kho:</strong> {{ $variant->stock_quantity ?? '-' }}<br>
+                                                        <strong>Kho:</strong>
+                                                        @if(($variant->stock_quantity ?? 0) <= 0)
+                                                            <span style="color:red;font-weight:bold;">Hết hàng</span>
+                                                        @else
+                                                            {{ $variant->stock_quantity }}
+                                                        @endif
+                                                        <br>
                                                         <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
-                                                        {{-- Hiển thị các thuộc tính của biến thể --}}
+                                                            {{-- Hiển thị các thuộc tính của biến thể --}}
                                                         @if ($variant->attributeValues && $variant->attributeValues->count())
                                                             {{-- <div> --}}
                                                                 {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
                                                                 @foreach ($variant->attributeValues as $attrVal)
-                                                                    <strong>{{ $attrVal->attribute->name ?? '' }}:</strong> {{ $attrVal->value ?? '' }}<br>
+                                                                    <strong>{{ $attrVal->attribute->name ?? '' }}</strong> {{ $attrVal->value ?? '' }}<br>
                                                                     {{-- <span
                                                                         class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
                                                                         {{ $attrVal->value ?? '' }}</span> --}}
