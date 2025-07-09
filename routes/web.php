@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Client\AboutController;
+use App\Http\Controllers\client\AddressController;
 //Client Controller
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
@@ -160,6 +161,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
 });
+
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
@@ -201,7 +203,7 @@ Route::prefix('/')->name('client.')->group(function () {
         ->name('reviews.store');
 
     // Cart routes - phải đặt trước route {slug}
-   
+
 
     // Profile routes
     Route::prefix('profile')->name('profile.')->group(function () {
@@ -210,6 +212,19 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/address', [ProfileController::class, 'address'])->name('address');
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
+	    Route::get('/password', [ProfileController::class, 'password'])->name('password');
+
+        // tài khoản
+        Route::post('/account/update', [ProfileController::class, 'updateAccount'])->name('account.update');
+
+        // Địa chỉ
+        Route::post('/address/store', [AddressController::class, 'store'])->name('address.store');
+        Route::delete('/address/{address}', [AddressController::class, 'destroy'])->name('address.destroy');
+        // THiết lập địa chỉ giao hàng mặc định
+        Route::post('/profile/address/{address}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
+        // Hiển thị form sửa (trả về JSON)
+        Route::get('/address/{address}/edit', [AddressController::class, 'edit'])->name('profile.address.edit');
+        Route::post('/address/{address}/update', [AddressController::class, 'update'])->name('profile.address.update');
     });
 
     // Product route - phải đặt cuối cùng
