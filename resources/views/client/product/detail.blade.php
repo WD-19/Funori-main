@@ -30,7 +30,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="tf-product-media-wrap sticky-top">
+                        <div class="tf-product-media-wrap">
                             <div class="thumbs-slider">
                                 <div dir="ltr" class="swiper tf-product-media-thumbs other-image-zoom"
                                     id="thumbs-swiper" data-direction="vertical">
@@ -253,16 +253,20 @@
                                                     @endif
                                                     <div>
                                                         <br>
-                                                        <strong>Giá:</strong>
-                                                        {{ number_format($product->regular_price + $variant->price_modifier, 0, ',', '.') }}đ<br>
-                                                        <strong>Kho:</strong> {{ $variant->stock_quantity ?? '-' }}<br>
+                                                        <strong>Kho:</strong>
+                                                        @if(($variant->stock_quantity ?? 0) <= 0)
+                                                            <span style="color:red;font-weight:bold;">Hết hàng</span>
+                                                        @else
+                                                            {{ $variant->stock_quantity }}
+                                                        @endif
+                                                        <br>
                                                         <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
-                                                        {{-- Hiển thị các thuộc tính của biến thể --}}
+                                                            {{-- Hiển thị các thuộc tính của biến thể --}}
                                                         @if ($variant->attributeValues && $variant->attributeValues->count())
                                                             {{-- <div> --}}
                                                                 {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
                                                                 @foreach ($variant->attributeValues as $attrVal)
-                                                                    <strong>{{ $attrVal->attribute->name ?? '' }}:</strong> {{ $attrVal->value ?? '' }}<br>
+                                                                    <strong>{{ $attrVal->attribute->name ?? '' }}</strong> {{ $attrVal->value ?? '' }}<br>
                                                                     {{-- <span
                                                                         class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
                                                                         {{ $attrVal->value ?? '' }}</span> --}}
@@ -1080,108 +1084,107 @@
     <!-- Toastr hiển thị thông báo session -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            toastr.options = {
-                "positionClass": "toast-bottom-right",
-                "timeOut": "3000",
-                "closeButton": true,
-                "progressBar": true
-            };
-            @if (session('success'))
-                toastr.success("{{ session('success') }}");
-            @endif
+        
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    toastr.options = {
+        "positionClass": "toast-bottom-right",
+        "timeOut": "3000",
+        "closeButton": true,
+        "progressBar": true
+    };
+    @if (session('success'))
+        toastr.success("{{ session('success') }}");
+    @endif
 
-            @if (session('error'))
-                toastr.error("{{ session('error') }}");
-            @endif
+    @if (session('error'))
+        toastr.error("{{ session('error') }}");
+    @endif
+});
 
-            document.querySelector('.btn-add-to-cart').addEventListener('click', function(e) {
-                e.preventDefault();
-                let
-                    productId = {{ $product->id }};
-                let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
-                let
-                    variantInput = document.querySelector('input[name="variant_id" ]:checked');
-                let productVariantId = variantInput ?
-                    variantInput.value : null; // Nếu có biến thể nhưng chưa chọn thì báo lỗi const
-                hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
-                if (hasVariants && !productVariantId) {
-                    toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
-                    return;
-                }
-                fetch('{{ route('client.cart.add') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            product_id: productId,
-                            quantity: quantity,
-                            product_variant_id: productVariantId
-                        })
-                    }).then(response =>
-                        response.json())
-                    .then data => {
-                        if (data.success) {
-                            toastr.success('Đã thêm vào giỏ hàng!');
-                        } else {
-                            toastr.error(data.message || 'Có lỗi xảy ra!');
-                        }
-                    })
-                    .catch(error => {
-                        toastr.error('Có lỗi xảy ra!');
-                        console.error(error);
-                    });
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
-            const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
-            tabTitles.forEach((tab, idx) => {
-                tab.addEventListener('click', function() {
-                    tabTitles.forEach(t => t.classList.remove('active'));
-                    tabContents.forEach(c => c.classList.remove('active'));
-                    tab.classList.add('active');
-                    tabContents[idx].classList.add('active');
-                });
-            });
-        });
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const writeBtn = document.querySelector('.btn-write-review');
-            const cancelBtn = document.querySelector('.btn-cancel-review');
-            const formReview = document.querySelector('.form-write-review');
-            const commentWrap = document.querySelector('.reply-comment'); // Phần chứa tất cả bình luận
-
-            if (writeBtn && cancelBtn && formReview && commentWrap) {
-                // Mặc định ẩn form, hiện bình luận
-                formReview.style.display = "none";
-                cancelBtn.style.display = "none";
-                commentWrap.style.display = "block";
-
-                // Khi bấm nút "Viết đánh giá"
-                writeBtn.addEventListener('click', function() {
-                    formReview.style.display = "block";
-                    commentWrap.style.display = "none";
-                    writeBtn.style.display = "none";
-                    cancelBtn.style.display = "inline-block";
-
-                    // Nếu muốn scroll tới form thì mở dòng sau
-                    // formReview.scrollIntoView({ behavior: "smooth" });
-                });
-
-                // Khi bấm nút "Hủy đánh giá"
-                cancelBtn.addEventListener('click', function() {
-                    formReview.style.display = "none";
-                    commentWrap.style.display = "block";
-                    writeBtn.style.display = "inline-block";
-                    cancelBtn.style.display = "none";
-                });
+// Đặt ngoài DOMContentLoaded để luôn hoạt động kể cả khi toastr chưa hiện
+const addToCartBtn = document.querySelector('.btn-add-to-cart');
+if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        let productId = {{ $product->id }};
+        let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
+        let variantInput = document.querySelector('input[name="variant_id"]:checked');
+        let productVariantId = variantInput ? variantInput.value : null;
+        let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
+        if (hasVariants && !productVariantId) {
+            toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
+            return;
+        }
+        fetch('{{ route('client.cart.add') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: quantity,
+                product_variant_id: productVariantId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toastr.success('Đã thêm vào giỏ hàng!');
+            } else {
+                toastr.error(data.message || 'Có lỗi xảy ra!');
             }
+        })
+        .catch(error => {
+            toastr.error('Có lỗi xảy ra!');
+            console.error(error);
         });
-    </script>
+    });
+}
 
+document.addEventListener('DOMContentLoaded', function() {
+    const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
+    const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
+    tabTitles.forEach((tab, idx) => {
+        tab.addEventListener('click', function() {
+            tabTitles.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            tabContents[idx].classList.add('active');
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    const writeBtn = document.querySelector('.btn-write-review');
+    const cancelBtn = document.querySelector('.btn-cancel-review');
+    const formReview = document.querySelector('.form-write-review');
+    const commentWrap = document.querySelector('.reply-comment'); // Phần chứa tất cả bình luận
+
+    if (writeBtn && cancelBtn && formReview && commentWrap) {
+        // Mặc định ẩn form, hiện bình luận
+        formReview.style.display = "none";
+        cancelBtn.style.display = "none";
+        commentWrap.style.display = "block";
+
+        // Khi bấm nút "Viết đánh giá"
+        writeBtn.addEventListener('click', function() {
+            formReview.style.display = "block";
+            commentWrap.style.display = "none";
+            writeBtn.style.display = "none";
+            cancelBtn.style.display = "inline-block";
+            // formReview.scrollIntoView({ behavior: "smooth" });
+        });
+
+        // Khi bấm nút "Hủy đánh giá"
+        cancelBtn.addEventListener('click', function() {
+            formReview.style.display = "none";
+            commentWrap.style.display = "block";
+            writeBtn.style.display = "inline-block";
+            cancelBtn.style.display = "none";
+        });
+    }
+});
+</script>
 @endsection
