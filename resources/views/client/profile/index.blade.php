@@ -17,11 +17,11 @@
                     <div class="col-lg-3">
                         <div class="wrap-sidebar-account">
                             <ul class="my-account-nav">
-                                <li><a href="{{ route('client.profile.dashboard') }}" class="my-account-nav-item">Dashboard</a></li>
-                                <li><a href="{{ route('client.profile.order') }}" class="my-account-nav-item">Orders</a></li>
-                                    <li><a href="{{ route('client.profile.address') }}" class="my-account-nav-item">Address</a></li>
-                                    <li><a href="{{ route('client.profile.account') }}" class="my-account-nav-item">Account Details</a></li>
-                                    <li><a href="{{ route('client.profile.wishlist') }}" class="my-account-nav-item">Wishlist</a></li>
+                                <li><a href="{{ route('client.profile.dashboard') }}" class="my-account-nav-item">Thông báo</a></li>
+                                <li><a href="{{ route('client.profile.order') }}" class="my-account-nav-item">Đơn hàng</a></li>
+                                    <li><a href="{{ route('client.profile.address') }}" class="my-account-nav-item">Địa  chỉ</a></li>
+                                    <li><a href="{{ route('client.profile.account') }}" class="my-account-nav-item">Tài khoản</a></li>
+                                    <li><a href="{{ route('client.profile.wishlist') }}" class="my-account-nav-item">Yêu thích</a></li>
                             </ul>
                         </div>
                     </div>
