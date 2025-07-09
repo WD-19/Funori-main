@@ -44,7 +44,7 @@ class PageController
      */
     public function create()
     {
-        $authors = User::all();
+        $authors = User::where('role', 'admin')->get();
         return view('admin.pages.create', compact('authors'));
     }
 
@@ -60,15 +60,17 @@ class PageController
             'author_id' => 'required|exists:users,id',
             'page_type' => 'required|string|max:100',
             'status' => 'required|in:draft,published',
-            'featured_image_url' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
-            'published_at' => 'required|date',
+            'featured_image_url' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'meta_title' => 'required|string|max:255',
+            'meta_description' => 'required|string|max:500',
+            'published_at' => 'required|date|before_or_equal:now',
+        ], [
+            'published_at.before_or_equal' => 'Ngày xuất bản không được vượt quá thời điểm hiện tại.',
         ]);
 
         $imagePath = null;
         if ($request->hasFile('featured_image_url')) {
-            $imagePath = $request->file('featured_image_url')->store('uploads/pages', 'public');
+            $imagePath = $request->file('featured_image_url')->store('pages', 'public');
         }
 
         Page::create([
@@ -102,7 +104,8 @@ class PageController
     public function edit($id)
     {
         $page = Page::findOrFail($id);
-        $authors = User::all();
+        // Chỉ lấy các user là admin
+        $authors = User::where('role', 'admin')->get();
         return view('admin.pages.edit', compact('page', 'authors'));
     }
 
@@ -121,9 +124,11 @@ class PageController
             'page_type' => 'required|string|max:100',
             'status' => 'required|in:draft,published',
             'featured_image_url' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
-            'published_at' => 'nullable|date',
+            'meta_title' => 'required|string|max:255',
+            'meta_description' => 'required|string|max:500',
+            'published_at' => 'required|date|before_or_equal:now',
+        ], [
+            'published_at.before_or_equal' => 'Ngày xuất bản không được vượt quá thời điểm hiện tại.',
         ]);
 
         $imagePath = $page->featured_image_url;
@@ -132,7 +137,7 @@ class PageController
             if ($page->featured_image_url && Storage::disk('public')->exists($page->featured_image_url)) {
                 Storage::disk('public')->delete($page->featured_image_url);
             }
-            $imagePath = $request->file('featured_image_url')->store('uploads/pages', 'public');
+            $imagePath = $request->file('featured_image_url')->store('pages', 'public');
         }
 
         $page->update([
@@ -169,25 +174,21 @@ class PageController
      */
     public function uploadImage(Request $request)
     {
-        $request->validate([
-            'upload' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
-        ]);
-
-        if ($request->hasFile('upload')) {
-            $file = $request->file('upload');
-            $path = $file->store('uploads/pages', 'public');
-            $url = asset('storage/' . $path);
-
-            return response()->json([
-                'uploaded' => 1,
-                'fileName' => $file->getClientOriginalName(),
-                'url' => $url
+        try {
+            $request->validate([
+                'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
             ]);
-        }
 
-        return response()->json([
-            'uploaded' => 0,
-            'error' => ['message' => 'No file uploaded or invalid file.']
-        ], 400);
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $path = $file->store('uploads/pages', 'public');
+                $url = asset('storage/' . $path);
+                return response()->json(['location' => $url]);
+            }
+
+            return response()->json(['error' => 'Không có file được tải lên hoặc file không hợp lệ.'], 400);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Tải file thất bại: ' . $e->getMessage()], 500);
+        }
     }
 }

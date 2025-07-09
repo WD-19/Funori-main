@@ -79,7 +79,7 @@
                     <thead>
                         <ul class="table-title flex gap20 mb-14">
                             <li>
-                                <div class="body-title">ID</div>
+                                <div class="body-title">STT</div>
                             </li>
                             <li>
                                 <div class="body-title">Tên danh mục</div>
@@ -100,7 +100,7 @@
                             @if ($isSearching)
                                 @foreach ($categories as $category)
                                     <li class="attribute-item item-row flex items-center justify-between gap20">
-                                        <div class="body-text">{{ $category->id }}</div>
+                                        <div class="body-text">{{ $categories->firstItem() + $loop->index }}</div>
                                         <div class="name d-flex align-items-center">
                                             <span class="body-title-2">{{ $category->name }}</span>
                                         </div>
@@ -224,7 +224,7 @@
                                     <li class="attribute-item item-row flex items-center justify-between gap20
                                         {{ request('new_id') == $category->id ? 'bg-warning bg-opacity-25 border border-warning' : '' }}"
                                         style="align-items: flex-start;">
-                                        <div class="body-text">{{ $category->id }}</div>
+                                        <div class="body-text">{{ $categories->firstItem() + $loop->index }}</div>
                                         <div class="name d-flex align-items-center">
                                             @if ($category->children->count())
                                                 <button class="btn btn-sm btn-outline-secondary me-2" type="button"
@@ -337,7 +337,7 @@
                                             <!-- End Quick View Modal for Category Parent -->
 
                                             <div class="item edit">
-                                                <a href="{{ route('admin.categories.edit', $category->id) }}"><i
+                                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="item edit"><i
                                                         class="icon-edit-3"></i></a>
                                             </div>
                                             <form action="{{ route('admin.categories.destroy', $category->id) }}"
@@ -359,7 +359,7 @@
                                                     <li
                                                         class="attribute-item item-row flex items-center justify-between gap20
                                                         {{ request('new_id') == $child->id ? 'bg-warning bg-opacity-25 border border-warning' : '' }}">
-                                                        <div class="body-text">{{ $child->id }}</div>
+                                                        <div class="body-text">{{ $loop->iteration }}</div>
                                                         <div class="name">
                                                             <span class="body-title-2">{{ $child->name }}</span>
                                                         </div>

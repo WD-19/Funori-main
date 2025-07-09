@@ -28,12 +28,13 @@ class ProductVariant extends Model
 
     public function image()
     {
-        return $this->belongsTo(ProductImage::class, 'image_id');
+        return $this->belongsTo(ProductImage::class,'image_id');  
     }
 
     public function attributeValues()
     {
-        return $this->belongsToMany(AttributeValue::class, 'product_variant_attribute_values');
+    return $this->belongsToMany(AttributeValue::class, 'product_variant_attribute_values', 'product_variant_id', 'attribute_value_id')
+                ->with('attribute');
     }
 
     public function cartItems()

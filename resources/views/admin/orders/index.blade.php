@@ -24,7 +24,8 @@
                 {{-- Nút bật bộ lọc --}}
                 <div class="mb-3">
                     <button type="button" onclick="toggleOrderFilter()"
-                        class="btn btn-outline-primary flex items-center gap-1 px-3 py-1 rounded-md" style="color: #f59e0b; border: 1px solid #f59e0b; hover: border-color: #f59e0b; background-color: #fff;">>
+                        class="btn btn-outline-primary flex items-center gap-1 px-3 py-1 rounded-md"
+                        style="color: #f59e0b; border: 1px solid #f59e0b; hover: border-color: #f59e0b; background-color: #fff;">>
                         <i class="icon-filter"></i>
                         <span>Lọc đơn hàng</span>
                     </button>
@@ -35,7 +36,7 @@
                     <form method="get" action="{{ route('admin.orders.index') }}" class="flex flex-wrap gap-4 items-end">
                         {{-- Tìm kiếm --}}
                         <div class="flex flex-col">
-                            <label class="body-title mb-1"  >Tìm kiếm</label>
+                            <label class="body-title mb-1">Tìm kiếm</label>
                             <input type="text" name="q" value="{{ request('q') }}"
                                 placeholder="Mã đơn, tên khách, SĐT..." class="input-field"
                                 style="min-width:220px; height:36px;">
@@ -78,9 +79,10 @@
                         </div>
                         {{-- Nút tìm kiếm --}}
                         <div class="flex items-end">
-                            <button class="btn btn-primary flex items-center gap-1 px-3 py-1 rounded-md" style="color: #fff; border: 1px solid #f59e0b; background-color: #f59e0b ;" type="submit"
+                            <button class="btn btn-primary flex items-center gap-1 px-3 py-1 rounded-md"
+                                style="color: #fff; border: 1px solid #f59e0b; background-color: #f59e0b ;" type="submit"
                                 style="height:36px;">
-                                <i class="icon-search text-sm" ></i>
+                                <i class="icon-search text-sm"></i>
                                 <span>Tìm</span>
                             </button>
                         </div>
@@ -100,7 +102,7 @@
             </div>
             <div class="wg-box">
                 <div class="wg-table table-all-category mt-2">
-                    <ul class="table-title flex mb-14" style="background:#f3f4f6; padding: 0 12px;">
+                    <ul class="table-title flex gap10 mb-14" style="background:#f3f4f6; padding: 0 12px;">
                         <li style="width: 30px; text-align: center; flex-shrink: 0;">
                             <div class="body-title">STT</div>
                         </li>
@@ -137,6 +139,7 @@
                             <div class="body-title"></div>
                         </li>
                     </ul>
+
                     <ul class="flex flex-column">
                         @forelse($orders as $order)
                             <li class="wg-product item-row "
@@ -249,4 +252,5 @@
                 </div>
             </div>
         </div>
-</div> @endsection
+    </div>
+@endsection

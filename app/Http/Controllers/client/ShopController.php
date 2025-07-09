@@ -14,7 +14,7 @@ class ShopController
     public function index(Request $request)
 {
     $categories = Category::withCount('products')->get();
-    $brands = Brand::all();
+    $brands = Brand::where('is_active', 1)->get();
 
     $query = Product::with(['images', 'brand', 'category', 'reviews']);
 

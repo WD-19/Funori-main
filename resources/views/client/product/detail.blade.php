@@ -921,7 +921,6 @@
     </div>
     <!-- /modal delivery_return -->
 
-
     <!-- modal share social -->
     <div class="modal modalCentered fade modalDemo tf-product-modal modal-part-content" id="share_social">
         <div class="modal-dialog modal-dialog-centered">
@@ -1002,61 +1001,107 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        toastr.options = {
-            "positionClass": "toast-bottom-right",
-            "timeOut": "3000",
-            "closeButton": true,
-            "progressBar": true
-        };
-        @if (session('success'))
-            toastr.success("{{ session('success') }}");
-        @endif
-        @if (session('error'))
-            toastr.error("{{ session('error') }}");
-        @endif
+        document.addEventListener('DOMContentLoaded', function() {
+            toastr.options = {
+                "positionClass": "toast-bottom-right",
+                "timeOut": "3000",
+                "closeButton": true,
+                "progressBar": true
+            };
+            @if (session('success'))
+                toastr.success("{{ session('success') }}");
+            @endif
 
-        document.querySelector('.btn-add-to-cart').addEventListener('click', function (e) {
-            e.preventDefault();
+            @if (session('error'))
+                toastr.error("{{ session('error') }}");
+            @endif
 
-            let productId = {{ $product->id }};
-            let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
-            let variantInput = document.querySelector('input[name="variant_id"]:checked');
-            let productVariantId = variantInput ? variantInput.value : null;
-
-            // Nếu có biến thể nhưng chưa chọn thì báo lỗi
-            const hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
-            if (hasVariants && !productVariantId) {
-                toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
-                return;
-            }
-
-            fetch('{{ route('client.cart.add') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: quantity,
-                    product_variant_id: productVariantId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    toastr.success('Đã thêm vào giỏ hàng!');
-                } else {
-                    toastr.error(data.message || 'Có lỗi xảy ra!');
+            document.querySelector('.btn-add-to-cart').addEventListener('click', function(e) {
+                e.preventDefault();
+                let
+                    productId = {{ $product->id }};
+                let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
+                let
+                    variantInput = document.querySelector('input[name="variant_id" ]:checked');
+                let productVariantId = variantInput ?
+                    variantInput.value : null; // Nếu có biến thể nhưng chưa chọn thì báo lỗi const
+                hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
+                if (hasVariants && !productVariantId) {
+                    toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
+                    return;
                 }
-            })
-            .catch(error => {
-                toastr.error('Có lỗi xảy ra!');
-                console.error(error);
+                fetch('{{ route('client.cart.add') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            quantity: quantity,
+                            product_variant_id: productVariantId
+                        })
+                    }).then(response =>
+                        response.json())
+                    .then(data => {
+                        if (data.success) {
+                            toastr.success('Đã thêm vào giỏ hàng!');
+                        } else {
+                            toastr.error(data.message || 'Có lỗi xảy ra!');
+                        }
+                    })
+                    .catch(error => {
+                        toastr.error('Có lỗi xảy ra!');
+                        console.error(error);
+                    });
             });
         });
-    });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
+            const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
+            tabTitles.forEach((tab, idx) => {
+                tab.addEventListener('click', function() {
+                    tabTitles.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    tabContents[idx].classList.add('active');
+                });
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const writeBtn = document.querySelector('.btn-write-review');
+            const cancelBtn = document.querySelector('.btn-cancel-review');
+            const formReview = document.querySelector('.form-write-review');
+            const commentWrap = document.querySelector('.reply-comment'); // Phần chứa tất cả bình luận
+
+            if (writeBtn && cancelBtn && formReview && commentWrap) {
+                // Mặc định ẩn form, hiện bình luận
+                formReview.style.display = "none";
+                cancelBtn.style.display = "none";
+                commentWrap.style.display = "block";
+
+                // Khi bấm nút "Viết đánh giá"
+                writeBtn.addEventListener('click', function() {
+                    formReview.style.display = "block";
+                    commentWrap.style.display = "none";
+                    writeBtn.style.display = "none";
+                    cancelBtn.style.display = "inline-block";
+
+                    // Nếu muốn scroll tới form thì mở dòng sau
+                    // formReview.scrollIntoView({ behavior: "smooth" });
+                });
+
+                // Khi bấm nút "Hủy đánh giá"
+                cancelBtn.addEventListener('click', function() {
+                    formReview.style.display = "none";
+                    commentWrap.style.display = "block";
+                    writeBtn.style.display = "inline-block";
+                    cancelBtn.style.display = "none";
+                });
+            }
+        });
     </script>
 
 @endsection

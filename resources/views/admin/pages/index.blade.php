@@ -36,6 +36,12 @@
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
+                        <div class="text-tiny">Trang</div>
+                    </li>
+                    <li>
+                        <i class="icon-chevron-right"></i>
+                    </li>
+                    <li>
                         <div class="text-tiny">Tất cả trang</div>
                     </li>
                 </ul>
@@ -83,7 +89,7 @@
                     <thead>
                         <ul class="table-title flex gap20 mb-14">
                             <li>
-                                <div class="body-title">ID</div>
+                                <div class="body-title">STT</div>
                             </li>
                             <li>
                                 <div class="body-title">Tiêu đề</div>
@@ -113,7 +119,7 @@
                         <ul class="flex flex-column">
                             @foreach ($pages as $page)
                                 <li class="attribute-item item-row flex items-center justify-between gap20">
-                                    <div class="body-text">{{ $page->id }}</div>
+                                    <div class="body-text">{{ $pages->firstItem() + $loop->index }}</div>
                                     <div class="body-text">{{ $page->title }}</div>
                                     {{-- <div class="body-text">{{ $page->slug }}</div> --}}
                                     <div class="body-text">{{ $page->author ? $page->author->full_name : 'N/A' }}</div>
@@ -230,7 +236,7 @@
                                         </div> --}}
 
                                         <div class="item edit">
-                                            <a href="{{ route('admin.pages.edit', $page->id) }}"><i
+                                            <a href="{{ route('admin.pages.edit', $page->id) }}" class="item edit"><i
                                                     class="icon-edit-3"></i></a>
                                         </div>
                                         <form action="{{ route('admin.pages.destroy', $page->id) }}" method="POST"
