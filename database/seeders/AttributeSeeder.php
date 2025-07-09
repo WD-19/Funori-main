@@ -13,17 +13,6 @@ class AttributeSeeder extends Seeder
      */
     public function run(): void
     {
-        // Màu sắc
-        $color = Attribute::create(['name' => 'Màu sắc']);
-        foreach (['Đỏ', 'Xanh', 'Vàng', 'Nâu', 'Trắng', 'Đen'] as $mau) {
-            AttributeValue::create(['attribute_id' => $color->id, 'value' => $mau]);
-        }
-
-        // Kích thước
-        $size = Attribute::create(['name' => 'Kích thước']);
-        foreach (['Nhỏ', 'Vừa', 'Lớn', 'Siêu lớn'] as $kt) {
-            AttributeValue::create(['attribute_id' => $size->id, 'value' => $kt]);
-        }
 
         // Chất liệu
         $material = Attribute::create(['name' => 'Chất liệu']);

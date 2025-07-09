@@ -1,7 +1,12 @@
 @extends('client.layout.client')
 
 @section('title', $product->name)
-
+<link rel="stylesheet" href="{{ asset('client/ecomus/fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">s
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 @section('content')
     <!-- breadcrumb -->
     <div class="tf-breadcrumb">
@@ -187,7 +192,7 @@
                                     <div class="badges text-uppercase">Bán chạy</div>
                                     <div class="product-status-content">
                                         <i class="icon-lightning"></i>
-                                        <p class="fw-6">Đang bán rất chạy! 48 người đã thêm vào giỏ hàng.</p>
+                                        {{-- <p class="fw-6">Đang bán rất chạy! 48 người đã thêm vào giỏ hàng.</p> --}}
                                     </div>
                                 </div>
                                 <div class="tf-product-info-badges">
@@ -222,13 +227,15 @@
                                                             style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
                                                     @endif
                                                     <div>
-                                                        <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
+                                                        <br>
                                                         <strong>Giá:</strong>
                                                         {{ number_format($product->regular_price + $variant->price_modifier, 0, ',', '.') }}đ<br>
                                                         <strong>Kho:</strong> {{ $variant->stock_quantity ?? '-' }}<br>
                                                         {{-- Hiển thị các thuộc tính của biến thể --}}
                                                         @if ($variant->attributeValues && $variant->attributeValues->count())
                                                             <div>
+                                                                <span
+                                                                        class="badge bg-light text-dark border"> {{ $variant->size ?? '-' }}</span>
                                                                 @foreach ($variant->attributeValues as $attrVal)
                                                                     <span
                                                                         class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:

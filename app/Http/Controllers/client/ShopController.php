@@ -43,7 +43,7 @@ class ShopController
             break;
     }
 
-    $products = $query->latest()->paginate(12);
+    $products = $query->latest()->paginate(16);
 
     $featuredProducts = Product::with(['images', 'reviews'])
     ->where('is_featured', 1)
