@@ -92,6 +92,7 @@
                                                 swiper: thumbsSwiper
                                             }
                                         });
+                                        window.gallerySwiper = gallerySwiper; // <-- Thêm dòng này
 
                                         // Border active cho ảnh phụ
                                         function updateThumbBorder() {
@@ -177,6 +178,25 @@
                                     #thumbs-swiper .swiper-slide .item img {
                                         transition: border 0.2s;
                                     }
+
+                                    .tf-product-info-variant-picker {
+                                        font-size: 80%;
+                                    }
+                                    .tf-product-info-variant-picker .variant-box {   
+                                     min-width: 112px !important;
+                                    padding: 1.4rem !important;
+                                    border-width: 1px !important;
+                                    border-radius: 4px !important;
+                                    font-size: 80%;
+                                    }
+                                    .tf-product-info-variant-picker .variant-box img {
+                                        width: 25px !important;  /* 36px * 0.7 */
+                                        height: 25px !important;
+                                    }
+                                    .tf-product-info-variant-picker .badge {
+                                        font-size: 90%;
+                                        padding: 2px 6px;
+                                    }           
                                 </style>
                             </div>
                         </div>
@@ -186,7 +206,10 @@
                             <div class="tf-zoom-main"></div>
                             <div class="tf-product-info-list other-image-zoom">
                                 <div class="tf-product-info-title">
-                                    <h5>{{ $product->name }}</h5>
+                                    <h5 id="product-title">
+                                        {{ $product->name }}
+                                        <span id="variant-title" style="font-weight:400; color:#888;"></span>
+                                    </h5>
                                 </div>
                                 <div class="tf-product-info-badges">
                                     <div class="badges text-uppercase">Bán chạy</div>
@@ -218,9 +241,11 @@
                                                 <label class="variant-box p-2 border rounded mb-2"
                                                     style="min-width:160px; cursor:pointer;">
                                                     <input type="radio" name="variant_id" value="{{ $variant->id }}"
-                                                        data-price="{{ $product->regular_price + $variant->price_modifier }}"
-                                                        data-material="{{ $variant->material ?? '' }}"
-                                                        style="margin-right: 8px;">
+                                                    data-title="{{ $variant->name_variant ?? '' }}"
+                                                    data-price="{{ $product->regular_price + $variant->price_modifier }}"
+                                                    data-material="{{ $variant->material ?? '' }}"
+                                                    @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
+                                                    style="margin-right: 8px;">
                                                     @if ($variant->image)
                                                         <img src="{{ asset($variant->image->image_url) }}"
                                                             alt="Ảnh biến thể"
@@ -231,17 +256,18 @@
                                                         <strong>Giá:</strong>
                                                         {{ number_format($product->regular_price + $variant->price_modifier, 0, ',', '.') }}đ<br>
                                                         <strong>Kho:</strong> {{ $variant->stock_quantity ?? '-' }}<br>
+                                                        <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
                                                         {{-- Hiển thị các thuộc tính của biến thể --}}
                                                         @if ($variant->attributeValues && $variant->attributeValues->count())
-                                                            <div>
-                                                                <span
-                                                                        class="badge bg-light text-dark border"> {{ $variant->size ?? '-' }}</span>
+                                                            {{-- <div> --}}
+                                                                {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
                                                                 @foreach ($variant->attributeValues as $attrVal)
-                                                                    <span
+                                                                    <strong>{{ $attrVal->attribute->name ?? '' }}:</strong> {{ $attrVal->value ?? '' }}<br>
+                                                                    {{-- <span
                                                                         class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
-                                                                        {{ $attrVal->value ?? '' }}</span>
+                                                                        {{ $attrVal->value ?? '' }}</span> --}}
                                                                 @endforeach
-                                                            </div>
+                                                            {{-- </div> --}}
                                                         @endif
                                                     </div>
                                                 </label>
@@ -387,6 +413,7 @@
                         lastChecked = this;
                     }
                     updatePrice();
+                    updateProductTitle();
                 });
             });
 
@@ -405,7 +432,61 @@
                 });
             });
 
-            updatePrice();
+            // Cập nhật tiêu đề sản phẩm
+            function updateProductTitle() {
+                const checked = document.querySelector('input[name="variant_id"]:checked');
+                const variantTitle = document.getElementById('variant-title');
+                if (checked && checked.dataset.title) {
+                    variantTitle.textContent = ' - ' + checked.dataset.title;
+                } else {
+                    variantTitle.textContent = '';
+                }
+            }
+
+            function updateMainImage() {
+                const checked = document.querySelector('input[name="variant_id"]:checked');
+                if (checked && checked.dataset.image) {
+                    // Tìm đúng slide có src trùng với ảnh biến thể
+                    const mainSwiperImgs = document.querySelectorAll('#gallery-swiper-started .swiper-slide img');
+                    let found = false;
+                    mainSwiperImgs.forEach((img, idx) => {
+                        // So sánh tuyệt đối đường dẫn ảnh
+                        if (img.getAttribute('src') === checked.dataset.image) {
+                            found = true;
+                            if (window.gallerySwiper) {
+                                // Lấy realIndex của slide thực (Swiper loop sẽ có slide ảo)
+                                const slide = img.closest('.swiper-slide');
+                                if (slide && typeof slide.dataset.swiperSlideIndex !== 'undefined') {
+                                    window.gallerySwiper.slideToLoop(Number(slide.dataset.swiperSlideIndex));
+                                } else {
+                                    window.gallerySwiper.slideToLoop(idx);
+                                }
+                            }
+                        }
+                    });
+                    // Nếu không tìm thấy, đổi trực tiếp src ảnh đầu tiên (fallback)
+                    if (!found) {
+                        const mainImg = document.querySelector('#gallery-swiper-started .swiper-slide img');
+                        if (mainImg) {
+                            mainImg.src = checked.dataset.image;
+                            mainImg.setAttribute('data-zoom', checked.dataset.image);
+                            mainImg.setAttribute('data-src', checked.dataset.image);
+                        }
+                    }
+                }
+            }
+
+            // Gọi khi chọn biến thể
+            variantRadios.forEach(radio => {
+                radio.addEventListener('click', function(e) {
+                    updatePrice();
+                    updateProductTitle();
+                    updateMainImage();
+                });
+            });
+
+            // Gọi khi load trang
+            updateProductTitle();
         });
     </script>
 
@@ -437,8 +518,7 @@
                             <div class="widget-content-inner active">
                                 <div class="">
                                     <p class="mb_30">
-                                        {{ $product->short_description }}
-                                        <br><br>
+                                        
                                         {!! nl2br(e($product->description)) !!}
                                     </p>
 
@@ -1043,7 +1123,7 @@
                         })
                     }).then(response =>
                         response.json())
-                    .then(data => {
+                    .then data => {
                         if (data.success) {
                             toastr.success('Đã thêm vào giỏ hàng!');
                         } else {

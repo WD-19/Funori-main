@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id(); // Khóa chính, tự tăng [cite: 18]
+            $table->string('name_variant')->nullable(); // Tên biến thể sản phẩm (ví dụ: "Màu đỏ, Size L") [cite: 18]
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // Khóa ngoại đến products(id) [cite: 18]
             $table->decimal('price_modifier', 10, 2); // Chênh lệch giá so với giá gốc sản phẩm (có thể âm hoặc dương) [cite: 18]
             $table->unsignedInteger('stock_quantity'); // Số lượng tồn kho của biến thể này [cite: 18]
