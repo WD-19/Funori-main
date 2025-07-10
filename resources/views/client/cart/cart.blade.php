@@ -51,12 +51,12 @@
 @section('content')
 
     @php
+        // Không còn 4 bước, chỉ cần 2 bước: giỏ hàng -> checkout
         $steps = [
             ['label' => 'Giỏ hàng', 'key' => 'cart'],
             ['label' => 'Thanh toán', 'key' => 'checkout'],
-            ['label' => 'Hóa đơn', 'key' => 'invoice'],
         ];
-        $currentStep = $step ?? 'cart'; // Mặc định là giỏ hàng
+        $currentStep = 'cart';
     @endphp
 
     <div class="tf-page-title">
@@ -318,9 +318,10 @@
                                     </label>
                                 </div>
                                 <div class="cart-checkout-btn" style="margin-top: 18px;">
-                                    <a href="checkout.html"
-                                        class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center">
-                                        <span>Thanh toán</span>
+                                    <a href="{{ route('client.checkout.index') }}"
+                                        class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center {{ empty($cartItems) ? 'disabled' : '' }}"
+                                        style="{{ empty($cartItems) ? 'pointer-events: none; opacity: 0.5;' : '' }}">
+                                        <span>Đặt hàng</span>
                                     </a>
                                 </div>
                             </div>
@@ -528,7 +529,6 @@
                 alert('Vui lòng chọn sản phẩm cần xóa!');
                 return;
             }
-
             if (!confirm(`Bạn có chắc muốn xóa ${selectedItems.length} sản phẩm đã chọn?`)) {
                 return;
             }

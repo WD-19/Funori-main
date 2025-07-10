@@ -233,28 +233,50 @@
                 document.getElementById('editAddressModal').style.display = 'flex';
             }
         });
-        document.getElementById('closeEditModal').onclick = function() {
-            document.getElementById('editAddressModal').style.display = 'none';
-        };
-        document.getElementById('editAddressForm').onsubmit = async function(e) {
-            e.preventDefault();
-            let id = document.getElementById('edit_address_id').value;
-            let formData = new FormData(this);
-            let res = await fetch(`/profile/address/${id}/update`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': this.querySelector('input[name="_token"]').value,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-            if (res.status === 422) {
-                let data = await res.json();
-                alert(Object.values(data.errors).flat().join('\n'));
-            } else {
-                alert('Cập nhật địa chỉ thành công!');
-                location.reload();
-            }
-        };
-    </script>
+        let result = await response.json();
+        if(result.success) {
+            alert('Đã thiết lập địa chỉ mặc định thành công!');
+            location.reload();
+        }
+    }
+});
+document.querySelectorAll('.edit-address-btn').forEach(btn => {
+    btn.onclick = async function(e) {
+        e.preventDefault();
+        let id = this.dataset.id;
+        let url = '{{ route("client.profile.address.edit", ["address" => ":id"]) }}'.replace(':id', id);
+        let res = await fetch(url);
+        let data = await res.json();
+        document.getElementById('edit_address_id').value = id;
+        document.getElementById('edit_receiver_name').value = data.receiver_name;
+        document.getElementById('edit_receiver_phone').value = data.receiver_phone;
+        document.getElementById('edit_street_address').value = data.street_address;
+        document.getElementById('editAddressModal').style.display = 'flex';
+    }
+});
+document.getElementById('closeEditModal').onclick = function() {
+    document.getElementById('editAddressModal').style.display = 'none';
+};
+document.getElementById('editAddressForm').onsubmit = async function(e) {
+    e.preventDefault();
+    let id = document.getElementById('edit_address_id').value;
+    let formData = new FormData(this);
+    let url = '{{ route("client.profile.address.update", ["address" => ":id"]) }}'.replace(':id', id);
+    let res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': this.querySelector('input[name="_token"]').value,
+            'Accept': 'application/json'
+        },
+        body: formData
+    });
+    if(res.status === 422) {
+        let data = await res.json();
+        alert(Object.values(data.errors).flat().join('\n'));
+    } else {
+        alert('Cập nhật địa chỉ thành công!');
+        location.reload();
+    }
+};
+</script>
 @endsection
