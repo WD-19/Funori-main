@@ -305,10 +305,8 @@
                                     <form class="">
                                         <a href="javascript:void(0);"
                                             class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn btn-add-to-cart">
-                                            <span>Thêm vào giỏ hàng -&nbsp;</span>
-                                            <span class="tf-qty-price" id="total-price">
-                                                {{ number_format($product->regular_price, 0, ',', '.') }}đ
-                                            </span>
+                                            <span>Thêm vào giỏ hàng </span>
+                                           
                                         </a>
                                         <div class="tf-product-btn-wishlist btn-icon-action">
                                         <button class="wishlist-btn" data-product-id="{{ $product->id }}" style="background:none;border:none;padding:0;cursor:pointer;margin-right:8px;">
@@ -1399,4 +1397,16 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 //
 </script>
+<style>
+    a.btn-add-to-cart {
+    text-decoration: none !important;
+   
+}
+
+a.btn-add-to-cart:hover {
+    text-decoration: none !important;
+    
+}
+
+</style>
 @endsection
