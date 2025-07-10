@@ -201,6 +201,9 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
+    // Chi tiết bài viết
+    Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('page.show');
+
     // Cart routes - phải đặt trước route {slug}
 
 

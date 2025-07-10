@@ -173,22 +173,25 @@ class PageController
      * Upload image for the editor.
      */
     public function uploadImage(Request $request)
-    {
-        try {
-            $request->validate([
-                'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
-            ]);
+{
+    try {
+        $request->validate([
+            'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
+        ]);
 
-            if ($request->hasFile('file')) {
-                $file = $request->file('file');
-                $path = $file->store('uploads/pages', 'public');
-                $url = asset('storage/' . $path);
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $path = $file->store('uploads/pages', 'public');
+            $url = asset('storage/' . $path);
+            // Kiểm tra file tồn tại
+            if (Storage::disk('public')->exists($path)) {
                 return response()->json(['location' => $url]);
             }
-
-            return response()->json(['error' => 'Không có file được tải lên hoặc file không hợp lệ.'], 400);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Tải file thất bại: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Không thể lưu file'], 500);
         }
+        return response()->json(['error' => 'Không có file được tải lên'], 400);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Tải file thất bại: ' . $e->getMessage()], 500);
     }
+}
 }

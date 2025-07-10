@@ -1,5 +1,7 @@
 @extends('client.profile.index')
 
+@section('page_title', 'Đơn Hàng')
+
 @section('content_profile')
 
     <div class="my-account-content account-order">
