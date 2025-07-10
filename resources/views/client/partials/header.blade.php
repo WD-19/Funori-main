@@ -94,9 +94,57 @@
                     </script>
                 @endif
             </div>
-            <a href="" class="box-heart">
-                <i class="fa-regular fa-heart heart"></i>
-            </a>
+
+            <div class="box-heart" id="wishlist-header-btn" style="position:relative;cursor:pointer;">
+                <a href="{{ route('client.profile.wishlist') }}" style="display:inline-block;position:relative;">
+                    <i class="fa-regular fa-heart heart"></i>
+                    @if (isset($headerWishlistCount) && $headerWishlistCount > 0)
+                        <span class="wishlist-badge"
+                            style="position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;">{{ $headerWishlistCount }}</span>
+                    @endif
+                </a>
+
+                <div class="wishlist-dropdown"
+                    style="display:none;position:absolute;top:120%;right:0;min-width:260px;z-index:999;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.15);padding:12px;">
+                    <div id="mini-wishlist-content">
+                        @php
+                            $wishlistItems =
+                                Auth::check() && Auth::user()->wishlist
+                                    ? Auth::user()
+                                        ->wishlist->items()
+                                        ->with('product.images')
+                                        ->orderByDesc('created_at')
+                                        ->get()
+                                    : collect();
+                            $maxShow = 5;
+                        @endphp
+                        @if ($wishlistItems->count())
+                            @foreach ($wishlistItems->take($maxShow) as $item)
+                                <a href="{{ route('client.product.show', $item->product->slug) }}"
+                                    class="mini-wishlist-item-link d-flex align-items-center mb-2 p-2"
+                                    style="border-radius:6px;transition:background 0.15s; text-decoration:none; color:#333;"
+                                    title="{{ $item->product->name }}">
+                                    <img src="{{ $item->product->images->first() ? asset($item->product->images->first()->image_url) : asset('images/no-image.png') }}"
+                                        style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px;">
+                                    <span class="mini-wishlist-name"
+                                        style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;display:inline-block;">{{ $item->product->name }}</span>
+                                </a>
+                            @endforeach
+                            @if ($wishlistItems->count() > $maxShow)
+                                <div style="text-align:center;font-size:13px;color:#888;">
+                                    +{{ $wishlistItems->count() - $maxShow }} sản phẩm khác...</div>
+                            @endif
+                        @else
+                            <div style="text-align:center;color:#888;font-size:14px;">Chưa có sản phẩm yêu thích</div>
+                        @endif
+                        <div style="text-align:center;margin-top:8px;">
+                            <a href="{{ route('client.profile.wishlist') }}" class="btn btn-sm btn-warning"
+                                style="background:#fcad02;color:#fff;font-weight:600;">Xem tất cả</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="cart-popup-group" style="position: relative; display: inline-block;">
                 <a href="{{ route('client.view-cart') }}" class="box-cart" style="position: relative; z-index: 10;">
                     <i class="fa-solid fa-cart-shopping cart"></i>
@@ -207,3 +255,39 @@
             // ...xử lý khác
         });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('wishlist-header-btn');
+        var dropdown = btn.querySelector('.wishlist-dropdown');
+        var timeout;
+
+        function showDropdown() {
+            clearTimeout(timeout);
+            dropdown.style.display = 'block';
+        }
+
+        function hideDropdown() {
+            timeout = setTimeout(function() {
+                dropdown.style.display = 'none';
+            }, 120);
+        }
+        btn.addEventListener('mouseenter', showDropdown);
+        btn.addEventListener('mouseleave', hideDropdown);
+        dropdown.addEventListener('mouseenter', showDropdown);
+        dropdown.addEventListener('mouseleave', hideDropdown);
+    });
+
+    // Thêm đoạn sau vào cuối file để tự động reload mini-wishlist-content sau khi thêm vào yêu thích
+</script>
+<style>
+    .mini-wishlist-item-link:hover .mini-wishlist-name {
+        color: #fcad02 !important;
+        text-decoration: underline;
+    }
+
+    .mini-wishlist-item-link:hover {
+        background: #fcf3e6 !important;
+        text-decoration: none;
+    }
+</style>

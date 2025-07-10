@@ -26,6 +26,7 @@ use App\Http\Controllers\client\ContactController as ClientContactCController;
 use App\Http\Controllers\client\ProfileController as ProfileController;
 use App\Http\Controllers\client\ShopController;
 use App\Http\Controllers\client\CheckoutController;
+use App\Http\Controllers\client\WishlistController;
 use App\Http\Middleware\CheckClientLogin;
 // Middleware
 use App\Http\Middleware\CheckLogin;
@@ -191,6 +192,13 @@ Route::prefix('/')->name('client.')->group(function () {
     // JS gọi POST nên route phải là POST
     Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
+    // Wishlist
+    Route::prefix('wishlist')->name('wishlist.')->middleware(CheckClientLogin::class)->group(function () {
+        Route::post('/add', [WishlistController::class, 'add'])->name('add');
+        Route::post('/remove', [WishlistController::class, 'remove'])->name('remove');
+        Route::get('/mini-list', [WishlistController::class, 'miniList'])->name('miniList');
+    });
+
     // Checkout (One-Page)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
@@ -200,8 +208,19 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::prefix('profile')->name('profile.')->middleware(CheckClientLogin::class)->group(function () {
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('order');
-        Route::get('/address', [ProfileController::class, 'address'])->name('address');
+
+        // Address Management
+        Route::prefix('address')->name('address.')->group(function () {
+            Route::get('/', [ProfileController::class, 'address'])->name('index');
+            Route::post('/', [ProfileController::class, 'storeAddress'])->name('store');
+            Route::get('/{address}/edit', [ProfileController::class, 'editAddress'])->name('edit');
+            Route::post('/{address}/update', [ProfileController::class, 'updateAddress'])->name('update');
+            Route::delete('/{address}', [ProfileController::class, 'destroyAddress'])->name('destroy');
+            Route::post('/{address}/set-default', [ProfileController::class, 'setDefaultAddress'])->name('setDefault');
+        });
+
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
+        Route::post('/account', [ProfileController::class, 'updateAccount'])->name('account.update');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
     });
 

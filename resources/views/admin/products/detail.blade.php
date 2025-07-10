@@ -217,6 +217,9 @@
                                     @endif
                                     <div class="flex-grow-1">
                                         <div class="variant-title mb-3">
+                                            {{ $variant->name_variant ? 'Tên biến thể: ' . $variant->name_variant : 'Không có tên biến thể' }}
+                                        </div>
+                                        <div class="variant-title mb-3">
                                             {{ $variant->size ? 'Kích thước: ' . $variant->size : 'Không có kích thước' }}
                                         </div>
                                         <div class="mb-3"><strong>Kho:</strong> {{ $variant->stock_quantity ?? '-' }}

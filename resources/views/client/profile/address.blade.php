@@ -3,323 +3,238 @@
 @section('content_profile')
     <div class="my-account-content account-address">
                             <div class="text-center widget-inner-address">
-                                <button class="tf-btn btn-fill animate-hover-btn btn-address mb_20">Add a new address</button>
-                                <form class="show-form-address wd-form-address" id="formnewAddress" action="#">
-                                    <div class="title">Add a new address</div>
-                                    <div class="box-field grid-2-lg">
+                                <button class="tf-btn btn-fill animate-hover-btn btn-address mb_20" id="btnShowAddAddress">Thêm địa chỉ mới</button>
+                                <form class="show-form-address wd-form-address" id="formnewAddress" action="{{ route('client.profile.address.store') }}" method="POST" style="display:none">
+                                    @csrf
+                                    <div class="title">Thêm địa chỉ mới</div>
+                                    <div class="box-field">
                                         <div class="tf-field style-1">
-                                            <input class="tf-field-input tf-input" placeholder=" " type="text" id="firstname" name="first name">
-                                            <label class="tf-field-label fw-4 text_black-2" for="firstname">First name</label>
-                                        </div>
-                                        <div class="tf-field style-1">
-                                            <input class="tf-field-input tf-input" placeholder=" " type="text" id="lastname" name="last name">
-                                            <label class="tf-field-label fw-4 text_black-2" for="lastname">Last name</label>
+                                            <input class="tf-field-input tf-input" type="text" name="receiver_name" id="receiver_name" value="{{ old('receiver_name') }}" required>
+                                            <label class="tf-field-label fw-4 text_black-2">Họ và tên</label>
                                         </div>
                                     </div>
                                     <div class="box-field">
                                         <div class="tf-field style-1">
-                                            <input class="tf-field-input tf-input" placeholder=" " type="text" id="company" name="company">
-                                            <label class="tf-field-label fw-4 text_black-2" for="company">Company</label>
+                                            <input class="tf-field-input tf-input" type="text" name="receiver_phone" id="receiver_phone" value="{{ old('receiver_phone') }}" required>
+                                            <label class="tf-field-label fw-4 text_black-2">Số điện thoại</label>
                                         </div>
                                     </div>
                                     <div class="box-field">
                                         <div class="tf-field style-1">
-                                            <input class="tf-field-input tf-input" placeholder=" " type="text" id="address" name="address">
-                                            <label class="tf-field-label fw-4 text_black-2" for="address">Address</label>
-                                        </div>
-                                    </div>
-                                    <div class="box-field">
-                                        <div class="tf-field style-1">
-                                            <input class="tf-field-input tf-input" placeholder=" " type="text" id="city" name="city">
-                                            <label class="tf-field-label fw-4 text_black-2" for="city">City</label>
-                                        </div>
-                                    </div>
-                                    <div class="box-field">
-                                        <label for="country" class="mb_10 fw-4 text-start d-block text_black-2 ">Country/Region</label>
-                                        <div class="select-custom">
-                                            <select class="tf-select w-100" id="country" name="address[country]" data-default="">
-                                                <option value="---" data-provinces="[]">---</option>
-                                                <option value="Australia" data-provinces="[['Australian Capital Territory','Australian Capital Territory'],['New South Wales','New South Wales'],['Northern Territory','Northern Territory'],['Queensland','Queensland'],['South Australia','South Australia'],['Tasmania','Tasmania'],['Victoria','Victoria'],['Western Australia','Western Australia']]">Australia</option>
-                                                <option value="Austria" data-provinces="[]">Austria</option>
-                                                <option value="Belgium" data-provinces="[]">Belgium</option>
-                                                <option value="Canada" data-provinces="[['Alberta','Alberta'],['British Columbia','British Columbia'],['Manitoba','Manitoba'],['New Brunswick','New Brunswick'],['Newfoundland and Labrador','Newfoundland and Labrador'],['Northwest Territories','Northwest Territories'],['Nova Scotia','Nova Scotia'],['Nunavut','Nunavut'],['Ontario','Ontario'],['Prince Edward Island','Prince Edward Island'],['Quebec','Quebec'],['Saskatchewan','Saskatchewan'],['Yukon','Yukon']]">Canada</option>
-                                                <option value="Czech Republic" data-provinces="[]">Czechia</option>
-                                                <option value="Denmark" data-provinces="[]">Denmark</option>
-                                                <option value="Finland" data-provinces="[]">Finland</option>
-                                                <option value="France" data-provinces="[]">France</option>
-                                                <option value="Germany" data-provinces="[]">Germany</option>
-                                                <option value="Hong Kong" data-provinces="[['Hong Kong Island','Hong Kong Island'],['Kowloon','Kowloon'],['New Territories','New Territories']]">Hong Kong SAR</option>
-                                                <option value="Ireland" data-provinces="[['Carlow','Carlow'],['Cavan','Cavan'],['Clare','Clare'],['Cork','Cork'],['Donegal','Donegal'],['Dublin','Dublin'],['Galway','Galway'],['Kerry','Kerry'],['Kildare','Kildare'],['Kilkenny','Kilkenny'],['Laois','Laois'],['Leitrim','Leitrim'],['Limerick','Limerick'],['Longford','Longford'],['Louth','Louth'],['Mayo','Mayo'],['Meath','Meath'],['Monaghan','Monaghan'],['Offaly','Offaly'],['Roscommon','Roscommon'],['Sligo','Sligo'],['Tipperary','Tipperary'],['Waterford','Waterford'],['Westmeath','Westmeath'],['Wexford','Wexford'],['Wicklow','Wicklow']]">Ireland</option>
-                                                <option value="Israel" data-provinces="[]">Israel</option>
-                                                <option value="Italy" data-provinces="[['Agrigento','Agrigento'],['Alessandria','Alessandria'],['Ancona','Ancona'],['Aosta','Aosta Valley'],['Arezzo','Arezzo'],['Ascoli Piceno','Ascoli Piceno'],['Asti','Asti'],['Avellino','Avellino'],['Bari','Bari'],['Barletta-Andria-Trani','Barletta-Andria-Trani'],['Belluno','Belluno'],['Benevento','Benevento'],['Bergamo','Bergamo'],['Biella','Biella'],['Bologna','Bologna'],['Bolzano','South Tyrol'],['Brescia','Brescia'],['Brindisi','Brindisi'],['Cagliari','Cagliari'],['Caltanissetta','Caltanissetta'],['Campobasso','Campobasso'],['Carbonia-Iglesias','Carbonia-Iglesias'],['Caserta','Caserta'],['Catania','Catania'],['Catanzaro','Catanzaro'],['Chieti','Chieti'],['Como','Como'],['Cosenza','Cosenza'],['Cremona','Cremona'],['Crotone','Crotone'],['Cuneo','Cuneo'],['Enna','Enna'],['Fermo','Fermo'],['Ferrara','Ferrara'],['Firenze','Florence'],['Foggia','Foggia'],['Forlì-Cesena','Forlì-Cesena'],['Frosinone','Frosinone'],['Genova','Genoa'],['Gorizia','Gorizia'],['Grosseto','Grosseto'],['Imperia','Imperia'],['Isernia','Isernia'],['L'Aquila','L’Aquila'],['La Spezia','La Spezia'],['Latina','Latina'],['Lecce','Lecce'],['Lecco','Lecco'],['Livorno','Livorno'],['Lodi','Lodi'],['Lucca','Lucca'],['Macerata','Macerata'],['Mantova','Mantua'],['Massa-Carrara','Massa and Carrara'],['Matera','Matera'],['Medio Campidano','Medio Campidano'],['Messina','Messina'],['Milano','Milan'],['Modena','Modena'],['Monza e Brianza','Monza and Brianza'],['Napoli','Naples'],['Novara','Novara'],['Nuoro','Nuoro'],['Ogliastra','Ogliastra'],['Olbia-Tempio','Olbia-Tempio'],['Oristano','Oristano'],['Padova','Padua'],['Palermo','Palermo'],['Parma','Parma'],['Pavia','Pavia'],['Perugia','Perugia'],['Pesaro e Urbino','Pesaro and Urbino'],['Pescara','Pescara'],['Piacenza','Piacenza'],['Pisa','Pisa'],['Pistoia','Pistoia'],['Pordenone','Pordenone'],['Potenza','Potenza'],['Prato','Prato'],['Ragusa','Ragusa'],['Ravenna','Ravenna'],['Reggio Calabria','Reggio Calabria'],['Reggio Emilia','Reggio Emilia'],['Rieti','Rieti'],['Rimini','Rimini'],['Roma','Rome'],['Rovigo','Rovigo'],['Salerno','Salerno'],['Sassari','Sassari'],['Savona','Savona'],['Siena','Siena'],['Siracusa','Syracuse'],['Sondrio','Sondrio'],['Taranto','Taranto'],['Teramo','Teramo'],['Terni','Terni'],['Torino','Turin'],['Trapani','Trapani'],['Trento','Trentino'],['Treviso','Treviso'],['Trieste','Trieste'],['Udine','Udine'],['Varese','Varese'],['Venezia','Venice'],['Verbano-Cusio-Ossola','Verbano-Cusio-Ossola'],['Vercelli','Vercelli'],['Verona','Verona'],['Vibo Valentia','Vibo Valentia'],['Vicenza','Vicenza'],['Viterbo','Viterbo']]">Italy</option>
-                                                <option value="Japan" data-provinces="[['Aichi','Aichi'],['Akita','Akita'],['Aomori','Aomori'],['Chiba','Chiba'],['Ehime','Ehime'],['Fukui','Fukui'],['Fukuoka','Fukuoka'],['Fukushima','Fukushima'],['Gifu','Gifu'],['Gunma','Gunma'],['Hiroshima','Hiroshima'],['Hokkaidō','Hokkaido'],['Hyōgo','Hyogo'],['Ibaraki','Ibaraki'],['Ishikawa','Ishikawa'],['Iwate','Iwate'],['Kagawa','Kagawa'],['Kagoshima','Kagoshima'],['Kanagawa','Kanagawa'],['Kumamoto','Kumamoto'],['Kyōto','Kyoto'],['Kōchi','Kochi'],['Mie','Mie'],['Miyagi','Miyagi'],['Miyazaki','Miyazaki'],['Nagano','Nagano'],['Nagasaki','Nagasaki'],['Nara','Nara'],['Niigata','Niigata'],['Okayama','Okayama'],['Okinawa','Okinawa'],['Saga','Saga'],['Saitama','Saitama'],['Shiga','Shiga'],['Shimane','Shimane'],['Shizuoka','Shizuoka'],['Tochigi','Tochigi'],['Tokushima','Tokushima'],['Tottori','Tottori'],['Toyama','Toyama'],['Tōkyō','Tokyo'],['Wakayama','Wakayama'],['Yamagata','Yamagata'],['Yamaguchi','Yamaguchi'],['Yamanashi','Yamanashi'],['Ōita','Oita'],['Ōsaka','Osaka']]">Japan</option>
-                                                <option value="Malaysia" data-provinces="[['Johor','Johor'],['Kedah','Kedah'],['Kelantan','Kelantan'],['Kuala Lumpur','Kuala Lumpur'],['Labuan','Labuan'],['Melaka','Malacca'],['Negeri Sembilan','Negeri Sembilan'],['Pahang','Pahang'],['Penang','Penang'],['Perak','Perak'],['Perlis','Perlis'],['Putrajaya','Putrajaya'],['Sabah','Sabah'],['Sarawak','Sarawak'],['Selangor','Selangor'],['Terengganu','Terengganu']]">Malaysia</option>
-                                                <option value="Netherlands" data-provinces="[]">Netherlands</option>
-                                                <option value="New Zealand" data-provinces="[['Auckland','Auckland'],['Bay of Plenty','Bay of Plenty'],['Canterbury','Canterbury'],['Chatham Islands','Chatham Islands'],['Gisborne','Gisborne'],['Hawke's Bay','Hawke’s Bay'],['Manawatu-Wanganui','Manawatū-Whanganui'],['Marlborough','Marlborough'],['Nelson','Nelson'],['Northland','Northland'],['Otago','Otago'],['Southland','Southland'],['Taranaki','Taranaki'],['Tasman','Tasman'],['Waikato','Waikato'],['Wellington','Wellington'],['West Coast','West Coast']]">New Zealand</option>
-                                                <option value="Norway" data-provinces="[]">Norway</option>
-                                                <option value="Poland" data-provinces="[]">Poland</option>
-                                                <option value="Portugal" data-provinces="[['Aveiro','Aveiro'],['Açores','Azores'],['Beja','Beja'],['Braga','Braga'],['Bragança','Bragança'],['Castelo Branco','Castelo Branco'],['Coimbra','Coimbra'],['Faro','Faro'],['Guarda','Guarda'],['Leiria','Leiria'],['Lisboa','Lisbon'],['Madeira','Madeira'],['Portalegre','Portalegre'],['Porto','Porto'],['Santarém','Santarém'],['Setúbal','Setúbal'],['Viana do Castelo','Viana do Castelo'],['Vila Real','Vila Real'],['Viseu','Viseu'],['Évora','Évora']]">Portugal</option>
-                                                <option value="Singapore" data-provinces="[]">Singapore</option>
-                                                <option value="South Korea" data-provinces="[['Busan','Busan'],['Chungbuk','North Chungcheong'],['Chungnam','South Chungcheong'],['Daegu','Daegu'],['Daejeon','Daejeon'],['Gangwon','Gangwon'],['Gwangju','Gwangju City'],['Gyeongbuk','North Gyeongsang'],['Gyeonggi','Gyeonggi'],['Gyeongnam','South Gyeongsang'],['Incheon','Incheon'],['Jeju','Jeju'],['Jeonbuk','North Jeolla'],['Jeonnam','South Jeolla'],['Sejong','Sejong'],['Seoul','Seoul'],['Ulsan','Ulsan']]">South Korea</option>
-                                                <option value="Spain" data-provinces="[['A Coruña','A Coruña'],['Albacete','Albacete'],['Alicante','Alicante'],['Almería','Almería'],['Asturias','Asturias Province'],['Badajoz','Badajoz'],['Balears','Balears Province'],['Barcelona','Barcelona'],['Burgos','Burgos'],['Cantabria','Cantabria Province'],['Castellón','Castellón'],['Ceuta','Ceuta'],['Ciudad Real','Ciudad Real'],['Cuenca','Cuenca'],['Cáceres','Cáceres'],['Cádiz','Cádiz'],['Córdoba','Córdoba'],['Girona','Girona'],['Granada','Granada'],['Guadalajara','Guadalajara'],['Guipúzcoa','Gipuzkoa'],['Huelva','Huelva'],['Huesca','Huesca'],['Jaén','Jaén'],['La Rioja','La Rioja Province'],['Las Palmas','Las Palmas'],['León','León'],['Lleida','Lleida'],['Lugo','Lugo'],['Madrid','Madrid Province'],['Melilla','Melilla'],['Murcia','Murcia'],['Málaga','Málaga'],['Navarra','Navarra'],['Ourense','Ourense'],['Palencia','Palencia'],['Pontevedra','Pontevedra'],['Salamanca','Salamanca'],['Santa Cruz de Tenerife','Santa Cruz de Tenerife'],['Segovia','Segovia'],['Sevilla','Seville'],['Soria','Soria'],['Tarragona','Tarragona'],['Teruel','Teruel'],['Toledo','Toledo'],['Valencia','Valencia'],['Valladolid','Valladolid'],['Vizcaya','Biscay'],['Zamora','Zamora'],['Zaragoza','Zaragoza'],['Álava','Álava'],['Ávila','Ávila']]">Spain</option>
-                                                <option value="Sweden" data-provinces="[]">Sweden</option>
-                                                <option value="Switzerland" data-provinces="[]">Switzerland</option>
-                                                <option value="United Arab Emirates" data-provinces="[['Abu Dhabi','Abu Dhabi'],['Ajman','Ajman'],['Dubai','Dubai'],['Fujairah','Fujairah'],['Ras al-Khaimah','Ras al-Khaimah'],['Sharjah','Sharjah'],['Umm al-Quwain','Umm al-Quwain']]">United Arab Emirates</option>
-                                                <option value="United Kingdom" data-provinces="[['British Forces','British Forces'],['England','England'],['Northern Ireland','Northern Ireland'],['Scotland','Scotland'],['Wales','Wales']]">United Kingdom</option>
-                                                <option value="United States" data-provinces="[['Alabama','Alabama'],['Alaska','Alaska'],['American Samoa','American Samoa'],['Arizona','Arizona'],['Arkansas','Arkansas'],['Armed Forces Americas','Armed Forces Americas'],['Armed Forces Europe','Armed Forces Europe'],['Armed Forces Pacific','Armed Forces Pacific'],['California','California'],['Colorado','Colorado'],['Connecticut','Connecticut'],['Delaware','Delaware'],['District of Columbia','Washington DC'],['Federated States of Micronesia','Micronesia'],['Florida','Florida'],['Georgia','Georgia'],['Guam','Guam'],['Hawaii','Hawaii'],['Idaho','Idaho'],['Illinois','Illinois'],['Indiana','Indiana'],['Iowa','Iowa'],['Kansas','Kansas'],['Kentucky','Kentucky'],['Louisiana','Louisiana'],['Maine','Maine'],['Marshall Islands','Marshall Islands'],['Maryland','Maryland'],['Massachusetts','Massachusetts'],['Michigan','Michigan'],['Minnesota','Minnesota'],['Mississippi','Mississippi'],['Missouri','Missouri'],['Montana','Montana'],['Nebraska','Nebraska'],['Nevada','Nevada'],['New Hampshire','New Hampshire'],['New Jersey','New Jersey'],['New Mexico','New Mexico'],['New York','New York'],['North Carolina','North Carolina'],['North Dakota','North Dakota'],['Northern Mariana Islands','Northern Mariana Islands'],['Ohio','Ohio'],['Oklahoma','Oklahoma'],['Oregon','Oregon'],['Palau','Palau'],['Pennsylvania','Pennsylvania'],['Puerto Rico','Puerto Rico'],['Rhode Island','Rhode Island'],['South Carolina','South Carolina'],['South Dakota','South Dakota'],['Tennessee','Tennessee'],['Texas','Texas'],['Utah','Utah'],['Vermont','Vermont'],['Virgin Islands','U.S. Virgin Islands'],['Virginia','Virginia'],['Washington','Washington'],['West Virginia','West Virginia'],['Wisconsin','Wisconsin'],['Wyoming','Wyoming']]">United States</option>
-                                                <option value="Vietnam" data-provinces="[]">Vietnam</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="box-field">
-                                        <div class="tf-field style-1">
-                                            <input class="tf-field-input tf-input" placeholder=" " type="text" id="AddressZipNew" name="AddressZipNew">
-                                            <label class="tf-field-label fw-4 text_black-2" for="AddressZipNew">Postal/ZIP code</label>
-                                        </div>
-                                    </div>
-                                    <div class="box-field">
-                                        <div class="tf-field style-1">
-                                            <input class="tf-field-input tf-input" placeholder=" " type="text" id="phone" name="phone">
-                                            <label class="tf-field-label fw-4 text_black-2" for="phone">Phone</label>
+                                            <input class="tf-field-input tf-input" type="text" name="street_address" id="street_address" value="{{ old('street_address') }}" required>
+                                            <label class="tf-field-label fw-4 text_black-2">Địa chỉ cụ thể</label>
                                         </div>
                                     </div>
                                     <div class="box-field text-start">
                                         <div class="box-checkbox fieldset-radio d-flex align-items-center gap-8">
-                                            <input type="checkbox" id="check-new-address" class="tf-check">
-                                            <label for="check-new-address" class="text_black-2 fw-4">Set as default address</a>.</label>
+                                            <input type="checkbox" id="check-new-address" name="is_default" value="1" class="tf-check" {{ old('is_default') ? 'checked' : '' }}>
+                                            <label for="check-new-address" class="text_black-2 fw-4">Đặt làm địa chỉ mặc định</label>
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-center gap-20">
-                                        <button type="button" class="tf-btn btn-fill animate-hover-btn">Add address</button>
-                                        <span class="tf-btn btn-fill animate-hover-btn btn-hide-address">Cancel</span>
+                                        <button type="submit" class="tf-btn btn-fill animate-hover-btn">Lưu địa chỉ</button>
+                                        <span class="tf-btn btn-fill animate-hover-btn btn-hide-address" style="cursor:pointer">Hủy</span>
                                     </div>
                                 </form>
                                 <div class="list-account-address">
-                                    <div class="account-address-item">
-                                        <h6 class="mb_20">Default</h6>
-                                        <p>themesflat</p>
-                                        <p>1234 Fashion Street, Suite 567</p>
-                                        <p>New York</p>
-                                        <p>info@fashionshop.com</p>
-                                        <p class="mb_10">(212) 555-1234</p>
-                                        <div class="d-flex gap-10 justify-content-center">
-                                            <button class="tf-btn btn-fill animate-hover-btn justify-content-center btn-edit-address">
-                                                <span>Edit</span>
-                                            </button>
-                                            <button class="tf-btn btn-outline animate-hover-btn justify-content-center">
-                                                <span>Delete</span>
-                                            </button>
+                                    @forelse($addresses as $address)
+                                        <div class="account-address-item" style="border-bottom:1px solid #eee; padding:16px 0;">
+                                            <div>
+                                                <strong>{{ $address->receiver_name }}</strong>
+                                                <span style="color:gray;">| {{ $address->receiver_phone }}</span>
+                                            </div>
+                                            <div>{{ $address->street_address }}</div>
+                                            @if($address->is_default)
+                                                <div>
+                                                    <span style="color:#e74c3c; border:1px solid #e74c3c; border-radius:3px; padding:2px 6px; font-size:12px;">Mặc định</span>
+                                                </div>
+                                            @endif
+                                            <div style="margin-top:8px;">
+                                                <a href="#" class="edit-address-btn" data-id="{{ $address->id }}" style="color:#3498db; margin-right:8px;">Cập nhật</a>
+                                                <form action="{{ route('client.profile.address.destroy', $address->id) }}" method="POST" class="d-inline delete-address-form" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" style="color:#e74c3c; background:none; border:none; cursor:pointer;">Xóa</button>
+                                                </form>
+                                                @if(!$address->is_default)
+                                                    <form action="{{ route('client.profile.address.setDefault', $address->id) }}" method="POST" class="d-inline set-default-address-form" style="display:inline;">
+                                                        @csrf
+                                                        <button type="submit" style="border:1px solid #888; border-radius:3px; padding:2px 8px; background:#fff; cursor:pointer;">Thiết lập mặc định</button>
+                                                    </form>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <form class="edit-form-address wd-form-address" id="formeditAddress" action="#">
-                                            <div class="title">Edit address</div>
-                                            <div class="box-field grid-2-lg">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="firstnameEdit" name="first name">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="firstnameEdit">First name</label>
-                                                </div>
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="lastnameEdit" name="last name">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="lastnameEdit">Last name</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="companyEdit" name="company">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="companyEdit">Company</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="addressEdit" name="address">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="addressEdit">Address</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="cityEdit" name="city">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="cityEdit">City</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <label for="countryEdit" class="mb_10 fw-4 text-start d-block text_black-2">Country/Region</label>
-                                                <div class="select-custom">
-                                                    <select class="tf-select w-100" id="countryEdit" name="address[country]" data-default="">
-                                                        <option value="---" data-provinces="[]">---</option>
-                                                        <option value="Australia" data-provinces="[['Australian Capital Territory','Australian Capital Territory'],['New South Wales','New South Wales'],['Northern Territory','Northern Territory'],['Queensland','Queensland'],['South Australia','South Australia'],['Tasmania','Tasmania'],['Victoria','Victoria'],['Western Australia','Western Australia']]">Australia</option>
-                                                        <option value="Austria" data-provinces="[]">Austria</option>
-                                                        <option value="Belgium" data-provinces="[]">Belgium</option>
-                                                        <option value="Canada" data-provinces="[['Alberta','Alberta'],['British Columbia','British Columbia'],['Manitoba','Manitoba'],['New Brunswick','New Brunswick'],['Newfoundland and Labrador','Newfoundland and Labrador'],['Northwest Territories','Northwest Territories'],['Nova Scotia','Nova Scotia'],['Nunavut','Nunavut'],['Ontario','Ontario'],['Prince Edward Island','Prince Edward Island'],['Quebec','Quebec'],['Saskatchewan','Saskatchewan'],['Yukon','Yukon']]">Canada</option>
-                                                        <option value="Czech Republic" data-provinces="[]">Czechia</option>
-                                                        <option value="Denmark" data-provinces="[]">Denmark</option>
-                                                        <option value="Finland" data-provinces="[]">Finland</option>
-                                                        <option value="France" data-provinces="[]">France</option>
-                                                        <option value="Germany" data-provinces="[]">Germany</option>
-                                                        <option value="Hong Kong" data-provinces="[['Hong Kong Island','Hong Kong Island'],['Kowloon','Kowloon'],['New Territories','New Territories']]">Hong Kong SAR</option>
-                                                        <option value="Ireland" data-provinces="[['Carlow','Carlow'],['Cavan','Cavan'],['Clare','Clare'],['Cork','Cork'],['Donegal','Donegal'],['Dublin','Dublin'],['Galway','Galway'],['Kerry','Kerry'],['Kildare','Kildare'],['Kilkenny','Kilkenny'],['Laois','Laois'],['Leitrim','Leitrim'],['Limerick','Limerick'],['Longford','Longford'],['Louth','Louth'],['Mayo','Mayo'],['Meath','Meath'],['Monaghan','Monaghan'],['Offaly','Offaly'],['Roscommon','Roscommon'],['Sligo','Sligo'],['Tipperary','Tipperary'],['Waterford','Waterford'],['Westmeath','Westmeath'],['Wexford','Wexford'],['Wicklow','Wicklow']]">Ireland</option>
-                                                        <option value="Israel" data-provinces="[]">Israel</option>
-                                                        <option value="Italy" data-provinces="[['Agrigento','Agrigento'],['Alessandria','Alessandria'],['Ancona','Ancona'],['Aosta','Aosta Valley'],['Arezzo','Arezzo'],['Ascoli Piceno','Ascoli Piceno'],['Asti','Asti'],['Avellino','Avellino'],['Bari','Bari'],['Barletta-Andria-Trani','Barletta-Andria-Trani'],['Belluno','Belluno'],['Benevento','Benevento'],['Bergamo','Bergamo'],['Biella','Biella'],['Bologna','Bologna'],['Bolzano','South Tyrol'],['Brescia','Brescia'],['Brindisi','Brindisi'],['Cagliari','Cagliari'],['Caltanissetta','Caltanissetta'],['Campobasso','Campobasso'],['Carbonia-Iglesias','Carbonia-Iglesias'],['Caserta','Caserta'],['Catania','Catania'],['Catanzaro','Catanzaro'],['Chieti','Chieti'],['Como','Como'],['Cosenza','Cosenza'],['Cremona','Cremona'],['Crotone','Crotone'],['Cuneo','Cuneo'],['Enna','Enna'],['Fermo','Fermo'],['Ferrara','Ferrara'],['Firenze','Florence'],['Foggia','Foggia'],['Forlì-Cesena','Forlì-Cesena'],['Frosinone','Frosinone'],['Genova','Genoa'],['Gorizia','Gorizia'],['Grosseto','Grosseto'],['Imperia','Imperia'],['Isernia','Isernia'],['L'Aquila','L’Aquila'],['La Spezia','La Spezia'],['Latina','Latina'],['Lecce','Lecce'],['Lecco','Lecco'],['Livorno','Livorno'],['Lodi','Lodi'],['Lucca','Lucca'],['Macerata','Macerata'],['Mantova','Mantua'],['Massa-Carrara','Massa and Carrara'],['Matera','Matera'],['Medio Campidano','Medio Campidano'],['Messina','Messina'],['Milano','Milan'],['Modena','Modena'],['Monza e Brianza','Monza and Brianza'],['Napoli','Naples'],['Novara','Novara'],['Nuoro','Nuoro'],['Ogliastra','Ogliastra'],['Olbia-Tempio','Olbia-Tempio'],['Oristano','Oristano'],['Padova','Padua'],['Palermo','Palermo'],['Parma','Parma'],['Pavia','Pavia'],['Perugia','Perugia'],['Pesaro e Urbino','Pesaro and Urbino'],['Pescara','Pescara'],['Piacenza','Piacenza'],['Pisa','Pisa'],['Pistoia','Pistoia'],['Pordenone','Pordenone'],['Potenza','Potenza'],['Prato','Prato'],['Ragusa','Ragusa'],['Ravenna','Ravenna'],['Reggio Calabria','Reggio Calabria'],['Reggio Emilia','Reggio Emilia'],['Rieti','Rieti'],['Rimini','Rimini'],['Roma','Rome'],['Rovigo','Rovigo'],['Salerno','Salerno'],['Sassari','Sassari'],['Savona','Savona'],['Siena','Siena'],['Siracusa','Syracuse'],['Sondrio','Sondrio'],['Taranto','Taranto'],['Teramo','Teramo'],['Terni','Terni'],['Torino','Turin'],['Trapani','Trapani'],['Trento','Trentino'],['Treviso','Treviso'],['Trieste','Trieste'],['Udine','Udine'],['Varese','Varese'],['Venezia','Venice'],['Verbano-Cusio-Ossola','Verbano-Cusio-Ossola'],['Vercelli','Vercelli'],['Verona','Verona'],['Vibo Valentia','Vibo Valentia'],['Vicenza','Vicenza'],['Viterbo','Viterbo']]">Italy</option>
-                                                        <option value="Japan" data-provinces="[['Aichi','Aichi'],['Akita','Akita'],['Aomori','Aomori'],['Chiba','Chiba'],['Ehime','Ehime'],['Fukui','Fukui'],['Fukuoka','Fukuoka'],['Fukushima','Fukushima'],['Gifu','Gifu'],['Gunma','Gunma'],['Hiroshima','Hiroshima'],['Hokkaidō','Hokkaido'],['Hyōgo','Hyogo'],['Ibaraki','Ibaraki'],['Ishikawa','Ishikawa'],['Iwate','Iwate'],['Kagawa','Kagawa'],['Kagoshima','Kagoshima'],['Kanagawa','Kanagawa'],['Kumamoto','Kumamoto'],['Kyōto','Kyoto'],['Kōchi','Kochi'],['Mie','Mie'],['Miyagi','Miyagi'],['Miyazaki','Miyazaki'],['Nagano','Nagano'],['Nagasaki','Nagasaki'],['Nara','Nara'],['Niigata','Niigata'],['Okayama','Okayama'],['Okinawa','Okinawa'],['Saga','Saga'],['Saitama','Saitama'],['Shiga','Shiga'],['Shimane','Shimane'],['Shizuoka','Shizuoka'],['Tochigi','Tochigi'],['Tokushima','Tokushima'],['Tottori','Tottori'],['Toyama','Toyama'],['Tōkyō','Tokyo'],['Wakayama','Wakayama'],['Yamagata','Yamagata'],['Yamaguchi','Yamaguchi'],['Yamanashi','Yamanashi'],['Ōita','Oita'],['Ōsaka','Osaka']]">Japan</option>
-                                                        <option value="Malaysia" data-provinces="[['Johor','Johor'],['Kedah','Kedah'],['Kelantan','Kelantan'],['Kuala Lumpur','Kuala Lumpur'],['Labuan','Labuan'],['Melaka','Malacca'],['Negeri Sembilan','Negeri Sembilan'],['Pahang','Pahang'],['Penang','Penang'],['Perak','Perak'],['Perlis','Perlis'],['Putrajaya','Putrajaya'],['Sabah','Sabah'],['Sarawak','Sarawak'],['Selangor','Selangor'],['Terengganu','Terengganu']]">Malaysia</option>
-                                                        <option value="Netherlands" data-provinces="[]">Netherlands</option>
-                                                        <option value="New Zealand" data-provinces="[['Auckland','Auckland'],['Bay of Plenty','Bay of Plenty'],['Canterbury','Canterbury'],['Chatham Islands','Chatham Islands'],['Gisborne','Gisborne'],['Hawke's Bay','Hawke’s Bay'],['Manawatu-Wanganui','Manawatū-Whanganui'],['Marlborough','Marlborough'],['Nelson','Nelson'],['Northland','Northland'],['Otago','Otago'],['Southland','Southland'],['Taranaki','Taranaki'],['Tasman','Tasman'],['Waikato','Waikato'],['Wellington','Wellington'],['West Coast','West Coast']]">New Zealand</option>
-                                                        <option value="Norway" data-provinces="[]">Norway</option>
-                                                        <option value="Poland" data-provinces="[]">Poland</option>
-                                                        <option value="Portugal" data-provinces="[['Aveiro','Aveiro'],['Açores','Azores'],['Beja','Beja'],['Braga','Braga'],['Bragança','Bragança'],['Castelo Branco','Castelo Branco'],['Coimbra','Coimbra'],['Faro','Faro'],['Guarda','Guarda'],['Leiria','Leiria'],['Lisboa','Lisbon'],['Madeira','Madeira'],['Portalegre','Portalegre'],['Porto','Porto'],['Santarém','Santarém'],['Setúbal','Setúbal'],['Viana do Castelo','Viana do Castelo'],['Vila Real','Vila Real'],['Viseu','Viseu'],['Évora','Évora']]">Portugal</option>
-                                                        <option value="Singapore" data-provinces="[]">Singapore</option>
-                                                        <option value="South Korea" data-provinces="[['Busan','Busan'],['Chungbuk','North Chungcheong'],['Chungnam','South Chungcheong'],['Daegu','Daegu'],['Daejeon','Daejeon'],['Gangwon','Gangwon'],['Gwangju','Gwangju City'],['Gyeongbuk','North Gyeongsang'],['Gyeonggi','Gyeonggi'],['Gyeongnam','South Gyeongsang'],['Incheon','Incheon'],['Jeju','Jeju'],['Jeonbuk','North Jeolla'],['Jeonnam','South Jeolla'],['Sejong','Sejong'],['Seoul','Seoul'],['Ulsan','Ulsan']]">South Korea</option>
-                                                        <option value="Spain" data-provinces="[['A Coruña','A Coruña'],['Albacete','Albacete'],['Alicante','Alicante'],['Almería','Almería'],['Asturias','Asturias Province'],['Badajoz','Badajoz'],['Balears','Balears Province'],['Barcelona','Barcelona'],['Burgos','Burgos'],['Cantabria','Cantabria Province'],['Castellón','Castellón'],['Ceuta','Ceuta'],['Ciudad Real','Ciudad Real'],['Cuenca','Cuenca'],['Cáceres','Cáceres'],['Cádiz','Cádiz'],['Córdoba','Córdoba'],['Girona','Girona'],['Granada','Granada'],['Guadalajara','Guadalajara'],['Guipúzcoa','Gipuzkoa'],['Huelva','Huelva'],['Huesca','Huesca'],['Jaén','Jaén'],['La Rioja','La Rioja Province'],['Las Palmas','Las Palmas'],['León','León'],['Lleida','Lleida'],['Lugo','Lugo'],['Madrid','Madrid Province'],['Melilla','Melilla'],['Murcia','Murcia'],['Málaga','Málaga'],['Navarra','Navarra'],['Ourense','Ourense'],['Palencia','Palencia'],['Pontevedra','Pontevedra'],['Salamanca','Salamanca'],['Santa Cruz de Tenerife','Santa Cruz de Tenerife'],['Segovia','Segovia'],['Sevilla','Seville'],['Soria','Soria'],['Tarragona','Tarragona'],['Teruel','Teruel'],['Toledo','Toledo'],['Valencia','Valencia'],['Valladolid','Valladolid'],['Vizcaya','Biscay'],['Zamora','Zamora'],['Zaragoza','Zaragoza'],['Álava','Álava'],['Ávila','Ávila']]">Spain</option>
-                                                        <option value="Sweden" data-provinces="[]">Sweden</option>
-                                                        <option value="Switzerland" data-provinces="[]">Switzerland</option>
-                                                        <option value="United Arab Emirates" data-provinces="[['Abu Dhabi','Abu Dhabi'],['Ajman','Ajman'],['Dubai','Dubai'],['Fujairah','Fujairah'],['Ras al-Khaimah','Ras al-Khaimah'],['Sharjah','Sharjah'],['Umm al-Quwain','Umm al-Quwain']]">United Arab Emirates</option>
-                                                        <option value="United Kingdom" data-provinces="[['British Forces','British Forces'],['England','England'],['Northern Ireland','Northern Ireland'],['Scotland','Scotland'],['Wales','Wales']]">United Kingdom</option>
-                                                        <option value="United States" data-provinces="[['Alabama','Alabama'],['Alaska','Alaska'],['American Samoa','American Samoa'],['Arizona','Arizona'],['Arkansas','Arkansas'],['Armed Forces Americas','Armed Forces Americas'],['Armed Forces Europe','Armed Forces Europe'],['Armed Forces Pacific','Armed Forces Pacific'],['California','California'],['Colorado','Colorado'],['Connecticut','Connecticut'],['Delaware','Delaware'],['District of Columbia','Washington DC'],['Federated States of Micronesia','Micronesia'],['Florida','Florida'],['Georgia','Georgia'],['Guam','Guam'],['Hawaii','Hawaii'],['Idaho','Idaho'],['Illinois','Illinois'],['Indiana','Indiana'],['Iowa','Iowa'],['Kansas','Kansas'],['Kentucky','Kentucky'],['Louisiana','Louisiana'],['Maine','Maine'],['Marshall Islands','Marshall Islands'],['Maryland','Maryland'],['Massachusetts','Massachusetts'],['Michigan','Michigan'],['Minnesota','Minnesota'],['Mississippi','Mississippi'],['Missouri','Missouri'],['Montana','Montana'],['Nebraska','Nebraska'],['Nevada','Nevada'],['New Hampshire','New Hampshire'],['New Jersey','New Jersey'],['New Mexico','New Mexico'],['New York','New York'],['North Carolina','North Carolina'],['North Dakota','North Dakota'],['Northern Mariana Islands','Northern Mariana Islands'],['Ohio','Ohio'],['Oklahoma','Oklahoma'],['Oregon','Oregon'],['Palau','Palau'],['Pennsylvania','Pennsylvania'],['Puerto Rico','Puerto Rico'],['Rhode Island','Rhode Island'],['South Carolina','South Carolina'],['South Dakota','South Dakota'],['Tennessee','Tennessee'],['Texas','Texas'],['Utah','Utah'],['Vermont','Vermont'],['Virgin Islands','U.S. Virgin Islands'],['Virginia','Virginia'],['Washington','Washington'],['West Virginia','West Virginia'],['Wisconsin','Wisconsin'],['Wyoming','Wyoming']]">United States</option>
-                                                        <option value="Vietnam" data-provinces="[]">Vietnam</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="province" name="province">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="province">Province</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="AddressZipNew" name="AddressZipNew">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="AddressZipNew">Postal/ZIP code</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="phone" name="phone">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="phone">Phone</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field text-start">
-                                                <div class="box-checkbox fieldset-radio d-flex align-items-center gap-8">
-                                                    <input type="checkbox" id="check-edit-address" class="tf-check">
-                                                    <label for="check-edit-address" class="text_black-2 fw-4">Set as default address</a>.</label>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-center justify-content-center gap-20">
-                                                <button type="button" class="tf-btn btn-fill animate-hover-btn">Update address</button>
-                                                <span class="tf-btn btn-fill animate-hover-btn btn-hide-edit-address">Cancel</span>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="account-address-item">
-                                        <h6 class="mb_20">Default</h6>
-                                        <p>themesflat</p>
-                                        <p>1234 Fashion Street, Suite 567</p>
-                                        <p>New York</p>
-                                        <p>info@fashionshop.com</p>
-                                        <p class="mb_10">(212) 555-1234</p>
-                                        <div class="d-flex gap-10 justify-content-center">
-                                            <button class="tf-btn btn-fill animate-hover-btn justify-content-center btn-edit-address">
-                                                <span>Edit</span>
-                                            </button>
-                                            <button class="tf-btn btn-outline animate-hover-btn justify-content-center">
-                                                <span>Delete</span>
-                                            </button>
-                                        </div>
-                                        <form class="edit-form-address wd-form-address" id="formeditAddress" action="#">
-                                            <div class="title">Edit address</div>
-                                            <div class="box-field grid-2-lg">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="firstnameEdit" name="first name">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="firstnameEdit">First name</label>
-                                                </div>
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="lastnameEdit" name="last name">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="lastnameEdit">Last name</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="companyEdit" name="company">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="companyEdit">Company</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="addressEdit" name="address">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="addressEdit">Address</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="cityEdit" name="city">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="cityEdit">City</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <label for="countryEdit" class="mb_10 fw-4 text-start d-block text_black-2">Country/Region</label>
-                                                <div class="select-custom">
-                                                    <select class="tf-select w-100" id="countryEdit" name="address[country]" data-default="">
-                                                        <option value="---" data-provinces="[]">---</option>
-                                                        <option value="Australia" data-provinces="[['Australian Capital Territory','Australian Capital Territory'],['New South Wales','New South Wales'],['Northern Territory','Northern Territory'],['Queensland','Queensland'],['South Australia','South Australia'],['Tasmania','Tasmania'],['Victoria','Victoria'],['Western Australia','Western Australia']]">Australia</option>
-                                                        <option value="Austria" data-provinces="[]">Austria</option>
-                                                        <option value="Belgium" data-provinces="[]">Belgium</option>
-                                                        <option value="Canada" data-provinces="[['Alberta','Alberta'],['British Columbia','British Columbia'],['Manitoba','Manitoba'],['New Brunswick','New Brunswick'],['Newfoundland and Labrador','Newfoundland and Labrador'],['Northwest Territories','Northwest Territories'],['Nova Scotia','Nova Scotia'],['Nunavut','Nunavut'],['Ontario','Ontario'],['Prince Edward Island','Prince Edward Island'],['Quebec','Quebec'],['Saskatchewan','Saskatchewan'],['Yukon','Yukon']]">Canada</option>
-                                                        <option value="Czech Republic" data-provinces="[]">Czechia</option>
-                                                        <option value="Denmark" data-provinces="[]">Denmark</option>
-                                                        <option value="Finland" data-provinces="[]">Finland</option>
-                                                        <option value="France" data-provinces="[]">France</option>
-                                                        <option value="Germany" data-provinces="[]">Germany</option>
-                                                        <option value="Hong Kong" data-provinces="[['Hong Kong Island','Hong Kong Island'],['Kowloon','Kowloon'],['New Territories','New Territories']]">Hong Kong SAR</option>
-                                                        <option value="Ireland" data-provinces="[['Carlow','Carlow'],['Cavan','Cavan'],['Clare','Clare'],['Cork','Cork'],['Donegal','Donegal'],['Dublin','Dublin'],['Galway','Galway'],['Kerry','Kerry'],['Kildare','Kildare'],['Kilkenny','Kilkenny'],['Laois','Laois'],['Leitrim','Leitrim'],['Limerick','Limerick'],['Longford','Longford'],['Louth','Louth'],['Mayo','Mayo'],['Meath','Meath'],['Monaghan','Monaghan'],['Offaly','Offaly'],['Roscommon','Roscommon'],['Sligo','Sligo'],['Tipperary','Tipperary'],['Waterford','Waterford'],['Westmeath','Westmeath'],['Wexford','Wexford'],['Wicklow','Wicklow']]">Ireland</option>
-                                                        <option value="Israel" data-provinces="[]">Israel</option>
-                                                        <option value="Italy" data-provinces="[['Agrigento','Agrigento'],['Alessandria','Alessandria'],['Ancona','Ancona'],['Aosta','Aosta Valley'],['Arezzo','Arezzo'],['Ascoli Piceno','Ascoli Piceno'],['Asti','Asti'],['Avellino','Avellino'],['Bari','Bari'],['Barletta-Andria-Trani','Barletta-Andria-Trani'],['Belluno','Belluno'],['Benevento','Benevento'],['Bergamo','Bergamo'],['Biella','Biella'],['Bologna','Bologna'],['Bolzano','South Tyrol'],['Brescia','Brescia'],['Brindisi','Brindisi'],['Cagliari','Cagliari'],['Caltanissetta','Caltanissetta'],['Campobasso','Campobasso'],['Carbonia-Iglesias','Carbonia-Iglesias'],['Caserta','Caserta'],['Catania','Catania'],['Catanzaro','Catanzaro'],['Chieti','Chieti'],['Como','Como'],['Cosenza','Cosenza'],['Cremona','Cremona'],['Crotone','Crotone'],['Cuneo','Cuneo'],['Enna','Enna'],['Fermo','Fermo'],['Ferrara','Ferrara'],['Firenze','Florence'],['Foggia','Foggia'],['Forlì-Cesena','Forlì-Cesena'],['Frosinone','Frosinone'],['Genova','Genoa'],['Gorizia','Gorizia'],['Grosseto','Grosseto'],['Imperia','Imperia'],['Isernia','Isernia'],['L'Aquila','L’Aquila'],['La Spezia','La Spezia'],['Latina','Latina'],['Lecce','Lecce'],['Lecco','Lecco'],['Livorno','Livorno'],['Lodi','Lodi'],['Lucca','Lucca'],['Macerata','Macerata'],['Mantova','Mantua'],['Massa-Carrara','Massa and Carrara'],['Matera','Matera'],['Medio Campidano','Medio Campidano'],['Messina','Messina'],['Milano','Milan'],['Modena','Modena'],['Monza e Brianza','Monza and Brianza'],['Napoli','Naples'],['Novara','Novara'],['Nuoro','Nuoro'],['Ogliastra','Ogliastra'],['Olbia-Tempio','Olbia-Tempio'],['Oristano','Oristano'],['Padova','Padua'],['Palermo','Palermo'],['Parma','Parma'],['Pavia','Pavia'],['Perugia','Perugia'],['Pesaro e Urbino','Pesaro and Urbino'],['Pescara','Pescara'],['Piacenza','Piacenza'],['Pisa','Pisa'],['Pistoia','Pistoia'],['Pordenone','Pordenone'],['Potenza','Potenza'],['Prato','Prato'],['Ragusa','Ragusa'],['Ravenna','Ravenna'],['Reggio Calabria','Reggio Calabria'],['Reggio Emilia','Reggio Emilia'],['Rieti','Rieti'],['Rimini','Rimini'],['Roma','Rome'],['Rovigo','Rovigo'],['Salerno','Salerno'],['Sassari','Sassari'],['Savona','Savona'],['Siena','Siena'],['Siracusa','Syracuse'],['Sondrio','Sondrio'],['Taranto','Taranto'],['Teramo','Teramo'],['Terni','Terni'],['Torino','Turin'],['Trapani','Trapani'],['Trento','Trentino'],['Treviso','Treviso'],['Trieste','Trieste'],['Udine','Udine'],['Varese','Varese'],['Venezia','Venice'],['Verbano-Cusio-Ossola','Verbano-Cusio-Ossola'],['Vercelli','Vercelli'],['Verona','Verona'],['Vibo Valentia','Vibo Valentia'],['Vicenza','Vicenza'],['Viterbo','Viterbo']]">Italy</option>
-                                                        <option value="Japan" data-provinces="[['Aichi','Aichi'],['Akita','Akita'],['Aomori','Aomori'],['Chiba','Chiba'],['Ehime','Ehime'],['Fukui','Fukui'],['Fukuoka','Fukuoka'],['Fukushima','Fukushima'],['Gifu','Gifu'],['Gunma','Gunma'],['Hiroshima','Hiroshima'],['Hokkaidō','Hokkaido'],['Hyōgo','Hyogo'],['Ibaraki','Ibaraki'],['Ishikawa','Ishikawa'],['Iwate','Iwate'],['Kagawa','Kagawa'],['Kagoshima','Kagoshima'],['Kanagawa','Kanagawa'],['Kumamoto','Kumamoto'],['Kyōto','Kyoto'],['Kōchi','Kochi'],['Mie','Mie'],['Miyagi','Miyagi'],['Miyazaki','Miyazaki'],['Nagano','Nagano'],['Nagasaki','Nagasaki'],['Nara','Nara'],['Niigata','Niigata'],['Okayama','Okayama'],['Okinawa','Okinawa'],['Saga','Saga'],['Saitama','Saitama'],['Shiga','Shiga'],['Shimane','Shimane'],['Shizuoka','Shizuoka'],['Tochigi','Tochigi'],['Tokushima','Tokushima'],['Tottori','Tottori'],['Toyama','Toyama'],['Tōkyō','Tokyo'],['Wakayama','Wakayama'],['Yamagata','Yamagata'],['Yamaguchi','Yamaguchi'],['Yamanashi','Yamanashi'],['Ōita','Oita'],['Ōsaka','Osaka']]">Japan</option>
-                                                        <option value="Malaysia" data-provinces="[['Johor','Johor'],['Kedah','Kedah'],['Kelantan','Kelantan'],['Kuala Lumpur','Kuala Lumpur'],['Labuan','Labuan'],['Melaka','Malacca'],['Negeri Sembilan','Negeri Sembilan'],['Pahang','Pahang'],['Penang','Penang'],['Perak','Perak'],['Perlis','Perlis'],['Putrajaya','Putrajaya'],['Sabah','Sabah'],['Sarawak','Sarawak'],['Selangor','Selangor'],['Terengganu','Terengganu']]">Malaysia</option>
-                                                        <option value="Netherlands" data-provinces="[]">Netherlands</option>
-                                                        <option value="New Zealand" data-provinces="[['Auckland','Auckland'],['Bay of Plenty','Bay of Plenty'],['Canterbury','Canterbury'],['Chatham Islands','Chatham Islands'],['Gisborne','Gisborne'],['Hawke's Bay','Hawke’s Bay'],['Manawatu-Wanganui','Manawatū-Whanganui'],['Marlborough','Marlborough'],['Nelson','Nelson'],['Northland','Northland'],['Otago','Otago'],['Southland','Southland'],['Taranaki','Taranaki'],['Tasman','Tasman'],['Waikato','Waikato'],['Wellington','Wellington'],['West Coast','West Coast']]">New Zealand</option>
-                                                        <option value="Norway" data-provinces="[]">Norway</option>
-                                                        <option value="Poland" data-provinces="[]">Poland</option>
-                                                        <option value="Portugal" data-provinces="[['Aveiro','Aveiro'],['Açores','Azores'],['Beja','Beja'],['Braga','Braga'],['Bragança','Bragança'],['Castelo Branco','Castelo Branco'],['Coimbra','Coimbra'],['Faro','Faro'],['Guarda','Guarda'],['Leiria','Leiria'],['Lisboa','Lisbon'],['Madeira','Madeira'],['Portalegre','Portalegre'],['Porto','Porto'],['Santarém','Santarém'],['Setúbal','Setúbal'],['Viana do Castelo','Viana do Castelo'],['Vila Real','Vila Real'],['Viseu','Viseu'],['Évora','Évora']]">Portugal</option>
-                                                        <option value="Singapore" data-provinces="[]">Singapore</option>
-                                                        <option value="South Korea" data-provinces="[['Busan','Busan'],['Chungbuk','North Chungcheong'],['Chungnam','South Chungcheong'],['Daegu','Daegu'],['Daejeon','Daejeon'],['Gangwon','Gangwon'],['Gwangju','Gwangju City'],['Gyeongbuk','North Gyeongsang'],['Gyeonggi','Gyeonggi'],['Gyeongnam','South Gyeongsang'],['Incheon','Incheon'],['Jeju','Jeju'],['Jeonbuk','North Jeolla'],['Jeonnam','South Jeolla'],['Sejong','Sejong'],['Seoul','Seoul'],['Ulsan','Ulsan']]">South Korea</option>
-                                                        <option value="Spain" data-provinces="[['A Coruña','A Coruña'],['Albacete','Albacete'],['Alicante','Alicante'],['Almería','Almería'],['Asturias','Asturias Province'],['Badajoz','Badajoz'],['Balears','Balears Province'],['Barcelona','Barcelona'],['Burgos','Burgos'],['Cantabria','Cantabria Province'],['Castellón','Castellón'],['Ceuta','Ceuta'],['Ciudad Real','Ciudad Real'],['Cuenca','Cuenca'],['Cáceres','Cáceres'],['Cádiz','Cádiz'],['Córdoba','Córdoba'],['Girona','Girona'],['Granada','Granada'],['Guadalajara','Guadalajara'],['Guipúzcoa','Gipuzkoa'],['Huelva','Huelva'],['Huesca','Huesca'],['Jaén','Jaén'],['La Rioja','La Rioja Province'],['Las Palmas','Las Palmas'],['León','León'],['Lleida','Lleida'],['Lugo','Lugo'],['Madrid','Madrid Province'],['Melilla','Melilla'],['Murcia','Murcia'],['Málaga','Málaga'],['Navarra','Navarra'],['Ourense','Ourense'],['Palencia','Palencia'],['Pontevedra','Pontevedra'],['Salamanca','Salamanca'],['Santa Cruz de Tenerife','Santa Cruz de Tenerife'],['Segovia','Segovia'],['Sevilla','Seville'],['Soria','Soria'],['Tarragona','Tarragona'],['Teruel','Teruel'],['Toledo','Toledo'],['Valencia','Valencia'],['Valladolid','Valladolid'],['Vizcaya','Biscay'],['Zamora','Zamora'],['Zaragoza','Zaragoza'],['Álava','Álava'],['Ávila','Ávila']]">Spain</option>
-                                                        <option value="Sweden" data-provinces="[]">Sweden</option>
-                                                        <option value="Switzerland" data-provinces="[]">Switzerland</option>
-                                                        <option value="United Arab Emirates" data-provinces="[['Abu Dhabi','Abu Dhabi'],['Ajman','Ajman'],['Dubai','Dubai'],['Fujairah','Fujairah'],['Ras al-Khaimah','Ras al-Khaimah'],['Sharjah','Sharjah'],['Umm al-Quwain','Umm al-Quwain']]">United Arab Emirates</option>
-                                                        <option value="United Kingdom" data-provinces="[['British Forces','British Forces'],['England','England'],['Northern Ireland','Northern Ireland'],['Scotland','Scotland'],['Wales','Wales']]">United Kingdom</option>
-                                                        <option value="United States" data-provinces="[['Alabama','Alabama'],['Alaska','Alaska'],['American Samoa','American Samoa'],['Arizona','Arizona'],['Arkansas','Arkansas'],['Armed Forces Americas','Armed Forces Americas'],['Armed Forces Europe','Armed Forces Europe'],['Armed Forces Pacific','Armed Forces Pacific'],['California','California'],['Colorado','Colorado'],['Connecticut','Connecticut'],['Delaware','Delaware'],['District of Columbia','Washington DC'],['Federated States of Micronesia','Micronesia'],['Florida','Florida'],['Georgia','Georgia'],['Guam','Guam'],['Hawaii','Hawaii'],['Idaho','Idaho'],['Illinois','Illinois'],['Indiana','Indiana'],['Iowa','Iowa'],['Kansas','Kansas'],['Kentucky','Kentucky'],['Louisiana','Louisiana'],['Maine','Maine'],['Marshall Islands','Marshall Islands'],['Maryland','Maryland'],['Massachusetts','Massachusetts'],['Michigan','Michigan'],['Minnesota','Minnesota'],['Mississippi','Mississippi'],['Missouri','Missouri'],['Montana','Montana'],['Nebraska','Nebraska'],['Nevada','Nevada'],['New Hampshire','New Hampshire'],['New Jersey','New Jersey'],['New Mexico','New Mexico'],['New York','New York'],['North Carolina','North Carolina'],['North Dakota','North Dakota'],['Northern Mariana Islands','Northern Mariana Islands'],['Ohio','Ohio'],['Oklahoma','Oklahoma'],['Oregon','Oregon'],['Palau','Palau'],['Pennsylvania','Pennsylvania'],['Puerto Rico','Puerto Rico'],['Rhode Island','Rhode Island'],['South Carolina','South Carolina'],['South Dakota','South Dakota'],['Tennessee','Tennessee'],['Texas','Texas'],['Utah','Utah'],['Vermont','Vermont'],['Virgin Islands','U.S. Virgin Islands'],['Virginia','Virginia'],['Washington','Washington'],['West Virginia','West Virginia'],['Wisconsin','Wisconsin'],['Wyoming','Wyoming']]">United States</option>
-                                                        <option value="Vietnam" data-provinces="[]">Vietnam</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="province" name="province">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="province">Province</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="AddressZipNew" name="AddressZipNew">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="AddressZipNew">Postal/ZIP code</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field">
-                                                <div class="tf-field style-1">
-                                                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="phone" name="phone">
-                                                    <label class="tf-field-label fw-4 text_black-2" for="phone">Phone</label>
-                                                </div>
-                                            </div>
-                                            <div class="box-field text-start">
-                                                <div class="box-checkbox fieldset-radio d-flex align-items-center gap-8">
-                                                    <input type="checkbox" id="check-edit-address1" class="tf-check">
-                                                    <label for="check-edit-address1" class="text_black-2 fw-4">Set as default address</a>.</label>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-center justify-content-center gap-20">
-                                                <button type="button" class="tf-btn btn-fill animate-hover-btn">Update address</button>
-                                                <span class="tf-btn btn-fill animate-hover-btn btn-hide-edit-address">Cancel</span>
-                                            </div>
-                                        </form>
-                                    </div>
+                                    @empty
+                                        <div>Bạn chưa có địa chỉ nào.</div>
+                                    @endforelse
                                 </div>
+                                
                             </div>
                         </div>
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+    <div id="editAddressModal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#fff; padding:32px; border-radius:8px; min-width:350px; max-width:90vw; margin:auto; position:relative;">
+            <h4>Cập nhật địa chỉ</h4>
+            <form id="editAddressForm">
+                @csrf
+                <input type="hidden" id="edit_address_id">
+                <div class="box-field">
+                    <div class="tf-field style-1">
+                        <input class="tf-field-input tf-input" type="text" name="receiver_name" id="edit_receiver_name" required>
+                        <label class="tf-field-label fw-4 text_black-2">Họ và tên</label>
+                    </div>
+                </div>
+                <div class="box-field">
+                    <div class="tf-field style-1">
+                        <input class="tf-field-input tf-input" type="text" name="receiver_phone" id="edit_receiver_phone" required>
+                        <label class="tf-field-label fw-4 text_black-2">Số điện thoại</label>
+                    </div>
+                </div>
+                <div class="box-field">
+                    <div class="tf-field style-1">
+                        <input class="tf-field-input tf-input" type="text" name="street_address" id="edit_street_address" required>
+                        <label class="tf-field-label fw-4 text_black-2">Địa chỉ cụ thể</label>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-center gap-20" style="margin-top:16px;">
+                    <button type="submit" class="tf-btn btn-fill animate-hover-btn">Lưu thay đổi</button>
+                    <span class="tf-btn btn-fill animate-hover-btn" id="closeEditModal" style="cursor:pointer; background:#eee; color:#333;">Hủy</span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('btnShowAddAddress').onclick = function() {
+            document.getElementById('formnewAddress').style.display = 'block';
+            this.style.display = 'none';
+        };
+        document.querySelector('.btn-hide-address').onclick = function() {
+            document.getElementById('formnewAddress').style.display = 'none';
+            document.getElementById('btnShowAddAddress').style.display = 'inline-block';
+        };
+    </script>
+    <script>
+document.getElementById('formnewAddress').onsubmit = async function(e) {
+    e.preventDefault();
+    let form = this;
+    let data = new FormData(form);
+
+    // Xóa thông báo lỗi cũ
+    let alertDiv = document.querySelector('.alert.alert-danger');
+    if(alertDiv) alertDiv.remove();
+
+    // Gửi AJAX
+    let response = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+            'Accept': 'application/json'
+        },
+        body: data
+    });
+
+    if (response.status === 422) {
+        let result = await response.json();
+        // Hiển thị lỗi
+        let errorHtml = '<div class="alert alert-danger"><ul>';
+        Object.values(result.errors).forEach(function(msgArr){
+            msgArr.forEach(function(msg){
+                errorHtml += '<li>' + msg + '</li>';
+            });
+        });
+        errorHtml += '</ul></div>';
+        form.insertAdjacentHTML('beforebegin', errorHtml);
+        // Giữ lại dữ liệu đã nhập (không cần làm gì thêm, input vẫn giữ nguyên)
+    } else if(response.ok) {
+        // Thành công, có thể reset form, ẩn form, hiện lại danh sách, v.v.
+        alert('Thêm địa chỉ thành công!');
+        location.reload();
+    }
+};
+</script>
+<script>
+document.querySelectorAll('.delete-address-form').forEach(form => {
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+        if (!confirm('Bạn chắc chắn muốn xóa địa chỉ này?')) return;
+        let response = await fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': this.querySelector('input[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new FormData(this)
+        });
+        let result = await response.json();
+        if(result.success) {
+            alert('Xóa địa chỉ thành công!');
+            location.reload();
+        }
+    }
+});
+document.querySelectorAll('.set-default-address-form').forEach(form => {
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+        let response = await fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': this.querySelector('input[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new FormData(this)
+        });
+        let result = await response.json();
+        if(result.success) {
+            alert('Đã thiết lập địa chỉ mặc định thành công!');
+            location.reload();
+        }
+    }
+});
+document.querySelectorAll('.edit-address-btn').forEach(btn => {
+    btn.onclick = async function(e) {
+        e.preventDefault();
+        let id = this.dataset.id;
+        let url = '{{ route("client.profile.address.edit", ["address" => ":id"]) }}'.replace(':id', id);
+        let res = await fetch(url);
+        let data = await res.json();
+        document.getElementById('edit_address_id').value = id;
+        document.getElementById('edit_receiver_name').value = data.receiver_name;
+        document.getElementById('edit_receiver_phone').value = data.receiver_phone;
+        document.getElementById('edit_street_address').value = data.street_address;
+        document.getElementById('editAddressModal').style.display = 'flex';
+    }
+});
+document.getElementById('closeEditModal').onclick = function() {
+    document.getElementById('editAddressModal').style.display = 'none';
+};
+document.getElementById('editAddressForm').onsubmit = async function(e) {
+    e.preventDefault();
+    let id = document.getElementById('edit_address_id').value;
+    let formData = new FormData(this);
+    let url = '{{ route("client.profile.address.update", ["address" => ":id"]) }}'.replace(':id', id);
+    let res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': this.querySelector('input[name="_token"]').value,
+            'Accept': 'application/json'
+        },
+        body: formData
+    });
+    if(res.status === 422) {
+        let data = await res.json();
+        alert(Object.values(data.errors).flat().join('\n'));
+    } else {
+        alert('Cập nhật địa chỉ thành công!');
+        location.reload();
+    }
+};
+</script>
 @endsection

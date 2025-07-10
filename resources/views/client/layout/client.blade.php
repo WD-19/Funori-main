@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('client/css/shop.css') }}">
     <link rel="stylesheet" href="{{ asset('client/css/main-mobile.css') }}">
 
+
     <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
@@ -24,6 +25,8 @@
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title')</title>
@@ -33,19 +36,6 @@
     <!-- Phần header -->
     @include('client.partials.header')
 
-    <!-- Toastr hiển thị thông báo session -->
-
-    @if (session('success'))
-        <x-alert type="success">
-            {{ session('success') }}
-        </x-alert>
-    @endif
-
-    @if (session('error'))
-        <x-alert type="danger">
-            {{ session('error') }}
-        </x-alert>
-    @endif
 
     <!-- Phần nội dung chính -->
     @yield('content')
@@ -72,5 +62,6 @@
 <script type="text/javascript" src="js/rangle-slider.js"></script>
 
 <!-- Toastr JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </html>

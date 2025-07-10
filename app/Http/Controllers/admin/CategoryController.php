@@ -71,7 +71,7 @@ class CategoryController
 
         $imagePath = null;
         if ($request->hasFile('image_url')) {
-            $imagePath = $request->file('image_url')->store('uploads/categories', 'public');
+            $imagePath = $request->file('image_url')->store('categories', 'public');
         }
 
         Category::create([
@@ -149,7 +149,7 @@ class CategoryController
                 Storage::disk('public')->delete($category->image_url);
             }
             // Lưu ảnh mới
-            $imagePath = $request->file('image_url')->store('uploads/categories', 'public');
+            $imagePath = $request->file('image_url')->store('categories', 'public');
         }
 
         $updateData = [

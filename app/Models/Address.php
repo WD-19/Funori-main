@@ -14,7 +14,9 @@ class Address extends Model
         'receiver_name',
         'receiver_phone',
         'street_address',
-        'address_type',
+        'province',
+        'district',
+        'ward',
         'is_default',
     ];
 

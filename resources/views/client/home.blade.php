@@ -3,6 +3,12 @@
 @section('title', 'Trang chủ')
 
 @section('content')
+    @php
+        $wishlistProductIds = [];
+        if(Auth::check() && Auth::user()->wishlist) {
+            $wishlistProductIds = Auth::user()->wishlist->items->pluck('product_id')->toArray();
+        }
+    @endphp
     <div class="banner">
         <script>
             var img = [
@@ -102,10 +108,10 @@
     <div class="box-product-sell">
         <div class="box-product-sell-2">
             <div class="in-title">
-                <div class="word">Ưu đãi trong ngày</div>
+                <div class="word">Sản phẩm mới</div>
                 <div class="see-deals">
-                    <a href="">
-                        Xem tất cả ưu đãi
+                    <a href="{{ route('shop') }}">
+                        Xem tất cả sản phẩm
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
@@ -124,8 +130,11 @@
                                             <div class="title-hot">Hot</div>
                                         @endif
                                     </div>
-                                    <div class="all-box-icon">
-                                        <i class="fa-regular fa-heart"></i>
+                                    </a>
+                                 <div class="all-box-icon">
+                                         <button class="wishlist-btn" data-product-id="{{ $product->id }}" style="background:none;border:none;padding:0;cursor:pointer;">
+                                    <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};" class="fa-solid fa-heart" id="heart-Product"></i>
+                                </button>
                                         <i class="fa-solid fa-magnifying-glass"></i>
                                     </div>
                                 </div>
@@ -139,7 +148,8 @@
                                         ({{ $product->reviews->count() }} đánh giá)
                                     </div>
                                 </div>
-                            </a>
+                            
+                            
                             <div class="box-name-product">
                                 <div class="name-product">{{ $product->name }}</div>
                                 <div id="Prict-prod" class="price-product">
@@ -151,6 +161,7 @@
                                         <span>Thêm vào giỏ</span>
                                     </button>
                                 </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -333,4 +344,116 @@
             </a>
         </div>
     </div>
+<script>
+ // thêm vào yêu thích
+    document.addEventListener("DOMContentLoaded", function () {
+    toastr.options = {
+        "positionClass": "toast-top-right",
+        "timeOut": "1000",
+        "closeButton": true,
+        "progressBar": true
+    };
+    let wishlistProcessing = false;
+    document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (wishlistProcessing) {
+                toastr.warning('Bạn thao tác quá nhanh, vui lòng chờ!');
+                return;
+            }
+            wishlistProcessing = true;
+            var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+            if (!isLoggedIn) {
+                toastr.error('Bạn cần đăng nhập!');
+                wishlistProcessing = false;
+                return;
+            }
+            var productId = this.getAttribute('data-product-id');
+            var icon = this.querySelector('i');
+            var isActive = icon.style.color === 'red';
+            var url = isActive ? "{{ route('client.wishlist.remove') }}" : "{{ route('client.wishlist.add') }}";
+            var method = 'POST';
+            var body = isActive ? new FormData() : JSON.stringify({ product_id: productId });
+            if(isActive) body.append('product_id', productId);
+            fetch(url, {
+                method: method,
+                headers: isActive ? {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                    'Accept': 'application/json'
+                } : {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: body
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(!isActive && data.success !== false) {
+                    toastr.success(data.message || 'Đã thêm vào yêu thích!');
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    icon.style.color = 'red';
+                    // Badge +1
+                    var badge = document.querySelector('.wishlist-badge');
+                    if (badge) {
+                        let count = parseInt(badge.textContent) || 0;
+                        badge.textContent = count + 1;
+                    } else {
+                        var heartIcon = document.querySelector('#wishlist-header-btn .fa-heart');
+                        if (heartIcon) {
+                            var span = document.createElement('span');
+                            span.className = 'wishlist-badge';
+                            span.style = 'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
+                            span.textContent = '1';
+                            heartIcon.parentNode.appendChild(span);
+                        }
+                    }
+                } else if(isActive && data.success) {
+                    toastr.success('Đã xóa khỏi yêu thích!');
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    icon.style.color = '#545353';
+                    // Badge -1
+                    var badge = document.querySelector('.wishlist-badge');
+                    if (badge) {
+                        let count = parseInt(badge.textContent) || 0;
+                        badge.textContent = Math.max(count - 1, 0);
+                        if(badge.textContent == '0') badge.remove();
+                    }
+                    // Đổi màu thông báo xóa khỏi yêu thích
+                    setTimeout(function() {
+                        var toast = document.querySelector('.toast-success');
+                        if(toast) {
+                            toast.style.backgroundColor = '#e53935';
+                            toast.style.color = '#fff';
+                        }
+                    }, 100);
+                } else {
+                    if(data.message && data.message.includes('đăng nhập')) {
+                        toastr.error(data.message);
+                    } else {
+                        toastr.info(data.message || 'Sản phẩm đã có trong yêu thích!');
+                    }
+                }
+                // Cập nhật mini-wishlist
+                fetch('{{ route("client.wishlist.miniList") }}')
+                    .then(res => res.text())
+                    .then(html => {
+                        var miniWishlist = document.querySelector('#mini-wishlist-content');
+                        if (miniWishlist) miniWishlist.innerHTML = html;
+                    });
+            })
+            .catch(error => {
+                toastr.error('Lỗi xảy ra!');
+                console.error(error);
+            })
+            .finally(() => {
+                setTimeout(function(){ wishlistProcessing = false; }, 600);
+            });
+        });
+    });
+});
+//
+</script>
 @endsection

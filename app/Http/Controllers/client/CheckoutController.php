@@ -32,11 +32,11 @@ class CheckoutController
         }
 
         // Lấy thông tin cần thiết cho trang checkout
-       $addresses = Auth::check()
-            ? json_decode(Auth::user()->addresses, true) ?? []
-            : [];
-        $paymentMethods  = PaymentMethod::all();
-        $shippingMethods = ShippingMethod::all();
+        $addresses = Auth::check()
+            ? Auth::user()->addresses // Lấy collection các địa chỉ đã lưu
+            : collect(); // Trả về collection rỗng nếu chưa đăng nhập
+        $paymentMethods  = PaymentMethod::where('is_active', 1)->get();
+        $shippingMethods = ShippingMethod::where('is_active', 1)->get();
 
         // Trả về view checkout duy nhất với tất cả dữ liệu
         return view('client.checkout.index', compact(
@@ -53,18 +53,77 @@ class CheckoutController
     public function processCheckout(Request $request)
     {
         // Validate toàn bộ dữ liệu từ form
-        $validatedData = $request->validate([
-            'customer_name'      => 'required|string|max:255',
-            'customer_phone'     => 'required|string|max:20',
-            'customer_email'     => 'required|email|max:255',
-            'shipping_address'   => 'required|string|max:255',
-            'province'           => 'required|string',
-            'district'           => 'required|string',
-            'ward'               => 'required|string',
+        $rules = [
+            // Thông tin người mua (thanh toán)
+            'buyer_name'         => 'required|string|max:255',
+            'buyer_phone'        => 'required|string|max:20',
+            'buyer_email'        => 'required|email|max:255',
+            'buyer_address'      => 'required|string|max:255',
+            'buyer_province'     => 'required|string',
+            'buyer_district'     => 'required|string',
+            'buyer_ward'         => 'required|string',
+
+            // Thông tin chung
             'payment_method_id'  => 'required|exists:payment_methods,id',
             'shipping_method_id' => 'required|exists:shipping_methods,id',
             'customer_note'      => 'nullable|string',
-        ]);
+            'ship_to_different_address' => 'nullable|string', // Chấp nhận giá trị 'on' từ checkbox
+        ];
+
+        // Thêm validation cho địa chỉ giao hàng nếu checkbox được chọn
+        if ($request->filled('ship_to_different_address')) {
+            $rules += [
+                'shipping_name'    => 'required|string|max:255',
+                'shipping_phone'   => 'required|string|max:20',
+                'shipping_email'   => 'required|email|max:255',
+                'shipping_address' => 'required|string|max:255',
+                'shipping_province'=> 'required|string',
+                'shipping_district'=> 'required|string',
+                'shipping_ward'    => 'required|string',
+            ];
+        }
+
+        // Thêm thông báo lỗi và tên thuộc tính tùy chỉnh để người dùng dễ hiểu
+        $messages = [
+            'required' => 'Vui lòng nhập :attribute.',
+            'email'    => 'Địa chỉ email không hợp lệ.',
+            'exists'   => 'Phương thức đã chọn không hợp lệ.',
+
+            // Buyer info
+            'buyer_name.required' => 'Vui lòng nhập họ tên người mua.',
+            'buyer_phone.required' => 'Vui lòng nhập số điện thoại người mua.',
+            'buyer_email.required' => 'Vui lòng nhập email người mua.',
+            'buyer_address.required' => 'Vui lòng nhập địa chỉ cụ thể của người mua.',
+            'buyer_province.required' => 'Vui lòng chọn Tỉnh/Thành phố của người mua.',
+            'buyer_district.required' => 'Vui lòng chọn Quận/Huyện của người mua.',
+            'buyer_ward.required' => 'Vui lòng chọn Phường/Xã của người mua.',
+
+            // Shipping info
+            'shipping_name.required' => 'Vui lòng nhập họ tên người nhận.',
+            'shipping_phone.required' => 'Vui lòng nhập số điện thoại người nhận.',
+            'shipping_email.required' => 'Vui lòng nhập email người nhận.',
+            'shipping_address.required' => 'Vui lòng nhập địa chỉ cụ thể của người nhận.',
+            'shipping_province.required' => 'Vui lòng chọn Tỉnh/Thành phố của người nhận.',
+            'shipping_district.required' => 'Vui lòng chọn Quận/Huyện của người nhận.',
+            'shipping_ward.required' => 'Vui lòng chọn Phường/Xã của người nhận.',
+
+            // Methods
+            'payment_method_id.required' => 'Vui lòng chọn phương thức thanh toán.',
+            'shipping_method_id.required' => 'Vui lòng chọn phương thức vận chuyển.',
+        ];
+
+        $attributes = [
+            'buyer_name' => 'họ tên người mua',
+            'buyer_phone' => 'số điện thoại người mua',
+            'buyer_email' => 'email người mua',
+            'buyer_address' => 'địa chỉ người mua',
+            'shipping_name' => 'họ tên người nhận',
+            'shipping_phone' => 'số điện thoại người nhận',
+            'shipping_email' => 'email người nhận',
+            'shipping_address' => 'địa chỉ người nhận',
+        ];
+
+        $validatedData = $request->validate($rules, $messages, $attributes);
 
         $cart = Session::get('cart');
         if (empty($cart['items'])) {
@@ -112,37 +171,63 @@ class CheckoutController
             $discount = 0; // Hoặc tính toán lại nếu cần
             $totalAmount = $subtotal + $shippingFee + $tax - $discount;
 
-            // Ghép địa chỉ đầy đủ từ các trường
-            $fullShippingAddress = implode(', ', array_filter([
-                $validatedData['shipping_address'],
-                $validatedData['ward'],
-                $validatedData['district'],
-                $validatedData['province'],
+            // Ghép địa chỉ người mua
+            $fullBuyerAddress = implode(', ', array_filter([
+                $validatedData['buyer_address'],
+                $validatedData['buyer_ward'],
+                $validatedData['buyer_district'],
+                $validatedData['buyer_province'],
             ]));
+
+            // Xử lý thông tin giao hàng
+            if ($request->filled('ship_to_different_address')) {
+                $shippingName    = $validatedData['shipping_name'];
+                $shippingPhone   = $validatedData['shipping_phone'];
+                $shippingEmail   = $validatedData['shipping_email'];
+                $fullShippingAddress = implode(', ', array_filter([
+                    $validatedData['shipping_address'],
+                    $validatedData['shipping_ward'],
+                    $validatedData['shipping_district'],
+                    $validatedData['shipping_province'],
+                ]));
+            } else {
+                // Nếu không, sử dụng thông tin người mua cho giao hàng
+                $shippingName    = $validatedData['buyer_name'];
+                $shippingPhone   = $validatedData['buyer_phone'];
+                $shippingEmail   = $validatedData['buyer_email'];
+                $fullShippingAddress = $fullBuyerAddress;
+            }
 
             $orderData = [
                 'order_code'         => 'ORD-' . strtoupper(uniqid()),
-                'customer_name'      => $validatedData['customer_name'],
-                'customer_phone'     => $validatedData['customer_phone'],
-                'customer_email'     => $validatedData['customer_email'],
-                'shipping_address'   => $fullShippingAddress, // Lưu địa chỉ đầy đủ
-                'province'           => $validatedData['province'],
-                'district'           => $validatedData['district'],
-                'ward'               => $validatedData['ward'],
+                'ordered_at'         => now(), // Thêm ngày đặt hàng
+
+                // Giữ lại các trường customer_* để tương thích, lấy từ thông tin người mua
+                'customer_name'      => $validatedData['buyer_name'],
+                'customer_phone'     => $validatedData['buyer_phone'],
+                'customer_email'     => $validatedData['buyer_email'],
+
+                // Thông tin người mua (để thanh toán, xuất hóa đơn)
+                'buyer_name'         => $validatedData['buyer_name'],
+                'buyer_phone'        => $validatedData['buyer_phone'],
+                'buyer_email'        => $validatedData['buyer_email'],
+                'buyer_address'      => $fullBuyerAddress,
+
                 'customer_note'      => $validatedData['customer_note'],
                 'payment_method_id'  => $validatedData['payment_method_id'],
                 'shipping_method_id' => $validatedData['shipping_method_id'],
-                'subtotal_amount'    => $subtotal, 'tax_amount'         => $tax, 'shipping_fee'       => $shippingFee, 'discount_amount'    => $discount, 'total_amount'       => $totalAmount, 'order_status'      => 'pending_confirmation',
+                'subtotal_amount'    => $subtotal,
+                'tax_amount'         => $tax,
+                'shipping_fee'       => $shippingFee,
+                'discount_amount'    => $discount,
+                'total_amount'       => $totalAmount,
+                'order_status'       => 'pending_confirmation',
 
-                // Đồng bộ thông tin người mua (buyer) và người nhận (shipping) với thông tin khách hàng từ form
-                // để đảm bảo dữ liệu nhất quán trên toàn hệ thống (hóa đơn, trang admin, v.v.)
-                'buyer_name'         => $validatedData['customer_name'],
-                'buyer_phone'        => $validatedData['customer_phone'],
-                'buyer_email'        => $validatedData['customer_email'],
-                'buyer_address'      => $fullShippingAddress,
-                'shipping_name'      => $validatedData['customer_name'],
-                'shipping_phone'     => $validatedData['customer_phone'],
-                'shipping_email'     => $validatedData['customer_email'],
+                // Thông tin người nhận hàng (để giao hàng)
+                'shipping_name'      => $shippingName,
+                'shipping_phone'     => $shippingPhone,
+                'shipping_email'     => $shippingEmail,
+                'shipping_address'   => $fullShippingAddress,
             ];
 
              if (Auth::check()) {

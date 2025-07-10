@@ -161,23 +161,23 @@
                 @csrf
                 <div class="row">
                     <div class="col-lg-7">
-                        <h4>Thông tin giao hàng</h4>
-
-                        @if (auth()->check() && !empty($addresses))
+                        <!-- Buyer Information Form -->
+                        <h4>Thông tin người đặt hàng (để xuất hóa đơn)</h4>
+                        @if (auth()->check() && $addresses->isNotEmpty())
                             <div class="form-group">
                                 <label for="saved_address">Chọn địa chỉ đã lưu</label>
                                 <select id="saved_address" class="form-control">
                                     <option value="">-- Nhập địa chỉ mới --</option>
                                     @foreach ($addresses as $index => $address)
-                                        <option value="{{ $index }}"
-                                            data-name="{{ $address['name'] ?? '' }}"
-                                            data-phone="{{ $address['phone'] ?? '' }}"
-                                            data-email="{{ $address['email'] ?? '' }}"
-                                            data-address="{{ $address['address'] ?? '' }}"
-                                            data-province="{{ $address['province'] ?? '' }}"
-                                            data-district="{{ $address['district'] ?? '' }}"
-                                            data-ward="{{ $address['ward'] ?? '' }}">
-                                            {{ $address['name'] }} - {{ $address['address'] }}, {{ $address['ward'] }}, {{ $address['district'] }}, {{ $address['province'] }}
+                                        <option value="{{ $address->id }}"
+                                            data-name="{{ $address->receiver_name ?? '' }}"
+                                            data-phone="{{ $address->receiver_phone ?? '' }}"
+                                            data-email="{{ auth()->user()->email ?? '' }}"
+                                            data-address="{{ $address->street_address ?? '' }}"
+                                            data-province="{{ $address->province ?? '' }}"
+                                            data-district="{{ $address->district ?? '' }}"
+                                            data-ward="{{ $address->ward ?? '' }}">
+                                            {{ $address->receiver_name }} - {{ $address->street_address }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -186,43 +186,97 @@
 
                         <div class="row">
                             <div class="col-md-12 form-group">
-                                <label for="customer_name">Họ và tên <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="customer_name" name="customer_name" value="{{ old('customer_name', auth()->user()->full_name ?? '') }}" required>
+                                <label for="buyer_name">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="buyer_name" name="buyer_name" value="{{ old('buyer_name', auth()->user()->full_name ?? '') }}" required>
                             </div>
                             <div class="col-md-6 form-group">
-                                <label for="customer_email">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="customer_email" name="customer_email" value="{{ old('customer_email', auth()->user()->email ?? '') }}" required>
+                                <label for="buyer_email">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="buyer_email" name="buyer_email" value="{{ old('buyer_email', auth()->user()->email ?? '') }}" required>
                             </div>
                             <div class="col-md-6 form-group">
-                                <label for="customer_phone">Số điện thoại <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="customer_phone" name="customer_phone" value="{{ old('customer_phone', auth()->user()->phone ?? '') }}" required>
+                                <label for="buyer_phone">Số điện thoại <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="buyer_phone" name="buyer_phone" value="{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}" required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 form-group">
-                                <label for="province">Tỉnh/Thành phố <span class="text-danger">*</span></label>
-                                <!-- Giới hạn chỉ Hà Nội, thêm input ẩn để gửi dữ liệu -->
-                                <select class="form-control" id="province_disabled" name="province_disabled" required disabled>
+                                <label for="buyer_province">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <select class="form-control" id="buyer_province_disabled" name="buyer_province_disabled" required disabled>
                                     <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
                                 </select>
-                                <input type="hidden" name="province" value="Thành phố Hà Nội">
+                                <input type="hidden" name="buyer_province" value="Thành phố Hà Nội">
                             </div>
                             <div class="col-md-4 form-group">
-                                <label for="district">Quận/Huyện <span class="text-danger">*</span></label>
-                                <select class="form-control" id="district" name="district" required>
+                                <label for="buyer_district">Quận/Huyện <span class="text-danger">*</span></label>
+                                <select class="form-control" id="buyer_district" name="buyer_district" required>
                                     <option value="">-- Vui lòng chọn --</option>
                                 </select>
                             </div>
                             <div class="col-md-4 form-group">
-                                <label for="ward">Phường/Xã <span class="text-danger">*</span></label>
-                                <select class="form-control" id="ward" name="ward" required></select>
+                                <label for="buyer_ward">Phường/Xã <span class="text-danger">*</span></label>
+                                <select class="form-control" id="buyer_ward" name="buyer_ward" required>
+                                    <option value="">-- Chọn --</option>
+                                </select>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="shipping_address">Địa chỉ cụ thể (Số nhà, tên đường...) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="shipping_address" name="shipping_address" value="{{ old('shipping_address') }}" required>
+                            <label for="buyer_address">Địa chỉ cụ thể (Số nhà, tên đường...) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="buyer_address" name="buyer_address" value="{{ old('buyer_address', auth()->user()->address ?? '') }}" required>
+                        </div>
+
+                        <!-- Shipping Information Form -->
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="ship_to_different_address" name="ship_to_different_address" {{ old('ship_to_different_address') ? 'checked' : '' }}>
+                                Giao hàng đến địa chỉ khác
+                            </label>
+                        </div>
+
+                        <div id="shipping_info" style="{{ old('ship_to_different_address') ? '' : 'display: none;' }}">
+                            <h4>Địa chỉ giao hàng</h4>
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <label for="shipping_name">Họ và tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="shipping_name" name="shipping_name" value="{{ old('shipping_name') }}">
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label for="shipping_email">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="shipping_email" name="shipping_email" value="{{ old('shipping_email') }}">
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label for="shipping_phone">Số điện thoại <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="shipping_phone" name="shipping_phone" value="{{ old('shipping_phone') }}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 form-group">
+                                    <label for="shipping_province">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="shipping_province_disabled" name="shipping_province_disabled" disabled>
+                                        <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
+                                    </select>
+                                    <input type="hidden" name="shipping_province" value="Thành phố Hà Nội">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="shipping_district">Quận/Huyện <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="shipping_district" name="shipping_district">
+                                        <option value="">-- Vui lòng chọn --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="shipping_ward">Phường/Xã <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="shipping_ward" name="shipping_ward">
+                                        <option value="">-- Chọn --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="shipping_address">Địa chỉ cụ thể (Số nhà, tên đường...) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="shipping_address" name="shipping_address" value="{{ old('shipping_address') }}">
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -297,15 +351,11 @@
             const hanoiCode = 1; // Mã của Hà Nội
 
             var callApiDistrict = (api) => {
-                return axios.get(api).then((response) => {
-                    renderData(response.data.districts, "district");
-                });
+                return axios.get(api);
             }
 
             var callApiWard = (api) => {
-                return axios.get(api).then((response) => {
-                    renderData(response.data.wards, "ward");
-                });
+                return axios.get(api);
             }
 
             var renderData = (array, selectId) => {
@@ -316,17 +366,88 @@
                 document.getElementById(selectId).innerHTML = row;
             }
 
-            // Tải danh sách quận/huyện của Hà Nội khi trang được tải
-            callApiDistrict(host + "p/" + hanoiCode + "?depth=2");
+            const buyerDistrictSelect = document.getElementById('buyer_district');
+            const buyerWardSelect = document.getElementById('buyer_ward');
+            const shippingDistrictSelect = document.getElementById('shipping_district');
+            const shippingWardSelect = document.getElementById('shipping_ward');
+            const shipToDifferentAddressCheckbox = document.getElementById('ship_to_different_address');
+            const shippingInfoSection = document.getElementById('shipping_info');
 
-            // Khi chọn quận/huyện -> tải phường/xã
-            document.getElementById('district').addEventListener('change', function() {
+            // Hàm khởi tạo địa chỉ cho người dùng đã đăng nhập
+            async function initializeUserAddress() {
+                const userDistrict = `{{ auth()->check() ? auth()->user()->district : '' }}`;
+                const userWard = `{{ auth()->check() ? auth()->user()->ward : '' }}`;
+
+                try {
+                    // Tải quận/huyện cho cả hai form
+                    const districtResponse = await callApiDistrict(host + "p/" + hanoiCode + "?depth=2");
+                    renderData(districtResponse.data.districts, "buyer_district");
+                    renderData(districtResponse.data.districts, "shipping_district");
+
+                    // Nếu người dùng có quận đã lưu, chọn nó
+                    if (userDistrict) {
+                        buyerDistrictSelect.value = userDistrict;
+
+                        // Lấy mã quận để tải phường/xã
+                        const districtCode = buyerDistrictSelect.options[buyerDistrictSelect.selectedIndex]?.dataset.code;
+                        if (districtCode) {
+                            const wardResponse = await callApiWard(host + "d/" + districtCode + "?depth=2");
+                            renderData(wardResponse.data.wards, "buyer_ward");
+
+                            // Nếu người dùng có phường đã lưu, chọn nó
+                            if (userWard) {
+                                buyerWardSelect.value = userWard;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi tải địa chỉ:", error);
+                }
+            }
+
+            // Chạy hàm khởi tạo nếu người dùng đã đăng nhập, ngược lại chỉ tải quận/huyện
+            if (`{{ auth()->check() }}`) {
+                initializeUserAddress();
+            } else {
+                callApiDistrict(host + "p/" + hanoiCode + "?depth=2").then(res => {
+                    renderData(res.data.districts, "buyer_district");
+                    renderData(res.data.districts, "shipping_district");
+                });
+            }
+
+            // Khi chọn quận/huyện -> tải phường/xã cho buyer
+            buyerDistrictSelect.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
                 if (selectedOption.dataset.code) {
-                    callApiWard(host + "d/" + selectedOption.dataset.code + "?depth=2");
+                    callApiWard(host + "d/" + selectedOption.dataset.code + "?depth=2").then(res => {
+                        renderData(res.data.wards, "buyer_ward");
+                    });
                 } else {
-                    document.getElementById('ward').innerHTML = '<option value="">-- Chọn --</option>';
+                    buyerWardSelect.innerHTML = '<option value="">-- Chọn --</option>';
                 }
+            });
+
+            // Khi chọn quận/huyện -> tải phường/xã cho shipping
+            shippingDistrictSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.dataset.code) {
+                    callApiWard(host + "d/" + selectedOption.dataset.code + "?depth=2").then(res => {
+                        renderData(res.data.wards, "shipping_ward");
+                    });
+                } else {
+                    shippingWardSelect.innerHTML = '<option value="">-- Chọn --</option>';
+                }
+            });
+
+            // Toggle shipping form visibility
+            shipToDifferentAddressCheckbox.addEventListener('change', function() {
+                shippingInfoSection.style.display = this.checked ? 'block' : 'none';
+                // Update required attributes based on checkbox state
+                const shippingFields = ['shipping_name', 'shipping_email', 'shipping_phone', 'shipping_address', 'shipping_district', 'shipping_ward'];
+                shippingFields.forEach(field => {
+                    const input = document.getElementById(field);
+                    if (input) input.required = this.checked;
+                });
             });
 
             // Shipping fee calculation
@@ -348,47 +469,46 @@
                 savedAddressSelect.addEventListener('change', async function() {
                     const selectedOption = this.options[this.selectedIndex];
 
-                    // Lấy các element của form
-                    const nameInput = document.getElementById('customer_name');
-                    const phoneInput = document.getElementById('customer_phone');
-                    const emailInput = document.getElementById('customer_email');
-                    const addressInput = document.getElementById('shipping_address');
-                    const districtSelect = document.getElementById('district');
-                    const wardSelect = document.getElementById('ward');
+                    // Lấy các element của form NGƯỜI MUA
+                    const buyerNameInput = document.getElementById('buyer_name');
+                    const buyerPhoneInput = document.getElementById('buyer_phone');
+                    const buyerEmailInput = document.getElementById('buyer_email');
+                    const buyerAddressInput = document.getElementById('buyer_address');
+                    const buyerDistrictSelect = document.getElementById('buyer_district');
+                    const buyerWardSelect = document.getElementById('buyer_ward');
 
                     if (!selectedOption.value) {
-                        // Nếu chọn "-- Nhập địa chỉ mới --", reset form về thông tin user (nếu có)
-                        nameInput.value = `{{ auth()->check() ? auth()->user()->full_name : '' }}`;
-                        phoneInput.value = `{{ auth()->check() ? auth()->user()->phone : '' }}`;
-                        emailInput.value = `{{ auth()->check() ? auth()->user()->email : '' }}`;
-                        addressInput.value = '';
-                        await callApiDistrict(host + "p/" + hanoiCode + "?depth=2"); // Tải lại quận huyện Hà Nội
-                        wardSelect.innerHTML = '<option value="">-- Chọn --</option>';
+                        // Nếu chọn "-- Nhập địa chỉ mới --", khôi phục thông tin người dùng mặc định
+                        buyerNameInput.value = '{{ old('buyer_name', auth()->user()->full_name ?? '') }}';
+                        buyerPhoneInput.value = '{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}';
+                        buyerEmailInput.value = '{{ old('buyer_email', auth()->user()->email ?? '') }}';
+                        buyerAddressInput.value = '{{ old('buyer_address', auth()->user()->address ?? '') }}';
+                        // Gọi lại hàm khởi tạo để chọn lại địa chỉ mặc định của user nếu có
+                        await initializeUserAddress();
                         return;
                     }
 
-                    // Điền thông tin cơ bản từ địa chỉ đã lưu
-                    nameInput.value = selectedOption.dataset.name;
-                    phoneInput.value = selectedOption.dataset.phone;
-                    emailInput.value = selectedOption.dataset.email;
-                    addressInput.value = selectedOption.dataset.address;
+                    // Điền thông tin từ địa chỉ đã lưu vào form NGƯỜI MUA
+                    buyerNameInput.value = selectedOption.dataset.name;
+                    buyerPhoneInput.value = selectedOption.dataset.phone;
+                    buyerEmailInput.value = selectedOption.dataset.email;
+                    buyerAddressInput.value = selectedOption.dataset.address;
 
-                    // Lấy tên tỉnh, huyện, xã từ data-attributes
-                    const districtName = selectedOption.dataset.district;
-                    const wardName = selectedOption.dataset.ward;
+                    // Lấy và tự động chọn Tỉnh/Huyện/Xã cho form NGƯỜI MUA
+                    const selectedDistrict = selectedOption.dataset.district;
+                    const selectedWard = selectedOption.dataset.ward;
 
-                    // Vì chỉ bán ở Hà Nội, ta chỉ cần xử lý quận/huyện và phường/xã
-                    if (districtName) {
-                        // Tải lại danh sách quận/huyện để đảm bảo có data-code
-                        await callApiDistrict(host + "p/" + hanoiCode + "?depth=2");
-                        districtSelect.value = districtName;
+                    // Chọn đúng quận/huyện
+                    buyerDistrictSelect.value = selectedDistrict;
 
-                        // Trigger change để tải phường/xã, hoặc gọi trực tiếp
-                        const districtCode = districtSelect.options[districtSelect.selectedIndex]?.dataset.code;
-                        if (districtCode) {
-                            await callApiWard(host + "d/" + districtCode + "?depth=2");
-                            wardSelect.value = wardName;
-                        }
+                    // Tải danh sách phường/xã tương ứng và chọn đúng phường/xã
+                    const districtCode = Array.from(buyerDistrictSelect.options).find(opt => opt.value === selectedDistrict)?.dataset.code;
+                    if (districtCode) {
+                        const wardResponse = await callApiWard(host + "d/" + districtCode + "?depth=2");
+                        renderData(wardResponse.data.wards, "buyer_ward");
+                        buyerWardSelect.value = selectedWard;
+                    } else {
+                        buyerWardSelect.innerHTML = '<option value="">-- Chọn --</option>';
                     }
                 });
             }

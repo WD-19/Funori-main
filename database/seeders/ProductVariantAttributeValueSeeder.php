@@ -18,7 +18,7 @@ class ProductVariantAttributeValueSeeder extends Seeder
         $attributeValues = AttributeValue::all();
 
         foreach ($variants as $variant) {
-            $values = $attributeValues->random(rand(1, 2));
+            $values = $attributeValues->random(rand(1, 1));
             foreach ($values as $value) {
                 ProductVariantAttributeValue::firstOrCreate([
                     'product_variant_id' => $variant->id,
