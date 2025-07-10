@@ -72,11 +72,11 @@
     <div class="wg-box mb-30">
         <fieldset class="name">
             <div class="body-title mb-10">Tên sản phẩm <span class="tf-color-1">*</span></div>
-            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" value="{{ old('name', $product->name) }}" maxlength="100" required>
+            <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" value="{{ old('name', $product->name) }}" maxlength="100" >
         </fieldset>
         <fieldset class="category">
             <div class="body-title mb-10">Danh mục <span class="tf-color-1">*</span></div>
-            <select name="category_id" required>
+            <select name="category_id" >
                 <option value="">-- Chọn danh mục --</option>
                 @foreach($categories as $category)
                 <option value="{{ $category->id }}" @if(old('category_id', $product->category_id) == $category->id) selected @endif>{{ $category->name }}</option>
@@ -85,7 +85,7 @@
         </fieldset>
         <fieldset class="brand">
             <div class="body-title mb-10">Thương hiệu <span class="tf-color-1">*</span></div>
-            <select name="brand_id" required>
+            <select name="brand_id" >
                 <option value="">-- Chọn thương hiệu --</option>
                 @foreach($brands as $brand)
                 <option value="{{ $brand->id }}" @if(old('brand_id', $product->brand_id) == $brand->id) selected @endif>{{ $brand->name }}</option>
@@ -94,11 +94,11 @@
         </fieldset>
         <fieldset class="price">
             <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
-            <input type="number" name="regular_price" min="0" step="0.01" value="{{ old('regular_price', $product->regular_price) }}" required>
+            <input type="number" name="regular_price" min="0" step="0.01" value="{{ old('regular_price', $product->regular_price) }}" >
         </fieldset>
         <fieldset class="short_description">
             <div class="body-title mb-10">Mô tả ngắn <span class="tf-color-1">*</span></div>
-            <textarea name="short_description" maxlength="255" required>{{ old('short_description', $product->short_description) }}</textarea>
+            <textarea name="short_description" maxlength="255" >{{ old('short_description', $product->short_description) }}</textarea>
         </fieldset>
         <fieldset class="description">
             <div class="body-title mb-10">Mô tả chi tiết</div>
@@ -113,7 +113,7 @@
                 <div class="variant-row flex gap10 mb-2 align-items-center">
                     <input type="hidden" name="variants[{{ $i }}][id]" value="{{ $variant->id }}">
                     @foreach($attributes as $attribute)
-                    <select style="width: 60%;" name="variants[{{ $i }}][attribute_values][{{ $attribute->id }}]" required>
+                    <select style="width: 60%;" name="variants[{{ $i }}][attribute_values][{{ $attribute->id }}]" >
                         <option value="">-- {{ $attribute->name }} --</option>
                         @foreach($attribute->values as $value)
                         <option value="{{ $value->id }}"
@@ -123,6 +123,7 @@
                         @endforeach
                     </select>
                     @endforeach
+                    <input type="text" name="variants[{{ $i }}][name_variant]" value="{{ old('variants.'.$i.'.name_variant', $variant->name_variant ?? '') }}" placeholder="Tên biến thể" style="width:28%;">
                     <input type="text" name="variants[{{ $i }}][size]" value="{{ old('variants.'.$i.'.size', $variant->size ?? '') }}" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
                     <input style="width: 150px;" type="number" name="variants[{{ $i }}][price_modifier]" value="{{ old('variants.'.$i.'.price_modifier', $variant->price_modifier) }}" placeholder="Giá chênh lệch" step="0.01">
                     <input style="width: 100px;" type="number" name="variants[{{ $i }}][stock_quantity]" value="{{ old('variants.'.$i.'.stock_quantity', $variant->stock_quantity) }}" placeholder="Kho" min="0">
@@ -152,7 +153,7 @@
 @php
 $attributeSelects = '';
 foreach($attributes as $attribute) {
-    $attributeSelects .= '<select style="width: 60%;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" required>';
+    $attributeSelects .= '<select style="width: 20%;" name="VARIANT_NAME[attribute_values]['.$attribute->id.']" >';
     $attributeSelects .= '<option value="">-- '.$attribute->name.' --</option>';
     foreach($attribute->values as $value) {
         $attributeSelects .= '<option value="'.$value->id.'">'.$value->value.'</option>';
@@ -248,6 +249,7 @@ foreach($attributes as $attribute) {
             let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${variantIndex}]`);
             variantDiv.innerHTML = `
                 ${selects}
+                <input type="text" name="variants[${variantIndex}][name_variant]" placeholder="Tên biến thể" style="width:28%;">
                 <input type="text" name="variants[${variantIndex}][size]" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
                 <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
                 <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">

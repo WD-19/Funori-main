@@ -64,6 +64,7 @@ class ProductSeeder extends Seeder
             // Biến thể
             ProductVariant::create([
                 'product_id' => $product->id,
+                'name_variant' => $faker->randomElement(['Màu đỏ', 'Màu xanh', 'Màu vàng', 'Màu đen']),
                 'size' => $faker->randomElement(['Nhỏ', 'Vừa', 'Lớn']),
                 'price_modifier' => 0,
                 'stock_quantity' => rand(5, 20),

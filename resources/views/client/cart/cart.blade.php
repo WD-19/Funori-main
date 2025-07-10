@@ -1,793 +1,884 @@
 @extends('client.layout.client')
 
 @section('title', 'Trang chủ')
+<link rel="stylesheet" href="{{ asset('css/cart.css') }}">
+
+<style>
+    .delete-selected-btn {
+        background: #ff3029 !important;
+        color: #fff !important;
+        border: none !important;
+        font-weight: bold !important;
+        padding: 12px 28px !important;
+        display: none !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .delete-selected-btn:hover {
+        background: #e02a23 !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .total-value.selected {
+        color: #ff3029 !important;
+        font-weight: bold !important;
+    }
+
+    .cart-meta-variant {
+        margin-top: 8px !important;
+    }
+
+    .cart-variant-select {
+        border: none !important;
+        background: transparent !important;
+        font-size: 15px !important;
+        color: #666 !important;
+        font-weight: 400 !important;
+        margin-left: 4px !important;
+        cursor: pointer !important;
+        appearance: none !important;
+        outline: none !important;
+        padding-right: 18px !important;
+    }
+
+    .cart-variant-select:focus {
+        border: 1px solid #ff3029 !important;
+        border-radius: 4px !important;
+        padding: 2px 4px !important;
+    }
+</style>
 
 @section('content')
-       <div class="tf-page-title">
-            <div class="container-full">
-                <div class="heading text-center">Giỏ hàng</div>
+
+    @php
+        $steps = [
+            ['label' => 'Giỏ hàng', 'key' => 'cart'],
+            ['label' => 'Thanh toán', 'key' => 'checkout'],
+            ['label' => 'Hóa đơn', 'key' => 'invoice'],
+        ];
+        $currentStep = $step ?? 'cart'; // Mặc định là giỏ hàng
+    @endphp
+    <div style="max-width: 66vw; margin: 60px auto 0 auto; padding: 0 16px;">
+        <div class="cart-checkout-progress"
+            style="background: #fff; padding: 32px 16px 24px 16px; border-radius: 10px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                @foreach ($steps as $index => $stepItem)
+                    @php
+                        $isActive = false;
+                        if ($currentStep === 'cart' && $stepItem['key'] === 'cart') {
+                            $isActive = true;
+                        }
+                        if ($currentStep === 'checkout' && in_array($stepItem['key'], ['cart', 'checkout'])) {
+                            $isActive = true;
+                        }
+                        if ($currentStep === 'invoice') {
+                            $isActive = true;
+                        }
+                    @endphp
+                    <div style="flex:1; text-align: center; {{ $isActive ? '' : 'opacity:0.4;' }}">
+                        <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
+                            <div
+                                style="width: 48px; height: 48px; background:{{ $isActive ? 'rgb(255, 48, 41)' : '#fc9999' }}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; position: relative; z-index: 2;">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 13l4 4 8-8" stroke="{{ $isActive ? '#fff' : '#BDBDBD' }}" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                            <div
+                                style="height: 4px; width: 100%; background:{{ $isActive ? 'rgb(255, 48, 41)' : '#fc9999' }}; position: absolute; top: 24px; left: 48px; right: -50%; z-index: 1;">
+                            </div>
+                        </div>
+                        <div style="font-weight: bold; color: {{ $isActive ? '#232323' : '#676363' }}; margin-top: 8px;">
+                            {{ $stepItem['label'] }}</div>
+                    </div>
+                @endforeach
             </div>
         </div>
-        <!-- /page-title -->
-        
-        <!-- page-cart -->
-        <section class="flat-spacing-11">
-            <div class="container1">
-                <div class="tf-page-cart-wrap">
-                    <div class="tf-page-cart-item">
-                        <form>
-                            <table class="tf-table-page-cart">
-                                <thead>
-                                    <tr>
-                                        <th>Sản phẩm</th>
-                                        <th>Giá</th>
-                                        <th>Số lượng</th>
-                                        <th>Thành tiền</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($cartItems as $item)
-                                        <tr class="tf-cart-item file-delete">
-                                            <td class="tf-cart-item_product">
-                                                <a href="{{ route('client.product.show', $item->product->slug ?? $item->product_id) }}" class="img-box">
-                                                    <img src="{{ asset($item->product->images->first()->image_url ?? 'images/products/no-image.png') }}" alt="img-product" style="width: 80px; height: 80px; object-fit: cover;">
-                                                </a>
-                                                <div class="cart-info">
-                                                    <a href="{{ route('client.product.show', $item->product->slug ?? $item->product_id) }}" class="cart-title link">
-                                                        {{ $item->product->name ?? 'Sản phẩm đã xóa' }}
+    </div>
+    <!-- page-cart -->
+    <section class="flat-spacing-11">
+        <div class="container1">
+            <div class="tf-page-cart-wrap">
+                <div class="tf-page-cart-item">
+                    <form>
+                        <table class="tf-table-page-cart cart-table-fixed">
+                            <thead>
+                                <tr>
+                                    <th style="width: 36px; padding-right: 4px;">
+                                        <input type="checkbox" id="select-all-checkbox" />
+                                    </th>
+                                    <th class="cart-img-col" style="width: 90px;">Sản phẩm</th>
+                                    <th class="cart-info-col"></th>
+                                    <th class="cart-price-col">Đơn giá</th>
+                                    <th class="cart-qty-col">Số lượng</th>
+                                    <th class="cart-total-col">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($cartItems as $cartItem)
+                                    <tr class="tf-cart-item file-delete">
+                                        <td class="tf-cart-item_checkbox"
+                                            style="width: 36px; padding-right: 4px; vertical-align: middle;">
+                                            <input type="checkbox" class="cart-item-checkbox"
+                                                data-item-id="{{ $cartItem['id'] }}">
+                                        </td>
+                                        <td class="cart-img-col" style="width: 90px; vertical-align: middle;">
+                                            <div style="position: relative; width: 80px; height: 80px;">
+                                                {{-- Nút xóa góc trái trên --}}
+                                                <button type="button" class="remove-cart-x"
+                                                    data-item-id="{{ $cartItem['id'] }}"
+                                                    style="position: absolute; top: -15px; left: -15px; background: rgba(180, 117, 115, 0.9); border: none; color: #fff; font-size: 18px; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; z-index: 2; display: flex; align-items: center; justify-content: center; line-height: 1;">
+                                                    &times;
+                                                </button>
+                                                {{-- <a href="{{ route('client.product.show', $cartItem['product']['slug'] ?? $cartItem['product_id']) }}" class="img-box">
+                                                    <img src="{{ asset($cartItem['product']['images'][0]['image_url'] ?? 'images/products/no-image.png') }}" alt="Ảnh sản phẩm" width="80">   --}}
+                                                {{-- Hiển thị ảnh của biến thể nếu có --}}
+                                                @if (!empty($cartItem['variant']['image']['image_url']))
+                                                    <img src="{{ asset($cartItem['variant']['image']['image_url']) }}"
+                                                        alt="Biến thể"
+                                                        style="object-fit: cover; border-radius: 6px; margin-bottom: 6px; width: 80px">
+                                                @endif
+                                        </td>
+                                        <td class="cart-info-col" style="vertical-align: middle;">
+                                            <div class="cart-info">
+                                                <div class="cart-title-wrap">
+                                                    <a href="{{ route('client.product.show', $cartItem['product']['slug'] ?? $cartItem['product_id']) }}"
+                                                        class="cart-title link">
+                                                        {{ $cartItem['product']['name'] ?? 'Sản phẩm đã xóa' }}
                                                     </a>
-                                                    @if($item->product_variant_id && $item->product->variants->count())
-                                                        <div class="cart-meta-variant">
-                                                            @php
-                                                                $variant = $item->product->variants->where('id', $item->product_variant_id)->first();
-                                                            @endphp
-                                                            {{ $variant ? 'Biến thể: '.$variant->size : '' }}
+                                                    @if (!empty($cartItem['variant_attributes']))
+                                                        <div class="cart-meta-variant" style="color: #555;">
                                                         </div>
                                                     @endif
-                                                    <span class="remove-cart link remove text-danger" data-item-id="{{ $item->id }}">Xóa</span>
                                                 </div>
-                                            </td>
-                                            <td class="tf-cart-item_price" cart-data-title="Giá">
-                                                <div class="cart-price">{{ number_format($item->price_at_addition, 0, ',', '.') }}đ</div>
-                                            </td>
-                                            <td class="tf-cart-item_quantity" cart-data-title="Số lượng">
-                                                <div class="cart-quantity">
-                                                    <div class="wg-quantity">
-                                                        <span class="btn-quantity minus-btn" data-item-id="{{ $item->id }}">-</span>
-                                                        <input type="text" class="cart-qty-input" data-item-id="{{ $item->id }}" value="{{ $item->quantity }}" min="1">
-                                                        <span class="btn-quantity plus-btn" data-item-id="{{ $item->id }}">+</span>
+
+                                                @if (!empty($cartItem['variant_attributes']))
+                                                    <div class="cart-meta-variant" style="color: #555;">
+
+                                                        {{-- Hiển thị các thuộc tính biến thể --}}
+                                                        @foreach ($cartItem['variant_attributes'] as $attr)
+                                                            <div>{{ $attr }}</div>
+                                                        @endforeach
                                                     </div>
+                                                @endif
+
+
+                                            </div>
+                                        </td>
+                                        <td class="cart-price-col" style="text-align: right; vertical-align: middle;">
+                                            <div class="cart-price">
+                                                {{ number_format($cartItem['price_at_addition'], 0, ',', '.') }}đ</div>
+                                        </td>
+                                        <td class="cart-qty-col" style="text-align: center; vertical-align: middle;">
+                                            <div class="cart-quantity">
+                                                <div class="wg-quantity">
+                                                    <span class="btn-quantity minus-btn"
+                                                        data-item-id="{{ $cartItem['id'] }}">-</span>
+                                                    <input type="text" class="cart-qty-input"
+                                                        data-item-id="{{ $cartItem['id'] }}"
+                                                        value="{{ $cartItem['quantity'] }}" min="1"
+                                                        data-max="{{ $cartItem['variant']['stock_quantity'] ?? ($cartItem['product']['stock_quantity'] ?? 9999) }}">
+                                                    <span class="btn-quantity plus-btn"
+                                                        data-item-id="{{ $cartItem['id'] }}">+</span>
                                                 </div>
-                                            </td>
-                                            <td class="tf-cart-item_total" cart-data-title="Thành tiền">
-                                                <div class="cart-total">{{ number_format($item->quantity * $item->price_at_addition, 0, ',', '.') }}đ</div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center">Giỏ hàng của bạn đang trống.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                            {{-- <div class="tf-page-cart-note">
-                                <label for="cart-note">Ghi chú đơn hàng</label>
-                                <textarea name="note" id="cart-note" placeholder="Bạn cần hỗ trợ gì?"></textarea>
-                            </div> --}}
-                        </form>
-                    </div>
-                    <div class="tf-page-cart-footer">
-                        <div class="tf-cart-footer-inner">
-                            <div class="tf-free-shipping-bar">
-                                <div class="tf-progress-bar">
-                                    <span style="width: 50%;">
-                                        <div class="progress-car">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="14" viewBox="0 0 21 14" fill="currentColor">
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0.875C0 0.391751 0.391751 0 0.875 0H13.5625C14.0457 0 14.4375 0.391751 14.4375 0.875V3.0625H17.3125C17.5867 3.0625 17.845 3.19101 18.0104 3.40969L20.8229 7.12844C20.9378 7.2804 21 7.46572 21 7.65625V11.375C21 11.8582 20.6082 12.25 20.125 12.25H17.7881C17.4278 13.2695 16.4554 14 15.3125 14C14.1696 14 13.1972 13.2695 12.8369 12.25H7.72563C7.36527 13.2695 6.39293 14 5.25 14C4.10706 14 3.13473 13.2695 2.77437 12.25H0.875C0.391751 12.25 0 11.8582 0 11.375V0.875ZM2.77437 10.5C3.13473 9.48047 4.10706 8.75 5.25 8.75C6.39293 8.75 7.36527 9.48046 7.72563 10.5H12.6875V1.75H1.75V10.5H2.77437ZM14.4375 8.89937V4.8125H16.8772L19.25 7.94987V10.5H17.7881C17.4278 9.48046 16.4554 8.75 15.3125 8.75C15.0057 8.75 14.7112 8.80264 14.4375 8.89937ZM5.25 10.5C4.76676 10.5 4.375 10.8918 4.375 11.375C4.375 11.8582 4.76676 12.25 5.25 12.25C5.73323 12.25 6.125 11.8582 6.125 11.375C6.125 10.8918 5.73323 10.5 5.25 10.5ZM15.3125 10.5C14.8293 10.5 14.4375 10.8918 14.4375 11.375C14.4375 11.8582 14.8293 12.25 15.3125 12.25C15.7957 12.25 16.1875 11.8582 16.1875 11.375C16.1875 10.8918 15.7957 10.5 15.3125 10.5Z"></path>
-                                            </svg>
-                                        </div>
-                                    </span>
-                                </div>
-                                {{-- <div class="tf-progress-msg">
+                                            </div>
+                                        </td>
+                                        <td class="cart-total-col" style="text-align: right; vertical-align: middle;">
+                                            <div class="cart-total">
+                                                {{ number_format($cartItem['quantity'] * $cartItem['price_at_addition'], 0, ',', '.') }}đ
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center">Giỏ hàng của bạn đang trống.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                        <div class="cart-action-buttons"
+                            style="display: flex; justify-content: space-between; align-items: center; margin-top: 18px; gap: 10px;">
+                            <div class="left-actions">
+                                <a href="{{ route('shop') }}" class="tf-btn"
+                                    style="background: #232323; color: #fff; font-weight: bold; border: none; display: flex; align-items: center; padding: 12px 28px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
+                                        viewBox="0 0 20 20" style="margin-right: 8px;">
+                                        <path d="M12.5 15l-5-5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                    Tiếp tục mua sắm
+                                </a>
+                            </div>
+                            <div class="right-actions" style="display: flex; gap: 10px;">
+                                <button type="button" class="tf-btn delete-selected-btn" id="delete-selected-btn"
+                                    style="background: #ff3029; color: #fff; border: none; font-weight: bold; padding: 12px 28px; display: none;">Xóa
+                                    sản phẩm đã chọn</button>
+                                <button type="button" class="tf-btn" id="clear-cart-btn"
+                                    style="background: #fff; color: #232323; border: 1px solid #232323; font-weight: bold; padding: 12px 28px;">Xóa
+                                    giỏ hàng</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="tf-page-cart-footer">
+                    <div class="tf-cart-footer-inner">
+                        <div class="tf-free-shipping-bar">
+                            <div class="tf-progress-bar">
+                                <span style="width: 50%;">
+                                    <div class="progress-car">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="14"
+                                            viewBox="0 0 21 14" fill="currentColor">
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M0 0.875C0 0.391751 0.391751 0 0.875 0H13.5625C14.0457 0 14.4375 0.391751 14.4375 0.875V3.0625H17.3125C17.5867 3.0625 17.845 3.19101 18.0104 3.40969L20.8229 7.12844C20.9378 7.2804 21 7.46572 21 7.65625V11.375C21 11.8582 20.6082 12.25 20.125 12.25H17.7881C17.4278 13.2695 16.4554 14 15.3125 14C14.1696 14 13.1972 13.2695 12.8369 12.25H7.72563C7.36527 13.2695 6.39293 14 5.25 14C4.10706 14 3.13473 13.2695 2.77437 12.25H0.875C0.391751 12.25 0 11.8582 0 11.375V0.875ZM2.77437 10.5C3.13473 9.48047 4.10706 8.75 5.25 8.75C6.39293 8.75 7.36527 9.48046 7.72563 10.5H12.6875V1.75H1.75V10.5H2.77437ZM14.4375 8.89937V4.8125H16.8772L19.25 7.94987V10.5H17.7881C17.4278 9.48046 16.4554 8.75 15.3125 8.75C15.0057 8.75 14.7112 8.80264 14.4375 8.89937ZM5.25 10.5C4.76676 10.5 4.375 10.8918 4.375 11.375C4.375 11.8582 4.76676 12.25 5.25 12.25C5.73323 12.25 6.125 11.8582 6.125 11.375C6.125 10.8918 5.73323 10.5 5.25 10.5ZM15.3125 10.5C14.8293 10.5 14.4375 10.8918 14.4375 11.375C14.4375 11.8582 14.8293 12.25 15.3125 12.25C15.7957 12.25 16.1875 11.8582 16.1875 11.375C16.1875 10.8918 15.7957 10.5 15.3125 10.5Z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                </span>
+                            </div>
+                            {{-- <div class="tf-progress-msg">
                                     Mua thêm <span class="price fw-6">{{ number_format($total, 0, ',', '.') }}đ</span> để được <span class="fw-6">Miễn phí vận chuyển</span>
                                 </div> --}}
-                            </div>
-                            <div class="tf-page-cart-checkout">
-                                {{-- <div class="shipping-calculator">
-                                    <summary class="accordion-shipping-header d-flex justify-content-between align-items-center collapsed" data-bs-target="#shipping" data-bs-toggle="collapse" aria-controls="shipping">
-                                        <h3 class="shipping-calculator-title">Tính phí vận chuyển</h3>
-                                        <span class="shipping-calculator_accordion-icon"></span>
-                                    </summary>
-                                    <div class="collapse" id="shipping">
-                                        <div class="accordion-shipping-content">
-                                            <fieldset class="field">
-                                                <label class="label">Quốc gia</label>
-                                                <select class="tf-select w-100" id="ShippingCountry_CartDrawer-Form" name="address[country]" data-default="">
-                                                    <option value="---" data-provinces="[]">---</option>
-                                                    <option value="Australia" data-provinces="[['Australian Capital Territory','Australian Capital Territory'],['New South Wales','New South Wales'],['Northern Territory','Northern Territory'],['Queensland','Queensland'],['South Australia','South Australia'],['Tasmania','Tasmania'],['Victoria','Victoria'],['Western Australia','Western Australia']]">Australia</option>
-                                                    <option value="Austria" data-provinces="[]">Austria</option>
-                                                    <option value="Belgium" data-provinces="[]">Belgium</option>
-                                                    <option value="Canada" data-provinces="[['Alberta','Alberta'],['British Columbia','British Columbia'],['Manitoba','Manitoba'],['New Brunswick','New Brunswick'],['Newfoundland and Labrador','Newfoundland and Labrador'],['Northwest Territories','Northwest Territories'],['Nova Scotia','Nova Scotia'],['Nunavut','Nunavut'],['Ontario','Ontario'],['Prince Edward Island','Prince Edward Island'],['Quebec','Quebec'],['Saskatchewan','Saskatchewan'],['Yukon','Yukon']]">Canada</option>
-                                                    <option value="Czech Republic" data-provinces="[]">Czechia</option>
-                                                    <option value="Denmark" data-provinces="[]">Denmark</option>
-                                                    <option value="Finland" data-provinces="[]">Finland</option>
-                                                    <option value="France" data-provinces="[]">France</option>
-                                                    <option value="Germany" data-provinces="[]">Germany</option>
-                                                    <option value="Hong Kong" data-provinces="[['Hong Kong Island','Hong Kong Island'],['Kowloon','Kowloon'],['New Territories','New Territories']]">Hong Kong SAR</option>
-                                                    <option value="Ireland" data-provinces="[['Carlow','Carlow'],['Cavan','Cavan'],['Clare','Clare'],['Cork','Cork'],['Donegal','Donegal'],['Dublin','Dublin'],['Galway','Galway'],['Kerry','Kerry'],['Kildare','Kildare'],['Kilkenny','Kilkenny'],['Laois','Laois'],['Leitrim','Leitrim'],['Limerick','Limerick'],['Longford','Longford'],['Louth','Louth'],['Mayo','Mayo'],['Meath','Meath'],['Monaghan','Monaghan'],['Offaly','Offaly'],['Roscommon','Roscommon'],['Sligo','Sligo'],['Tipperary','Tipperary'],['Waterford','Waterford'],['Westmeath','Westmeath'],['Wexford','Wexford'],['Wicklow','Wicklow']]">Ireland</option>
-                                                    <option value="Israel" data-provinces="[]">Israel</option>
-                                                    <option value="Italy" data-provinces="[['Agrigento','Agrigento'],['Alessandria','Alessandria'],['Ancona','Ancona'],['Aosta','Aosta Valley'],['Arezzo','Arezzo'],['Ascoli Piceno','Ascoli Piceno'],['Asti','Asti'],['Avellino','Avellino'],['Bari','Bari'],['Barletta-Andria-Trani','Barletta-Andria-Trani'],['Belluno','Belluno'],['Benevento','Benevento'],['Bergamo','Bergamo'],['Biella','Biella'],['Bologna','Bologna'],['Bolzano','South Tyrol'],['Brescia','Brescia'],['Brindisi','Brindisi'],['Cagliari','Cagliari'],['Caltanissetta','Caltanissetta'],['Campobasso','Campobasso'],['Carbonia-Iglesias','Carbonia-Iglesias'],['Caserta','Caserta'],['Catania','Catania'],['Catanzaro','Catanzaro'],['Chieti','Chieti'],['Como','Como'],['Cosenza','Cosenza'],['Cremona','Cremona'],['Crotone','Crotone'],['Cuneo','Cuneo'],['Enna','Enna'],['Fermo','Fermo'],['Ferrara','Ferrara'],['Firenze','Florence'],['Foggia','Foggia'],['Forlì-Cesena','Forlì-Cesena'],['Frosinone','Frosinone'],['Genova','Genoa'],['Gorizia','Gorizia'],['Grosseto','Grosseto'],['Imperia','Imperia'],['Isernia','Isernia'],['L'Aquila','L'Aquila'],['La Spezia','La Spezia'],['Latina','Latina'],['Lecce','Lecce'],['Lecco','Lecco'],['Livorno','Livorno'],['Lodi','Lodi'],['Lucca','Lucca'],['Macerata','Macerata'],['Mantova','Mantua'],['Massa-Carrara','Massa and Carrara'],['Matera','Matera'],['Medio Campidano','Medio Campidano'],['Messina','Messina'],['Milano','Milan'],['Modena','Modena'],['Monza e Brianza','Monza and Brianza'],['Napoli','Naples'],['Novara','Novara'],['Nuoro','Nuoro'],['Ogliastra','Ogliastra'],['Olbia-Tempio','Olbia-Tempio'],['Oristano','Oristano'],['Padova','Padua'],['Palermo','Palermo'],['Parma','Parma'],['Pavia','Pavia'],['Perugia','Perugia'],['Pesaro e Urbino','Pesaro and Urbino'],['Pescara','Pescara'],['Piacenza','Piacenza'],['Pisa','Pisa'],['Pistoia','Pistoia'],['Pordenone','Pordenone'],['Potenza','Potenza'],['Prato','Prato'],['Ragusa','Ragusa'],['Ravenna','Ravenna'],['Reggio Calabria','Reggio Calabria'],['Reggio Emilia','Reggio Emilia'],['Rieti','Rieti'],['Rimini','Rimini'],['Roma','Rome'],['Rovigo','Rovigo'],['Salerno','Salerno'],['Sassari','Sassari'],['Savona','Savona'],['Siena','Siena'],['Siracusa','Syracuse'],['Sondrio','Sondrio'],['Taranto','Taranto'],['Teramo','Teramo'],['Terni','Terni'],['Torino','Turin'],['Trapani','Trapani'],['Trento','Trentino'],['Treviso','Treviso'],['Trieste','Trieste'],['Udine','Udine'],['Varese','Varese'],['Venezia','Venice'],['Verbano-Cusio-Ossola','Verbano-Cusio-Ossola'],['Vercelli','Vercelli'],['Verona','Verona'],['Vibo Valentia','Vibo Valentia'],['Vicenza','Vicenza'],['Viterbo','Viterbo']]">Italy</option>
-                                                    <option value="Japan" data-provinces="[['Aichi','Aichi'],['Akita','Akita'],['Aomori','Aomori'],['Chiba','Chiba'],['Ehime','Ehime'],['Fukui','Fukui'],['Fukuoka','Fukuoka'],['Fukushima','Fukushima'],['Gifu','Gifu'],['Gunma','Gunma'],['Hiroshima','Hiroshima'],['Hokkaidō','Hokkaido'],['Hyōgo','Hyogo'],['Ibaraki','Ibaraki'],['Ishikawa','Ishikawa'],['Iwate','Iwate'],['Kagawa','Kagawa'],['Kagoshima','Kagoshima'],['Kanagawa','Kanagawa'],['Kumamoto','Kumamoto'],['Kyōto','Kyoto'],['Kōchi','Kochi'],['Mie','Mie'],['Miyagi','Miyagi'],['Miyazaki','Miyazaki'],['Nagano','Nagano'],['Nagasaki','Nagasaki'],['Nara','Nara'],['Niigata','Niigata'],['Okayama','Okayama'],['Okinawa','Okinawa'],['Saga','Saga'],['Saitama','Saitama'],['Shiga','Shiga'],['Shimane','Shimane'],['Shizuoka','Shizuoka'],['Tochigi','Tochigi'],['Tokushima','Tokushima'],['Tottori','Tottori'],['Toyama','Toyama'],['Tōkyō','Tokyo'],['Wakayama','Wakayama'],['Yamagata','Yamagata'],['Yamaguchi','Yamaguchi'],['Yamanashi','Yamanashi'],['Ōita','Oita'],['Ōsaka','Osaka']]">Japan</option>
-                                                    <option value="Malaysia" data-provinces="[['Johor','Johor'],['Kedah','Kedah'],['Kelantan','Kelantan'],['Kuala Lumpur','Kuala Lumpur'],['Labuan','Labuan'],['Melaka','Malacca'],['Negeri Sembilan','Negeri Sembilan'],['Pahang','Pahang'],['Penang','Penang'],['Perak','Perak'],['Perlis','Perlis'],['Putrajaya','Putrajaya'],['Sabah','Sabah'],['Sarawak','Sarawak'],['Selangor','Selangor'],['Terengganu','Terengganu']]">Malaysia</option>
-                                                    <option value="Netherlands" data-provinces="[]">Netherlands</option>
-                                                    <option value="New Zealand" data-provinces="[['Auckland','Auckland'],['Bay of Plenty','Bay of Plenty'],['Canterbury','Canterbury'],['Chatham Islands','Chatham Islands'],['Gisborne','Gisborne'],['Hawke's Bay','Hawke's Bay'],['Manawatu-Wanganui','Manawatū-Whanganui'],['Marlborough','Marlborough'],['Nelson','Nelson'],['Northland','Northland'],['Otago','Otago'],['Southland','Southland'],['Taranaki','Taranaki'],['Tasman','Tasman'],['Waikato','Waikato'],['Wellington','Wellington'],['West Coast','West Coast']]">New Zealand</option>
-                                                    <option value="Norway" data-provinces="[]">Norway</option>
-                                                    <option value="Poland" data-provinces="[]">Poland</option>
-                                                    <option value="Portugal" data-provinces="[['Aveiro','Aveiro'],['Açores','Azores'],['Beja','Beja'],['Braga','Braga'],['Bragança','Bragança'],['Castelo Branco','Castelo Branco'],['Coimbra','Coimbra'],['Faro','Faro'],['Guarda','Guarda'],['Leiria','Leiria'],['Lisboa','Lisbon'],['Madeira','Madeira'],['Portalegre','Portalegre'],['Porto','Porto'],['Santarém','Santarém'],['Setúbal','Setúbal'],['Viana do Castelo','Viana do Castelo'],['Vila Real','Vila Real'],['Viseu','Viseu'],['Évora','Évora']]">Portugal</option>
-                                                    <option value="Singapore" data-provinces="[]">Singapore</option>
-                                                    <option value="South Korea" data-provinces="[['Busan','Busan'],['Chungbuk','North Chungcheong'],['Chungnam','South Chungcheong'],['Daegu','Daegu'],['Daejeon','Daejeon'],['Gangwon','Gangwon'],['Gwangju','Gwangju City'],['Gyeongbuk','North Gyeongsang'],['Gyeonggi','Gyeonggi'],['Gyeongnam','South Gyeongsang'],['Incheon','Incheon'],['Jeju','Jeju'],['Jeonbuk','North Jeolla'],['Jeonnam','South Jeolla'],['Sejong','Sejong'],['Seoul','Seoul'],['Ulsan','Ulsan']]">South Korea</option>
-                                                    <option value="Spain" data-provinces="[['A Coruña','A Coruña'],['Albacete','Albacete'],['Alicante','Alicante'],['Almería','Almería'],['Asturias','Asturias Province'],['Badajoz','Badajoz'],['Balears','Balears Province'],['Barcelona','Barcelona'],['Burgos','Burgos'],['Cantabria','Cantabria Province'],['Castellón','Castellón'],['Ceuta','Ceuta'],['Ciudad Real','Ciudad Real'],['Cuenca','Cuenca'],['Cáceres','Cáceres'],['Cádiz','Cádiz'],['Córdoba','Córdoba'],['Girona','Girona'],['Granada','Granada'],['Guadalajara','Guadalajara'],['Guipúzcoa','Gipuzkoa'],['Huelva','Huelva'],['Huesca','Huesca'],['Jaén','Jaén'],['La Rioja','La Rioja Province'],['Las Palmas','Las Palmas'],['León','León'],['Lleida','Lleida'],['Lugo','Lugo'],['Madrid','Madrid Province'],['Melilla','Melilla'],['Murcia','Murcia'],['Málaga','Málaga'],['Navarra','Navarra'],['Ourense','Ourense'],['Palencia','Palencia'],['Pontevedra','Pontevedra'],['Salamanca','Salamanca'],['Santa Cruz de Tenerife','Santa Cruz de Tenerife'],['Segovia','Segovia'],['Sevilla','Seville'],['Soria','Soria'],['Tarragona','Tarragona'],['Teruel','Teruel'],['Toledo','Toledo'],['Valencia','Valencia'],['Valladolid','Valladolid'],['Vizcaya','Biscay'],['Zamora','Zamora'],['Zaragoza','Zaragoza'],['Álava','Álava'],['Ávila','Ávila']]">Spain</option>
-                                                    <option value="Sweden" data-provinces="[]">Sweden</option>
-                                                    <option value="Switzerland" data-provinces="[]">Switzerland</option>
-                                                    <option value="United Arab Emirates" data-provinces="[['Abu Dhabi','Abu Dhabi'],['Ajman','Ajman'],['Dubai','Dubai'],['Fujairah','Fujairah'],['Ras al-Khaimah','Ras al-Khaimah'],['Sharjah','Sharjah'],['Umm al-Quwain','Umm al-Quwain']]">United Arab Emirates</option>
-                                                    <option value="United Kingdom" data-provinces="[['British Forces','British Forces'],['England','England'],['Northern Ireland','Northern Ireland'],['Scotland','Scotland'],['Wales','Wales']]">United Kingdom</option>
-                                                    <option value="United States" data-provinces="[['Alabama','Alabama'],['Alaska','Alaska'],['American Samoa','American Samoa'],['Arizona','Arizona'],['Arkansas','Arkansas'],['Armed Forces Americas','Armed Forces Americas'],['Armed Forces Europe','Armed Forces Europe'],['Armed Forces Pacific','Armed Forces Pacific'],['California','California'],['Colorado','Colorado'],['Connecticut','Connecticut'],['Delaware','Delaware'],['District of Columbia','Washington DC'],['Federated States of Micronesia','Micronesia'],['Florida','Florida'],['Georgia','Georgia'],['Guam','Guam'],['Hawaii','Hawaii'],['Idaho','Idaho'],['Illinois','Illinois'],['Indiana','Indiana'],['Iowa','Iowa'],['Kansas','Kansas'],['Kentucky','Kentucky'],['Louisiana','Louisiana'],['Maine','Maine'],['Marshall Islands','Marshall Islands'],['Maryland','Maryland'],['Massachusetts','Massachusetts'],['Michigan','Michigan'],['Minnesota','Minnesota'],['Mississippi','Mississippi'],['Missouri','Missouri'],['Montana','Montana'],['Nebraska','Nebraska'],['Nevada','Nevada'],['New Hampshire','New Hampshire'],['New Jersey','New Jersey'],['New Mexico','New Mexico'],['New York','New York'],['North Carolina','North Carolina'],['North Dakota','North Dakota'],['Northern Mariana Islands','Northern Mariana Islands'],['Ohio','Ohio'],['Oklahoma','Oklahoma'],['Oregon','Oregon'],['Palau','Palau'],['Pennsylvania','Pennsylvania'],['Puerto Rico','Puerto Rico'],['Rhode Island','Rhode Island'],['South Carolina','South Carolina'],['South Dakota','South Dakota'],['Tennessee','Tennessee'],['Texas','Texas'],['Utah','Utah'],['Vermont','Vermont'],['Virgin Islands','U.S. Virgin Islands'],['Virginia','Virginia'],['Washington','Washington'],['West Virginia','West Virginia'],['Wisconsin','Wisconsin'],['Wyoming','Wyoming']]">United States</option>
-                                                    <option value="Vietnam" data-provinces="[]">Vietnam</option>
-                                                </select>
-                                            </fieldset>
-                                            <fieldset class="field">
-                                                <label class="label">Mã bưu điện</label>
-                                                <input type="text" name="text" placeholder="">
-                                            </fieldset>
-                                            <button class="tf-btn btn-fill animate-hover-btn radius-3 justify-content-center">
-                                                <span>Ước tính</span>
-                                            </button>
-                                        </div>
+                        </div>
+                        <div class="tf-page-cart-checkout">
+                            <div class="shipping-calculator">
+                                <summary
+                                    class="accordion-shipping-header d-flex justify-content-between align-items-center collapsed"
+                                    data-bs-target="#shipping" data-bs-toggle="collapse" aria-controls="shipping">
+                                    <h3 class="shipping-calculator-title">Tính phí vận chuyển</h3>
+                                    <span class="shipping-calculator_accordion-icon"></span>
+                                </summary>
+                                <div class="collapse" id="shipping">
+                                    <div class="accordion-shipping-content">
+                                        <fieldset class="field">
+                                            <label class="label">Chọn tỉnh/thành phố</label>
+                                            <select class="tf-select w-100" id="ShippingCountry_CartDrawer-Form"
+                                                name="address[country]" data-default="">
+
+                                            </select>
+                                        </fieldset>
+                                        <fieldset class="field">
+                                            <label class="label">Chọn Xã</label>
+                                            <select class="tf-select w-100" id="ShippingCountry_CartDrawer-Form"
+                                                name="address[country]" data-default="">
+
+                                            </select>
+                                        </fieldset>
+                                        <fieldset class="field">
+                                            <label class="label">Địa chỉ cụ thể</label>
+                                            <input type="text" name="text" placeholder="">
+                                        </fieldset>
+                                        <button class="tf-btn btn-fill animate-hover-btn radius-3 justify-content-center">
+                                            <span>Ước tính</span>
+                                        </button>
                                     </div>
                                 </div>
-                                 --}}
+                            </div>
+
+                            <div style="font-family: 'Inter', Arial, Helvetica, sans-serif;">
                                 <div class="tf-cart-totals-discounts">
-                                    <h3>Tổng tiền</h3>
-                                    <span class="total-value">{{ number_format($total, 0, ',', '.') }}đ</span>
+                                    <h3 style="font-weight: 600; font-size: 18px;">Tổng tiền hàng</h3>
+                                    <span class="total-value"
+                                        style="font-size: 18px;">{{ number_format($total, 0, ',', '.') }}đ</span>
                                 </div>
-                                <p class="tf-cart-tax">
-                                    Thuế và <a href="shipping-delivery.html">phí vận chuyển</a> sẽ được tính ở bước thanh toán
-                                </p>
-                                <div class="cart-checkout-btn">
-                                    <a href="checkout.html" class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center">
+
+                                <div class="tf-cart-discount-fee" style="margin-top: 24px;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span>Giảm giá</span>
+                                        <span
+                                            class="discount-value">-{{ isset($discount) ? number_format($discount, 0, ',', '.') : '0' }}đ</span>
+                                    </div>
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span>Phí vận chuyển</span>
+                                        <span
+                                            class="shipping-fee-value">{{ isset($shipping_fee) ? number_format($shipping_fee, 0, ',', '.') : '0' }}đ</span>
+                                    </div>
+                                    <hr style="margin: 8px 0;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; color: #ff3029;">
+                                        <span>Tổng cộng</span>
+                                        <span class="grand-total-value">
+                                            {{ number_format($total - ($discount ?? 0) + ($shipping_fee ?? 0), 0, ',', '.') }}đ
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="cart-checkbox" style="margin-top: 18px;">
+                                    <input type="checkbox" class="tf-check" id="check-agree">
+                                    <label for="check-agree" class="fw-4">
+                                        Tôi đồng ý với <a href="terms-conditions.html">điều khoản & điều kiện</a>
+                                    </label>
+                                </div>
+                                <div class="cart-checkout-btn" style="margin-top: 18px;">
+                                    <a href="checkout.html"
+                                        class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center">
                                         <span>Thanh toán</span>
                                     </a>
                                 </div>
-                                {{-- <div class="tf-page-cart_imgtrust">
-                                    <p class="text-center fw-6">Thanh toán an toàn</p>
-                                    <div class="cart-list-social">
-                                        <div class="payment-item">
-                                            <svg viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" width="38" height="24" aria-labelledby="pi-visa"><title id="pi-visa">Visa</title><path opacity=".07" d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z"></path><path fill="#fff" d="M35 1c1.1 0 2 .9 2 2v18c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V3c0-1.1.9-2 2-2h32"></path><path d="M28.3 10.1H28c-.4 1-.7 1.5-1 3h1.9c-.3-1.5-.3-2.2-.6-3zm2.9 5.9h-1.7c-.1 0-.1 0-.2-.1l-.2-.9-.1-.2h-2.4c-.1 0-.2 0-.2.2l-.3.9c0 .1-.1.1-.1.1h-2.1l.2-.5L27 8.7c0-.5.3-.7.8-.7h1.5c.1 0 .2 0 .2.2l1.4 6.5c.1.4.2.7.2 1.1.1.1.1.1.1.2zm-13.4-.3l.4-1.8c.1 0 .2.1.2.1.7.3 1.4.5 2.1.4.2 0 .5-.1.7-.2.5-.2.5-.7.1-1.1-.2-.2-.5-.3-.8-.5-.4-.2-.8-.4-1.1-.7-1.2-1-.8-2.4-.1-3.1.6-.4.9-.8 1.7-.8 1.2 0 2.5 0 3.1.2h.1c-.1.6-.2 1.1-.4 1.7-.5-.2-1-.4-1.5-.4-.3 0-.6 0-.9.1-.2 0-.3.1-.4.2-.2.2-.2.5 0 .7l.5.4c.4.2.8.4 1.1.6.5.3 1 .8 1.1 1.4.2.9-.1 1.7-.9 2.3-.5.4-.7.6-1.4.6-1.4 0-2.5.1-3.4-.2-.1.2-.1.2-.2.1zm-3.5.3c.1-.7.1-.7.2-1 .5-2.2 1-4.5 1.4-6.7.1-.2.1-.3.3-.3H18c-.2 1.2-.4 2.1-.7 3.2-.3 1.5-.6 3-1 4.5 0 .2-.1.2-.3.2M5 8.2c0-.1.2-.2.3-.2h3.4c.5 0 .9.3 1 .8l.9 4.4c0 .1 0 .1.1.2 0-.1.1-.1.1-.1l2.1-5.1c-.1-.1 0-.2.1-.2h2.1c0 .1 0 .1-.1.2l-3.1 7.3c-.1.2-.1.3-.2.4-.1.1-.3 0-.5 0H9.7c-.1 0-.2 0-.2-.2L7.9 9.5c-.2-.2-.5-.5-.9-.6-.6-.3-1.7-.5-1.9-.5L5 8.2z" fill="#142688"></path></svg>
-                                        </div>
-                                        <div class="payment-item">
-                                            <svg viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" width="38" height="24" role="img" aria-labelledby="pi-paypal"><title id="pi-paypal">PayPal</title><path opacity=".07" d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z"></path><path fill="#fff" d="M35 1c1.1 0 2 .9 2 2v18c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V3c0-1.1.9-2 2-2h32"></path><path fill="#003087" d="M23.9 8.3c.2-1 0-1.7-.6-2.3-.6-.7-1.7-1-3.1-1h-4.1c-.3 0-.5.2-.6.5L14 15.6c0 .2.1.4.3.4H17l.4-3.4 1.8-2.2 4.7-2.1z"></path><path fill="#3086C8" d="M23.9 8.3l-.2.2c-.5 2.8-2.2 3.8-4.6 3.8H18c-.3 0-.5.2-.6.5l-.6 3.9-.2 1c0 .2.1.4.3.4H19c.3 0 .5-.2.5-.4v-.1l.4-2.4v-.1c0-.2.3-.4.5-.4h.3c2.1 0 3.7-.8 4.1-3.2.2-1 .1-1.8-.4-2.4-.1-.5-.3-.7-.5-.8z"></path><path fill="#012169" d="M23.3 8.1c-.1-.1-.2-.1-.3-.1-.1 0-.2 0-.3-.1-.3-.1-.7-.1-1.1-.1h-3c-.1 0-.2 0-.2.1-.2.1-.3.2-.3.4l-.7 4.4v.1c0-.3.3-.5.6-.5h1.3c2.5 0 4.1-1 4.6-3.8v-.2c-.1-.1-.3-.2-.5-.2h-.1z"></path></svg>
-                                        </div>
-                                        <div class="payment-item">
-                                            <svg viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" width="38" height="24" aria-labelledby="pi-master"><title id="pi-master">Mastercard</title><path opacity=".07" d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z"></path><path fill="#fff" d="M35 1c1.1 0 2 .9 2 2v18c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V3c0-1.1.9-2 2-2h32"></path><circle fill="#EB001B" cx="15" cy="12" r="7"></circle><circle fill="#F79E1B" cx="23" cy="12" r="7"></circle><path fill="#FF5F00" d="M22 12c0-2.4-1.2-4.5-3-5.7-1.8 1.3-3 3.4-3 5.7s1.2 4.5 3 5.7c1.8-1.2 3-3.3 3-5.7z"></path></svg>
-                                        </div>
-                                        <div class="payment-item">
-                                            <svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="pi-american_express" viewBox="0 0 38 24" width="38" height="24"><title id="pi-american_express">American Express</title><path fill="#000" d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3Z" opacity=".07"></path><path fill="#006FCF" d="M35 1c1.1 0 2 .9 2 2v18c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V3c0-1.1.9-2 2-2h32Z"></path><path fill="#FFF" d="M22.012 19.936v-8.421L37 11.528v2.326l-1.732 1.852L37 17.573v2.375h-2.766l-1.47-1.622-1.46 1.628-9.292-.02Z"></path><path fill="#006FCF" d="M23.013 19.012v-6.57h5.572v1.513h-3.768v1.028h3.678v1.488h-3.678v1.01h3.768v1.531h-5.572Z"></path><path fill="#006FCF" d="m28.557 19.012 3.083-3.289-3.083-3.282h2.386l1.884 2.083 1.89-2.082H37v.051l-3.017 3.23L37 18.92v.093h-2.307l-1.917-2.103-1.898 2.104h-2.321Z"></path><path fill="#FFF" d="M22.71 4.04h3.614l1.269 2.881V4.04h4.46l.77 2.159.771-2.159H37v8.421H19l3.71-8.421Z"></path><path fill="#006FCF" d="m23.395 4.955-2.916 6.566h2l.55-1.315h2.98l.55 1.315h2.05l-2.904-6.566h-2.31Zm.25 3.777.875-2.09.873 2.09h-1.748Z"></path><path fill="#006FCF" d="M28.581 11.52V4.953l2.811.01L32.84 9l1.456-4.046H37v6.565l-1.74.016v-4.51l-1.644 4.494h-1.59L30.35 7.01v4.51h-1.768Z"></path></svg>
-                                        </div>
-                                        <div class="payment-item">
-                                            <svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 38 24" width="38" height="24" aria-labelledby="pi-amazon"><title id="pi-amazon">Amazon</title><path d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z" fill="#000" fill-rule="nonzero" opacity=".07"></path><path d="M35 1c1.1 0 2 .9 2 2v18c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V3c0-1.1.9-2 2-2h32" fill="#FFF" fill-rule="nonzero"></path><path d="M25.26 16.23c-1.697 1.48-4.157 2.27-6.275 2.27-2.97 0-5.644-1.3-7.666-3.463-.16-.17-.018-.402.173-.27 2.183 1.504 4.882 2.408 7.67 2.408 1.88 0 3.95-.46 5.85-1.416.288-.145.53.222.248.47v.001zm.706-.957c-.216-.328-1.434-.155-1.98-.078-.167.024-.193-.148-.043-.27.97-.81 2.562-.576 2.748-.305.187.272-.047 2.16-.96 3.063-.14.138-.272.064-.21-.12.205-.604.664-1.96.446-2.29h-.001z" fill="#F90" fill-rule="nonzero"></path><path d="M21.814 15.291c-.574-.498-.676-.73-.993-1.205-.947 1.012-1.618 1.315-2.85 1.315-1.453 0-2.587-.938-2.587-2.818 0-1.467.762-2.467 1.844-2.955.94-.433 2.25-.51 3.25-.628v-.235c0-.43.033-.94-.208-1.31-.212-.333-.616-.47-.97-.47-.66 0-1.25.353-1.392 1.085-.03.163-.144.323-.3.33l-1.677-.187c-.14-.033-.296-.153-.257-.38.386-2.125 2.223-2.766 3.867-2.766.84 0 1.94.234 2.604.9.842.82.762 1.918.762 3.11v2.818c0 .847.335 1.22.65 1.676.113.164.138.36-.003.482-.353.308-.98.88-1.326 1.2a.367.367 0 0 1-.414.038zm-1.659-2.533c.34-.626.323-1.214.323-1.918v-.392c-1.25 0-2.57.28-2.57 1.82 0 .782.386 1.31 1.05 1.31.487 0 .922-.312 1.197-.82z" fill="#221F1F"></path></svg>
-                                        </div>
-                                    </div>
-                                </div> --}}
-                                
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-        <!-- page-cart -->
+        </div>
+    </section>
 
-        <!-- Testimonial -->
-        {{-- <section class="flat-spacing-17 pt_0 flat-testimonial">
-            <div class="container1">
-                <div class="flat-title">
-                    <span class="title">Happy Clients</span>
-                </div>
-                <div class="wrap-carousel">
-                    <div dir="ltr" class="swiper tf-sw-testimonial" data-preview="3" data-tablet="2" data-mobile="1" data-space-lg="30" data-space-md="15">
-                        <div class="swiper-wrapper">
-                            <div class="swiper-slide">
-                                <div class="testimonial-item style-column">
-                                    <div class="rating">
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                    </div>
-                                    <div class="heading">Best Online Fashion Site</div>
-                                    <div class="text">
-                                        " I always find something stylish and affordable on this web fashion site "
-                                    </div>
-                                    <div class="author">
-                                        <div class="name">Robert smith</div>
-                                        <div class="metas">Customer from USA</div>
-                                    </div>
-                                    <div class="product">
-                                        <div class="image">
-                                            <a href="product-detail.html">
-                                                <img class="lazyload" data-src="images/shop/products/img-p2.png" src="images/shop/products/img-p2.png" alt="">
-                                            </a>
-                                        </div>
-                                        <div class="content-wrap">
-                                            <div class="product-title">
-                                                <a href="product-detail.html">Jersey thong body</a>
-                                            </div>
-                                            <div class="price">$105.95</div>
-                                        </div>
-                                        <a href="product-detail.html" class=""><i class="icon-arrow1-top-left"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="testimonial-item style-column">
-                                    <div class="rating">
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                    </div>
-                                    <div class="heading">Great Selection and Quality</div>
-                                    <div class="text">
-                                        "I love the variety of styles and the high-quality clothing on this web fashion site."
-                                    </div>
-                                    <div class="author">
-                                        <div class="name">Allen Lyn</div>
-                                        <div class="metas">Customer from France</span></div>
-                                    </div>
-                                    <div class="product">
-                                        <div class="image">
-                                            <a href="product-detail.html">
-                                                <img class="lazyload" data-src="images/shop/products/img-p3.png" src="images/shop/products/img-p3.png" alt="">
-                                            </a>
-                                        </div>
-                                        <div class="content-wrap">
-                                            <div class="product-title">
-                                                <a href="product-detail.html">Cotton jersey top</a>
-                                            </div>
-                                            <div class="price">$7.95</div>
-                                        </div>
-                                        <a href="product-detail.html" class=""><i class="icon-arrow1-top-left"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="testimonial-item style-column">
-                                    <div class="rating">
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                    </div>
-                                    <div class="heading">Best Customer Service</div>
-                                    <div class="text">
-                                        "I finally found a web fashion site with stylish and flattering options in my size."
-                                    </div>
-                                    <div class="author">
-                                        <div class="name">Peter Rope</div>
-                                        <div class="metas">Customer from USA</div>
-                                    </div>
-                                    <div class="product">
-                                        <div class="image">
-                                            <a href="product-detail.html">
-                                                <img class="lazyload" data-src="images/shop/products/img-p4.png" src="images/shop/products/img-p4.png" alt="">
-                                            </a>
-                                        </div>
-                                        <div class="content-wrap">
-                                            <div class="product-title">
-                                                <a href="product-detail.html">Ribbed modal T-shirt</a>
-                                            </div>
-                                            <div class="price">From $18.95</div>
-                                        </div>
-                                        <a href="product-detail.html" class=""><i class="icon-arrow1-top-left"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="testimonial-item style-column">
-                                    <div class="rating">
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                        <i class="icon-star"></i>
-                                    </div>
-                                    <div class="heading">Great Selection and Quality</div>
-                                    <div class="text">
-                                        "I love the variety of styles and the high-quality clothing on this web fashion site."
-                                    </div>
-                                    <div class="author">
-                                        <div class="name">Hellen Ase</div>
-                                        <div class="metas">Customer from Japan</span></div>
-                                    </div>
-                                    <div class="product">
-                                        <div class="image">
-                                            <a href="product-detail.html">
-                                                <img class="lazyload" data-src="images/shop/products/img-p5.png" src="images/shop/products/img-p5.png" alt="">
-                                            </a>
-                                        </div>
-                                        <div class="content-wrap">
-                                            <div class="product-title">
-                                                <a href="product-detail.html">Customer from Japan</a>
-                                            </div>
-                                            <div class="price">$16.95</div>
-                                        </div>
-                                        <a href="product-detail.html" class=""><i class="icon-arrow1-top-left"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="nav-sw nav-next-slider nav-next-testimonial lg"><span class="icon icon-arrow-left"></span></div>
-                    <div class="nav-sw nav-prev-slider nav-prev-testimonial lg"><span class="icon icon-arrow-right"></span></div>
-                    <div class="sw-dots style-2 sw-pagination-testimonial justify-content-center"></div>
-                </div>
-            </div>
-        </section> --}}
-        <!-- /Testimonial -->
 
-        <!-- product -->
-        {{-- <section class="flat-spacing-17 pt_0">
-            <div class="container1">
-                <div class="flat-title">
-                    <span class="title">You may also like</span>
-                </div>
-                <div class="hover-sw-nav hover-sw-2">
-                    <div dir="ltr" class="swiper tf-sw-product-sell wrap-sw-over" data-preview="4" data-tablet="3" data-mobile="2" data-space-lg="30" data-space-md="15" data-pagination="2" data-pagination-md="3" data-pagination-lg="3">
-                        <div class="swiper-wrapper">
-                            <div class="swiper-slide" lazy="true">
-                                <div class="card-product">
-                                    <div class="card-product-wrapper">
-                                        <a href="product-detail.html" class="product-img">
-                                            <img class="lazyload img-product" data-src="images/products/orange-1.jpg" src="images/products/orange-1.jpg" alt="image-product">
-                                            <img class="lazyload img-hover" data-src="images/products/white-1.jpg" src="images/products/white-1.jpg" alt="image-product">
+    <!-- product -->
+    <section class="flat-spacing-17 pt_0">
+        <div class="container1">
+            <div class="flat-title">
+                <span class="title">You may also like</span>
+            </div>
+            <div class="hover-sw-nav hover-sw-2">
+                <div dir="ltr" class="swiper tf-sw-product-sell wrap-sw-over" data-preview="4" data-tablet="3"
+                    data-mobile="2" data-space-lg="30" data-space-md="15" data-pagination="2" data-pagination-md="3"
+                    data-pagination-lg="3">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide" lazy="true">
+                            <div class="card-product">
+                                <div class="card-product-wrapper">
+                                    <a href="product-detail.html" class="product-img">
+                                        <img class="lazyload img-product" data-src="images/products/orange-1.jpg"
+                                            src="images/products/orange-1.jpg" alt="image-product">
+                                        <img class="lazyload img-hover" data-src="images/products/white-1.jpg"
+                                            src="images/products/white-1.jpg" alt="image-product">
+                                    </a>
+                                    <div class="list-product-btn">
+                                        <a href="#quick_add" data-bs-toggle="modal"
+                                            class="box-icon bg_white quick-add tf-btn-loading">
+                                            <span class="icon icon-bag"></span>
+                                            <span class="tooltip">Quick Add</span>
                                         </a>
-                                        <div class="list-product-btn">
-                                            <a href="#quick_add" data-bs-toggle="modal" class="box-icon bg_white quick-add tf-btn-loading">
-                                                <span class="icon icon-bag"></span>
-                                                <span class="tooltip">Quick Add</span>
-                                            </a>
-                                            <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
-                                                <span class="icon icon-heart"></span>
-                                                <span class="tooltip">Add to Wishlist</span>
-                                                <span class="icon icon-delete"></span>
-                                            </a>
-                                            <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft" class="box-icon bg_white compare btn-icon-action">
-                                                <span class="icon icon-compare"></span>
-                                                <span class="tooltip">Add to Compare</span>
-                                                <span class="icon icon-check"></span>
-                                            </a>
-                                            <a href="#quick_view" data-bs-toggle="modal" class="box-icon bg_white quickview tf-btn-loading">
-                                                <span class="icon icon-view"></span>
-                                                <span class="tooltip">Quick View</span>
-                                            </a>
-                                        </div>
-                                        <div class="size-list">
-                                            <span>S</span>
-                                            <span>M</span>
-                                            <span>L</span>
-                                            <span>XL</span>
-                                        </div>
+                                        <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
+                                            <span class="icon icon-heart"></span>
+                                            <span class="tooltip">Add to Wishlist</span>
+                                            <span class="icon icon-delete"></span>
+                                        </a>
+                                        <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft"
+                                            class="box-icon bg_white compare btn-icon-action">
+                                            <span class="icon icon-compare"></span>
+                                            <span class="tooltip">Add to Compare</span>
+                                            <span class="icon icon-check"></span>
+                                        </a>
+                                        <a href="#quick_view" data-bs-toggle="modal"
+                                            class="box-icon bg_white quickview tf-btn-loading">
+                                            <span class="icon icon-view"></span>
+                                            <span class="tooltip">Quick View</span>
+                                        </a>
                                     </div>
-                                    <div class="card-product-info">
-                                        <a href="product-detail.html" class="title link">Ribbed Tank Top</a>
-                                        <span class="price">$16.95</span>
-                                        <ul class="list-color-product">
-                                            <li class="list-color-item color-swatch active">
-                                                <span class="tooltip">Orange</span>
-                                                <span class="swatch-value bg_orange-3"></span>
-                                                <img class="lazyload" data-src="images/products/orange-1.jpg" src="images/products/orange-1.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Black</span>
-                                                <span class="swatch-value bg_dark"></span>
-                                                <img class="lazyload" data-src="images/products/black-1.jpg" src="images/products/black-1.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">White</span>
-                                                <span class="swatch-value bg_white"></span>
-                                                <img class="lazyload" data-src="images/products/white-1.jpg" src="images/products/white-1.jpg" alt="image-product">
-                                            </li>
-                                        </ul>
+                                    <div class="size-list">
+                                        <span>S</span>
+                                        <span>M</span>
+                                        <span>L</span>
+                                        <span>XL</span>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="swiper-slide" lazy="true">
-                                <div class="card-product">
-                                    <div class="card-product-wrapper">
-                                        <a href="product-detail.html" class="product-img">
-                                            <img class="lazyload img-product" data-src="images/products/brown.jpg" src="images/products/brown.jpg" alt="image-product">
-                                            <img class="lazyload img-hover" data-src="images/products/purple.jpg" src="images/products/purple.jpg" alt="image-product">
-                                        </a>
-                                        <div class="list-product-btn">
-                                            <a href="#quick_add" data-bs-toggle="modal" class="box-icon bg_white quick-add tf-btn-loading">
-                                                <span class="icon icon-bag"></span>
-                                                <span class="tooltip">Quick Add</span>
-                                            </a>
-                                            <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
-                                                <span class="icon icon-heart"></span>
-                                                <span class="tooltip">Add to Wishlist</span>
-                                                <span class="icon icon-delete"></span>
-                                            </a>
-                                            <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft" class="box-icon bg_white compare btn-icon-action">
-                                                <span class="icon icon-compare"></span>
-                                                <span class="tooltip">Add to Compare</span>
-                                                <span class="icon icon-check"></span>
-                                            </a>
-                                            <a href="#quick_view" data-bs-toggle="modal" class="box-icon bg_white quickview tf-btn-loading">
-                                                <span class="icon icon-view"></span>
-                                                <span class="tooltip">Quick View</span>
-                                            </a>
-                                        </div>
-                                        <div class="size-list">
-                                            <span>M</span>
-                                            <span>L</span>
-                                            <span>XL</span>
-                                        </div>
-                                        <div class="on-sale-wrap">
-                                            <div class="on-sale-item">-33%</div>
-                                        </div>
-                                        <div class="countdown-box">
-                                            <div class="js-countdown" data-timer="1007500" data-labels="d :,h :,m :,s"></div>
-                                        </div>
-                                    </div>
-                                    <div class="card-product-info">
-                                        <a href="product-detail.html" class="title link">Ribbed modal T-shirt</a>
-                                        <span class="price">From $18.95</span>
-                                        <ul class="list-color-product">
-                                            <li class="list-color-item color-swatch active">
-                                                <span class="tooltip">Brown</span>
-                                                <span class="swatch-value bg_brown"></span>
-                                                <img class="lazyload" data-src="images/products/brown.jpg" src="images/products/brown.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Light Purple</span>
-                                                <span class="swatch-value bg_purple"></span>
-                                                <img class="lazyload" data-src="images/products/purple.jpg" src="images/products/purple.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Light Green</span>
-                                                <span class="swatch-value bg_light-green"></span>
-                                                <img class="lazyload" data-src="images/products/green.jpg" src="images/products/green.jpg" alt="image-product">
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide" lazy="true">
-                                <div class="card-product">
-                                    <div class="card-product-wrapper">
-                                        <a href="product-detail.html" class="product-img">
-                                            <img class="lazyload img-product" data-src="images/products/white-3.jpg" src="images/products/white-3.jpg" alt="image-product">
-                                            <img class="lazyload img-hover" data-src="images/products/white-4.jpg" src="images/products/white-4.jpg" alt="image-product">
-                                        </a>
-                                        <div class="list-product-btn">
-                                            <a href="#shoppingCart" data-bs-toggle="modal" class="box-icon bg_white quick-add tf-btn-loading">
-                                                <span class="icon icon-bag"></span>
-                                                <span class="tooltip">Add to cart</span>
-                                            </a>
-                                            <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
-                                                <span class="icon icon-heart"></span>
-                                                <span class="tooltip">Add to Wishlist</span>
-                                                <span class="icon icon-delete"></span>
-                                            </a>
-                                            <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft" class="box-icon bg_white compare btn-icon-action">
-                                                <span class="icon icon-compare"></span>
-                                                <span class="tooltip">Add to Compare</span>
-                                                <span class="icon icon-check"></span>
-                                            </a>
-                                            <a href="#quick_view" data-bs-toggle="modal" class="box-icon bg_white quickview tf-btn-loading">
-                                                <span class="icon icon-view"></span>
-                                                <span class="tooltip">Quick View</span>
-                                            </a>
-                                        </div>
-                                        <div class="size-list">
-                                            <span>S</span>
-                                            <span>M</span>
-                                            <span>L</span>
-                                            <span>XL</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-product-info">
-                                        <a href="product-detail.html" class="title link">Oversized Printed T-shirt</a>
-                                        <span class="price">$10.00</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide" lazy="true">
-                                <div class="card-product">
-                                    <div class="card-product-wrapper">
-                                        <a href="product-detail.html" class="product-img">
-                                            <img class="lazyload img-product" data-src="images/products/white-2.jpg" src="images/products/white-2.jpg" alt="image-product">
-                                            <img class="lazyload img-hover" data-src="images/products/pink-1.jpg" src="images/products/pink-1.jpg" alt="image-product">
-                                        </a>
-                                        <div class="list-product-btn">
-                                            <a href="#quick_add" data-bs-toggle="modal" class="box-icon bg_white quick-add tf-btn-loading">
-                                                <span class="icon icon-bag"></span>
-                                                <span class="tooltip">Quick Add</span>
-                                            </a>
-                                            <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
-                                                <span class="icon icon-heart"></span>
-                                                <span class="tooltip">Add to Wishlist</span>
-                                                <span class="icon icon-delete"></span>
-                                            </a>
-                                            <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft" class="box-icon bg_white compare btn-icon-action">
-                                                <span class="icon icon-compare"></span>
-                                                <span class="tooltip">Add to Compare</span>
-                                                <span class="icon icon-check"></span>
-                                            </a>
-                                            <a href="#quick_view" data-bs-toggle="modal" class="box-icon bg_white quickview tf-btn-loading">
-                                                <span class="icon icon-view"></span>
-                                                <span class="tooltip">Quick View</span>
-                                            </a>
-                                        </div>
-                                        <div class="size-list">
-                                            <span>S</span>
-                                            <span>M</span>
-                                            <span>L</span>
-                                            <span>XL</span>
-                                        </div>
-                                    </div>
-                                    <div class="card-product-info">
-                                        <a href="product-detail.html" class="title">Oversized Printed T-shirt</a>
-                                        <span class="price">$16.95</span>
-                                        <ul class="list-color-product">
-                                            <li class="list-color-item color-swatch active">
-                                                <span class="tooltip">White</span>
-                                                <span class="swatch-value bg_white"></span>
-                                                <img class="lazyload" data-src="images/products/white-2.jpg" src="images/products/white-2.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Pink</span>
-                                                <span class="swatch-value bg_purple"></span>
-                                                <img class="lazyload" data-src="images/products/pink-1.jpg" src="images/products/pink-1.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Black</span>
-                                                <span class="swatch-value bg_dark"></span>
-                                                <img class="lazyload" data-src="images/products/black-2.jpg" src="images/products/black-2.jpg" alt="image-product">
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide" lazy="true">
-                                <div class="card-product">
-                                    <div class="card-product-wrapper">
-                                        <a href="product-detail.html" class="product-img">
-                                            <img class="lazyload img-product" data-src="images/products/brown-2.jpg" src="images/products/brown-2.jpg" alt="image-product">
-                                            <img class="lazyload img-hover" data-src="images/products/brown-3.jpg" src="images/products/brown-3.jpg" alt="image-product">
-                                        </a>
-                                        <div class="size-list">
-                                            <span>S</span>
-                                            <span>M</span>
-                                            <span>L</span>
-                                            <span>XL</span>
-                                        </div>
-                                        <div class="list-product-btn">
-                                            <a href="#quick_add" data-bs-toggle="modal" class="box-icon bg_white quick-add tf-btn-loading">
-                                                <span class="icon icon-bag"></span>
-                                                <span class="tooltip">Quick Add</span>
-                                            </a>
-                                            <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
-                                                <span class="icon icon-heart"></span>
-                                                <span class="tooltip">Add to Wishlist</span>
-                                                <span class="icon icon-delete"></span>
-                                            </a>
-                                            <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft" class="box-icon bg_white compare btn-icon-action">
-                                                <span class="icon icon-compare"></span>
-                                                <span class="tooltip">Add to Compare</span>
-                                                <span class="icon icon-check"></span>
-                                            </a>
-                                            <a href="#quick_view" data-bs-toggle="modal" class="box-icon bg_white quickview tf-btn-loading">
-                                                <span class="icon icon-view"></span>
-                                                <span class="tooltip">Quick View</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="card-product-info">
-                                        <a href="product-detail.html" class="title link">V-neck linen T-shirt</a>
-                                        <span class="price">$114.95</span>
-                                        <ul class="list-color-product">
-                                            <li class="list-color-item color-swatch active">
-                                                <span class="tooltip">Brown</span>
-                                                <span class="swatch-value bg_brown"></span>
-                                                <img class="lazyload" data-src="images/products/brown-2.jpg" src="images/products/brown-2.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">White</span>
-                                                <span class="swatch-value bg_white"></span>
-                                                <img class="lazyload" data-src="images/products/white-5.jpg" src="images/products/white-5.jpg" alt="image-product">
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="swiper-slide" lazy="true">
-                                <div class="card-product">
-                                    <div class="card-product-wrapper">
-                                        <a href="product-detail.html" class="product-img">
-                                            <img class="lazyload img-product" data-src="images/products/light-green-1.jpg" src="images/products/light-green-1.jpg" alt="image-product">
-                                            <img class="lazyload img-hover" data-src="images/products/light-green-2.jpg" src="images/products/light-green-2.jpg" alt="image-product">
-                                        </a>
-                                        <div class="list-product-btn absolute-2">
-                                            <a href="#quick_add" data-bs-toggle="modal" class="box-icon bg_white quick-add tf-btn-loading">
-                                                <span class="icon icon-bag"></span>
-                                                <span class="tooltip">Quick Add</span>
-                                            </a>
-                                            <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
-                                                <span class="icon icon-heart"></span>
-                                                <span class="tooltip">Add to Wishlist</span>
-                                                <span class="icon icon-delete"></span>
-                                            </a>
-                                            <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft" class="box-icon bg_white compare btn-icon-action">
-                                                <span class="icon icon-compare"></span>
-                                                <span class="tooltip">Add to Compare</span>
-                                                <span class="icon icon-check"></span>
-                                            </a>
-                                            <a href="#quick_view" data-bs-toggle="modal" class="box-icon bg_white quickview tf-btn-loading">
-                                                <span class="icon icon-view"></span>
-                                                <span class="tooltip">Quick View</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="card-product-info">
-                                        <a href="product-detail.html" class="title link">Loose Fit Sweatshirt</a>
-                                        <span class="price">$10.00</span>
-                                        <ul class="list-color-product">
-                                            <li class="list-color-item color-swatch active">
-                                                <span class="tooltip">Light Green</span>
-                                                <span class="swatch-value bg_light-green"></span>
-                                                <img class="lazyload" data-src="images/products/light-green-1.jpg" src="images/products/light-green-1.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Black</span>
-                                                <span class="swatch-value bg_dark"></span>
-                                                <img class="lazyload" data-src="images/products/black-3.jpg" src="images/products/black-3.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Blue</span>
-                                                <span class="swatch-value bg_blue-2"></span>
-                                                <img class="lazyload" data-src="images/products/blue.jpg" src="images/products/blue.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Dark Blue</span>
-                                                <span class="swatch-value bg_dark-blue"></span>
-                                                <img class="lazyload" data-src="images/products/dark-blue.jpg" src="images/products/dark-blue.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">White</span>
-                                                <span class="swatch-value bg_white"></span>
-                                                <img class="lazyload" data-src="images/products/white-6.jpg" src="images/products/white-6.jpg" alt="image-product">
-                                            </li>
-                                            <li class="list-color-item color-swatch">
-                                                <span class="tooltip">Light Grey</span>
-                                                <span class="swatch-value bg_light-grey"></span>
-                                                <img class="lazyload" data-src="images/products/light-grey.jpg" src="images/products/light-grey.jpg" alt="image-product">
-                                            </li>
-                                        </ul>
-                                    </div>
+                                <div class="card-product-info">
+                                    <a href="product-detail.html" class="title link">Ribbed Tank Top</a>
+                                    <span class="price">$16.95</span>
+                                    <ul class="list-color-product">
+                                        <li class="list-color-item color-swatch active">
+                                            <span class="tooltip">Orange</span>
+                                            <span class="swatch-value bg_orange-3"></span>
+                                            <img class="lazyload" data-src="images/products/orange-1.jpg"
+                                                src="images/products/orange-1.jpg" alt="image-product">
+                                        </li>
+                                        <li class="list-color-item color-swatch">
+                                            <span class="tooltip">Black</span>
+                                            <span class="swatch-value bg_dark"></span>
+                                            <img class="lazyload" data-src="images/products/black-1.jpg"
+                                                src="images/products/black-1.jpg" alt="image-product">
+                                        </li>
+                                        <li class="list-color-item color-swatch">
+                                            <span class="tooltip">White</span>
+                                            <span class="swatch-value bg_white"></span>
+                                            <img class="lazyload" data-src="images/products/white-1.jpg"
+                                                src="images/products/white-1.jpg" alt="image-product">
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
+
                     </div>
-                    <div class="nav-sw nav-next-slider nav-next-product box-icon w_46 round"><span class="icon icon-arrow-left"></span></div>
-                    <div class="nav-sw nav-prev-slider nav-prev-product box-icon w_46 round"><span class="icon icon-arrow-right"></span></div>
-                    <div class="sw-dots style-2 sw-pagination-product justify-content-center"></div>
                 </div>
+                <div class="nav-sw nav-next-slider nav-next-product box-icon w_46 round"><span
+                        class="icon icon-arrow-left"></span></div>
+                <div class="nav-sw nav-prev-slider nav-prev-product box-icon w_46 round"><span
+                        class="icon icon-arrow-right"></span></div>
+                <div class="sw-dots style-2 sw-pagination-product justify-content-center"></div>
             </div>
-        </section> --}}
+        </div>
+    </section>
+
 @endsection
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Gắn sự kiện click cho nút tăng/giảm
-    document.querySelectorAll('.btn-quantity').forEach(function(btn) {
-        btn.onclick = function () {
-            let input = this.parentElement.querySelector('.cart-qty-input');
-            let val = parseInt(input.value) || 1;
-            if (this.classList.contains('plus-btn')) {
-                val += 1;
-            } else if (this.classList.contains('minus-btn') && val > 1) {
-                val -= 1;
-            }
-            input.value = val;
-            updateCart(input);
-        }
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý checkbox "Chọn tất cả"
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
+        const deleteSelectedBtn = document.getElementById('delete-selected-btn');
 
-    // Gắn sự kiện change cho input số lượng
-    document.querySelectorAll('.cart-qty-input').forEach(function(input) {
-        input.addEventListener('change', function() {
-            let quantity = parseInt(this.value) || 1;
-            if (quantity < 1) quantity = 1;
-            this.value = quantity;
-            updateCart(this);
+        // Xử lý checkbox "Chọn tất cả"
+        selectAllCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+
+            // Tích/bỏ tích tất cả checkbox sản phẩm
+            itemCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = isChecked;
+            });
+
+            // Cập nhật tổng tiền
+            updateSelectedTotal();
         });
-    });
 
-    // Hàm cập nhật giỏ hàng
-    function updateCart(input) {
-        const itemId = input.dataset.itemId;
-        const quantity = parseInt(input.value);
+        // Hàm cập nhật tổng tiền theo sản phẩm được chọn
+        function updateSelectedTotal() {
+            const selectedItems = document.querySelectorAll('.cart-item-checkbox:checked');
+            let selectedTotal = 0;
 
-        fetch("{{ route('client.cart.update') }}", {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                item_id: itemId,
-                quantity: quantity
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Cập nhật tổng giá của sản phẩm
-                const row = input.closest('tr');
-                let price = row.querySelector('.cart-price').textContent.replace(/[^\d]/g, '');
-                price = parseInt(price) || 0;
-                const total = price * quantity;
-                row.querySelector('.cart-total').textContent = total.toLocaleString('vi-VN') + 'đ';
-                // Cập nhật tổng giá giỏ hàng
-                if (data.subtotal !== undefined) {
-                    document.querySelector('.total-value').textContent = Number(data.subtotal).toLocaleString('vi-VN') + 'đ';
-                }
-            } else {
-                toastr.error(data.message || 'Có lỗi xảy ra khi cập nhật giỏ hàng!');
-            }
-        })
-        .catch(error => {
-            console.error('Lỗi:', error);
-            toastr.error('Có lỗi xảy ra khi kết nối đến máy chủ!');
-        });
-    }
+            selectedItems.forEach(function(checkbox) {
+                const row = checkbox.closest('tr');
+                const totalElement = row.querySelector('.cart-total');
+                const totalText = totalElement.textContent;
+                const total = parseInt(totalText.replace(/[^\d]/g, '')) || 0;
+                selectedTotal += total;
+            });
 
-    // Xóa sản phẩm khỏi giỏ hàng
-    document.querySelectorAll('.remove-cart').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const itemId = this.dataset.itemId;
-            if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) return;
-            fetch("{{ route('client.cart.remove') }}", {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    item_id: itemId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Xóa dòng sản phẩm khỏi bảng
-                    const row = btn.closest('tr');
-                    row.parentNode.removeChild(row);
-                    // Cập nhật lại tổng tiền
-                    location.reload(); // Đơn giản nhất, reload lại để cập nhật tổng tiền và trạng thái
+            // Cập nhật hiển thị tổng tiền
+            const totalValueElement = document.querySelector('.total-value');
+            if (totalValueElement) {
+                if (selectedItems.length === 0) {
+                    // Không có sản phẩm nào được chọn, hiển thị 0đ
+                    totalValueElement.textContent = '0đ';
+                    totalValueElement.style.color = '#ff3029';
+
+                    // Reset lại text header
+                    const cartTotalsElement = document.querySelector('.tf-cart-totals-discounts h3');
+                    if (cartTotalsElement) {
+                        cartTotalsElement.textContent = 'Tổng tiền hàng';
+                    }
+
+                    // Cập nhật tổng cộng cũng là 0đ
+                    const grandTotalElement = document.querySelector('.grand-total-value');
+                    if (grandTotalElement) {
+                        grandTotalElement.textContent = '0đ';
+                    }
                 } else {
-                    toastr.error(data.message || 'Có lỗi xảy ra khi xóa sản phẩm!');
+                    // Hiển thị tổng sản phẩm được chọn (dù chỉ 1 hay nhiều)
+                    totalValueElement.textContent = selectedTotal.toLocaleString('vi-VN') + 'đ';
+                    totalValueElement.style.color = '#ff3029';
+
+                    // Thêm tooltip hoặc text nhỏ để hiển thị số lượng sản phẩm được chọn
+                    const cartTotalsElement = document.querySelector('.tf-cart-totals-discounts h3');
+                    if (cartTotalsElement) {
+                        if (selectedItems.length === 1) {
+                            cartTotalsElement.textContent = 'Tổng tiền hàng (1 sản phẩm)';
+                        } else {
+                            cartTotalsElement.textContent = `Tổng tiền hàng (${selectedItems.length} sản phẩm)`;
+                        }
+                    }
+
+                    // Cập nhật tổng cộng = tổng đã chọn - giảm giá + phí vận chuyển
+                    const discount = 0; // Nếu có biến discount, lấy từ DOM hoặc JS
+                    const shippingFee = 0; // Nếu có biến shipping_fee, lấy từ DOM hoặc JS
+                    const grandTotalElement = document.querySelector('.grand-total-value');
+                    if (grandTotalElement) {
+                        grandTotalElement.textContent = (selectedTotal - discount + shippingFee).toLocaleString(
+                            'vi-VN') + 'đ';
+                    }
                 }
-            })
-            .catch(error => {
-                toastr.error('Có lỗi xảy ra khi kết nối đến máy chủ!');
+            }
+
+            // Hiển thị/ẩn nút xóa sản phẩm đã chọn
+            if (selectedItems.length > 0) {
+                deleteSelectedBtn.style.display = 'block';
+                deleteSelectedBtn.textContent = `Xóa ${selectedItems.length} sản phẩm đã chọn`;
+            } else {
+                deleteSelectedBtn.style.display = 'none';
+                // Reset lại text header
+                const cartTotalsElement = document.querySelector('.tf-cart-totals-discounts h3');
+                if (cartTotalsElement) {
+                    cartTotalsElement.textContent = 'Tổng tiền hàng';
+                }
+            }
+        }
+
+        itemCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                updateSelectedTotal();
             });
         });
+
+        // Xử lý nút xóa sản phẩm đã chọn
+        deleteSelectedBtn.addEventListener('click', function() {
+            const selectedItems = document.querySelectorAll('.cart-item-checkbox:checked');
+
+            if (selectedItems.length === 0) {
+                alert('Vui lòng chọn sản phẩm cần xóa!');
+                return;
+            }
+
+            if (!confirm(`Bạn có chắc muốn xóa ${selectedItems.length} sản phẩm đã chọn?`)) {
+                return;
+            }
+
+            // Xóa từng sản phẩm được chọn
+            const deletePromises = [];
+
+            selectedItems.forEach(function(checkbox) {
+                const itemId = checkbox.dataset.itemId;
+
+                // Gọi API xóa
+                const deletePromise = fetch("/cart/remove", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            item_id: itemId
+                        })
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            // Xóa khỏi DOM
+                            const row = checkbox.closest('tr');
+                            if (row) {
+                                row.parentNode.removeChild(row);
+                            }
+                            // Cập nhật badge số lượng giỏ hàng nếu backend trả về cartCount
+                            if (typeof data.cartCount !== 'undefined') {
+                                updateCartCountBadge(data.cartCount);
+                            }
+                            return {
+                                success: true,
+                                itemId: itemId
+                            };
+                        } else {
+                            console.warn('Server remove failed for item:', itemId, data
+                                .message);
+                            return {
+                                success: false,
+                                itemId: itemId,
+                                message: data.message
+                            };
+                        }
+                    }).catch(error => {
+                        console.warn('Server remove failed for item:', itemId, error);
+                        return {
+                            success: false,
+                            itemId: itemId,
+                            error: error
+                        };
+                    });
+
+                deletePromises.push(deletePromise);
+            });
+
+            // Đợi tất cả API calls hoàn thành
+            Promise.all(deletePromises).then((results) => {
+                const successCount = results.filter(r => r.success).length;
+                const failedCount = results.filter(r => !r.success).length;
+
+                if (successCount > 0) {
+                    console.log(`${successCount} items removed successfully`);
+                    // Cập nhật lại tổng tiền
+                    updateSelectedTotal();
+                }
+
+                if (failedCount > 0) {
+                    alert(`${failedCount} sản phẩm xóa thất bại. Vui lòng thử lại!`);
+                }
+            });
+        });
+
+        // Xử lý nút tăng/giảm số lượng
+        document.querySelectorAll('.btn-quantity').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const input = this.closest('.wg-quantity').querySelector('.cart-qty-input');
+                if (!input) return;
+
+                let val = parseInt(input.value) || 1;
+                const max = parseInt(input.getAttribute('data-max')) || 9999;
+
+                if (this.classList.contains('plus-btn')) {
+                    if (val < max) {
+                        val += 1;
+                        input.value = val;
+                        updateCart(input);
+                    }
+                    // Disable nếu đạt max
+                    if (val >= max) {
+                        this.setAttribute('disabled', 'disabled');
+                    }
+                } else if (this.classList.contains('minus-btn')) {
+                    if (val > 1) {
+                        val -= 1;
+                        input.value = val;
+                        updateCart(input);
+                    }
+                    // Enable lại nút "+" nếu giảm xuống dưới max
+                    const plusBtn = this.parentNode.querySelector('.plus-btn');
+                    if (plusBtn) plusBtn.removeAttribute('disabled');
+                }
+            });
+        });
+
+        // Khi load lại số lượng, kiểm tra để disable/enable nút "+"
+        document.querySelectorAll('.cart-qty-input').forEach(function(input) {
+            input.addEventListener('change', function() {
+                let quantity = parseInt(this.value) || 1;
+                const max = parseInt(this.getAttribute('data-max')) || 9999;
+                if (quantity < 1) quantity = 1;
+                if (quantity > max) quantity = max;
+                this.value = quantity;
+                updateCart(this);
+
+                // Disable/enable nút "+"
+                const plusBtn = this.parentNode.querySelector('.plus-btn');
+                if (plusBtn) {
+                    if (quantity >= max) {
+                        plusBtn.setAttribute('disabled', 'disabled');
+                    } else {
+                        plusBtn.removeAttribute('disabled');
+                    }
+                }
+            });
+
+            // Khởi tạo trạng thái nút "+" khi load trang
+            const max = parseInt(input.getAttribute('data-max')) || 9999;
+            const plusBtn = input.parentNode.querySelector('.plus-btn');
+            if (plusBtn) {
+                if (parseInt(input.value) >= max) {
+                    plusBtn.setAttribute('disabled', 'disabled');
+                } else {
+                    plusBtn.removeAttribute('disabled');
+                }
+            }
+        });
+        // Gắn sự kiện change cho input số lượng
+        document.querySelectorAll('.cart-qty-input').forEach(function(input) {
+            input.addEventListener('change', function() {
+                let quantity = parseInt(this.value) || 1;
+                if (quantity < 1) quantity = 1;
+                this.value = quantity;
+                updateCart(this);
+            });
+        });
+
+        // Hàm cập nhật giỏ hàng
+        function updateCart(input) {
+            const itemId = input.dataset.itemId;
+            const quantity = parseInt(input.value);
+
+            // Disable input trong khi đang cập nhật
+            input.disabled = true;
+
+            // Tính toán trực tiếp ở frontend
+            const row = input.closest('tr');
+            const priceElement = row.querySelector('.cart-price');
+            const totalElement = row.querySelector('.cart-total');
+
+            // Lấy giá từ element hiện tại
+            let priceText = priceElement.textContent;
+            let price = parseInt(priceText.replace(/[^\d]/g, '')) || 0;
+
+            // Tính thành tiền
+            const total = price * quantity;
+
+            // Cập nhật thành tiền của sản phẩm
+            totalElement.textContent = total.toLocaleString('vi-VN') + 'đ';
+
+            // Cập nhật tổng giỏ hàng
+            updateSelectedTotal();
+
+            // Gọi API để cập nhật database (không block UI)
+            updateCartOnServer(itemId, quantity, input);
+        }
+
+        // Hàm cập nhật tổng giỏ hàng
+        function updateCartTotal() {
+            const totalElements = document.querySelectorAll('.cart-total');
+            let grandTotal = 0;
+
+            totalElements.forEach(function(element) {
+                const totalText = element.textContent;
+                const total = parseInt(totalText.replace(/[^\d]/g, '')) || 0;
+                grandTotal += total;
+            });
+
+            const totalValueElement = document.querySelector('.total-value');
+            if (totalValueElement) {
+                totalValueElement.textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
+                totalValueElement.style.color = ''; // Reset màu về mặc định
+            }
+        }
+
+        // Hàm gọi API để cập nhật database (không block UI)
+        function updateCartOnServer(itemId, quantity, input) {
+            const url = "/cart/update";
+            const csrfToken = "{{ csrf_token() }}";
+
+            fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-HTTP-Method-Override': 'PUT'
+                    },
+                    body: JSON.stringify({
+                        item_id: itemId,
+                        quantity: quantity
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.warn('Server update failed, but UI updated successfully');
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.success) {
+                        console.log('Server updated successfully');
+                    }
+                })
+                .catch(error => {
+                    console.warn('Server update failed, but UI updated successfully:', error);
+                })
+                .finally(() => {
+                    // Re-enable input sau khi hoàn thành
+                    if (input) {
+                        input.disabled = false;
+                    }
+                });
+        }
+
+        // Xóa sản phẩm khỏi giỏ hàng
+        document.querySelectorAll('.remove-cart-x').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const itemId = this.dataset.itemId;
+                if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) return;
+
+                // Gọi API để xóa trên database/session
+                fetch("/cart/remove", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            item_id: itemId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            // Chỉ xóa khỏi DOM khi backend đã xóa thành công
+                            const row = btn.closest('tr');
+                            if (row) row.parentNode.removeChild(row);
+                            updateCartTotal();
+                            updateSelectedTotal();
+                        } else {
+                            alert(data.message || 'Xóa sản phẩm thất bại!');
+                        }
+                    })
+                    .catch(() => {
+                        alert('Có lỗi khi kết nối máy chủ!');
+                    });
+            });
+        });
+
+
+        document.querySelectorAll('.similar-search-icon').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                const target = document.getElementById('suggested-products');
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Khởi tạo ban đầu
+        updateSelectedTotal();
+
+        // Xử lý nút "Xóa giỏ hàng"
+        const clearCartBtn = document.getElementById('clear-cart-btn');
+        if (clearCartBtn) {
+            clearCartBtn.addEventListener('click', function() {
+                if (!confirm('Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng?')) return;
+
+                fetch("/cart/clear", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.success) {
+                            // Chỉ xóa khỏi DOM khi backend đã xóa thành công
+                            document.querySelectorAll('.tf-cart-item').forEach(row => row.parentNode
+                                .removeChild(row));
+                            document.querySelector('.total-value').textContent = '0đ';
+                            document.querySelector('.grand-total-value').textContent = '0đ';
+                            if (deleteSelectedBtn) deleteSelectedBtn.style.display = 'none';
+                            if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                            alert('Đã xóa tất cả sản phẩm trong giỏ hàng!');
+                        } else {
+                            alert(data.message || 'Xóa giỏ hàng thất bại!');
+                        }
+                    })
+                    .catch(() => {
+                        alert('Có lỗi khi kết nối máy chủ!');
+                    });
+            });
+        }
+
+        function updateCartCountBadge(newCount) {
+            const badge = document.getElementById('cart-count-badge');
+            if (badge) {
+                badge.textContent = newCount;
+                badge.style.display = newCount > 0 ? 'flex' : 'none';
+            }
+        }
+
+        const agreeCheckbox = document.getElementById('check-agree');
+        const checkoutBtn = document.querySelector('.cart-checkout-btn a');
+        const checkoutDiv = document.querySelector('.cart-checkout-btn');
+
+        function toggleCheckoutState() {
+            if (agreeCheckbox && checkoutBtn && checkoutDiv) {
+                if (agreeCheckbox.checked) {
+                    checkoutDiv.style.opacity = '1';
+                    checkoutBtn.classList.remove('disabled');
+                    checkoutBtn.style.pointerEvents = '';
+                } else {
+                    checkoutDiv.style.opacity = '0.5';
+                    checkoutBtn.classList.add('disabled');
+                    checkoutBtn.style.pointerEvents = 'none';
+                }
+            }
+        }
+
+        if (agreeCheckbox) {
+            agreeCheckbox.addEventListener('change', toggleCheckoutState);
+            toggleCheckoutState(); // Gọi khi load trang
+        }
     });
-});
 </script>

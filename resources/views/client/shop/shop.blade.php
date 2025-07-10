@@ -38,16 +38,17 @@
                    Danh mục
                 </div>
                 @foreach($categories as $category)
-                    <div class="in-sidebar">
-                        <a href="{{ route('shop', ['category_id' => $category->id]) }}"
-                            style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit;">
-                            <div class="name" @if(request('category_id') == $category->id) style="font-weight:bold;color:#fcad02;"
-                            @endif>
-                                {{ $category->name }}
-                            </div>
-                            <div class="box-number">{{ $category->products_count }}</div>
-                        </a>
-                    </div>
+                    @if($category->products_count > 0)
+                        <div class="in-sidebar">
+                            <a href="{{ route('shop', ['category_id' => $category->id]) }}"
+                                style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit;">
+                                <div class="name" @if(request('category_id') == $category->id) style="font-weight:bold;color:#fcad02;" @endif>
+                                    {{ $category->name }}
+                                </div>
+                                <div class="box-number">{{ $category->products_count }}</div>
+                            </a>
+                        </div>
+                    @endif
                 @endforeach
             </div>
    {{-- <div class="box-price">
@@ -202,8 +203,15 @@
                         <div class="title-new-product">
                             <a href="{{ route('client.product.show', $product->slug) }}">{{ $product->name }}</a>
                         </div>
+                        @php
+                            $totalStock = $product->variants->sum('stock_quantity');
+                        @endphp
                         <div style="font-size: 16px; color: rgb(170, 167, 167);">
-                            {{ number_format($product->regular_price, 0, ',', '.') }} đ
+                            @if($product->variants->count() > 0 && $totalStock <= 0)
+                                <span style="color:red;font-weight:bold;">Hết hàng</span>
+                            @else
+                                {{ number_format($product->regular_price, 0, ',', '.') }} đ
+                            @endif
                         </div>
                     </div>
                 @endforeach

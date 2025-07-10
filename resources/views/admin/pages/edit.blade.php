@@ -76,11 +76,11 @@
                     <div class="body-title">Loại trang <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="page_type" id="page_type" class="@error('page_type') is-invalid @enderror">
-                            <option value="page" {{ old('page_type', $page->page_type) == 'page' ? 'selected' : '' }}>
-                                Page</option>
                             <option value="blog_post"
                                 {{ old('page_type', $page->page_type) == 'blog_post' ? 'selected' : '' }}>Blog Post
                             </option>
+                            <option value="page" {{ old('page_type', $page->page_type) == 'page' ? 'selected' : '' }}>
+                                Page</option>
                         </select>
                         @error('page_type')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
@@ -103,7 +103,7 @@
                 </fieldset>
                 <!-- Ảnh đại diện -->
                 <fieldset>
-                    <div class="body-title">Ảnh đại diện</div>
+                    <div class="body-title">Ảnh đại diện <span class="tf-color-1">*</span></div>
                     <div class="upload-image flex-grow d-block">
                         <div class="item up-load">
                             <label class="uploadfile h250" for="featured_image_url">
@@ -123,7 +123,6 @@
                         @enderror
                     </div>
                 </fieldset>
-
                 {{-- Ảnh cũ --}}
                 @if ($page->featured_image_url)
                     <div id="old-image-wrap" style="text-align:center;">
@@ -132,9 +131,8 @@
                             style="max-width: 120px; margin-top:10px; border-radius:8px; object-fit:cover;">
                     </div>
                 @endif
-
                 <fieldset>
-                    <div class="body-title">Meta title</div>
+                    <div class="body-title">Meta title <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('meta_title') is-invalid @enderror" type="text"
                         placeholder="Meta title" name="meta_title" id="meta_title"
                         value="{{ old('meta_title', $page->meta_title) }}">
@@ -143,7 +141,7 @@
                     @enderror
                 </fieldset>
                 <fieldset>
-                    <div class="body-title">Meta description</div>
+                    <div class="body-title">Meta description <span class="tf-color-1">*</span></div>
                     <textarea class="flex-grow @error('meta_description') is-invalid @enderror" name="meta_description"
                         id="meta_description" rows="2" placeholder="Meta description">{{ old('meta_description', $page->meta_description) }}</textarea>
                     @error('meta_description')
@@ -151,7 +149,7 @@
                     @enderror
                 </fieldset>
                 <fieldset>
-                    <div class="body-title">Ngày xuất bản</div>
+                    <div class="body-title">Ngày xuất bản <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('published_at') is-invalid @enderror"
                         type="datetime-local" name="published_at" id="published_at"
                         value="{{ old('published_at', $page->published_at ? $page->published_at->format('Y-m-d\TH:i') : '') }}">
@@ -167,7 +165,6 @@
                     <div class="body-title">Ngày cập nhật</div>
                     <input type="text" class="form-control" value="{{ $page->updated_at }}" readonly>
                 </fieldset>
-
                 <div class="row mt-3">
                     <div class="col-md-6">
                         <button type="submit" class="tf-button w-100 py-3 fs-5">
@@ -207,59 +204,45 @@
             }
         });
     </script>
-
-    {{-- Trình soạn thảo văn bản --}}
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-
     @push('scripts')
+        <script src="https://cdn.tiny.cloud/1/hs04m6101y0gorgukhuffqutjnhs52o68gb16y52y7nvuj6u/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
         <script>
-            ClassicEditor
-                .create(document.querySelector('#content'), {
-                    simpleUpload: {
-                        uploadUrl: '{{ route('admin.pages.upload-image') }}', // Đảm bảo route đúng
-                        withCredentials: true, // Cho phép gửi cookie/CSRF token
+            tinymce.init({
+                selector: '#content',
+                plugins: 'image media link table lists advlist',
+                toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
+                height: 400,
+                menubar: false,
+                images_upload_url: '{{ route('admin.pages.upload-image') }}',
+                images_upload_credentials: true,
+                images_upload_handler: async (blobInfo, progress) => {
+                    let formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    formData.append('_token', '{{ csrf_token() }}');
+
+                    const response = await fetch('{{ route('admin.pages.upload-image') }}', {
+                        method: 'POST',
+                        body: formData,
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}', // Token CSRF từ Laravel
-                            'Accept': 'application/json' // Đảm bảo server trả về JSON
+                            'Accept': 'application/json'
                         }
-                    },
-                    toolbar: {
-                        items: [
-                            'heading', '|',
-                            'bold', 'italic', 'underline', 'strikethrough', '|',
-                            'link', 'imageUpload', 'mediaEmbed', 'insertTable', '|',
-                            'bulletedList', 'numberedList', 'blockQuote', '|',
-                            'fontSize', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
-                            'alignment', 'indent', 'outdent', '|',
-                            'undo', 'redo'
-                        ]
-                    },
-                    image: {
-                        toolbar: [
-                            'imageStyle:inline',
-                            'imageStyle:block',
-                            'imageStyle:side',
-                            'linkImage',
-                            'imageResize'
-                        ]
-                    },
-                    table: {
-                        contentToolbar: [
-                            'tableColumn', 'tableRow', 'mergeTableCells'
-                        ]
+                    });
+                    const json = await response.json();
+                    if (!json.location) {
+                        throw new Error('Tải ảnh thất bại: ' + (json.error || 'Lỗi không xác định'));
                     }
-                })
-                .then(editor => {
-                    console.log('Editor initialized:', editor);
-                })
-                .catch(error => {
-                    console.error('Error initializing editor:', error);
-                });
+                    return json.location;
+                },
+                readonly: false,
+                image_caption: true,
+                image_advtab: true,
+                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
+            });
         </script>
     @endpush
     @push('head')
         <style>
-            .ck-editor__editable {
+            .tox-tinymce {
                 min-height: 300px;
                 max-height: 600px;
                 overflow-y: auto;
@@ -268,33 +251,20 @@
                 word-break: break-word;
                 overflow-wrap: break-word;
                 max-width: 100%;
+                border: 1px solid #ccc;
+                border-radius: 4px;
             }
-
-            .ck-editor__main {
-                width: 100%;
-                padding: 10px;
-            }
-
             .wg-box {
                 width: 100%;
                 overflow-x: hidden;
             }
-
             .form-new-product {
                 max-width: 100%;
             }
-
             .ck-editor-container {
                 width: 100%;
                 max-width: 100%;
                 margin-bottom: 15px;
-            }
-
-            .ck-editor__editable,
-            .ck-editor__main {
-                position: relative !important;
-                float: none !important;
-                width: 100% !important;
             }
         </style>
     @endpush
