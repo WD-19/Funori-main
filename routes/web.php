@@ -153,6 +153,13 @@ Route::prefix('admin')->name('admin.')
 
 Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
+    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
+});
 
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
@@ -192,12 +199,7 @@ Route::prefix('/')->name('client.')->group(function () {
     // JS gọi POST nên route phải là POST
     Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
-    // Wishlist
-    Route::prefix('wishlist')->name('wishlist.')->middleware(CheckClientLogin::class)->group(function () {
-        Route::post('/add', [WishlistController::class, 'add'])->name('add');
-        Route::post('/remove', [WishlistController::class, 'remove'])->name('remove');
-        Route::get('/mini-list', [WishlistController::class, 'miniList'])->name('miniList');
-    });
+
 
     // Checkout (One-Page)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
