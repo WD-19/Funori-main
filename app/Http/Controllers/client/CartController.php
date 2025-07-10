@@ -132,7 +132,12 @@ class CartController
             $key = $item['product_id'] . '_' . ($item['product_variant_id'] ?? 'null');
             return [$key => $item]; // giữ nguyên toàn bộ item, không mất dữ liệu
         })->toArray();
-        return view('client.cart.cart', compact('cartItems', 'total', 'cartCount'));
+
+        // Lấy 8 sản phẩm mới nhất
+        $newestProducts = Product::orderBy('created_at', 'desc')->take(8)->get();
+
+        // Truyền sang view
+        return view('client.cart.cart', compact('cartItems', 'total', 'cartCount', 'newestProducts'));
     }
 
 
@@ -432,5 +437,190 @@ class CartController
         $cart = Session::get('cart', []);
         // Đếm số sản phẩm khác nhau (mỗi key là 1 sản phẩm)
         return count($cart);
+    }
+
+    /**
+     * Lấy dữ liệu mini cart cho AJAX request
+     */
+    // public function getMiniCart()
+    // {
+    //     $cartItems = [];
+    //     $cartCount = 0;
+    //     $total = 0;
+
+    //     if (Auth::check()) {
+    //         $cart = Cart::where('user_id', Auth::id())->first();
+
+    //         if ($cart) {
+    //             $cartItemsRaw = CartItem::with([
+    //                 'product.images',
+    //                 'productVariant.image',
+    //                 'productVariant.attributeValues.attribute'
+    //             ])->where('cart_id', $cart->id)
+    //               ->orderByDesc('created_at')
+    //               ->limit(3)
+    //               ->get();
+
+    //             foreach ($cartItemsRaw as $item) {
+    //                 $product = $item->product;
+    //                 $variant = $item->productVariant;
+
+    //                 // Lấy ảnh biến thể nếu có, ưu tiên thumbnail nếu có
+    //                 $imageUrl = null;
+    //                 $variantImage = null;
+    //                 if ($variant && $variant->image && $variant->image->image_url) {
+    //                     $variantImage = $variant->image->image_url;
+    //                 }
+
+    //                 if ($variantImage) {
+    //                     $imageUrl = $variantImage;
+    //                 } elseif ($product && $product->images && $product->images->first()) {
+    //                     $imageUrl = $product->images->first()->image_url;
+    //                 } else {
+    //                     $imageUrl = 'images/products/no-image.png';
+    //                 }
+
+    //                 $cartItems[] = [
+    //                     'id' => $item->id,
+    //                     'product_id' => $product->id,
+    //                     'product_variant_id' => $variant->id ?? null,
+    //                     'quantity' => $item->quantity,
+    //                     'price_at_addition' => $item->price_at_addition,
+    //                     'image_url' => $imageUrl,
+    //                     'product' => [
+    //                         'id' => $product->id,
+    //                         'name' => $product->name,
+    //                         'slug' => $product->slug,
+    //                     ],
+    //                     'variant' => $variant ? [
+    //                         'id' => $variant->id,
+    //                         'image' => $variant->image ? [
+    //                             'image_url' => $variant->image->image_url
+    //                         ] : null,
+    //                     ] : null,
+    //                 ];
+    //             }
+
+    //             $cartCount = $cart->items()->count();
+    //             $total = $cart->items->sum(fn($item) => $item->quantity * $item->price_at_addition);
+    //         }
+    //     } else {
+    //         // Guest cart from session
+    //         $sessionCart = Session::get('cart', []);
+    //         $cartItems = collect($sessionCart)
+    //             ->take(3)
+    //             ->map(function ($item) {
+    //                 $product = Product::with([
+    //                     'images',
+    //                     'variants.image',
+    //                     'variants.attributeValues.attribute'
+    //                 ])->find($item['product_id']);
+
+    //                 $variant = null;
+    //                 $imageUrl = null;
+
+    //                 if (!empty($item['product_variant_id']) && $product) {
+    //                     $variant = ProductVariant::with([
+    //                         'image',
+    //                         'attributeValues.attribute'
+    //                     ])->find($item['product_variant_id']);
+
+    //                     if ($variant && $variant->image) {
+    //                         $imageUrl = $variant->image->image_url;
+    //                     }
+    //                 }
+
+    //                 if (!$imageUrl && $product && $product->images->first()) {
+    //                     $imageUrl = $product->images->first()->image_url;
+    //                 }
+
+    //                 if (!$imageUrl) {
+    //                     $imageUrl = 'images/products/no-image.png';
+    //                 }
+
+    //                 return [
+    //                     'id' => $item['product_id'] . '_' . ($item['product_variant_id'] ?? 'null'),
+    //                     'product_id' => $item['product_id'],
+    //                     'product_variant_id' => $item['product_variant_id'],
+    //                     'quantity' => $item['quantity'],
+    //                     'price_at_addition' => $item['price'],
+    //                     'image_url' => $imageUrl,
+    //                     'product' => $product ? [
+    //                         'id' => $product->id,
+    //                         'name' => $product->name,
+    //                         'slug' => $product->slug,
+    //                     ] : null,
+    //                     'variant' => $variant ? [
+    //                         'id' => $variant->id,
+    //                         'image' => $variant->image ? [
+    //                             'image_url' => $variant->image->image_url
+    //                         ] : null,
+    //                     ] : null,
+    //                 ];
+    //             })
+    //             ->values()
+    //             ->all();
+
+    //         $cartCount = count($sessionCart);
+    //         $total = collect($sessionCart)->sum(fn($item) => $item['quantity'] * $item['price']);
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'cart_items' => $cartItems,
+    //         'cart_count' => $cartCount,
+    //         'total' => $total,
+    //         'has_more' => $cartCount > 3
+    //     ]);
+    // }
+
+    public function miniCart()
+    {
+        $cartItems = [];
+        $cartCount = 0;
+
+        if (Auth::check()) {
+            $cart = Cart::where('user_id', Auth::id())->first();
+            if ($cart) {
+                $cartItems = CartItem::with([
+                    'product.images',
+                    'productVariant.image',
+                    'productVariant.attributeValues.attribute'
+                ])->where('cart_id', $cart->id)
+                  ->orderByDesc('created_at')
+                  ->limit(3)
+                  ->get()
+                  ->map(function ($item) {
+                      return [
+                          'product' => $item->product,
+                          'image_url' => $item->productVariant && $item->productVariant->image ? $item->productVariant->image->image_url : ($item->product && $item->product->images->first() ? $item->product->images->first()->image_url : 'images/products/no-image.png'),
+                          'price_at_addition' => $item->price_at_addition,
+                          'quantity' => $item->quantity,
+                          'variant' => $item->productVariant,
+                      ];
+                  });
+                $cartCount = $cart->items()->count();
+            }
+        } else {
+            $sessionCart = Session::get('cart', []);
+            $cartItems = collect($sessionCart)->reverse()->take(3)->map(function ($item) {
+                $product = Product::with(['images'])->find($item['product_id']);
+                // Nếu có variant thì lấy, không thì null
+                $variant = !empty($item['product_variant_id']) ? \App\Models\ProductVariant::with(['attributeValues.attribute'])->find($item['product_variant_id']) : null;
+                return [
+                    'product' => $product,
+                    'image_url' => $product && $product->images->first() ? $product->images->first()->image_url : 'images/products/no-image.png',
+                    'price_at_addition' => $item['price'],
+                    'quantity' => $item['quantity'],
+                    'variant' => $variant,
+                ];
+            })->values();
+            $cartCount = count($sessionCart);
+        }
+
+        return view('client.partials.mini-cart', [
+            'cartItems' => $cartItems,
+            'cartCount' => $cartCount
+        ])->render();
     }
 }

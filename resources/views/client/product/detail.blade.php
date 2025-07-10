@@ -2,11 +2,11 @@
 
 @section('title', $product->name)
 <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/fonts.css') }}">
-    <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
-    <link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">s
-    <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
+<link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
+<link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
+<link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
+<link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">s
+<link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 @section('content')
     <!-- breadcrumb -->
     <div class="tf-breadcrumb">
@@ -30,7 +30,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="tf-product-media-wrap sticky-top">
+                        <div class="tf-product-media-wrap">
                             <div class="thumbs-slider">
                                 <div dir="ltr" class="swiper tf-product-media-thumbs other-image-zoom"
                                     id="thumbs-swiper" data-direction="vertical">
@@ -182,21 +182,25 @@
                                     .tf-product-info-variant-picker {
                                         font-size: 80%;
                                     }
-                                    .tf-product-info-variant-picker .variant-box {   
-                                     min-width: 112px !important;
-                                    padding: 1.4rem !important;
-                                    border-width: 1px !important;
-                                    border-radius: 4px !important;
-                                    font-size: 80%;
+
+                                    .tf-product-info-variant-picker .variant-box {
+                                        min-width: 112px !important;
+                                        padding: 1.4rem !important;
+                                        border-width: 1px !important;
+                                        border-radius: 4px !important;
+                                        font-size: 80%;
                                     }
+
                                     .tf-product-info-variant-picker .variant-box img {
-                                        width: 25px !important;  /* 36px * 0.7 */
+                                        width: 25px !important;
+                                        /* 36px * 0.7 */
                                         height: 25px !important;
                                     }
+
                                     .tf-product-info-variant-picker .badge {
                                         font-size: 90%;
                                         padding: 2px 6px;
-                                    }           
+                                    }
                                 </style>
                             </div>
                         </div>
@@ -241,11 +245,11 @@
                                                 <label class="variant-box p-2 border rounded mb-2"
                                                     style="min-width:160px; cursor:pointer;">
                                                     <input type="radio" name="variant_id" value="{{ $variant->id }}"
-                                                    data-title="{{ $variant->name_variant ?? '' }}"
-                                                    data-price="{{ $product->regular_price + $variant->price_modifier }}"
-                                                    data-material="{{ $variant->material ?? '' }}"
-                                                    @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
-                                                    style="margin-right: 8px;">
+                                                        data-title="{{ $variant->name_variant ?? '' }}"
+                                                        data-price="{{ $product->regular_price + $variant->price_modifier }}"
+                                                        data-material="{{ $variant->material ?? '' }}"
+                                                        @if ($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
+                                                        style="margin-right: 8px;">
                                                     @if ($variant->image)
                                                         <img src="{{ asset($variant->image->image_url) }}"
                                                             alt="Ảnh biến thể"
@@ -253,20 +257,25 @@
                                                     @endif
                                                     <div>
                                                         <br>
-                                                        <strong>Giá:</strong>
-                                                        {{ number_format($product->regular_price + $variant->price_modifier, 0, ',', '.') }}đ<br>
-                                                        <strong>Kho:</strong> {{ $variant->stock_quantity ?? '-' }}<br>
+                                                        <strong>Kho:</strong>
+                                                        @if (($variant->stock_quantity ?? 0) <= 0)
+                                                            <span style="color:red;font-weight:bold;">Hết hàng</span>
+                                                        @else
+                                                            {{ $variant->stock_quantity }}
+                                                        @endif
+                                                        <br>
                                                         <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
                                                         {{-- Hiển thị các thuộc tính của biến thể --}}
                                                         @if ($variant->attributeValues && $variant->attributeValues->count())
                                                             {{-- <div> --}}
-                                                                {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
-                                                                @foreach ($variant->attributeValues as $attrVal)
-                                                                    <strong>{{ $attrVal->attribute->name ?? '' }}:</strong> {{ $attrVal->value ?? '' }}<br>
-                                                                    {{-- <span
+                                                            {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
+                                                            @foreach ($variant->attributeValues as $attrVal)
+                                                                <strong>{{ $attrVal->attribute->name ?? '' }}</strong>
+                                                                {{ $attrVal->value ?? '' }}<br>
+                                                                {{-- <span
                                                                         class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
                                                                         {{ $attrVal->value ?? '' }}</span> --}}
-                                                                @endforeach
+                                                            @endforeach
                                                             {{-- </div> --}}
                                                         @endif
                                                     </div>
@@ -457,7 +466,8 @@
                                 // Lấy realIndex của slide thực (Swiper loop sẽ có slide ảo)
                                 const slide = img.closest('.swiper-slide');
                                 if (slide && typeof slide.dataset.swiperSlideIndex !== 'undefined') {
-                                    window.gallerySwiper.slideToLoop(Number(slide.dataset.swiperSlideIndex));
+                                    window.gallerySwiper.slideToLoop(Number(slide.dataset
+                                        .swiperSlideIndex));
                                 } else {
                                     window.gallerySwiper.slideToLoop(idx);
                                 }
@@ -518,7 +528,7 @@
                             <div class="widget-content-inner active">
                                 <div class="">
                                     <p class="mb_30">
-                                        
+
                                         {!! nl2br(e($product->description)) !!}
                                     </p>
 
@@ -1080,6 +1090,7 @@
     <!-- Toastr hiển thị thông báo session -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             toastr.options = {
@@ -1095,17 +1106,18 @@
             @if (session('error'))
                 toastr.error("{{ session('error') }}");
             @endif
+        });
 
-            document.querySelector('.btn-add-to-cart').addEventListener('click', function(e) {
+        // Đặt ngoài DOMContentLoaded để luôn hoạt động kể cả khi toastr chưa hiện
+        const addToCartBtn = document.querySelector('.btn-add-to-cart');
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                let
-                    productId = {{ $product->id }};
+                let productId = {{ $product->id }};
                 let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
-                let
-                    variantInput = document.querySelector('input[name="variant_id" ]:checked');
-                let productVariantId = variantInput ?
-                    variantInput.value : null; // Nếu có biến thể nhưng chưa chọn thì báo lỗi const
-                hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
+                let variantInput = document.querySelector('input[name="variant_id"]:checked');
+                let productVariantId = variantInput ? variantInput.value : null;
+                let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
                 if (hasVariants && !productVariantId) {
                     toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
                     return;
@@ -1121,36 +1133,63 @@
                             quantity: quantity,
                             product_variant_id: productVariantId
                         })
-                    }).then(response =>
-                        response.json())
-                    .then data => {
-                        if (data.success) {
-                            toastr.success('Đã thêm vào giỏ hàng!');
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success !== false) {
+                            toastr.success(data.message || 'Đã thêm vào giỏ hàng!');
 
-                            let cartBadge = document.getElementById('cart-count-badge');
-                            if (cartBadge) {
-                                let currentCount = parseInt(cartBadge.textContent) || 0;
-                                cartBadge.textContent = currentCount + quantity;
-                            } else {
-                                let cartIcon = document.querySelector('.box-cart');
-                                if (cartIcon) {
-                                    let span = document.createElement('span');
-                                    span.id = 'cart-count-badge';
-                                    span.className = 'cart-count-badge';
-                                    span.style = '...'; // style như ở trên
-                                    span.textContent = quantity;
-                                    cartIcon.appendChild(span);
+                            const badge = document.getElementById('cart-count-badge');
+                            const icon = document.querySelector('.fa-cart-shopping.cart');
+
+                            if (badge) {
+                                // Nếu backend trả về cartCount cụ thể thì dùng
+                                if (typeof data.cartCount !== 'undefined') {
+                                    badge.textContent = data.cartCount;
+                                } else {
+                                    let current = parseInt(badge.textContent) || 0;
+                                    badge.textContent = current + 1;
                                 }
+                            } else if (icon) {
+                                // Nếu chưa có badge, tạo mới
+                                const span = document.createElement('span');
+                                span.id = 'cart-count-badge';
+                                span.className = 'cart-count-badge';
+                                span.textContent = data.cartCount !== undefined ? data.cartCount : '1';
+                                span.style = `
+                                            position: absolute;
+                                            top: -10px;
+                                            right: -10px;
+                                            background: #e53935;
+                                            color: #fff;
+                                            border-radius: 50%;
+                                            padding: 2px 6px;
+                                            font-size: 11px;
+                                            font-weight: bold;
+                                            min-width: 18px;
+                                            height: 18px;
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            text-align: center;
+                                            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+                                            z-index: 2;
+                                        `;
+                                icon.parentNode.appendChild(span);
                             }
+                        } else {
+                            toastr.error(data.message || 'Có lỗi xảy ra!');
                         }
-
                     })
                     .catch(error => {
                         toastr.error('Có lỗi xảy ra!');
                         console.error(error);
                     });
+
+
+
             });
-        });
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
@@ -1183,8 +1222,6 @@
                     commentWrap.style.display = "none";
                     writeBtn.style.display = "none";
                     cancelBtn.style.display = "inline-block";
-
-                    // Nếu muốn scroll tới form thì mở dòng sau
                     // formReview.scrollIntoView({ behavior: "smooth" });
                 });
 
@@ -1198,5 +1235,4 @@
             }
         });
     </script>
-
 @endsection

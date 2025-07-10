@@ -184,6 +184,8 @@ Route::prefix('/')->name('client.')->group(function () {
 
 
     Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
+    Route::get('/cart/mini', [CartController::class, 'getMiniCart'])->name('cart.mini');
+    Route::get('/cart/mini-list', [CartController::class, 'miniCart'])->name('cart.miniList');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update.post');
