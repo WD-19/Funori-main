@@ -78,8 +78,8 @@
                             class="icon-plus"></i>Thêm mới</a>
                 </div>
 
-                <div class="wg-table table-product-list">
-                    <ul class="table-title flex gap2 mb-10">
+                <div class="wg-table table-product-list" style="min-width: max-content;">
+                    <ul class="table-title flex gap2 mb-10" style="min-width: max-content;">
                         <li style="width: 30px; text-align: center; flex-shrink: 0;">
                             <div class="body-title">STT</div>
                         </li>
@@ -106,7 +106,7 @@
                         </li>
                     </ul>
 
-                    <ul class="flex flex-column">
+                    <ul class="flex flex-column" style="min-width: max-content;">
                         @foreach ($products as $product)
                             <li class="wg-product item-row gap2">
                                 {{-- Số thứ tự --}}

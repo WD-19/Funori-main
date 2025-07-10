@@ -161,7 +161,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
 });
-
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
@@ -175,13 +174,13 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
+    Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('page.show');
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
     Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
     Route::get('/search', [ClientProductController::class, 'search'])->name('search');
-
 
     Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
@@ -212,7 +211,6 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/address', [ProfileController::class, 'address'])->name('address');
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
-	    Route::get('/password', [ProfileController::class, 'password'])->name('password');
 
         // tài khoản
         Route::post('/account/update', [ProfileController::class, 'updateAccount'])->name('account.update');
@@ -235,4 +233,3 @@ Route::prefix('/')->name('client.')->group(function () {
         return response()->view('client.errors.404', [], 404);
     });
 });
-
