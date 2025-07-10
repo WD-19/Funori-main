@@ -20,7 +20,7 @@
                             <li><a href="{{ route('client.profile.dashboard') }}" class="my-account-nav-item">Thông báo</a></li>
                             <li><a href="{{ route('client.profile.account') }}" class="my-account-nav-item">Tài khoản</a></li>
                             <li><a href="{{ route('client.profile.address') }}" class="my-account-nav-item">Địa chỉ</a></li>
-                            <li><a href="{{ route('client.profile.password') }}" class="my-account-nav-item">Đổi mật khẩu</a></li>
+                            {{-- <li><a href="{{ route('client.profile.password') }}" class="my-account-nav-item">Đổi mật khẩu</a></li> --}}
                             <li><a href="{{ route('client.profile.order') }}" class="my-account-nav-item">Đơn hàng</a></li>
                             <li><a href="{{ route('client.profile.wishlist') }}" class="my-account-nav-item">Yêu thích</a></li>
                         </ul>
