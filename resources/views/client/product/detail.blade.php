@@ -189,13 +189,12 @@
                                     .tf-product-info-variant-picker {
                                         font-size: 80%;
                                     }
-
-                                    .tf-product-info-variant-picker .variant-box {
-                                        min-width: 112px !important;
-                                        padding: 1.4rem !important;
-                                        border-width: 1px !important;
-                                        border-radius: 4px !important;
-                                        font-size: 80%;
+                                    .tf-product-info-variant-picker .variant-box {   
+                                     min-width: 112px !important;
+                                    padding: 1.4rem !important;
+                                    border-width: 1px !important;
+                                    border-radius: 4px !important;
+                                    font-size: 80%;
                                     }
 
                                     .tf-product-info-variant-picker .variant-box img {
@@ -251,12 +250,13 @@
                                             @foreach ($product->variants as $variant)
                                                 <label class="variant-box p-2 border rounded mb-2"
                                                     style="min-width:160px; cursor:pointer;">
+
                                                     <input type="radio" name="variant_id" value="{{ $variant->id }}"
-                                                        data-title="{{ $variant->name_variant ?? '' }}"
-                                                        data-price="{{ $product->regular_price + $variant->price_modifier }}"
-                                                        data-material="{{ $variant->material ?? '' }}"
-                                                        @if ($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
-                                                        style="margin-right: 8px;">
+                                                    data-title="{{ $variant->name_variant ?? '' }}"
+                                                    data-price="{{ $product->regular_price + $variant->price_modifier }}"
+                                                    data-material="{{ $variant->material ?? '' }}"
+                                                    @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
+                                                    style="margin-right: 8px;">
                                                     @if ($variant->image)
                                                         <img src="{{ asset($variant->image->image_url) }}"
                                                             alt="Ảnh biến thể"
@@ -1097,18 +1097,18 @@
     <!-- Toastr hiển thị thông báo session -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            toastr.options = {
-                "positionClass": "toast-bottom-right",
-                "timeOut": "3000",
-                "closeButton": true,
-                "progressBar": true
-            };
-            @if (session('success'))
-                toastr.success("{{ session('success') }}");
-            @endif
+        
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    toastr.options = {
+        "positionClass": "toast-bottom-right",
+        "timeOut": "3000",
+        "closeButton": true,
+        "progressBar": true
+    };
+    @if (session('success'))
+        toastr.success("{{ session('success') }}");
+    @endif
 
             @if (session('error'))
                 toastr.error("{{ session('error') }}");
@@ -1312,7 +1312,7 @@ document.addEventListener("DOMContentLoaded", function() {
             var productId = this.getAttribute('data-product-id');
             var icon = this.querySelector('i');
             var isActive = icon.style.color === 'red';
-            var url = isActive ? "{{ route('wishlist.remove') }}" : "{{ route('wishlist.add') }}";
+            var url = isActive ? "{{ route('client.wishlist.remove') }}" : "{{ route('client.wishlist.add') }}";
             var method = 'POST';
             var body = isActive ? new FormData() : JSON.stringify({ product_id: productId });
             if(isActive) body.append('product_id', productId);
@@ -1378,7 +1378,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 }
                 // Cập nhật mini-wishlist
-                fetch('/wishlist/mini-list')
+                fetch('{{ route("client.wishlist.miniList") }}')
                     .then(res => res.text())
                     .then(html => {
                         var miniWishlist = document.querySelector('#mini-wishlist-content');

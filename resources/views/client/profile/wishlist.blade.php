@@ -1,5 +1,7 @@
 @extends('client.profile.index')
 
+@section('page_title', 'Yêu thích')
+
 @section('content_profile')
     <div class="my-account-content account-wishlist">
         <form method="GET" class="mb-4 row g-2 align-items-center" style="max-width: 600px;">
@@ -39,7 +41,7 @@
                             <span class="icon icon-bag "></span>
                             <span class="tooltip">Quick Add</span>
                         </a>
-                        <form action="{{ route('wishlist.remove') }}" method="POST" class="form-remove-wishlist" style="display:inline;">
+                        <form action="{{ route('client.wishlist.remove') }}" method="POST" class="form-remove-wishlist" style="display:inline;">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $item->product->id }}">
                             <button type="submit" class="box-icon bg_white wishlist btn-icon-action  justify-content-center btn-remove-wishlist" style="background:none;border:none;padding:0;cursor:pointer;">

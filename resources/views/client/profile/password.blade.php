@@ -1,5 +1,7 @@
 @extends('client.profile.index')
 
+@section('page_title', 'Đổi Mật Khẩu')
+
 @section('content_profile')
     <div class="my-account-content account-edit">
         <div class="">

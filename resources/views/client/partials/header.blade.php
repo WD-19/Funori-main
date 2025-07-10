@@ -66,7 +66,7 @@
                             class="dropdown-item d-flex align-items-center"
                             style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
                             <i class="fa-regular fa-user"
-                                style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i> Profile
+                                style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i> Tài Khoản
                         </a>
                         <form action="{{ route('client.logout') }}" method="POST" style="margin: 0;">
                             @csrf

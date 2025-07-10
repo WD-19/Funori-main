@@ -62,7 +62,7 @@
                     <a class="tf-button style-1 w208" href="{{ route('admin.users.create') }}"><i class="icon-plus"></i>Thêm
                         tài khoản</a>
                 </div>
-                <div class="wg-table table-all-user">
+                <div class="wg-table table-all-user"style="min-width: max-content;">
                     @php
                         function sortIcon($field)
                         {
@@ -85,7 +85,7 @@
                         }
                     @endphp
 
-                    <ul class="table-title flex gap20 mb-14">
+                    <ul class="table-title flex gap20 mb-14" style="min-width: max-content;">
                         <li>
                             <div class="body-title">ID</div>
                         </li>
@@ -106,18 +106,17 @@
                         <li>
                             <div class="body-title">Quyền</div>
                         </li>
-                        <li>
+                        {{-- <li>
                             <div class="body-title">
                                 Created At {!! sortIcon('created_at') !!}
                             </div>
-                        </li>
+                        </li> --}}
                         <li>
                             <div class="body-title">Hành động</div>
                         </li>
                     </ul>
 
-
-                    <ul class="flex flex-column">
+                    <ul class="flex flex-column" style="min-width: max-content;">
                         @foreach ($users as $user)
                             <li class="wg-product item-row">
                                 <div class="body-text">{{ $user->id }}</div>
@@ -161,13 +160,13 @@
                                         {{ $user->role }}
                                     </div>
                                 </div>
-                                <div class="body-text">{{ $user->created_at->format('d-m-Y') }}</div>
+                                {{-- <div class="body-text">{{ $user->created_at->format('d-m-Y') }}</div> --}}
                                 <div class="list-icon-function">
                                     <div class="item eye">
                                         <a style="color:orange " href="{{ route('admin.users.show', $user->id) }}"> <i
                                                 class="icon-eye"></i></a>
                                     </div>
-                                    
+
                                     <div class="item edit">
                                         @php
                                             $isSelf = auth()->id() == $user->id;

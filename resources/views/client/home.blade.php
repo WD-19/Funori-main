@@ -434,7 +434,7 @@
                     }
                 }
                 // Cập nhật mini-wishlist
-                fetch('/wishlist/mini-list')
+                fetch('{{ route("wishlist.miniList") }}')
                     .then(res => res.text())
                     .then(html => {
                         var miniWishlist = document.querySelector('#mini-wishlist-content');
