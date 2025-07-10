@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController 
 {
@@ -91,5 +92,39 @@ class ProfileController
         $user->save();
 
         return redirect()->back()->with('success', 'Cập nhật thông tin thành công!');
+    }
+
+    public function password()
+    {
+        return view('client.profile.password');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:6|confirmed',
+        ], [
+            'new_password.confirmed' => 'Xác nhận mật khẩu không khớp.',
+            'new_password.min' => 'Mật khẩu mới phải có ít nhất 6 ký tự.',
+        ]);
+
+        $user = Auth::user();
+
+        // Kiểm tra mật khẩu cũ
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->with('error', 'Mật khẩu cũ không đúng.');
+        }
+
+        // Nếu giống mật khẩu cũ thì báo lỗi
+        if (Hash::check($request->new_password, $user->password)) {
+            return back()->with('error', 'Mật khẩu mới không được trùng với mật khẩu cũ.');
+        }
+
+        // Đổi mật khẩu
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', 'Đổi mật khẩu thành công!');
     }
 }

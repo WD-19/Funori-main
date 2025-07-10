@@ -204,7 +204,7 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
-    // Cart routes - phải đặt trước route {slug}
+    
 
 
     // Profile routes
@@ -214,7 +214,9 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/address', [ProfileController::class, 'address'])->name('address');
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
-	    Route::get('/password', [ProfileController::class, 'password'])->name('password');
+        Route::get('/password', [ProfileController::class, 'password'])->name('password');
+        Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
+
 
         // tài khoản
         Route::post('/account/update', [ProfileController::class, 'updateAccount'])->name('account.update');
@@ -237,4 +239,3 @@ Route::prefix('/')->name('client.')->group(function () {
         return response()->view('client.errors.404', [], 404);
     });
 });
-
