@@ -9,116 +9,12 @@
                 <img src="{{ asset('client/picture/Living-room.jpg') }}" alt="Tin tức">
                 <div class="banner-overlay">
                     <h1 class="banner-title">Tin Tức</h1>
-                    <div class="banner-breadcrumb">Trang chủ &nbsp; > &nbsp; Tin tức</div>
+                    <div class="banner-breadcrumb">Trang chủ &nbsp; / &nbsp; Tin tức</div>
                 </div>
             </div>
         </div>
     </div>
     <div class="container">
-        {{-- <div class="all-box-sidebar">
-            <div class="box-search">
-                <h3>Tìm kiếm</h3>
-                <div class="from-search">
-                    <input type="text" placeholder="Tìm kiếm...">
-                    <button>
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="box-categories">
-                <h3>Danh mục</h3>
-                <div class="in-categories">
-                    <i class="fa-solid fa-angle-right"></i>
-                    <a href="">
-                        <div>Ba lô (8)</div>
-                    </a>
-                </div>
-                <div class="in-categories" style="padding-top: 5px;">
-                    <i class="fa-solid fa-angle-right"></i>
-                    <a href="">
-                        <div>Thời trang (4)</div>
-                    </a>
-                </div>
-                <div class="in-categories" style="padding-top: 5px;">
-                    <i class="fa-solid fa-angle-right"></i>
-                    <a href="">
-                        <div>Phong cách sống (4)</div>
-                    </a>
-                </div>
-                <div class="in-categories" style="padding-top: 5px;">
-                    <i class="fa-solid fa-angle-right"></i>
-                    <a href="">
-                        <div>Quần short (5)</div>
-                    </a>
-                </div>
-                <div class="in-categories" style="padding: 5px 0 0 0;">
-                    <i class="fa-solid fa-angle-right"></i>
-                    <a href="">
-                        <div>Đồ bơi (4)</div>
-                    </a>
-                </div>
-            </div>
-            <div class="box-recent">
-                <h3>Bài viết mới</h3>
-                <div class="in-recent">
-                    <div class="in-content-recent">
-                        <img src="{{ asset('client/Picture/Blog/Blog_01-500x500.jpg') }}" alt="">
-                        <div class="box-text-recent">
-                            <div>30/05/2018</div>
-                            <a href="">Những mẹo đơn giản cho trang trí nhà cửa</a>
-                        </div>
-                    </div>
-                    <div class="in-content-recent">
-                        <img src="{{ asset('client/Picture/Blog/Blog_02-500x500.jpg') }}" alt="">
-                        <div class="box-text-recent">
-                            <div>30/05/2018</div>
-                            <a href="">Cách biến ngôi nhà của bạn thành nơi đáng sống</a>
-                        </div>
-                    </div>
-                    <div class="in-content-recent" style="border-bottom: none;">
-                        <img src="{{ asset('client/Picture/Blog/Blog_03-500x500.jpg') }}" alt="">
-                        <div class="box-text-recent">
-                            <div>30/05/2018</div>
-                            <a href="">Nội thất ấn tượng với vẻ đẹp thẩm mỹ</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="box-categories">
-                <h3>Lưu trữ</h3>
-                <div class="in-categories">
-                    <i class="fa-solid fa-angle-right"></i>
-                    <a href="">
-                        <div>Tháng 5 2018</div>
-                    </a>
-                </div>
-                <div class="in-categories" style="padding-top: 5px;">
-                    <i class="fa-solid fa-angle-right"></i>
-                    <a href="">
-                        <div>Tháng 4 2017</div>
-                    </a>
-                </div>
-            </div>
-            <div class="box-tags">
-                <h3>Thẻ</h3>
-                <div class="in-tag-1">
-                    <a href="" class="tag-1">Cạo râu</a>
-                    <a href="" class="tag-1">Đồ cho bé</a>
-                    <a href="" class="tag-1">Làm đẹp</a>
-                    <a href="" class="tag-1">Mỹ phẩm</a>
-                    <a href="" class="tag-1">Chăm sóc tai</a>
-                    <a href="" class="tag-1">Điện tử</a>
-                    <a href="" class="tag-1">Thời trang</a>
-                    <a href="" class="tag-1">Thực phẩm</a>
-                    <a href="" class="tag-1">Trang sức</a>
-                    <a href="" class="tag-1">Y tế</a>
-                    <a href="" class="tag-1">Tối giản</a>
-                    <a href="" class="tag-1">Hữu cơ</a>
-                    <a href="" class="tag-1">Đơn giản</a>
-                    <a href="" class="tag-1">Thể thao</a>
-                </div>
-            </div>
-        </div> --}}
         <div class="box-content-blog">
             <style>
                 /* Banner */
@@ -126,8 +22,6 @@
                     width: 100%;
                     position: relative;
                     overflow: hidden;
-                    /* border-radius: 12px; */
-                    /* Bỏ bo góc */
                     margin-bottom: 40px;
                 }
 
@@ -143,8 +37,6 @@
                     height: 100%;
                     object-fit: cover;
                     transition: transform 0.5s ease;
-                    /* border-radius: 0; */
-                    /* Không cần bo góc */
                 }
 
                 .banner-image:hover img {
@@ -173,7 +65,7 @@
                     font-weight: 400;
                 }
 
-                /* CSS nôi dung */
+                /* CSS nội dung */
                 .blog-grid {
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
@@ -182,8 +74,6 @@
 
                 .blog-card {
                     background: #fff;
-                    /* border-radius: 14px; */
-                    /* Bỏ bo góc */
                     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
                     overflow: hidden;
                     display: flex;
@@ -204,8 +94,6 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    /* border-radius: 16px 16px 0 0; */
-                    /* Bỏ bo góc */
                     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
                     position: relative;
                     transition: box-shadow 0.2s;
@@ -216,8 +104,6 @@
                     height: 100%;
                     object-fit: cover;
                     display: block;
-                    /* border-radius: 16px 16px 0 0; */
-                    /* Bỏ bo góc */
                     transition: transform 0.3s;
                 }
 
@@ -279,17 +165,17 @@
                             </div>
                             <div class="blog-card-desc"
                                 style="
-                    color: #555;
-                    font-size: 1rem;
-                    margin-bottom: 14px;
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    min-height: 2.6em;
-                    max-width: 95%;
-                ">
+                                    color: #555;
+                                    font-size: 1rem;
+                                    margin-bottom: 14px;
+                                    display: -webkit-box;
+                                    -webkit-line-clamp: 2;
+                                    -webkit-box-orient: vertical;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    min-height: 2.6em;
+                                    max-width: 95%;
+                                ">
                                 {{ $post->meta_description }}
                             </div>
                         </div>
@@ -311,7 +197,6 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    /* border-radius: 16px 16px 0 0; */
                     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
                     position: relative;
                     transition: box-shadow 0.2s;
@@ -322,7 +207,6 @@
                     height: 100%;
                     object-fit: cover;
                     display: block;
-                    /* border-radius: 16px 16px 0 0; */
                     transition: transform 0.3s;
                 }
 
@@ -355,12 +239,7 @@
                     color: #888;
                     margin-top: 1px;
                 }
-                
             </style>
-
         </div>
-
     </div>
-
-
 @endsection

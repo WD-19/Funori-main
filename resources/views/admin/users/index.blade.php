@@ -106,11 +106,11 @@
                         <li>
                             <div class="body-title">Quyền</div>
                         </li>
-                        <li>
+                        {{-- <li>
                             <div class="body-title">
                                 Created At {!! sortIcon('created_at') !!}
                             </div>
-                        </li>
+                        </li> --}}
                         <li>
                             <div class="body-title">Hành động</div>
                         </li>
@@ -161,7 +161,7 @@
                                         {{ $user->role }}
                                     </div>
                                 </div>
-                                <div class="body-text">{{ $user->created_at->format('d-m-Y') }}</div>
+                                {{-- <div class="body-text">{{ $user->created_at->format('d-m-Y') }}</div> --}}
                                 <div class="list-icon-function">
                                     <div class="item eye">
                                         <a style="color:orange " href="{{ route('admin.users.show', $user->id) }}"> <i
