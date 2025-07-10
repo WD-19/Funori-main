@@ -2,6 +2,9 @@
 
 @section('title', 'Trang chủ')
 <link rel="stylesheet" href="{{ asset('css/cart.css') }}">
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
 <style>
     .delete-selected-btn {
@@ -499,14 +502,7 @@
                     totalValueElement.style.color = '#ff3029';
 
                     // Thêm tooltip hoặc text nhỏ để hiển thị số lượng sản phẩm được chọn
-                    const cartTotalsElement = document.querySelector('.tf-cart-totals-discounts h3');
-                    if (cartTotalsElement) {
-                        if (selectedItems.length === 1) {
-                            cartTotalsElement.textContent = 'Tổng tiền hàng (1 sản phẩm)';
-                        } else {
-                            cartTotalsElement.textContent = `Tổng tiền hàng (${selectedItems.length} sản phẩm)`;
-                        }
-                    }
+                   
 
                     // Cập nhật tổng cộng = tổng đã chọn - giảm giá + phí vận chuyển
                     const discount = 0; // Nếu có biến discount, lấy từ DOM hoặc JS
