@@ -376,7 +376,7 @@
     <section class="flat-spacing-17 pt_0">
         <div class="container1">
             <div class="flat-title">
-                <span class="title">You may also like</span>
+                <span class="title">SẢN PHẨM MỚI</span>
             </div>
             <div class="hover-sw-nav hover-sw-2">
                 <div dir="ltr" class="swiper tf-sw-product-sell wrap-sw-over" data-preview="4" data-tablet="3"

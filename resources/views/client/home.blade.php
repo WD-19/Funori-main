@@ -151,16 +151,13 @@
                             
                             
                             <div class="box-name-product">
-                                <div class="name-product">{{ $product->name }}</div>
+                                <div class="name-product">                            
+                                    <a href="{{ route('client.product.show', $product->slug) }}">{{ $product->name }}</a>
+                                </div>
                                 <div id="Prict-prod" class="price-product">
                                     <span>{{ number_format($product->regular_price, decimals: 2) }} đ</span>
                                 </div>
-                                <div class="buttom-1">
-                                    <button type="submit">
-                                        <i class="fa-solid fa-cart-plus"></i>
-                                        <span>Thêm vào giỏ</span>
-                                    </button>
-                                </div>
+                               
                                 
                             </div>
                         </div>
@@ -456,4 +453,15 @@
 });
 //
 </script>
+<style>
+        a.name-product {
+    text-decoration: none !important;
+   
+}
+
+a.name-product:hover {
+    text-decoration: none !important;
+    
+}
+</style>
 @endsection
