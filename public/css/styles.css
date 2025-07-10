@@ -4571,7 +4571,7 @@ select option {
 }
 
 .wg-table.table-product-list>* {
-  min-width: 1900px;
+  min-width: 190px;
 }
 
 .wg-table.table-product-list .wg-product,
@@ -4646,7 +4646,7 @@ select option {
 }
 
 .wg-table.table-all-category>* {
-  min-width: 1492px;
+  min-width: 102px;
 }
 
 .wg-table.table-all-category .wg-product,
@@ -4662,7 +4662,7 @@ select option {
 
 .wg-table.table-all-category .wg-product>*:nth-child(1),
 .wg-table.table-all-category ul.table-title>*:nth-child(1) {
-  width: 430px;
+  width: 130px;
   flex-shrink: 0;
 }
 
