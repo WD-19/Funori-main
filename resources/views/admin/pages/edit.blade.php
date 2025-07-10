@@ -1,4 +1,3 @@
-{{-- filepath: c:\laragon\www\Funori-main\resources\views\admin\pages\edit.blade.php --}}
 @extends('admin.layout.admin')
 
 @section('title', 'Chỉnh sửa trang')
@@ -105,32 +104,28 @@
                 <fieldset>
                     <div class="body-title">Ảnh đại diện <span class="tf-color-1">*</span></div>
                     <div class="upload-image flex-grow d-block">
-                        <div class="item up-load">
-                            <label class="uploadfile h250" for="featured_image_url">
+                        <div class="item up-load" style="display: flex; align-items: flex-start; gap: 24px;">
+                            <label class="uploadfile h250" for="featured_image_url" style="flex:1;">
                                 <span class="icon">
                                     <i class="icon-upload-cloud"></i>
                                 </span>
                                 <span class="body-text">Kéo thả ảnh vào đây hoặc <span class="tf-color">nhấn để
                                         chọn</span></span>
-                                <img id="featured_image_url-preview" src="" alt=""
-                                    style="display: none; max-width:120px; margin-top:10px; border-radius:8px; object-fit:cover;">
                                 <input type="file" id="featured_image_url" name="featured_image_url"
                                     class="@error('featured_image_url') is-invalid @enderror" accept="image/*">
                             </label>
                         </div>
+                        @if ($page->featured_image_url)
+                            <img id="old-image" src="{{ asset('storage/' . $page->featured_image_url) }}" alt="Ảnh đại diện"
+                                style="max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); object-fit: cover;">
+                        @endif
+                        <img id="featured_image_url-preview" src="#" alt=""
+                            style="display: none; max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); object-fit: cover;">
                         @error('featured_image_url')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                         @enderror
                     </div>
                 </fieldset>
-                {{-- Ảnh cũ --}}
-                @if ($page->featured_image_url)
-                    <div id="old-image-wrap" style="text-align:center;">
-                        <div style="font-size:13px; color:#888;">Ảnh hiện tại</div>
-                        <img id="old-image" src="{{ asset('storage/' . $page->featured_image_url) }}" alt="Ảnh đại diện"
-                            style="max-width: 120px; margin-top:10px; border-radius:8px; object-fit:cover;">
-                    </div>
-                @endif
                 <fieldset>
                     <div class="body-title">Meta title <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('meta_title') is-invalid @enderror" type="text"
@@ -180,6 +175,43 @@
             </form>
         </div>
     </div>
+    <style>
+        .uploadfile {
+            border: 2px dashed #ced4da;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .uploadfile:hover, .uploadfile.dragover {
+            border-color: #6c757d;
+            background-color: #e9ecef;
+            transform: scale(1.02);
+        }
+        .uploadfile .icon {
+            font-size: 2.5rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .uploadfile .body-text {
+            font-size: 1.1rem;
+            color: #495057;
+        }
+        .uploadfile .tf-color {
+            color: #007bff;
+            font-weight: 600;
+        }
+        .uploadfile input[type="file"] {
+            display: none;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
     <script>
         // Tạo slug tự động khi nhập tiêu đề
         document.getElementById('title').addEventListener('input', function() {
@@ -191,54 +223,94 @@
             document.getElementById('slug').value = slug;
         });
 
-        // Hiển thị ảnh xem trước khi tải lên
-        document.getElementById('featured_image_url').addEventListener('change', function(event) {
-            const [file] = event.target.files;
-            const preview = document.getElementById('featured_image_url-preview');
+        // Xử lý kéo thả và chọn ảnh
+        const uploadLabel = document.querySelector('.uploadfile');
+        const uploadInput = document.getElementById('featured_image_url');
+        const preview = document.getElementById('featured_image_url-preview');
+        const oldImage = document.getElementById('old-image');
+
+        // Xử lý sự kiện kéo thả
+        uploadLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+
+        uploadLabel.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+
+        uploadLabel.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+        });
+
+        uploadLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                uploadInput.files = e.dataTransfer.files;
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+                if (oldImage) oldImage.style.display = 'none'; // Ẩn ảnh cũ khi chọn ảnh mới
+            }
+        });
+
+        // Hiển thị ảnh xem trước khi chọn file
+        uploadInput.addEventListener('change', (e) => {
+            const [file] = e.target.files;
             if (file) {
                 preview.src = URL.createObjectURL(file);
                 preview.style.display = 'block';
+                if (oldImage) oldImage.style.display = 'none'; // Ẩn ảnh cũ khi chọn ảnh mới
             } else {
-                preview.src = '';
+                preview.src = '#';
                 preview.style.display = 'none';
+                if (oldImage) oldImage.style.display = 'block'; // Hiển thị lại ảnh cũ nếu hủy chọn
             }
         });
     </script>
     @push('scripts')
         <script src="https://cdn.tiny.cloud/1/hs04m6101y0gorgukhuffqutjnhs52o68gb16y52y7nvuj6u/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
         <script>
-            tinymce.init({
-                selector: '#content',
-                plugins: 'image media link table lists advlist',
-                toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
-                height: 400,
-                menubar: false,
-                images_upload_url: '{{ route('admin.pages.upload-image') }}',
-                images_upload_credentials: true,
-                images_upload_handler: async (blobInfo, progress) => {
-                    let formData = new FormData();
-                    formData.append('file', blobInfo.blob(), blobInfo.filename());
-                    formData.append('_token', '{{ csrf_token() }}');
+    tinymce.init({
+        selector: '#content',
+        plugins: 'image media link table lists advlist',
+        toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
+        height: 400,
+        menubar: false,
+        images_upload_url: '{{ route('admin.pages.upload-image') }}',
+        images_upload_credentials: true,
+        images_upload_handler: async (blobInfo, progress) => {
+    let formData = new FormData();
+    formData.append('file', blobInfo.blob(), blobInfo.filename());
+    formData.append('_token', '{{ csrf_token() }}');
 
-                    const response = await fetch('{{ route('admin.pages.upload-image') }}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    const json = await response.json();
-                    if (!json.location) {
-                        throw new Error('Tải ảnh thất bại: ' + (json.error || 'Lỗi không xác định'));
-                    }
-                    return json.location;
-                },
-                readonly: false,
-                image_caption: true,
-                image_advtab: true,
-                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
+    const response = await fetch('{{ route('admin.pages.upload-image') }}', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+    });
+    const json = await response.json();
+    console.log('Upload response:', json);
+    if (!json.location) {
+        throw new Error('Tải ảnh thất bại: ' + (json.error || 'Lỗi không xác định'));
+    }
+    // Trả về đường dẫn tương đối
+    return '/storage/' + json.location.split('storage/')[1];
+},
+        setup: (editor) => {
+            editor.on('init', () => {
+                console.log('Editor content:', editor.getContent()); // Debug nội dung
             });
-        </script>
+        },
+        readonly: false,
+        image_caption: true,
+        image_advtab: true,
+        content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
+    });
+</script>
     @endpush
     @push('head')
         <style>

@@ -1,4 +1,3 @@
-{{-- filepath: c:\laragon\www\Funori-main\resources\views\admin\categories\edit.blade.php --}}
 @extends('admin.layout.admin')
 
 @section('content')
@@ -74,26 +73,21 @@
                                 </span>
                                 <span class="body-text">Kéo thả ảnh vào đây hoặc <span class="tf-color">nhấn để
                                         chọn</span></span>
-                                <img id="image_url-preview" src="#" alt=""
-                                    style="display: none; max-width:120px; margin-top:10px;">
                                 <input type="file" id="image_url" name="image_url"
                                     class="@error('image_url') is-invalid @enderror" accept="image/*">
                             </label>
                         </div>
+                        @if ($category->image_url)
+                            <img id="old-image" src="{{ asset('storage/' . $category->image_url) }}" alt="Ảnh danh mục"
+                                style="max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); object-fit: cover;">
+                        @endif
+                        <img id="image_url-preview" src="#" alt=""
+                            style="display: none; max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); object-fit: cover;">
                         @error('image_url')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                         @enderror
                     </div>
                 </fieldset>
-
-                {{-- Ảnh cũ --}}
-                @if ($category->image_url)
-                    <div id="old-image-wrap" style="text-align:center;">
-                        <div style="font-size:13px; color:#888;">Ảnh hiện tại</div>
-                        <img id="old-image" src="{{ asset('storage/' . $category->image_url) }}" alt="Ảnh danh mục"
-                            style="max-width: 120px; margin-top:10px;">
-                    </div>
-                @endif
 
                 <fieldset class="category">
                     <div class="body-title">Trạng thái <span class="tf-color-1">*</span></div>
@@ -135,6 +129,43 @@
             </form>
         </div>
     </div>
+    <style>
+        .uploadfile {
+            border: 2px dashed #ced4da;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .uploadfile:hover, .uploadfile.dragover {
+            border-color: #6c757d;
+            background-color: #e9ecef;
+            transform: scale(1.02);
+        }
+        .uploadfile .icon {
+            font-size: 2.5rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .uploadfile .body-text {
+            font-size: 1.1rem;
+            color: #495057;
+        }
+        .uploadfile .tf-color {
+            color: #007bff;
+            font-weight: 600;
+        }
+        .uploadfile input[type="file"] {
+            display: none;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
     <script>
         // Tạo slug tự động khi nhập tên
         document.getElementById('name').addEventListener('input', function() {
@@ -144,6 +175,54 @@
                 .replace(/[^a-z0-9\s-]/g, '')
                 .trim().replace(/\s+/g, '-');
             document.getElementById('slug').value = slug;
+        });
+
+        // Xử lý kéo thả và chọn ảnh
+        const uploadLabel = document.querySelector('.uploadfile');
+        const uploadInput = document.getElementById('image_url');
+        const preview = document.getElementById('image_url-preview');
+        const oldImage = document.getElementById('old-image');
+
+        // Xử lý sự kiện kéo thả
+        uploadLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+
+        uploadLabel.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+
+        uploadLabel.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+        });
+
+        uploadLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                uploadInput.files = e.dataTransfer.files;
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+                if (oldImage) oldImage.style.display = 'none'; // Ẩn ảnh cũ khi chọn ảnh mới
+            }
+        });
+
+        // Hiển thị ảnh xem trước khi chọn file
+        uploadInput.addEventListener('change', (e) => {
+            const [file] = e.target.files;
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+                if (oldImage) oldImage.style.display = 'none'; // Ẩn ảnh cũ khi chọn ảnh mới
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+                if (oldImage) oldImage.style.display = 'block'; // Hiển thị lại ảnh cũ nếu hủy chọn
+            }
         });
     </script>
 @endsection

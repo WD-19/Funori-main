@@ -1,4 +1,3 @@
-{{-- filepath: c:\laragon\www\Funori-main\resources\views\admin\pages\create.blade.php --}}
 @extends('admin.layout.admin')
 
 @section('content')
@@ -106,12 +105,12 @@
                                 </span>
                                 <span class="body-text">Kéo thả ảnh vào đây hoặc <span class="tf-color">nhấn để
                                         chọn</span></span>
-                                <img id="featured_image_url-preview" src="" alt=""
-                                    style="display: none; max-width:120px; margin-top:10px; border-radius:8px; object-fit:cover;">
                                 <input type="file" id="featured_image_url" name="featured_image_url"
                                     class="@error('featured_image_url') is-invalid @enderror" accept="image/*">
                             </label>
                         </div>
+                        <img id="featured_image_url-preview" src="" alt=""
+                            style="display: none; max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         @error('featured_image_url')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                         @enderror
@@ -157,6 +156,67 @@
         </div>
         <!-- /new-page -->
     </div>
+    <style>
+        .uploadfile {
+            border: 2px dashed #ced4da;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .uploadfile:hover, .uploadfile.dragover {
+            border-color: #6c757d;
+            background-color: #e9ecef;
+            transform: scale(1.02);
+        }
+        .uploadfile .icon {
+            font-size: 2.5rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .uploadfile .body-text {
+            font-size: 1.1rem;
+            color: #495057;
+        }
+        .uploadfile .tf-color {
+            color: #007bff;
+            font-weight: 600;
+        }
+        .uploadfile input[type="file"] {
+            display: none;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        .tox-tinymce {
+            min-height: 300px;
+            max-height: 600px;
+            overflow-y: auto;
+            width: 100%;
+            box-sizing: border-box;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .wg-box {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        .form-new-product {
+            max-width: 100%;
+        }
+        .ck-editor-container {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 15px;
+        }
+    </style>
     <script>
         // Tạo slug tự động khi nhập tiêu đề
         document.getElementById('title').addEventListener('input', function() {
@@ -168,10 +228,41 @@
             document.getElementById('slug').value = slug;
         });
 
-        // Hiển thị ảnh xem trước khi tải lên
-        document.getElementById('featured_image_url').addEventListener('change', function(event) {
-            const [file] = event.target.files;
-            const preview = document.getElementById('featured_image_url-preview');
+        // Xử lý kéo thả và chọn ảnh
+        const uploadLabel = document.querySelector('.uploadfile');
+        const uploadInput = document.getElementById('featured_image_url');
+        const preview = document.getElementById('featured_image_url-preview');
+
+        // Xử lý sự kiện kéo thả
+        uploadLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+
+        uploadLabel.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+
+        uploadLabel.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+        });
+
+        uploadLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                uploadInput.files = e.dataTransfer.files;
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        });
+
+        // Hiển thị ảnh xem trước khi chọn file
+        uploadInput.addEventListener('change', (e) => {
+            const [file] = e.target.files;
             if (file) {
                 preview.src = URL.createObjectURL(file);
                 preview.style.display = 'block';
