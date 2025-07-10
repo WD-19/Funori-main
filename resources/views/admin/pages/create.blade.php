@@ -28,7 +28,7 @@
         </div>
         <!-- new-page -->
         <div class="wg-box">
-            <form class="form-new-product form-style-1" action="{{ route('admin.pages.store') }}" method="POST"
+            <form action="{{ route('admin.pages.store') }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
                 <!-- Tiêu đề -->
@@ -45,7 +45,7 @@
                 <fieldset>
                     <div class="body-title">Nội dung <span class="tf-color-1">*</span></div>
                     <div class="ck-editor-container">
-                        <textarea class="flex-grow @error('content') is-invalid @enderror" name="content" id="content" rows="6"
+                        <textarea class="flex-grow @error('content') is-invalid @enderror" name="content" id="content" rows="6" cols="100"
                             placeholder="Nội dung trang">{{ old('content') }}</textarea>
                         @error('content')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
@@ -279,7 +279,7 @@
                 selector: '#content',
                 plugins: 'image media link table lists advlist',
                 toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
-                height: 400,
+                height: 800,
                 menubar: false,
                 images_upload_url: '{{ route('admin.pages.upload-image') }}',
                 images_upload_credentials: true,

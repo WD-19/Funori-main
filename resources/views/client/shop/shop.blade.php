@@ -230,44 +230,57 @@
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+// thêm vào yêu thích
+    document.addEventListener("DOMContentLoaded", function () {
     toastr.options = {
         "positionClass": "toast-top-right",
-        "timeOut": "3000",
+        "timeOut": "1000",
         "closeButton": true,
         "progressBar": true
     };
+    let wishlistProcessing = false;
     document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            // Kiểm tra đăng nhập qua biến blade
+            if (wishlistProcessing) {
+                toastr.warning('Bạn thao tác quá nhanh, vui lòng chờ!');
+                return;
+            }
+            wishlistProcessing = true;
             var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
             if (!isLoggedIn) {
                 toastr.error('Bạn cần đăng nhập!');
+                wishlistProcessing = false;
                 return;
             }
             var productId = this.getAttribute('data-product-id');
             var icon = this.querySelector('i');
-            fetch("{{ route('wishlist.add') }}", {
-                method: 'POST',
-                headers: {
+            var isActive = icon.style.color === 'red';
+            var url = isActive ? "{{ route('wishlist.remove') }}" : "{{ route('wishlist.add') }}";
+            var method = 'POST';
+            var body = isActive ? new FormData() : JSON.stringify({ product_id: productId });
+            if(isActive) body.append('product_id', productId);
+            fetch(url, {
+                method: method,
+                headers: isActive ? {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                    'Accept': 'application/json'
+                } : {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
                 },
-                body: JSON.stringify({ product_id: productId })
+                body: body
             })
             .then(response => response.json())
             .then(data => {
-                if(data.success !== false) {
+                if(!isActive && data.success !== false) {
                     toastr.success(data.message || 'Đã thêm vào yêu thích!');
                     icon.classList.remove('fa-regular');
                     icon.classList.add('fa-solid');
                     icon.style.color = 'red';
-                    // Cập nhật badge wishlist ở header
+                    // Badge +1
                     var badge = document.querySelector('.wishlist-badge');
                     if (badge) {
                         let count = parseInt(badge.textContent) || 0;
@@ -282,13 +295,26 @@ document.addEventListener("DOMContentLoaded", function () {
                             heartIcon.parentNode.appendChild(span);
                         }
                     }
-                    // Cập nhật mini-wishlist
-                    fetch('/wishlist/mini-list')
-                        .then(res => res.text())
-                        .then(html => {
-                            var miniWishlist = document.querySelector('#mini-wishlist-content');
-                            if (miniWishlist) miniWishlist.innerHTML = html;
-                        });
+                } else if(isActive && data.success) {
+                    toastr.success('Đã xóa khỏi yêu thích!');
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    icon.style.color = '#545353';
+                    // Badge -1
+                    var badge = document.querySelector('.wishlist-badge');
+                    if (badge) {
+                        let count = parseInt(badge.textContent) || 0;
+                        badge.textContent = Math.max(count - 1, 0);
+                        if(badge.textContent == '0') badge.remove();
+                    }
+                    // Đổi màu thông báo xóa khỏi yêu thích
+                    setTimeout(function() {
+                        var toast = document.querySelector('.toast-success');
+                        if(toast) {
+                            toast.style.backgroundColor = '#e53935';
+                            toast.style.color = '#fff';
+                        }
+                    }, 100);
                 } else {
                     if(data.message && data.message.includes('đăng nhập')) {
                         toastr.error(data.message);
@@ -296,14 +322,25 @@ document.addEventListener("DOMContentLoaded", function () {
                         toastr.info(data.message || 'Sản phẩm đã có trong yêu thích!');
                     }
                 }
+                // Cập nhật mini-wishlist
+                fetch('/wishlist/mini-list')
+                    .then(res => res.text())
+                    .then(html => {
+                        var miniWishlist = document.querySelector('#mini-wishlist-content');
+                        if (miniWishlist) miniWishlist.innerHTML = html;
+                    });
             })
             .catch(error => {
                 toastr.error('Lỗi xảy ra!');
                 console.error(error);
+            })
+            .finally(() => {
+                setTimeout(function(){ wishlistProcessing = false; }, 600);
             });
         });
     });
 });
+//
 </script>
 
 @endsection
