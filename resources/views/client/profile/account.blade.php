@@ -3,6 +3,9 @@
 
 @section('title', 'Thông tin tài khoản')
 
+@section('page_title', 'Tài Khoản')
+
+
 @section('content_profile')
     <div class="my-account-content">
         <style>

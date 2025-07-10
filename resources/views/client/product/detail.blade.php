@@ -189,7 +189,7 @@
                                     .tf-product-info-variant-picker {
                                         font-size: 80%;
                                     }
-                                    .tf-product-info-variant-picker .variant-box {   
+                                    .tf-product-info-variant-picker .variant-box {
                                      min-width: 112px !important;
                                     padding: 1.4rem !important;
                                     border-width: 1px !important;
@@ -203,7 +203,7 @@
                                     .tf-product-info-variant-picker .badge {
                                         font-size: 90%;
                                         padding: 2px 6px;
-                                    }           
+                                    }
                                 </style>
                             </div>
                         </div>
@@ -247,10 +247,12 @@
                                             @foreach ($product->variants as $variant)
                                                 <label class="variant-box p-2 border rounded mb-2"
                                                     style="min-width:160px; cursor:pointer;">
+
                                                     <input type="radio" name="variant_id" value="{{ $variant->id }}"
                                                     data-title="{{ $variant->name_variant ?? '' }}"
                                                     data-price="{{ $product->regular_price + $variant->price_modifier }}"
                                                     data-material="{{ $variant->material ?? '' }}"
+
                                                     @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
                                                     style="margin-right: 8px;">
                                                     @if ($variant->image)
@@ -531,7 +533,7 @@
                             <div class="widget-content-inner active">
                                 <div class="">
                                     <p class="mb_30">
-                                        
+
                                         {!! nl2br(e($product->description)) !!}
                                     </p>
 
@@ -1093,7 +1095,7 @@
     <!-- Toastr hiển thị thông báo session -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-        
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     toastr.options = {

@@ -58,6 +58,13 @@
         ];
         $currentStep = 'cart';
     @endphp
+
+    <div class="tf-page-title">
+        <div class="container-full">
+            <div class="heading text-center">@yield('page_title','Giỏ Hàng')</div>
+        </div>
+    </div>
+
     <div style="max-width: 66vw; margin: 60px auto 0 auto; padding: 0 16px;">
         <div class="cart-checkout-progress"
             style="background: #fff; padding: 32px 16px 24px 16px; border-radius: 10px; margin-bottom: 16px;">
