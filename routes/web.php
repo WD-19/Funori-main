@@ -25,7 +25,7 @@ use App\Http\Controllers\client\ProductController as ClientProductController;
 use App\Http\Controllers\client\ContactController as ClientContactCController;
 use App\Http\Controllers\client\ProfileController as ProfileController;
 use App\Http\Controllers\client\ShopController;
-use App\Http\Controllers\client\WishlistController;
+use App\Http\Controllers\client\CheckoutController;
 use App\Http\Middleware\CheckClientLogin;
 // Middleware
 use App\Http\Middleware\CheckLogin;
@@ -152,14 +152,7 @@ Route::prefix('admin')->name('admin.')
 
 Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
-// thêm vào yêu thích
-Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
 
-
-Route::middleware(['auth'])->group(function () {
-    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
-    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
-});
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
@@ -180,17 +173,6 @@ Route::prefix('/')->name('client.')->group(function () {
 
     Route::get('/search', [ClientProductController::class, 'search'])->name('search');
 
-
-    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
-    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
-    Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update.post');
-    Route::delete('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
-    Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove.post');
-    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
-    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear.post');
-
-
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);
@@ -200,11 +182,22 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
-    // Cart routes - phải đặt trước route {slug}
-   
+    // Route giỏ hàng (Cart)
+    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+    // Đảm bảo route này là POST, vì JS gọi POST /cart/remove
+    Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+    // JS gọi POST nên route phải là POST
+    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
-    // Profile routes
-    Route::prefix('profile')->name('profile.')->group(function () {
+    // Checkout (One-Page)
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    // Profile (gộp các route trùng lặp và thêm middleware)
+    Route::prefix('profile')->name('profile.')->middleware(CheckClientLogin::class)->group(function () {
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('order');
         Route::get('/address', [ProfileController::class, 'address'])->name('address');
@@ -212,12 +205,11 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
     });
 
-    // Product route - phải đặt cuối cùng
+    // Route chi tiết sản phẩm (để cuối cùng để không bắt các route khác)
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
-
-
-    Route::fallback(function () {
-        return response()->view('client.errors.404', [], 404);
-    });
 });
 
+// Fallback cho các route không tồn tại
+Route::fallback(function () {
+    return response()->view('client.errors.404', [], 404);
+});

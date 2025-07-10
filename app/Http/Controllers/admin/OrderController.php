@@ -363,10 +363,17 @@ class OrderController
             $order->admin_note = $adminNote;
             $order->cancellation_reason = $cancelReason;
 
-            // Trả lại số lượng tồn kho cho từng sản phẩm trong đơn hàng
+            // Trả lại số lượng tồn kho cho từng sản phẩm/biến thể trong đơn hàng
+            // Sửa lỗi: Cần trả kho cho cả biến thể và sản phẩm, và đúng cột `stock_quantity`
             foreach ($order->items as $item) {
-                if ($item->product) {
-                    $item->product->increment('stock', $item->quantity);
+                if ($item->product_variant_id) {
+                    $variant = \App\Models\ProductVariant::find($item->product_variant_id);
+                    if ($variant) {
+                        $variant->increment('stock_quantity', $item->quantity);
+                    }
+                } elseif ($item->product) {
+                    // Chỉ tăng kho cho sản phẩm gốc nếu không có biến thể
+                    $item->product->increment('stock_quantity', $item->quantity);
                 }
             }
 
