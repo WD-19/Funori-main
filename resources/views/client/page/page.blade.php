@@ -3,15 +3,9 @@
 @section('title', 'Tin Tức')
 
 @section('content')
-    <div class="custom-banner-full">
-        <div class="custom-banner">
-            <div class="banner-image">
-                <img src="{{ asset('client/picture/Living-room.jpg') }}" alt="Tin tức">
-                <div class="banner-overlay">
-                    <h1 class="banner-title">Tin Tức</h1>
-                    <div class="banner-breadcrumb">Trang chủ &nbsp; / &nbsp; Tin tức</div>
-                </div>
-            </div>
+    <div class="tf-page-title mb-5">
+        <div class="container-full">
+            <div class="heading text-center">@yield('page_title', 'Tin Tức')</div>
         </div>
     </div>
     <div class="container">
@@ -53,12 +47,12 @@
                     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
                 }
 
-                .banner-title {
+                /* .banner-title {
                     font-size: 3rem;
                     font-weight: 800;
                     margin-bottom: 12px;
                     text-transform: uppercase;
-                }
+                } */
 
                 .banner-breadcrumb {
                     font-size: 1rem;

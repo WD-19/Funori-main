@@ -1,5 +1,7 @@
 @extends('client.profile.index')
 
+@section('page_title', 'Yêu thích')
+
 @section('content_profile')
     <div class="my-account-content account-wishlist">
         <form method="GET" class="mb-4 row g-2 align-items-center" style="max-width: 600px;">

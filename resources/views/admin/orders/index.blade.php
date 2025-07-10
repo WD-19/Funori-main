@@ -102,7 +102,7 @@
             </div>
             <div class="wg-box">
                 <div class="wg-table table-all-category mt-2">
-                    <ul class="table-title flex gap10 mb-14" style="background:#f3f4f6; padding: 0 12px;">
+                    <ul class="table-title flex gap10 mb-14" style="background:#f3f4f6; padding: 10px 12px;">
                         <li style="width: 30px; text-align: center; flex-shrink: 0;">
                             <div class="body-title">STT</div>
                         </li>

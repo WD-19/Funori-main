@@ -33,7 +33,7 @@
                     <div class="body-text">Quản lý các thương hiệu của bạn tại đây. Bạn có thể chỉnh sửa, ẩn/hiện hoặc xóa
                         thương hiệu theo nhu cầu.</div>
                 </div>
-                <div class="flex items-center justify-between gap10 flex-wrap">
+                <div class="flex items-center justify-between gap10 flex-wrap" style="min-width: max-content;">
                     <div class="wg-filter flex-grow">
                         <form class="form-search flex gap10" method="GET" action="#">
                             <fieldset class="name">
@@ -48,8 +48,8 @@
                     <a class="tf-button style-1 w208" href="{{ route('admin.brands.create') }}"><i
                             class="icon-plus"></i>Thêm mới</a>
                 </div>
-                <div class="wg-table table-product-list">
-                    <ul class="table-title flex gap20 mb-14">
+                <div class="wg-table table-product-list" style="overflow-x:auto; width:100%;">
+                    <ul class="table-title flex gap20 mb-14" style="min-width: max-content;">
                         <li style="width:5%">
                             <div class="body-title">ID</div>
                         </li>

@@ -1,5 +1,7 @@
 @extends('client.profile.index')
 
+@section('page_title', 'Thông Báo')
+
 @section('content_profile')
  <div class="col-lg-9">
     <div class="my-account-content account-dashboard">

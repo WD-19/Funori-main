@@ -1,5 +1,8 @@
 @extends('client.profile.index')
 
+@section('page_title', 'Tài Khoản')
+
+
 @section('content_profile')
     <style>
         /* Nút Lưu đẹp và hiệu ứng */
