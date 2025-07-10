@@ -206,20 +206,20 @@
                     <div class="wg-box mb-20 gap10">
                         <div class="body-title">Thông tin người đặt hàng</div>
                         <div class="body-text">
-                            <b>Họ tên:</b> {{ $order->buyer_name ?? '-' }}<br>
-                            <b>Email:</b> {{ $order->buyer_email ?? '-' }}<br>
-                            <b>SĐT:</b> {{ $order->buyer_phone ?? '-' }}<br>
+                            <b>Họ tên:</b> {{ $order->buyer_name ?? $order->customer_name ?? '-' }}<br>
+                            <b>Email:</b> {{ $order->buyer_email ?? $order->customer_email ?? '-' }}<br>
+                            <b>SĐT:</b> {{ $order->buyer_phone ?? $order->customer_phone ?? '-' }}<br>
                             <b>Địa chỉ:</b> {{ $order->buyer_address ?? '-' }}
                         </div>
                     </div>
 
                     <div class="wg-box mb-20 gap10">
                         <div class="body-title">Địa chỉ giao hàng</div>
-                        <div class="body-text">{{ $order->shipping_address }}</div>
-                        <div class="body-text" style="margin-top:8px;">
-                            <b>Họ tên người nhận:</b> {{ $order->shipping_name ?? ($order->buyer_name ?? '-') }}<br>
-                            <b>SĐT người nhận:</b> {{ $order->shipping_phone ?? ($order->buyer_phone ?? '-') }}<br>
-                            <b>Email người nhận:</b> {{ $order->shipping_email ?? ($order->buyer_email ?? '-') }}
+                        <div class="body-text">
+                            <b>Họ tên người nhận:</b> {{ $order->shipping_name ?? $order->buyer_name ?? $order->customer_name ?? '-' }}<br>
+                            <b>SĐT người nhận:</b> {{ $order->shipping_phone ?? $order->buyer_phone ?? $order->customer_phone ?? '-' }}<br>
+                            <b>Email người nhận:</b> {{ $order->shipping_email ?? $order->buyer_email ?? $order->customer_email ?? '-' }}<br>
+                            <b>Địa chỉ:</b> {{ $order->shipping_address ?? $order->buyer_address ?? '-' }}
                         </div>
                     </div>
 
