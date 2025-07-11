@@ -286,7 +286,7 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <div class="order-summary sticky-top">
+                        <div class="order-summary">
                             <h4>Tóm tắt đơn hàng</h4>
                             @foreach ($cart['items'] as $item)
                                 <div class="summary-item">

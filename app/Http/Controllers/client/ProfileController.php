@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 use App\Models\Address;
 use Illuminate\Support\Facades\Storage;
 
-class ProfileController 
+class ProfileController
 {
     public function dashboard()
     {
@@ -36,15 +36,18 @@ class ProfileController
 
     public function account()
     {
-            $user = Auth::user();
-        return view('client.profile.account', [ 'pageTitle' => 'Account Details', 'user' => $user
+        $user = Auth::user();
+
+        return view('client.profile.account', [
+            'pageTitle' => 'Account Details',
+            'user' => $user
         ]);
     }
 
     public function updateAccount(Request $request)
     {
         $user = Auth::user();
- 
+
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'phone' => ['required', 'string', 'max:15', Rule::unique('users')->ignore($user->id)],
@@ -182,7 +185,7 @@ class ProfileController
             // Tìm kiếm theo tên sản phẩm
             if ($request->filled('search')) {
                 $search = $request->input('search');
-                $query = $query->whereHas('product', function($q) use ($search) {
+                $query = $query->whereHas('product', function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%');
                 });
             }
