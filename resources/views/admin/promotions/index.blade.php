@@ -42,60 +42,60 @@
                     <div class="alert alert-success mb-3">{{ session('success') }}</div>
                 @endif
                 <div class="wg-table table-product-list">
-                    <ul class="table-title flex gap20 mb-14">
-                        <li>
+                    <ul style="width: 1440px ;" class=" table-title flex mb-14">
+                        <li style="width: 15%">
                             <div class="body-title">Tên</div>
                         </li>
-                        <li>
+                        <li style="width: 15%">
                             <div class="body-title">Mã</div>
                         </li>
-                        <li>
+                        <li style="width: 10%">
                             <div class="body-title">Loại</div>
                         </li>
-                        <li>
+                        <li style="width: 8%">
                             <div class="body-title">Giá trị</div>
                         </li>
-                        <li>
+                        <li style="width: 10%">
                             <div class="body-title">Thời gian</div>
                         </li>
-                        <li>
+                        <li style="width: 7%">
                             <div class="body-title">Trạng thái</div>
                         </li>
-                        <li>
+                        <li style="width: 10%">
                             <div class="body-title">Áp dụng</div>
                         </li>
-                        <li>
+                        <li style="width: 15%">
                             <div class="body-title">Ngày tạo</div>
                         </li>
-                        <li>
+                        <li style="width: 10%">
                             <div class="body-title">Hành động</div>
                         </li>
                     </ul>
                     <ul class="flex flex-column">
                         @forelse($promotions as $promotion)
                             <li class="wg-product item-row gap20">
-                                <div class="body-text">{{ $promotion->name }}</div>
-                                <div class="body-text">{{ $promotion->code }}</div>
-                                <div>
+                                <div  style="width: 15%" class="body-text">{{ $promotion->name }}</div>
+                                <div  style="width: 15%" class="body-text">{{ $promotion->code }}</div>
+                                <div  style="width: 10%">
                                     <span class="badge bg-info">
                                         {{ $promotion->discount_type == 'percentage' ? 'Phần trăm' : 'Tiền mặt' }}
                                     </span>
                                 </div>
-                                <div class="body-text">
+                                <div  style="width: 8%" class="body-text">
                                     {{ $promotion->discount_type == 'percentage' ? $promotion->discount_value . '%' : number_format($promotion->discount_value, 0, ',', '.') . ' đ' }}
                                 </div>
-                                <div class="body-text">
+                                <div  style="width: 10%" class="body-text">
                                     {{ $promotion->start_date ? $promotion->start_date->format('d/m/Y') : '-' }}<br>
                                     {{ $promotion->end_date ? $promotion->end_date->format('d/m/Y') : '-' }}
                                 </div>
-                                <div>
+                                <div  style="width: 7%">
                                     @if ($promotion->is_active)
                                         <span class="badge bg-success">Kích hoạt</span>
                                     @else
                                         <span class="badge bg-secondary">Ẩn</span>
                                     @endif
                                 </div>
-                                <div>
+                                <div style="width: 10%">
                                     @if ($promotion->applies_to == 'all_products')
                                         <span class="badge bg-info text-dark">Tất cả SP</span>
                                     @elseif($promotion->applies_to == 'specific_products')
@@ -104,11 +104,11 @@
                                         <span class="badge bg-warning text-dark">Danh mục</span>
                                     @endif
                                 </div>
-                                <div class="body-text">
+                                <div  style="width: 15%" class="body-text">
                                     {{ $promotion->created_at ? $promotion->created_at->format('d/m/Y') : '-' }}
                                 </div>
 
-                                <div class="list-icon-function">
+                                <div  style="width: 10%" class="list-icon-function">
                                     <div class="item edit">
                                         <a href="{{ route('admin.promotions.edit', $promotion->id) }}" class="item edit"><i
                                                 class="icon-edit-3"></i></a>

@@ -66,7 +66,7 @@
                             <a href="{{ route('shop', array_merge(request()->except('page'), ['brand_id' => $brand->id])) }}"
                                 style="display:block;{{ request('brand_id') == $brand->id ? 'border:2px solid #fcad02;border-radius:8px;' : '' }}">
                                 @if ($brand->logo_url)
-                                    <img src="{{ asset('storage/' . $brand->logo_url) }}" alt="{{ $brand->name }}"
+                                    <img style="width: 100% ;" src="{{ asset('storage/' . $brand->logo_url) }}" alt="{{ $brand->name }}"
                                         style="max-width:60px;max-height:60px;">
                                 @else
                                     <div
