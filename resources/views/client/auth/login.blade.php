@@ -3,7 +3,6 @@
 @section('title', 'Đăng Nhập')
 
 @section('content')
-
 <!-- #wrapper -->
 <div id="wrapper">
     <!-- #page -->

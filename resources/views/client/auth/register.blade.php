@@ -1,5 +1,4 @@
 @extends('client.auth.layout.auth')
-
 @section('title', 'Đăng ký')
 
 @section('content')
@@ -17,7 +16,7 @@
                             </div>
                         </div>
                         <div class="flex flex-column gap16 w-full">
-                            <a href="#" class="tf-button style-2 w-full">
+                            <a href="{{ route('client.login') }}" class="tf-button style-2 w-full">
                                 <span class="">Đăng nhập để tiếp tục sử dụng hệ thống.</span>
                             </a>
                         </div>
@@ -31,8 +30,7 @@
                                         <input class="flex-grow" type="text" placeholder="Nhập họ và tên" name="name"
                                             tabindex="0" value="{{ old('name') }}">
                                         @error('name')
-                                            <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">
-                                                {{ $message }}</div>
+                                            <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                                         @enderror
                                     </fieldset>
                                 </div>
@@ -43,8 +41,7 @@
                                 <input class="flex-grow" type="email" placeholder="Nhập địa chỉ email" name="email"
                                     tabindex="0" value="{{ old('email') }}">
                                 @error('email')
-                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
-                                    </div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                                 @enderror
                             </fieldset>
                             <fieldset class="phone">
@@ -53,8 +50,7 @@
                                 <input class="flex-grow" type="text" placeholder="Nhập số điện thoại" name="phone"
                                     tabindex="0" value="{{ old('phone') }}">
                                 @error('phone')
-                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
-                                    </div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                                 @enderror
                             </fieldset>
                             <fieldset class="password">
@@ -66,8 +62,7 @@
                                     <i class="icon-eye-off hide"></i>
                                 </span>
                                 @error('password')
-                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
-                                    </div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                                 @enderror
                             </fieldset>
                             <fieldset class="password">
@@ -80,8 +75,7 @@
                                     <i class="icon-eye-off hide"></i>
                                 </span>
                                 @error('password_confirmation')
-                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
-                                    </div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                                 @enderror
                             </fieldset>
                             <div class="flex justify-between items-center">
@@ -126,22 +120,6 @@
                     btn.style.cursor = 'not-allowed';
                 }
             });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            toastr.options = {
-                "positionClass": "toast-bottom-right",
-                "timeOut": "3000",
-                "closeButton": true,
-                "progressBar": true
-            };
-            @if (session('success'))
-                toastr.success("{{ session('success') }}");
-            @endif
-
-            @if (session('error'))
-                toastr.error("{{ session('error') }}");
-            @endif
         });
     </script>
 @endsection

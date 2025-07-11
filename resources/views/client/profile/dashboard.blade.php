@@ -1,6 +1,7 @@
 @extends('client.profile.index')
 
-@section('page_title', 'Thông Báo')
+@section('title', 'Thông báo')
+@section('page_title', 'Thông báo')
 
 @section('content_profile')
  <div class="col-lg-9">

@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
 <link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
 <link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">
+<link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">s
 <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 @section('content')
     <!-- Kiểm tra xem người dùng đã đăng nhập và có danh sách yêu thích -->
@@ -312,7 +312,8 @@
                                             </span>
                                         </a>
                                         <div class="tf-product-btn-wishlist btn-icon-action">
-                                            <button class="wishlist-btn" data-product-id="{{ $product->id }}"
+                                            <button class="wishlist-btn justify-content-center"
+                                                data-product-id="{{ $product->id }}"
                                                 style="background:none;border:none;padding:0;cursor:pointer;margin-right:8px;">
                                                 <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
                                                     class="fa-solid fa-heart" id="heart-Product"></i>
@@ -1289,12 +1290,12 @@
                                 }
                             }
                             // Cập nhật mini-wishlist
-                            fetch('{{ route('wishlist.miniList') }}')
+                            fetch('/wishlist/mini-list')
                                 .then(res => res.text())
                                 .then(html => {
                                     var miniWishlist = document.querySelector(
                                         '#mini-wishlist-content');
-                                    if (miniWishlist) miniWishlist.innerHTML = html;
+                                    if (miniWishlist) miniclient.wishlist.innerHTML = html;
                                 });
                         })
                         .catch(error => {

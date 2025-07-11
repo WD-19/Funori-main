@@ -88,10 +88,11 @@
                                 </div>
                             @else
                                 <div class="send-wrap">
-                                    <a href="{{ route('client.login') }}"
+                                    <button type="button"
+                                        onclick="window.location.href='{{ route('client.login', ['error' => 'Bạn cần đăng nhập để gửi liên hệ']) }}'"
                                         class="tf-btn w-100 radius-3 btn-fill animate-hover-btn justify-content-center">
                                         Gửi
-                                    </a>
+                                    </button>
                                 </div>
                             @endauth
                         </form>
@@ -101,21 +102,31 @@
         </div>
     </section>
     <!-- /form -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            toastr.options = {
-                "positionClass": "toast-bottom-right",
-                "timeOut": "3000",
-                "closeButton": true,
-                "progressBar": true
-            };
-            @if (session('success'))
-                toastr.success("{{ session('success') }}");
-            @endif
 
-            @if (session('error'))
-                toastr.error("{{ session('error') }}");
-            @endif
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        $(function() {
+            $('#contactform').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function(res) {
+                        toastr.success('Gửi liên hệ thành công!');
+                        form[0].reset();
+                    },
+                    error: function(xhr) {
+                        let msg = 'Có lỗi xảy ra!';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        toastr.error(msg);
+                    }
+                });
+            });
         });
     </script>
 @endsection

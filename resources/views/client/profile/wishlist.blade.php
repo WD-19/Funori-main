@@ -1,6 +1,7 @@
 @extends('client.profile.index')
 
-@section('page_title', 'Yêu thích')
+@section('title', 'Sản phẩm yêu thích')
+@section('page_title', 'Sản phẩm yêu thích')
 
 @section('content_profile')
     <div class="my-account-content account-wishlist">

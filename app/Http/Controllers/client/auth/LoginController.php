@@ -9,8 +9,11 @@ use Illuminate\Support\Facades\Auth;
 class LoginController
 {
     // Hiển thị form đăng nhập
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        if ($request->has('error')) {
+            session()->flash('error', $request->error);
+        }
         return view('client.auth.login');
     }
 
@@ -31,29 +34,36 @@ class LoginController
         $credentials = $request->only('email', 'password');
         $remember = $request->has('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
-            $user = Auth::user();
+        // Kiểm tra email có tồn tại không
+        $user = \App\Models\User::where('email', $request->email)->first();
 
-            // Kiểm tra trạng thái tài khoản
-            if ($user->isBanned()) {
-                Auth::logout();
-                return back()->withErrors(['email&password' => 'Tài khoản của bạn đã bị khóa.'])->withInput();
-            }
-            if ($user->isInactive()) {
-                Auth::logout();
-                return back()->withErrors(['email&password' => 'Tài khoản của bạn chưa được kích hoạt.'])->withInput();
-            }
-
-            // Kiểm tra role và chuyển hướng
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            }
-
-            return redirect()->route('home');
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email không tồn tại'])->withInput();
         }
 
-        return back()->withErrors(['login' => 'Email hoặc mật khẩu không đúng'])->withInput();
+        // Kiểm tra mật khẩu có đúng không
+        if (!\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['password' => 'Mật khẩu không đúng'])->withInput();
+        }
+
+        // Kiểm tra trạng thái tài khoản
+        if ($user->isBanned()) {
+            return back()->withErrors(['email' => 'Tài khoản của bạn đã bị khóa.'])->withInput();
+        }
+        if ($user->isInactive()) {
+            return back()->withErrors(['email' => 'Tài khoản của bạn chưa được kích hoạt.'])->withInput();
+        }
+
+        // Đăng nhập
+        Auth::login($user, $remember);
+        $request->session()->regenerate();
+
+        // Kiểm tra role và chuyển hướng
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return redirect()->route('home');
     }
 
     // Đăng xuất
