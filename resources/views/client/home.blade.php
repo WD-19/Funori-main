@@ -367,17 +367,13 @@
             }
             var productId = this.getAttribute('data-product-id');
             var icon = this.querySelector('i');
-            var isActive = icon.style.color === 'red';
+            var isActive = icon.classList.contains('fa-solid') && icon.style.color === 'red';
             var url = isActive ? "{{ route('wishlist.remove') }}" : "{{ route('wishlist.add') }}";
             var method = 'POST';
-            var body = isActive ? new FormData() : JSON.stringify({ product_id: productId });
-            if(isActive) body.append('product_id', productId);
+            var body = JSON.stringify({ product_id: productId });
             fetch(url, {
                 method: method,
-                headers: isActive ? {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
-                    'Accept': 'application/json'
-                } : {
+                headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
@@ -418,7 +414,6 @@
                         badge.textContent = Math.max(count - 1, 0);
                         if(badge.textContent == '0') badge.remove();
                     }
-                    // Đổi màu thông báo xóa khỏi yêu thích
                     setTimeout(function() {
                         var toast = document.querySelector('.toast-success');
                         if(toast) {

@@ -295,60 +295,13 @@
                                 </div> --}}
                         </div>
                         <div class="tf-page-cart-checkout">
-                            <div class="shipping-calculator">
-                                <summary
-                                    class="accordion-shipping-header d-flex justify-content-between align-items-center collapsed"
-                                    data-bs-target="#shipping" data-bs-toggle="collapse" aria-controls="shipping">
-                                    <h3 class="shipping-calculator-title">Tính phí vận chuyển</h3>
-                                    <span class="shipping-calculator_accordion-icon"></span>
-                                </summary>
-                                <div class="collapse" id="shipping">
-                                    <div class="accordion-shipping-content">
-                                        <fieldset class="field">
-                                            <label class="label">Chọn tỉnh/thành phố</label>
-                                            <select class="tf-select w-100" id="ShippingCountry_CartDrawer-Form"
-                                                name="address[country]" data-default="">
-
-                                            </select>
-                                        </fieldset>
-                                        <fieldset class="field">
-                                            <label class="label">Chọn Xã</label>
-                                            <select class="tf-select w-100" id="ShippingCountry_CartDrawer-Form"
-                                                name="address[country]" data-default="">
-
-                                            </select>
-                                        </fieldset>
-                                        <fieldset class="field">
-                                            <label class="label">Địa chỉ cụ thể</label>
-                                            <input type="text" name="text" placeholder="">
-                                        </fieldset>
-                                        <button class="tf-btn btn-fill animate-hover-btn radius-3 justify-content-center">
-                                            <span>Ước tính</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                          
 
                             <div style="font-family: 'Inter', Arial, Helvetica, sans-serif;">
-                                <div class="tf-cart-totals-discounts">
-                                    <h3 style="font-weight: 600; font-size: 18px;">Tổng tiền hàng</h3>
-                                    <span class="total-value"
-                                        style="font-size: 18px;">{{ number_format($total, 0, ',', '.') }}đ</span>
-                                </div>
+                               
 
                                 <div class="tf-cart-discount-fee" style="margin-top: 24px;">
-                                    <div
-                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                        <span>Giảm giá</span>
-                                        <span
-                                            class="discount-value">-{{ isset($discount) ? number_format($discount, 0, ',', '.') : '0' }}đ</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                        <span>Phí vận chuyển</span>
-                                        <span
-                                            class="shipping-fee-value">{{ isset($shipping_fee) ? number_format($shipping_fee, 0, ',', '.') : '0' }}đ</span>
-                                    </div>
+                                   
                                     <hr style="margin: 8px 0;">
                                     <div
                                         style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; color: #ff3029;">

@@ -62,11 +62,14 @@ class AppServiceProvider extends ServiceProvider
             } else {
                 $cart = session('cart', []);
                 $globalCartItems = collect($cart)->map(function ($item) {
+                    if (!isset($item['product_id'])) {
+                        return null; // hoặc return []; tuỳ logic của bạn
+                    }
                     $product = Product::with([
                         'images',
                         'variants.image',
                         'variants.attributeValues.attribute'
-                    ])->find($item['product_id']);
+                    ])->find($item['product_id'] ?? null);
                     $variant = $product?->variants?->firstWhere('id', $item['product_variant_id']);
 
                     return [
@@ -77,7 +80,7 @@ class AppServiceProvider extends ServiceProvider
                             return $attrVal->attribute->name . ': ' . $attrVal->value;
                         })->all() ?? [],
                         'quantity' => $item['quantity'],
-                        'price_at_addition' => $item['price'],
+                        'price_at_addition' => $item['price'] ?? null,
                         'image_url' => $variant->image->image_url ?? ($product->images[0]->image_url ?? null),
                     ];
                 })->all();

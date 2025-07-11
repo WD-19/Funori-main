@@ -41,39 +41,39 @@ class ProfileController
         ]);
     }
 
-    public function updateAccount(Request $request)
-    {
-        $user = Auth::user();
+    // public function updateAccount(Request $request)
+    // {
+    //     $user = Auth::user();
  
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'phone' => ['required', 'string', 'max:15', Rule::unique('users')->ignore($user->id)],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'address' => 'nullable|string|max:255',
-            // Nếu người dùng nhập địa chỉ cụ thể, thì Tỉnh/Quận/Phường là bắt buộc
-            'province' => ['required_with:address', 'nullable', 'string', 'max:255'],
-            'district' => ['required_with:address', 'nullable', 'string', 'max:255'],
-            'ward' => ['required_with:address', 'nullable', 'string', 'max:255'],
-            'password' => 'nullable|string|min:8|confirmed',
-        ], [
-            // Thêm thông báo lỗi tùy chỉnh
-            'province.required_with' => 'Vui lòng chọn Tỉnh/Thành phố khi đã nhập địa chỉ cụ thể.',
-            'district.required_with' => 'Vui lòng chọn Quận/Huyện khi đã nhập địa chỉ cụ thể.',
-            'ward.required_with' => 'Vui lòng chọn Phường/Xã khi đã nhập địa chỉ cụ thể.',
-        ]);
+    //     $validated = $request->validate([
+    //         'full_name' => 'required|string|max:255',
+    //         'phone' => ['required', 'string', 'max:15', Rule::unique('users')->ignore($user->id)],
+    //         'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+    //         'address' => 'nullable|string|max:255',
+    //         // Nếu người dùng nhập địa chỉ cụ thể, thì Tỉnh/Quận/Phường là bắt buộc
+    //         'province' => ['required_with:address', 'nullable', 'string', 'max:255'],
+    //         'district' => ['required_with:address', 'nullable', 'string', 'max:255'],
+    //         'ward' => ['required_with:address', 'nullable', 'string', 'max:255'],
+    //         'password' => 'nullable|string|min:8|confirmed',
+    //     ], [
+    //         // Thêm thông báo lỗi tùy chỉnh
+    //         'province.required_with' => 'Vui lòng chọn Tỉnh/Thành phố khi đã nhập địa chỉ cụ thể.',
+    //         'district.required_with' => 'Vui lòng chọn Quận/Huyện khi đã nhập địa chỉ cụ thể.',
+    //         'ward.required_with' => 'Vui lòng chọn Phường/Xã khi đã nhập địa chỉ cụ thể.',
+    //     ]);
 
-        // Cập nhật thông tin chính
-        $user->fill($request->only(['full_name', 'phone', 'email', 'address', 'province', 'district', 'ward']));
+    //     // Cập nhật thông tin chính
+    //     $user->fill($request->only(['full_name', 'phone', 'email', 'address', 'province', 'district', 'ward']));
 
-        // Cập nhật mật khẩu nếu có
-        if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
-        }
+    //     // Cập nhật mật khẩu nếu có
+    //     if (!empty($validated['password'])) {
+    //         $user->password = Hash::make($validated['password']);
+    //     }
 
-        $user->save();
+    //     $user->save();
 
-        return back()->with('success', 'Cập nhật thông tin tài khoản thành công!');
-    }
+    //     return back()->with('success', 'Cập nhật thông tin tài khoản thành công!');
+    // }
     public function storeAddress(Request $request)
     {
         $request->validate([

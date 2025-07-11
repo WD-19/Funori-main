@@ -62,7 +62,7 @@
                 @if (Auth::check())
                     <div class="dropdown-menu"
                         style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 10px; overflow: hidden; padding: 18px 0;">
-                        <a href="{{ route('client.profile.dashboard') }}"
+                        <a href="{{ route('client.profile.account') }}"
                             class="dropdown-item d-flex align-items-center"
                             style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
                             <i class="fa-regular fa-user"

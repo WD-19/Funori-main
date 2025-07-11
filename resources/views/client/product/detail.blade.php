@@ -1312,7 +1312,7 @@ document.addEventListener("DOMContentLoaded", function() {
             var productId = this.getAttribute('data-product-id');
             var icon = this.querySelector('i');
             var isActive = icon.style.color === 'red';
-            var url = isActive ? "{{ route('client.wishlist.remove') }}" : "{{ route('client.wishlist.add') }}";
+            var url = isActive ? "{{ route('wishlist.remove') }}" : "{{ route('wishlist.add') }}";
             var method = 'POST';
             var body = isActive ? new FormData() : JSON.stringify({ product_id: productId });
             if(isActive) body.append('product_id', productId);
@@ -1378,7 +1378,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 }
                 // Cập nhật mini-wishlist
-                fetch('{{ route("client.wishlist.miniList") }}')
+                fetch('{{ route("wishlist.miniList") }}')
                     .then(res => res.text())
                     .then(html => {
                         var miniWishlist = document.querySelector('#mini-wishlist-content');
