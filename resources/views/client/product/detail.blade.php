@@ -2,11 +2,11 @@
 
 @section('title', $product->name)
 <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/fonts.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">s
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 @section('content')
 <!-- Kiểm tra xem người dùng đã đăng nhập và có danh sách yêu thích -->
         @php
@@ -189,20 +189,17 @@
                                     .tf-product-info-variant-picker {
                                         font-size: 80%;
                                     }
-                                    .tf-product-info-variant-picker .variant-box {   
+                                    .tf-product-info-variant-picker .variant-box {
                                      min-width: 112px !important;
                                     padding: 1.4rem !important;
                                     border-width: 1px !important;
                                     border-radius: 4px !important;
                                     font-size: 80%;
                                     }
-
                                     .tf-product-info-variant-picker .variant-box img {
-                                        width: 25px !important;
-                                        /* 36px * 0.7 */
+                                        width: 25px !important;  /* 36px * 0.7 */
                                         height: 25px !important;
                                     }
-
                                     .tf-product-info-variant-picker .badge {
                                         font-size: 90%;
                                         padding: 2px 6px;
@@ -255,6 +252,7 @@
                                                     data-title="{{ $variant->name_variant ?? '' }}"
                                                     data-price="{{ $product->regular_price + $variant->price_modifier }}"
                                                     data-material="{{ $variant->material ?? '' }}"
+
                                                     @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
                                                     style="margin-right: 8px;">
                                                     @if ($variant->image)
@@ -265,24 +263,23 @@
                                                     <div>
                                                         <br>
                                                         <strong>Kho:</strong>
-                                                        @if (($variant->stock_quantity ?? 0) <= 0)
+                                                        @if(($variant->stock_quantity ?? 0) <= 0)
                                                             <span style="color:red;font-weight:bold;">Hết hàng</span>
                                                         @else
                                                             {{ $variant->stock_quantity }}
                                                         @endif
                                                         <br>
                                                         <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
-                                                        {{-- Hiển thị các thuộc tính của biến thể --}}
+                                                            {{-- Hiển thị các thuộc tính của biến thể --}}
                                                         @if ($variant->attributeValues && $variant->attributeValues->count())
                                                             {{-- <div> --}}
-                                                            {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
-                                                            @foreach ($variant->attributeValues as $attrVal)
-                                                                <strong>{{ $attrVal->attribute->name ?? '' }}</strong>
-                                                                {{ $attrVal->value ?? '' }}<br>
-                                                                {{-- <span
+                                                                {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
+                                                                @foreach ($variant->attributeValues as $attrVal)
+                                                                    <strong>{{ $attrVal->attribute->name ?? '' }}</strong> {{ $attrVal->value ?? '' }}<br>
+                                                                    {{-- <span
                                                                         class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
                                                                         {{ $attrVal->value ?? '' }}</span> --}}
-                                                            @endforeach
+                                                                @endforeach
                                                             {{-- </div> --}}
                                                         @endif
                                                     </div>
@@ -305,8 +302,10 @@
                                     <form class="">
                                         <a href="javascript:void(0);"
                                             class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn btn-add-to-cart">
-                                            <span>Thêm vào giỏ hàng </span>
-                                           
+                                            <span>Thêm vào giỏ hàng -&nbsp;</span>
+                                            <span class="tf-qty-price" id="total-price">
+                                                {{ number_format($product->regular_price, 0, ',', '.') }}đ
+                                            </span>
                                         </a>
                                         <div class="tf-product-btn-wishlist btn-icon-action">
                                         <button class="wishlist-btn" data-product-id="{{ $product->id }}" style="background:none;border:none;padding:0;cursor:pointer;margin-right:8px;">
@@ -473,8 +472,7 @@
                                 // Lấy realIndex của slide thực (Swiper loop sẽ có slide ảo)
                                 const slide = img.closest('.swiper-slide');
                                 if (slide && typeof slide.dataset.swiperSlideIndex !== 'undefined') {
-                                    window.gallerySwiper.slideToLoop(Number(slide.dataset
-                                        .swiperSlideIndex));
+                                    window.gallerySwiper.slideToLoop(Number(slide.dataset.swiperSlideIndex));
                                 } else {
                                     window.gallerySwiper.slideToLoop(idx);
                                 }
@@ -1097,7 +1095,7 @@
     <!-- Toastr hiển thị thông báo session -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-        
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     toastr.options = {
@@ -1110,138 +1108,51 @@ document.addEventListener('DOMContentLoaded', function() {
         toastr.success("{{ session('success') }}");
     @endif
 
-            @if (session('error'))
-                toastr.error("{{ session('error') }}");
-            @endif
-        });
+    @if (session('error'))
+        toastr.error("{{ session('error') }}");
+    @endif
+});
 
-        // Đặt ngoài DOMContentLoaded để luôn hoạt động kể cả khi toastr chưa hiện
-        const addToCartBtn = document.querySelector('.btn-add-to-cart');
-        if (addToCartBtn) {
-            addToCartBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                let productId = {{ $product->id }};
-                let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
-                let variantInput = document.querySelector('input[name="variant_id"]:checked');
-                let productVariantId = variantInput ? variantInput.value : null;
-                let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
-                if (hasVariants && !productVariantId) {
-                    toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
-                    return;
-                }
-                fetch('{{ route('client.cart.add') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            product_id: productId,
-                            quantity: quantity,
-                            product_variant_id: productVariantId
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success !== false) {
-                            toastr.success(data.message || 'Đã thêm vào giỏ hàng!');
-
-                            const badge = document.getElementById('cart-count-badge');
-                            const icon = document.querySelector('.fa-cart-shopping.cart');
-
-                            if (badge) {
-                                // Nếu backend trả về cartCount cụ thể thì dùng
-                                if (typeof data.cartCount !== 'undefined') {
-                                    badge.textContent = data.cartCount;
-                                } else {
-                                    let current = parseInt(badge.textContent) || 0;
-                                    badge.textContent = current + 1;
-                                }
-                            } else if (icon) {
-                                // Nếu chưa có badge, tạo mới
-                                const span = document.createElement('span');
-                                span.id = 'cart-count-badge';
-                                span.className = 'cart-count-badge';
-                                span.textContent = data.cartCount !== undefined ? data.cartCount : '1';
-                                span.style = `
-                                            position: absolute;
-                                            top: -10px;
-                                            right: -10px;
-                                            background: #e53935;
-                                            color: #fff;
-                                            border-radius: 50%;
-                                            padding: 2px 6px;
-                                            font-size: 11px;
-                                            font-weight: bold;
-                                            min-width: 18px;
-                                            height: 18px;
-                                            display: flex;
-                                            align-items: center;
-                                            justify-content: center;
-                                            text-align: center;
-                                            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
-                                            z-index: 2;
-                                        `;
-                                icon.parentNode.appendChild(span);
-                            }
-                        } else {
-                            toastr.error(data.message || 'Có lỗi xảy ra!');
-                        }
-                    })
-                    .catch(error => {
-                        toastr.error('Có lỗi xảy ra!');
-                        console.error(error);
-                    });
-
-
-
-            });
+// Đặt ngoài DOMContentLoaded để luôn hoạt động kể cả khi toastr chưa hiện
+const addToCartBtn = document.querySelector('.btn-add-to-cart');
+if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        let productId = {{ $product->id }};
+        let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
+        let variantInput = document.querySelector('input[name="variant_id"]:checked');
+        let productVariantId = variantInput ? variantInput.value : null;
+        let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
+        if (hasVariants && !productVariantId) {
+            toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
+            return;
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
-            const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
-            tabTitles.forEach((tab, idx) => {
-                tab.addEventListener('click', function() {
-                    tabTitles.forEach(t => t.classList.remove('active'));
-                    tabContents.forEach(c => c.classList.remove('active'));
-                    tab.classList.add('active');
-                    tabContents[idx].classList.add('active');
-                });
-            });
-        });
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const writeBtn = document.querySelector('.btn-write-review');
-            const cancelBtn = document.querySelector('.btn-cancel-review');
-            const formReview = document.querySelector('.form-write-review');
-            const commentWrap = document.querySelector('.reply-comment'); // Phần chứa tất cả bình luận
-
-            if (writeBtn && cancelBtn && formReview && commentWrap) {
-                // Mặc định ẩn form, hiện bình luận
-                formReview.style.display = "none";
-                cancelBtn.style.display = "none";
-                commentWrap.style.display = "block";
-
-                // Khi bấm nút "Viết đánh giá"
-                writeBtn.addEventListener('click', function() {
-                    formReview.style.display = "block";
-                    commentWrap.style.display = "none";
-                    writeBtn.style.display = "none";
-                    cancelBtn.style.display = "inline-block";
-                    // formReview.scrollIntoView({ behavior: "smooth" });
-                });
-
-                // Khi bấm nút "Hủy đánh giá"
-                cancelBtn.addEventListener('click', function() {
-                    formReview.style.display = "none";
-                    commentWrap.style.display = "block";
-                    writeBtn.style.display = "inline-block";
-                    cancelBtn.style.display = "none";
-                });
+        fetch('{{ route('client.cart.add') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: quantity,
+                product_variant_id: productVariantId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toastr.success('Đã thêm vào giỏ hàng!');
+            } else {
+                toastr.error(data.message || 'Có lỗi xảy ra!');
             }
+        })
+        .catch(error => {
+            toastr.error('Có lỗi xảy ra!');
+            console.error(error);
         });
-   
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
@@ -1397,16 +1308,4 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 //
 </script>
-<style>
-    a.btn-add-to-cart {
-    text-decoration: none !important;
-   
-}
-
-a.btn-add-to-cart:hover {
-    text-decoration: none !important;
-    
-}
-
-</style>
 @endsection

@@ -45,9 +45,19 @@
             </div>
         </div>
         <div class="box-icon d-flex align-items-center gap-3">
-            <a href="{{ route('client.search') }}" class="box-search">
-                <i class="fa-solid fa-magnifying-glass search"></i>
-            </a>
+            <form action="{{ route('client.search') }}" method="GET" class="search-bar"
+                style="position:relative; width:320px; margin-right:12px;">
+                <input type="text" name="q" id="search-input" autocomplete="off" placeholder="Tìm kiếm sản phẩm..."
+                    style="width:100%;padding:8px 40px 8px 16px;border-radius:20px;border:1px solid #ddd;font-size:15px;">
+                <button type="submit" disabled
+                    style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;">
+                    <i class="fa-solid fa-magnifying-glass" style="color:#fcad02;font-size:18px;"></i>
+                </button>
+                <div id="search-suggestions"
+                    style="display:none;position:absolute;top:110%;left:0;width:100%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;max-height:400px;overflow:auto;">
+                    <!-- Gợi ý sản phẩm sẽ hiển thị ở đây -->
+                </div>
+            </form>
             <div class="box-user dropdown d-flex align-items-center" style="position: relative;">
                 <a href="{{ Auth::check() ? '#' : route('client.login') }}" id="userDropdown"
                     style="padding: 0; border: none; background: none; display: flex; align-items: center; vertical-align: middle;">
@@ -62,11 +72,10 @@
                 @if (Auth::check())
                     <div class="dropdown-menu"
                         style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 10px; overflow: hidden; padding: 18px 0;">
-                        <a href="{{ route('client.profile.account') }}"
-                            class="dropdown-item d-flex align-items-center"
+                        <a href="{{ route('client.profile.dashboard') }}" class="dropdown-item d-flex align-items-center"
                             style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
-                            <i class="fa-regular fa-user"
-                                style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i> Tài Khoản
+                            <i class="fa-regular fa-user" style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i>
+                            Tài Khoản
                         </a>
                         <form action="{{ route('client.logout') }}" method="POST" style="margin: 0;">
                             @csrf
@@ -78,14 +87,14 @@
                         </form>
                     </div>
                     <script>
-                        document.addEventListener('DOMContentLoaded', function() {
+                        document.addEventListener('DOMContentLoaded', function () {
                             var userDropdown = document.getElementById('userDropdown');
                             var dropdownMenu = userDropdown.nextElementSibling;
-                            userDropdown.addEventListener('click', function(e) {
+                            userDropdown.addEventListener('click', function (e) {
                                 e.preventDefault();
                                 dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
                             });
-                            document.addEventListener('click', function(e) {
+                            document.addEventListener('click', function (e) {
                                 if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
                                     dropdownMenu.style.display = 'none';
                                 }
@@ -94,12 +103,13 @@
                     </script>
                 @endif
             </div>
+
             <div class="box-heart" id="wishlist-header-btn" style="position:relative;cursor:pointer;">
                 <a href="{{ route('client.profile.wishlist') }}" style="display:inline-block;position:relative;">
                     <i class="fa-regular fa-heart heart"></i>
                     @if (isset($headerWishlistCount) && $headerWishlistCount > 0)
                         <span class="wishlist-badge"
-                            style="position:absolute;top: -10px; right: -10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#e53935;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;">{{ $headerWishlistCount }}</span>
+                            style="position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;">{{ $headerWishlistCount }}</span>
                     @endif
                 </a>
 
@@ -109,12 +119,12 @@
                         @php
                             $wishlistItems =
                                 Auth::check() && Auth::user()->wishlist
-                                    ? Auth::user()
-                                        ->wishlist->items()
-                                        ->with('product.images')
-                                        ->orderByDesc('created_at')
-                                        ->get()
-                                    : collect();
+                                ? Auth::user()
+                                    ->wishlist->items()
+                                    ->with('product.images')
+                                    ->orderByDesc('created_at')
+                                    ->get()
+                                : collect();
                             $maxShow = 5;
                         @endphp
                         @if ($wishlistItems->count())
@@ -149,67 +159,86 @@
                     <i class="fa-solid fa-cart-shopping cart"></i>
                     @if (isset($cartCount) && $cartCount > 0)
                         <span class="cart-count-badge" id="cart-count-badge"
-                            style="position: absolute; top: -11px; right: -11px; background: #e53935; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 11px; font-weight: bold; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 2;">
+                            style="position: absolute; top: -14px; right: -10px; background: #e53935; color: #fff; border-radius: 50%; padding: 0 5px; font-size: 11px; font-weight: bold; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 2;">
                             {{ $cartCount }}
                         </span>
                     @endif
                 </a>
-
                 <div id="cart-popup-modal"
-                    style="display: none; position: absolute; top: 120%; right: 0; background: #fff; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15); z-index: 100; width: 360px; max-width: 90vw; max-height: 80vh; overflow-y: auto; transition: all 0.2s ease;">
-
+                    style="display:none; position:absolute; top:120%; right:0; background:#fff; border-radius:12px; box-shadow:0 4px 32px rgba(0,0,0,0.15); z-index:100; min-width:400px; max-width:99vw; min-height:80px; max-height:80vh; overflow:auto; padding:0;">
                     <div
-                        style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0; font-weight: 600; font-size: 16px; color: #444;">
-                        Sản phẩm mới thêm
+                        style="padding: 18px 32px 0 32px; border-radius:12px 12px 0 0; color:#bbb; font-weight:600; font-size:16px;">
+                        Sản Phẩm Mới Thêm
                     </div>
+                    <div id="cart-popup-content" style="padding: 12px 32px 0 32px;">
+                        @if (isset($globalCartItems) && count($globalCartItems) > 0)
+                            @foreach ($globalCartItems as $i => $cartItem)
+                                @if ($i < 3)
+                                    <div style="display:flex;align-items:center;margin-bottom:14px;">
+                                        @if (!empty($cartItem['variant']['image']['image_url']))
+                                            <img src="{{ asset($cartItem['variant']['image']['image_url']) }}" alt="Biến thể"
+                                                style="object-fit: cover; border-radius: 6px; margin-bottom: 6px; width: 80px">
+                                        @endif
+                                        <div style="flex:1; overflow:hidden; padding-left: 12px;">
+                                            <div
+                                                style="font-weight:600; font-size: 14px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+                                                {{ $cartItem['product']['name'] ?? 'Sản phẩm đã xóa' }}
+                                            </div>
 
-                    <div id="cart-popup-content" style="padding: 12px 20px;">
-                        <!-- Nội dung mini cart sẽ được load động -->
+                                            @if (!empty($cartItem['variant_attributes']))
+                                                <div class="cart-meta-variant"
+                                                    style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px;">
+                                                    @foreach ($cartItem['variant_attributes'] as $attr)
+                                                        <span class="badge bg-light text-dark border"
+                                                            style="font-size: 12px; padding: 4px 6px;">
+                                                            {{ $attr }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div style="color:#e53935;font-weight:500;min-width:70px;text-align:right;">
+                                            {{ number_format($cartItem['price_at_addition'], 0, ',', '.') }}đ
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                            @if (count($globalCartItems) > 3)
+                                <div style="text-align:center; color:#888; font-size:14px; margin-bottom:8px;">
+                                    ...và {{ count($globalCartItems) - 3 }} sản phẩm khác
+                                </div>
+                            @endif
+                        @else
+                            <div style="padding: 12px 0;">Giỏ hàng của bạn đang trống.</div>
+                        @endif
+                    </div>
+                    <div style="padding: 0 32px 18px 32px;">
+                        <a href="{{ route('client.view-cart') }}" class="btn btn-danger w-100"
+                            style="margin-top:8px;font-weight:600;font-size:16px;">
+                            Xem Giỏ Hàng
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-
-
     </div>
 </div>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const cartGroup = document.querySelector('.cart-popup-group');
-        const popup = document.getElementById('cart-popup-modal');
-        const cartPopupContent = document.getElementById('cart-popup-content');
-        let timeout;
-
-        // Load nội dung mini cart khi hover
-        cartGroup.addEventListener('mouseenter', () => {
-            clearTimeout(timeout);
-            popup.style.display = 'block';
-
-            // Load nội dung mini cart
-            if (cartPopupContent) {
-                fetch('/cart/mini-list')
-                    .then(response => response.text())
-                    .then(html => {
-                        cartPopupContent.innerHTML = html;
-                    })
-                    .catch(error => {
-                        console.error('Lỗi khi load mini cart:', error);
-                        cartPopupContent.innerHTML =
-                            '<div style="padding: 20px 0; text-align: center; color: #888; font-size: 14px;">Có lỗi khi tải dữ liệu giỏ hàng.</div>';
-                    });
-            }
-        });
-
-        cartGroup.addEventListener('mouseleave', () => {
-            timeout = setTimeout(() => {
+    document.addEventListener('DOMContentLoaded', function () {
+        var group = document.querySelector('.cart-popup-group');
+        var popup = document.getElementById('cart-popup-modal');
+        if (group && popup) {
+            group.addEventListener('mouseenter', function () {
+                popup.style.display = 'block';
+            });
+            group.addEventListener('mouseleave', function () {
                 popup.style.display = 'none';
-            }, 150);
-        });
+            });
+        }
     });
 
-
-    // Hàm cập nhật badge số lượng giỏ hàng
+    // Sau khi thêm/xóa/cập nhật giỏ hàng thành công:
     function updateCartCountBadge(newCount) {
         const badge = document.getElementById('cart-count-badge');
         if (badge) {
@@ -218,94 +247,25 @@
         }
     }
 
-    // Hàm cập nhật nội dung mini cart
-    function updateMiniCartContent() {
-        const cartPopupContent = document.getElementById('cart-popup-content');
-        if (cartPopupContent) {
-            fetch('/cart/mini-list')
-                .then(response => response.text())
-                .then(html => {
-                    cartPopupContent.innerHTML = html;
-                })
-                .catch(error => {
-                    console.error('Lỗi khi cập nhật mini cart:', error);
-                });
+    // Ví dụ về fetch để thêm sản phẩm vào giỏ hàng và cập nhật badge
+    fetch('/cart/add', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         }
-    }
-
-    // Hàm thêm sản phẩm vào giỏ hàng và cập nhật mini cart
-    function addToCartAndUpdate(formData) {
-        fetch('/cart/add', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Cập nhật badge số lượng
-                    if (data.cart_count !== undefined) {
-                        updateCartCountBadge(data.cart_count);
-                    }
-
-                    // Cập nhật nội dung mini cart
-                    updateMiniCartContent();
-
-                    // Hiển thị thông báo thành công
-                    alert('Sản phẩm đã được thêm vào giỏ hàng!');
-                } else {
-                    // Hiển thị thông báo lỗi
-                    alert(data.message || 'Có lỗi xảy ra!');
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi thêm vào giỏ hàng:', error);
-                alert('Có lỗi xảy ra khi kết nối máy chủ!');
-            });
-    }
-
-    // Hàm xóa sản phẩm khỏi giỏ hàng và cập nhật mini cart
-    function removeFromCartAndUpdate(itemId) {
-        fetch('/cart/remove', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    item_id: itemId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Cập nhật badge số lượng
-                    if (data.cartCount !== undefined) {
-                        updateCartCountBadge(data.cartCount);
-                    }
-
-                    // Cập nhật nội dung mini cart
-                    updateMiniCartContent();
-
-                    // Hiển thị thông báo thành công
-                    alert('Đã xóa sản phẩm khỏi giỏ hàng!');
-                } else {
-                    // Hiển thị thông báo lỗi
-                    alert(data.message || 'Có lỗi xảy ra!');
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi xóa khỏi giỏ hàng:', error);
-                alert('Có lỗi xảy ra khi kết nối máy chủ!');
-            });
-    }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.cartCount !== undefined) {
+                updateCartCountBadge(data.cartCount);
+            }
+            // ...xử lý khác
+        });
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         var btn = document.getElementById('wishlist-header-btn');
         var dropdown = btn.querySelector('.wishlist-dropdown');
         var timeout;
@@ -316,7 +276,7 @@
         }
 
         function hideDropdown() {
-            timeout = setTimeout(function() {
+            timeout = setTimeout(function () {
                 dropdown.style.display = 'none';
             }, 120);
         }
@@ -330,7 +290,7 @@
 </script>
 <style>
     .mini-wishlist-item-link:hover .mini-wishlist-name {
-        color: #fc1302 !important;
+        color: #fcad02 !important;
         text-decoration: underline;
     }
 
@@ -338,4 +298,120 @@
         background: #fcf3e6 !important;
         text-decoration: none;
     }
+
+    #search-suggestions {
+        display: none;
+        position: absolute;
+        top: 110%;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        z-index: 9999;
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 0;
+    }
+
+    .suggest-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid #f2f2f2;
+        text-decoration: none;
+        color: #222;
+        transition: background 0.15s;
+    }
+
+    .suggest-item:last-child {
+        border-bottom: none;
+    }
+
+    .suggest-item:hover {
+        background: #fcf3e6;
+    }
+
+    .suggest-thumb {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 12px;
+        background: #f8f8f8;
+    }
+
+    .suggest-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .suggest-title {
+        font-size: 15px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .suggest-price {
+        color: #fcad02;
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 2px;
+    }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var input = document.getElementById('search-input');
+    var suggestions = document.getElementById('search-suggestions');
+    var timeout = null;
+
+    input.addEventListener('input', function() {
+        clearTimeout(timeout);
+        var query = this.value.trim();
+        if (query.length < 2) {
+            suggestions.style.display = 'none';
+            suggestions.innerHTML = '';
+            return;
+        }
+        timeout = setTimeout(function() {
+            fetch('/search/suggest?q=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length) {
+                        suggestions.innerHTML = data.map(item => `
+                            <a href="/${item.slug}" class="suggest-item">
+                                <img src="${item.image_url}" class="suggest-thumb" alt="${item.name}">
+                                <div class="suggest-info">
+                                    <div class="suggest-title">${item.name}</div>
+                                    <div class="suggest-price">${item.price}đ</div>
+                                </div>
+                            </a>
+                        `).join('');
+                        suggestions.style.display = 'block';
+                    } else {
+                        suggestions.innerHTML = '<div style="padding:12px;color:#888;">Không tìm thấy sản phẩm</div>';
+                        suggestions.style.display = 'block';
+                    }
+                });
+        }, 250);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.style.display = 'none';
+        }
+    });
+});
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.querySelector('.search-bar');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+        }
+    });
+</script>

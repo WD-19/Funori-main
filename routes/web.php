@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Client\AboutController;
-use App\Http\Controllers\client\AddressController;
 //Client Controller
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
@@ -162,8 +161,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
 });
 
-
-
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
@@ -182,21 +179,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
     Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
-    Route::get('/search', [ClientProductController::class, 'search'])->name('search');
-
-
-    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
-    Route::get('/cart/mini', [CartController::class, 'getMiniCart'])->name('cart.mini');
-    Route::get('/cart/mini-list', [CartController::class, 'miniCart'])->name('cart.miniList');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
-    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
-    Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update.post');
-    Route::delete('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
-    Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove.post');
-    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
-    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear.post');
-
-
+    Route::get('/search/suggest', [ShopController::class, 'suggest'])->name('search');
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);
@@ -206,7 +189,14 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
-    
+    // Route giỏ hàng (Cart)
+    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+    // Đảm bảo route này là POST, vì JS gọi POST /cart/remove
+    Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+    // JS gọi POST nên route phải là POST
+    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
 
 
@@ -233,21 +223,6 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
         Route::post('/account', [ProfileController::class, 'updateAccount'])->name('account.update');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
-        Route::get('/password', [ProfileController::class, 'password'])->name('password');
-        Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
-
-
-        // tài khoản
-        Route::post('/account/update', [ProfileController::class, 'updateAccount'])->name('account.update');
-
-        // Địa chỉ
-        Route::post('/address/store', [AddressController::class, 'store'])->name('address.store');
-        Route::delete('/address/{address}', [AddressController::class, 'destroy'])->name('address.destroy');
-        // THiết lập địa chỉ giao hàng mặc định
-        Route::post('/profile/address/{address}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
-        // Hiển thị form sửa (trả về JSON)
-        Route::get('/address/{address}/edit', [AddressController::class, 'edit'])->name('profile.address.edit');
-        Route::post('/address/{address}/update', [AddressController::class, 'update'])->name('profile.address.update');
     });
 
     // Route chi tiết sản phẩm (để cuối cùng để không bắt các route khác)
