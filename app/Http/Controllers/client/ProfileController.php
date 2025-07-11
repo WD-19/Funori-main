@@ -4,12 +4,12 @@ namespace App\Http\Controllers\client;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\Address;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Hash;
 
-class ProfileController 
+class ProfileController
 {
     public function dashboard()
     {
@@ -36,44 +36,47 @@ class ProfileController
 
     public function account()
     {
-            $user = Auth::user();
-        return view('client.profile.account', [ 'pageTitle' => 'Account Details', 'user' => $user
+        $user = Auth::user();
+
+        return view('client.profile.account', [
+            'pageTitle' => 'Account Details',
+            'user' => $user
         ]);
     }
 
-    // public function updateAccount(Request $request)
-    // {
-    //     $user = Auth::user();
- 
-    //     $validated = $request->validate([
-    //         'full_name' => 'required|string|max:255',
-    //         'phone' => ['required', 'string', 'max:15', Rule::unique('users')->ignore($user->id)],
-    //         'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-    //         'address' => 'nullable|string|max:255',
-    //         // Nếu người dùng nhập địa chỉ cụ thể, thì Tỉnh/Quận/Phường là bắt buộc
-    //         'province' => ['required_with:address', 'nullable', 'string', 'max:255'],
-    //         'district' => ['required_with:address', 'nullable', 'string', 'max:255'],
-    //         'ward' => ['required_with:address', 'nullable', 'string', 'max:255'],
-    //         'password' => 'nullable|string|min:8|confirmed',
-    //     ], [
-    //         // Thêm thông báo lỗi tùy chỉnh
-    //         'province.required_with' => 'Vui lòng chọn Tỉnh/Thành phố khi đã nhập địa chỉ cụ thể.',
-    //         'district.required_with' => 'Vui lòng chọn Quận/Huyện khi đã nhập địa chỉ cụ thể.',
-    //         'ward.required_with' => 'Vui lòng chọn Phường/Xã khi đã nhập địa chỉ cụ thể.',
-    //     ]);
+    public function updateAccount(Request $request)
+    {
+        $user = Auth::user();
 
-    //     // Cập nhật thông tin chính
-    //     $user->fill($request->only(['full_name', 'phone', 'email', 'address', 'province', 'district', 'ward']));
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'phone' => ['required', 'string', 'max:15', Rule::unique('users')->ignore($user->id)],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'address' => 'nullable|string|max:255',
+            // Nếu người dùng nhập địa chỉ cụ thể, thì Tỉnh/Quận/Phường là bắt buộc
+            'province' => ['required_with:address', 'nullable', 'string', 'max:255'],
+            'district' => ['required_with:address', 'nullable', 'string', 'max:255'],
+            'ward' => ['required_with:address', 'nullable', 'string', 'max:255'],
+            'password' => 'nullable|string|min:8|confirmed',
+        ], [
+            // Thêm thông báo lỗi tùy chỉnh
+            'province.required_with' => 'Vui lòng chọn Tỉnh/Thành phố khi đã nhập địa chỉ cụ thể.',
+            'district.required_with' => 'Vui lòng chọn Quận/Huyện khi đã nhập địa chỉ cụ thể.',
+            'ward.required_with' => 'Vui lòng chọn Phường/Xã khi đã nhập địa chỉ cụ thể.',
+        ]);
 
-    //     // Cập nhật mật khẩu nếu có
-    //     if (!empty($validated['password'])) {
-    //         $user->password = Hash::make($validated['password']);
-    //     }
+        // Cập nhật thông tin chính
+        $user->fill($request->only(['full_name', 'phone', 'email', 'address', 'province', 'district', 'ward']));
 
-    //     $user->save();
+        // Cập nhật mật khẩu nếu có
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
 
-    //     return back()->with('success', 'Cập nhật thông tin tài khoản thành công!');
-    // }
+        $user->save();
+
+        return back()->with('success', 'Cập nhật thông tin tài khoản thành công!');
+    }
     public function storeAddress(Request $request)
     {
         $request->validate([
@@ -182,7 +185,7 @@ class ProfileController
             // Tìm kiếm theo tên sản phẩm
             if ($request->filled('search')) {
                 $search = $request->input('search');
-                $query = $query->whereHas('product', function($q) use ($search) {
+                $query = $query->whereHas('product', function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%');
                 });
             }
@@ -195,69 +198,5 @@ class ProfileController
             $wishlistItems = collect();
         }
         return view('client.profile.wishlist', compact('wishlistItems'));
-    }
-
-    public function updateAccount(Request $request)
-    {
-        $user = Auth::user();
-        $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'phone_number' => 'nullable|string|max:20',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
-        ]);
-
-        $user->full_name = $request->full_name;
-        $user->email = $request->email;
-        $user->phone_number = $request->phone_number;
-
-        if ($request->hasFile('avatar')) {
-            // Xóa ảnh cũ nếu có và không phải ảnh mặc định
-            if ($user->avatar_url && !str_contains($user->avatar_url, 'default-avatar.png')) {
-                $oldPath = str_replace('storage/', '', $user->avatar_url);
-                Storage::disk('public')->delete($oldPath);
-            }
-            // Lưu ảnh mới
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar_url = 'storage/' . $avatarPath;
-        }
-
-        $user->save();
-
-        return redirect()->back()->with('success', 'Cập nhật thông tin thành công!');
-    }
-
-    public function password()
-    {
-        return view('client.profile.password');
-    }
-
-    public function updatePassword(Request $request)
-    {
-        $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|string|min:6|confirmed',
-        ], [
-            'new_password.confirmed' => 'Xác nhận mật khẩu không khớp.',
-            'new_password.min' => 'Mật khẩu mới phải có ít nhất 6 ký tự.',
-        ]);
-
-        $user = Auth::user();
-
-        // Kiểm tra mật khẩu cũ
-        if (!Hash::check($request->current_password, $user->password)) {
-            return back()->with('error', 'Mật khẩu cũ không đúng.');
-        }
-
-        // Nếu giống mật khẩu cũ thì báo lỗi
-        if (Hash::check($request->new_password, $user->password)) {
-            return back()->with('error', 'Mật khẩu mới không được trùng với mật khẩu cũ.');
-        }
-
-        // Đổi mật khẩu
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-
-        return back()->with('success', 'Đổi mật khẩu thành công!');
     }
 }
