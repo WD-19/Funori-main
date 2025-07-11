@@ -1,36 +1,9 @@
-# Laravel .env file
 .env
-
-
-# Laravel logs, caches, sessions
 /storage/*.key
 /storage/*.log
 /storage/app/*
 /storage/framework/*
 /storage/logs/*
 /storage/views/*
+/storage/public
 /storage/sessions/*
-/storage/public/*
-
-
-# Cache & debug files
-.phpunit.result.cache
-/public/hot
-/public/storage
-/public/mix-manifest.json
-/public/js/*.map
-/public/css/*.map
-
-# IDEs and editors
-/.vscode/
-/.idea/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Others
-.env.backup
-.env.example.local
-npm-debug.log
-yarn-error.log
