@@ -2,11 +2,11 @@
 
 @section('title', $product->name)
 <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/fonts.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">s
-<link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/fonts/font-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/swiper-bundle.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 @section('content')
     <!-- Kiểm tra xem người dùng đã đăng nhập và có danh sách yêu thích -->
     @php

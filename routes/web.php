@@ -178,8 +178,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
     Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
-    Route::get('/search', [ClientProductController::class, 'search'])->name('search');
-
+    Route::get('/search/suggest', [ShopController::class, 'suggest'])->name('search');
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);

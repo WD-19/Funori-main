@@ -66,7 +66,7 @@
                             <a href="{{ route('shop', array_merge(request()->except('page'), ['brand_id' => $brand->id])) }}"
                                 style="display:block;{{ request('brand_id') == $brand->id ? 'border:2px solid #fcad02;border-radius:8px;' : '' }}">
                                 @if ($brand->logo_url)
-                                    <img src="{{ asset('storage/' . $brand->logo_url) }}" alt="{{ $brand->name }}"
+                                    <img style="width: 100% ;" src="{{ asset('storage/' . $brand->logo_url) }}" alt="{{ $brand->name }}"
                                         style="max-width:60px;max-height:60px;">
                                 @else
                                     <div
@@ -179,13 +179,13 @@
                             </a>
                             <div class="box-icon-new-product">
                                 <a href="{{ route('client.product.show', $product->slug) }}"><i style="font-size: 19px;"
-                                        id="cart-Product" class="fa-solid fa-cart-shopping"></i></a>
+                                        id="search-Product" class="fa-solid fa-magnifying-glass" ></i></a>
                                 <button class="wishlist-btn" data-product-id="{{ $product->id }}"
                                     style="background:none;border:none;padding:0;cursor:pointer;">
                                     <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
                                         class="fa-solid fa-heart" id="heart-Product"></i>
                                 </button>
-                                <i style="font-size: 18px;" id="search-Product" class="fa-solid fa-magnifying-glass"></i>
+                                <i style="font-size: 18px;" id="cart-Product" class="fa-solid fa-cart-shopping"></i>
                             </div>
                         </div>
                         <div class="box-star" style="width: 100%; height: 23px;">

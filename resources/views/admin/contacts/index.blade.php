@@ -64,25 +64,25 @@
                 </div>
                 <div class="wg-table table-all-category">
                     <ul class="table-title flex gap20 mb-14">
-                        <li>
+                        <li style="width: 35%;">
                             <div class="body-title">Email</div>
                         </li>
-                        <li>
+                        <li style="width: 35%;">
                             <div class="body-title">Họ tên</div>
                         </li>
-                        <li>
+                        <li style="width: 15%;">
                             <div class="body-title">Trạng thái</div>
                         </li>
-                        <li>
+                        <li  style="width: 15%;">
                             <div class="body-title">Thao tác</div>
                         </li>
                     </ul>
                     <ul class="flex flex-column">
                         @foreach ($contacts as $value)
-                            <li class="wg-product item-row gap20">
-                                <div class="body-text text-main-dark mt-4">{{ $value->email }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ Str::limit($value->name, 30) }}</div>
-                                <div>
+                            <li  class="wg-product item-row gap20">
+                                <div  style="width: 35%;" class="body-text text-main-dark mt-4">{{ $value->email }}</div>
+                                <div style="width: 35%;" class="body-text text-main-dark mt-4">{{ Str::limit($value->name, 30) }}</div>
+                                <div  style="width: 15%;">
                                     <div class="block-available status-{{ $value->status }} fw-7">
                                         @php
                                             $statusText = match ($value->status) {
@@ -96,7 +96,7 @@
                                         {{ $statusText }}
                                     </div>
                                 </div>
-                                <div class="list-icon-function">
+                                <div  style="width: 15%;" class="list-icon-function">
                                     <div class="item eye" data-bs-toggle="modal"
                                         data-bs-target="#quickViewModal{{ $value->id }}">
                                         <i class="icon-eye"></i>
