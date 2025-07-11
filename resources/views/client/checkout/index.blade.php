@@ -159,6 +159,7 @@
         <div class="container">
             <form action="{{ route('client.checkout.process') }}" method="POST" class="checkout-form">
                 @csrf
+                <input type="hidden" name="selected_items" value="{{ request('selected_items') }}">
                 <div class="row">
                     <div class="col-lg-7">
                         <!-- Buyer Information Form -->

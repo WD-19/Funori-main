@@ -318,11 +318,14 @@
                                     </label>
                                 </div>
                                 <div class="cart-checkout-btn" style="margin-top: 18px;">
-                                    <a href="{{ route('client.checkout.index') }}"
-                                        class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center {{ empty($cartItems) ? 'disabled' : '' }}"
-                                        style="{{ empty($cartItems) ? 'pointer-events: none; opacity: 0.5;' : '' }}">
-                                        <span>Đặt hàng</span>
-                                    </a>
+                                    <form id="checkout-selected-form" action="{{ route('client.checkout.index') }}" method="GET">
+                                        <input type="hidden" name="selected_items" id="selected-items-input" value="">
+                                        <button type="submit"
+                                            class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center {{ empty($cartItems) ? 'disabled' : '' }}"
+                                            style="{{ empty($cartItems) ? 'pointer-events: none; opacity: 0.5;' : '' }}">
+                                            <span>Đặt hàng</span>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -756,6 +759,8 @@
                 .then(data => {
                     if (data && data.success) {
                         console.log('Server updated successfully');
+                        // Reload lại trang để đảm bảo dữ liệu session mới nhất
+                        location.reload();
                     }
                 })
                 .catch(error => {
@@ -886,6 +891,23 @@
         if (agreeCheckbox) {
             agreeCheckbox.addEventListener('change', toggleCheckoutState);
             toggleCheckoutState(); // Gọi khi load trang
+        }
+
+        // Thay thế đoạn xử lý nút checkout cũ bằng:
+        const checkoutForm = document.getElementById('checkout-selected-form');
+        const selectedItemsInput = document.getElementById('selected-items-input');
+        if (checkoutForm && selectedItemsInput) {
+            checkoutForm.addEventListener('submit', function(e) {
+                const checked = document.querySelectorAll('.cart-item-checkbox:checked');
+                if (checked.length === 0) {
+                    alert('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán!');
+                    e.preventDefault();
+                    return false;
+                }
+                // Lấy danh sách id sản phẩm đã chọn
+                const ids = Array.from(checked).map(cb => cb.dataset.itemId);
+                selectedItemsInput.value = ids.join(',');
+            });
         }
     });
 </script>

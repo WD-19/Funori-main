@@ -21,9 +21,24 @@ class CheckoutController
     /**
      * Hiển thị trang thanh toán duy nhất (One-Page Checkout).
      */
-    public function index()
+    public function index(Request $request)
     {
         $cart = Session::get('cart');
+        // Lấy danh sách id sản phẩm đã chọn từ query string
+        $selectedItems = $request->query('selected_items');
+        $selectedIds = $selectedItems ? explode(',', $selectedItems) : [];
+
+        // Nếu có chọn, chỉ lấy các item có id trong $selectedIds
+        if (!empty($selectedIds)) {
+            // Sửa lại: lấy đúng item từ session (đã cập nhật số lượng mới nhất)
+            $cart['items'] = array_values(array_filter($cart['items'], function($item) use ($selectedIds) {
+                return in_array($item['id'], $selectedIds);
+            }));
+            // Tính lại tổng tiền theo số lượng mới nhất
+            $cart['total'] = array_sum(array_map(function($item) {
+                return $item['price_at_addition'] * $item['quantity'];
+            }, $cart['items']));
+        }
 
         // Kiểm tra giỏ hàng có trống không
         if (empty($cart['items'])) {
@@ -125,7 +140,20 @@ class CheckoutController
 
         $validatedData = $request->validate($rules, $messages, $attributes);
 
+        $selectedItems = $request->input('selected_items');
+        $selectedIds = $selectedItems ? explode(',', $selectedItems) : [];
+
         $cart = Session::get('cart');
+        // Nếu có chọn, chỉ lấy các item có id trong $selectedIds
+        if (!empty($selectedIds)) {
+            $cart['items'] = array_filter($cart['items'], function($item) use ($selectedIds) {
+                return in_array($item['id'], $selectedIds);
+            });
+            $cart['total'] = array_sum(array_map(function($item) {
+                return $item['price_at_addition'] * $item['quantity'];
+            }, $cart['items']));
+        }
+
         if (empty($cart['items'])) {
             return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống!');
         }
@@ -265,8 +293,24 @@ class CheckoutController
                 // --- END: Cập nhật kho hàng an toàn ---
             }
 
-            Session::forget('cart');
-            DB::commit();
+            $cartItems = Session::get('cart.items', []);
+if (!empty($cartItems)) {
+    $cartItems = array_filter($cartItems, function($item) use ($selectedIds) {
+        return !in_array($item['id'], $selectedIds);
+    });
+    $cartTotal = array_sum(array_map(function($item) {
+        return $item['price_at_addition'] * $item['quantity'];
+    }, $cartItems));
+    if (count($cartItems) > 0) {
+        Session::put('cart.items', $cartItems);
+        Session::put('cart.total', $cartTotal);
+    } else {
+        Session::forget('cart');
+    }
+} else {
+    Session::forget('cart');
+}
+DB::commit();
 
             return redirect()->route('client.checkout.success', ['order' => $order->id])
                 ->with('success', 'Đặt hàng thành công!');
