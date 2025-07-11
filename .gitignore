@@ -1,11 +1,6 @@
 # Laravel .env file
 .env
 
-# Composer dependencies
-/vendor/
-
-# Node dependencies
-/node_modules/
 
 # Laravel logs, caches, sessions
 /storage/*.key
@@ -16,15 +11,7 @@
 /storage/views/*
 /storage/sessions/*
 /storage/public/*
-!/storage/.gitignore
-!/storage/logs/.gitignore
-!/storage/framework/.gitignore
-!/storage/app/public/.gitignore
 
-# Laravel IDE Helper (nếu dùng)
-._ide_helper.php
-/_ide_helper_models.php
-/vendor/_laravel_ide/
 
 # Cache & debug files
 .phpunit.result.cache
