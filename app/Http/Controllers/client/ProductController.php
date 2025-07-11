@@ -6,6 +6,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Review;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Auth;
 
 class ProductController
@@ -46,7 +47,7 @@ class ProductController
 
     public function store(Request $request, $productId)
     {
-        $userId = \Illuminate\Support\Facades\Auth::id();
+        $userId = Auth::id();
 
         // Validate đầu vào
         $request->validate([
@@ -55,7 +56,7 @@ class ProductController
         ]);
 
         // Kiểm tra user đã từng mua sản phẩm này chưa
-        $orderItem = \App\Models\OrderItem::where('product_id', $productId)
+        $orderItem = OrderItem::where('product_id', $productId)
             ->whereHas('order', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
@@ -66,7 +67,7 @@ class ProductController
         }
 
         // OPTIONAL: Kiểm tra đã đánh giá rồi chưa (1 lần duy nhất)
-        $alreadyReviewed = \App\Models\Review::where('user_id', $userId)
+        $alreadyReviewed = Review::where('user_id', $userId)
             ->where('product_id', $productId)
             ->exists();
 
@@ -75,7 +76,7 @@ class ProductController
         }
 
         // Tạo đánh giá
-        \App\Models\Review::create([
+        Review::create([
             'user_id' => $userId,
             'product_id' => $productId,
             'order_item_id' => $orderItem->id,
@@ -86,26 +87,5 @@ class ProductController
 
         return back()->with('success', 'Gửi đánh giá thành công! Đánh giá của bạn sẽ được duyệt sớm.');
     }
-
-    public function search(Request $request)
-    {
-        $query = Product::query();
-
-        // Nếu có keyword thì tìm theo tên hoặc mô tả
-        if ($request->filled('keyword')) {
-            $keyword = $request->keyword;
-            $query->where(function ($q) use ($keyword) {
-                $q->where('name', 'like', '%' . $keyword . '%')
-                    ->orWhere('description', 'like', '%' . $keyword . '%');
-            });
-        }
-
-        // Sắp xếp theo ngày tạo mới nhất
-        $query->orderBy('created_at', 'desc');
-
-        // Lấy kết quả phân trang
-        $products = $query->paginate(12)->appends($request->all());
-
-        return view('client.product.search', compact('products'));
-    }
+    
 }
