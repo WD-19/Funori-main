@@ -6,6 +6,7 @@
 
 
 <!-- Mirrored from themesflat.co/html/ecomus/admin-ecomus/login.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 06 Nov 2024 14:58:58 GMT -->
+
 <head>
     <!-- Basic Page Needs -->
     <meta charset="utf-8">
@@ -35,7 +36,7 @@
     <!-- Favicon and Touch Icons  -->
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
     <link rel="apple-touch-icon-precomposed" href="{{ asset('images/favicon.png') }}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 
 <body class="body">
@@ -43,30 +44,33 @@
     <!-- #wrapper -->
     <div id="wrapper">
         <!-- #page -->
-        @if (session('success'))
-                    <x-alert type="success">
-                        {{ session('success') }}
-                    </x-alert>
-                @endif
-
-                @if (session('error'))
-                    <x-alert type="danger">
-                        {{ session('error') }}
-                    </x-alert>
-                @endif
         @yield('content')
         <!-- /#page -->
     </div>
     <!-- /#wrapper -->
 
-    <!-- Javascript -->
     <script src="{{ asset('js/jquery.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap-select.min.js') }}"></script>
     <script defer src="{{ asset('js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            toastr.options = {
+                "positionClass": "toast-bottom-right",
+                "timeOut": "3000",
+                "closeButton": true,
+                "progressBar": true
+            };
+            @if (session('success'))
+                toastr.success("{{ session('success') }}");
+            @endif
 
+            @if (session('error'))
+                toastr.error("{{ session('error') }}");
+            @endif
+        });
+    </script>
 </body>
 
-
 </html>
-

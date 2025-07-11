@@ -80,7 +80,7 @@ class AppServiceProvider extends ServiceProvider
                             return $attrVal->attribute->name . ': ' . $attrVal->value;
                         })->all() ?? [],
                         'quantity' => $item['quantity'],
-                        'price_at_addition' => $item['price'],
+                        'price_at_addition' => $item['price'] ?? null,
                         'image_url' => $variant->image->image_url ?? ($product->images[0]->image_url ?? null),
                     ];
                 })->filter()->values()->all();

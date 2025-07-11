@@ -155,16 +155,13 @@ Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
 
-
-Route::middleware(['auth'])->group(function () {
-    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
-    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
-});
-
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
+
+    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
+    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
@@ -174,6 +171,8 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
+    Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('page.show');
+    
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
