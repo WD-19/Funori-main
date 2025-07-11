@@ -193,10 +193,11 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
-    // Đảm bảo route này là POST, vì JS gọi POST /cart/remove
     Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
-    // JS gọi POST nên route phải là POST
     Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+    Route::get('/cart/mini-list', [CartController::class, 'miniCart'])->name('cart.miniList');
+
+
 
 
 
@@ -228,6 +229,7 @@ Route::prefix('/')->name('client.')->group(function () {
     // Route chi tiết sản phẩm (để cuối cùng để không bắt các route khác)
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });
+
 
 // Fallback cho các route không tồn tại
 Route::fallback(function () {

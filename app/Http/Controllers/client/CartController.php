@@ -176,6 +176,12 @@ class CartController
             if ($cartItem) {
                 $cartItem->quantity += $quantity;
                 $cartItem->save();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Sản phẩm đã có trong giỏ hàng, đã tăng số lượng.',
+                    'cart_count' => $cart->items()->count(),
+                    'already_exists' => true
+                ]);
             } else {
                 $cart->items()->create([
                     'product_id' => $product->id,
@@ -183,13 +189,13 @@ class CartController
                     'quantity' => $quantity,
                     'price_at_addition' => $price
                 ]);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Sản phẩm đã được thêm vào giỏ hàng',
+                    'cart_count' => $cart->items()->count(),
+                    'already_exists' => false
+                ]);
             }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Sản phẩm đã được thêm vào giỏ hàng',
-                'cart_count' => $cart->items()->count()
-            ]);
         } else {
             // Guest
             $cart = Session::get('cart', []);
@@ -357,7 +363,7 @@ class CartController
             return response()->json([
                 'success' => true,
                 'message' => 'Đã xóa sản phẩm khỏi giỏ hàng!',
-                'cartCount' => $cartCount 
+                'cartCount' => $cartCount
             ]);
         } else {
             // Guest: vẫn dùng key như cũ
@@ -578,18 +584,18 @@ class CartController
                     'productVariant.image',
                     'productVariant.attributeValues.attribute'
                 ])->where('cart_id', $cart->id)
-                  ->orderByDesc('created_at')
-                  ->limit(3)
-                  ->get()
-                  ->map(function ($item) {
-                      return [
-                          'product' => $item->product,
-                          'image_url' => $item->productVariant && $item->productVariant->image ? $item->productVariant->image->image_url : ($item->product && $item->product->images->first() ? $item->product->images->first()->image_url : 'images/products/no-image.png'),
-                          'price_at_addition' => $item->price_at_addition,
-                          'quantity' => $item->quantity,
-                          'variant' => $item->productVariant,
-                      ];
-                  });
+                    ->orderByDesc('created_at')
+                    ->limit(3)
+                    ->get()
+                    ->map(function ($item) {
+                        return [
+                            'product' => $item->product,
+                            'image_url' => $item->productVariant && $item->productVariant->image ? $item->productVariant->image->image_url : ($item->product && $item->product->images->first() ? $item->product->images->first()->image_url : 'images/products/no-image.png'),
+                            'price_at_addition' => $item->price_at_addition,
+                            'quantity' => $item->quantity,
+                            'variant' => $item->productVariant,
+                        ];
+                    });
                 $cartCount = $cart->items()->count();
             }
         } else {

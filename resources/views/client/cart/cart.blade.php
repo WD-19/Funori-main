@@ -306,9 +306,8 @@
                                     <div
                                         style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; color: #ff3029;">
                                         <span>Tổng cộng</span>
-                                        <span class="grand-total-value">
-                                            {{ number_format($total - ($discount ?? 0) + ($shipping_fee ?? 0), 0, ',', '.') }}đ
-                                        </span>
+                                        <span class="grand-total-value"
+                                            data-real-total="{{ $total - ($discount ?? 0) + ($shipping_fee ?? 0) }}">0đ</span>
                                     </div>
                                 </div>
                                 <div class="cart-checkbox" style="margin-top: 18px;">
@@ -859,6 +858,23 @@
 
 
         const agreeCheckbox = document.getElementById('check-agree');
+        const grandTotalElement = document.querySelector('.grand-total-value');
+        if (agreeCheckbox && grandTotalElement) {
+            function updateGrandTotal() {
+                if (agreeCheckbox.checked) {
+                    // Lấy số thực từ data-real-total, loại bỏ khoảng trắng và xuống dòng
+                    let realTotal = grandTotalElement.dataset.realTotal;
+                    realTotal = realTotal.replace(/\s/g, ''); // loại bỏ khoảng trắng
+                    let number = parseInt(realTotal, 10) || 0;
+                    grandTotalElement.textContent = number.toLocaleString('vi-VN') + 'đ';
+                } else {
+                    grandTotalElement.textContent = '0đ';
+                }
+            }
+            agreeCheckbox.addEventListener('change', updateGrandTotal);
+            updateGrandTotal(); // Gọi khi load trang
+        }
+
         const checkoutBtn = document.querySelector('.cart-checkout-btn a');
         const checkoutDiv = document.querySelector('.cart-checkout-btn');
 
