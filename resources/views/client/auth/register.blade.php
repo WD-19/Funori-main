@@ -1,4 +1,5 @@
 @extends('client.auth.layout.auth')
+
 @section('title', 'Đăng ký')
 
 @section('content')
@@ -30,7 +31,8 @@
                                         <input class="flex-grow" type="text" placeholder="Nhập họ và tên" name="name"
                                             tabindex="0" value="{{ old('name') }}">
                                         @error('name')
-                                            <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
+                                            <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">
+                                                {{ $message }}</div>
                                         @enderror
                                     </fieldset>
                                 </div>
@@ -41,7 +43,8 @@
                                 <input class="flex-grow" type="email" placeholder="Nhập địa chỉ email" name="email"
                                     tabindex="0" value="{{ old('email') }}">
                                 @error('email')
-                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
+                                    </div>
                                 @enderror
                             </fieldset>
                             <fieldset class="phone">
@@ -50,7 +53,8 @@
                                 <input class="flex-grow" type="text" placeholder="Nhập số điện thoại" name="phone"
                                     tabindex="0" value="{{ old('phone') }}">
                                 @error('phone')
-                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
+                                    </div>
                                 @enderror
                             </fieldset>
                             <fieldset class="password">
@@ -62,7 +66,8 @@
                                     <i class="icon-eye-off hide"></i>
                                 </span>
                                 @error('password')
-                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
+                                    </div>
                                 @enderror
                             </fieldset>
                             <fieldset class="password">
@@ -75,7 +80,8 @@
                                     <i class="icon-eye-off hide"></i>
                                 </span>
                                 @error('password_confirmation')
-                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
+                                    </div>
                                 @enderror
                             </fieldset>
                             <div class="flex justify-between items-center">
@@ -120,6 +126,22 @@
                     btn.style.cursor = 'not-allowed';
                 }
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            toastr.options = {
+                "positionClass": "toast-bottom-right",
+                "timeOut": "3000",
+                "closeButton": true,
+                "progressBar": true
+            };
+            @if (session('success'))
+                toastr.success("{{ session('success') }}");
+            @endif
+
+            @if (session('error'))
+                toastr.error("{{ session('error') }}");
+            @endif
         });
     </script>
 @endsection

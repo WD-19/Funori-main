@@ -1,10 +1,8 @@
 @extends('client.auth.layout.auth')
 
-@section('title', 'Login')
+@section('title', 'Đăng Nhập')
 
 @section('content')
-
-
 
 <!-- #wrapper -->
 <div id="wrapper">
