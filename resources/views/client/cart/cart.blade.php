@@ -52,16 +52,13 @@
 
     @php
         // Không còn 4 bước, chỉ cần 2 bước: giỏ hàng -> checkout
-        $steps = [
-            ['label' => 'Giỏ hàng', 'key' => 'cart'],
-            ['label' => 'Thanh toán', 'key' => 'checkout'],
-        ];
+        $steps = [['label' => 'Giỏ hàng', 'key' => 'cart'], ['label' => 'Thanh toán', 'key' => 'checkout']];
         $currentStep = 'cart';
     @endphp
 
     <div class="tf-page-title">
         <div class="container-full">
-            <div class="heading text-center">@yield('page_title','Giỏ Hàng')</div>
+            <div class="heading text-center">@yield('page_title', 'Giỏ Hàng')</div>
         </div>
     </div>
 

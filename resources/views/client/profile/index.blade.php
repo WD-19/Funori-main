@@ -1,11 +1,12 @@
 @extends('client.layout.client')
 
-@section('title', $pageTitle ?? 'My Account')
+@section('title', 'Thông Tin Tài Khoản')
+@section('page_title', 'Thông Tin Tài Khoản')
 
 @section('content')
     <div class="tf-page-title">
         <div class="container-full">
-            <div class="heading text-center">{{ $pageTitle ?? 'My Account' }}</div>
+            <div class="heading text-center">@yield('page_title')</div>
         </div>
     </div>
     <!-- /page-title -->

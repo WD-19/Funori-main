@@ -1,5 +1,8 @@
 @extends('client.profile.index')
 
+@section('title', 'Địa chỉ')
+@section('page_title', 'Địa chỉ')
+
 @section('content_profile')
     <div class="my-account-content account-address">
                             <div class="text-center widget-inner-address">
@@ -68,7 +71,7 @@
                                         <div>Bạn chưa có địa chỉ nào.</div>
                                     @endforelse
                                 </div>
-                                
+
                             </div>
                         </div>
     @if ($errors->any())

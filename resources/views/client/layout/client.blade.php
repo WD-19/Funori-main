@@ -21,10 +21,6 @@
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 
-
-    <!-- Toastr CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -64,4 +60,23 @@
 <!-- Toastr JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        toastr.options = {
+            "positionClass": "toast-bottom-right",
+            "timeOut": "3000",
+            "closeButton": true,
+            "progressBar": true
+        };
+        @if (session('success'))
+            toastr.success("{{ session('success') }}");
+        @endif
+
+        @if (session('error'))
+            toastr.error("{{ session('error') }}");
+        @endif
+    });
+</script>
+
 </html>
