@@ -4,7 +4,7 @@
 @section('content')
 
     <div class="box-banner-shop"
-        @if (isset($mainBanner)) style="background: url('{{ asset('storage/' . $mainBanner->image_url) }}') center center/cover no-repeat; border-radius: 16px; min-height: 260px; position: relative;" @endif>
+        @if (isset($mainBanner)) style=" background: url('{{ asset('storage/' . $mainBanner->image_url) }}') center center/cover no-repeat; border-radius: 16px; min-height: 260px; position: relative;" @endif>
         <div class="in-box-banner" style=" border-radius: 16px; padding: 32px; position: absolute; top: 0;">
             <div class="tf-page-title">
                 <div class="container-full" style="padding: 19px 0px;">
