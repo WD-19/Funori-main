@@ -2,9 +2,6 @@
 
 @section('title', 'Trang chủ')
 <link rel="stylesheet" href="{{ asset('css/cart.css') }}">
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 
 <style>
     .delete-selected-btn {
@@ -48,50 +45,6 @@
         border: 1px solid #ff3029 !important;
         border-radius: 4px !important;
         padding: 2px 4px !important;
-    }
-
-    .list-product-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-    }
-    .list-product-btn .box-icon {
-        margin: 0;
-        padding: 0;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    /* Xóa hoặc giảm khoảng cách dưới phần "You may also like" */
-    .flat-spacing-17,
-    .container1,
-    .swiper {
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
-    }
-
-    /* Xóa khoảng trống dưới phần sản phẩm gợi ý */
-    .flat-spacing-17,
-    .container1,
-    .swiper,
-    .swiper-wrapper,
-    .swiper-slide {
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
-        min-height: 0 !important;
-        height: auto !important;
-    }
-
-    /* Xóa chiều cao cố định hoặc min-height của swiper và các thành phần con */
-    .swiper,
-    .swiper-wrapper,
-    .swiper-slide {
-        min-height: 0 !important;
-        height: auto !important;
     }
 </style>
 
@@ -295,13 +248,60 @@
                                 </div> --}}
                         </div>
                         <div class="tf-page-cart-checkout">
-                          
+                            <div class="shipping-calculator">
+                                <summary
+                                    class="accordion-shipping-header d-flex justify-content-between align-items-center collapsed"
+                                    data-bs-target="#shipping" data-bs-toggle="collapse" aria-controls="shipping">
+                                    <h3 class="shipping-calculator-title">Tính phí vận chuyển</h3>
+                                    <span class="shipping-calculator_accordion-icon"></span>
+                                </summary>
+                                <div class="collapse" id="shipping">
+                                    <div class="accordion-shipping-content">
+                                        <fieldset class="field">
+                                            <label class="label">Chọn tỉnh/thành phố</label>
+                                            <select class="tf-select w-100" id="ShippingCountry_CartDrawer-Form"
+                                                name="address[country]" data-default="">
+
+                                            </select>
+                                        </fieldset>
+                                        <fieldset class="field">
+                                            <label class="label">Chọn Xã</label>
+                                            <select class="tf-select w-100" id="ShippingCountry_CartDrawer-Form"
+                                                name="address[country]" data-default="">
+
+                                            </select>
+                                        </fieldset>
+                                        <fieldset class="field">
+                                            <label class="label">Địa chỉ cụ thể</label>
+                                            <input type="text" name="text" placeholder="">
+                                        </fieldset>
+                                        <button class="tf-btn btn-fill animate-hover-btn radius-3 justify-content-center">
+                                            <span>Ước tính</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div style="font-family: 'Inter', Arial, Helvetica, sans-serif;">
-                               
+                                <div class="tf-cart-totals-discounts">
+                                    <h3 style="font-weight: 600; font-size: 18px;">Tổng tiền hàng</h3>
+                                    <span class="total-value"
+                                        style="font-size: 18px;">{{ number_format($total, 0, ',', '.') }}đ</span>
+                                </div>
 
                                 <div class="tf-cart-discount-fee" style="margin-top: 24px;">
-                                   
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span>Giảm giá</span>
+                                        <span
+                                            class="discount-value">-{{ isset($discount) ? number_format($discount, 0, ',', '.') : '0' }}đ</span>
+                                    </div>
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <span>Phí vận chuyển</span>
+                                        <span
+                                            class="shipping-fee-value">{{ isset($shipping_fee) ? number_format($shipping_fee, 0, ',', '.') : '0' }}đ</span>
+                                    </div>
                                     <hr style="margin: 8px 0;">
                                     <div
                                         style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; color: #ff3029;">
@@ -317,11 +317,14 @@
                                     </label>
                                 </div>
                                 <div class="cart-checkout-btn" style="margin-top: 18px;">
-                                    <a href="{{ route('client.checkout.index') }}"
-                                        class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center {{ empty($cartItems) ? 'disabled' : '' }}"
-                                        style="{{ empty($cartItems) ? 'pointer-events: none; opacity: 0.5;' : '' }}">
-                                        <span>Đặt hàng</span>
-                                    </a>
+                                    <form id="checkout-selected-form" action="{{ route('client.checkout.index') }}" method="GET">
+                                        <input type="hidden" name="selected_items" id="selected-items-input" value="">
+                                        <button type="submit"
+                                            class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center {{ empty($cartItems) ? 'disabled' : '' }}"
+                                            style="{{ empty($cartItems) ? 'pointer-events: none; opacity: 0.5;' : '' }}">
+                                            <span>Đặt hàng</span>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -336,61 +339,79 @@
     <section class="flat-spacing-17 pt_0">
         <div class="container1">
             <div class="flat-title">
-                <span class="title">SẢN PHẨM MỚI</span>
+                <span class="title">You may also like</span>
             </div>
             <div class="hover-sw-nav hover-sw-2">
                 <div dir="ltr" class="swiper tf-sw-product-sell wrap-sw-over" data-preview="4" data-tablet="3"
                     data-mobile="2" data-space-lg="30" data-space-md="15" data-pagination="2" data-pagination-md="3"
                     data-pagination-lg="3">
                     <div class="swiper-wrapper">
-                        @foreach($newestProducts as $product)
-                            <div class="swiper-slide" lazy="true">
-                                <div class="card-product">
-                                    <div class="card-product-wrapper">
-                                        <a href="{{ route('client.product.show', $product->slug) }}" class="product-img">
-                                            <img class="lazyload img-product"
-                                                 src="{{ asset($product->images[0]->image_url ?? 'images/products/no-image.png') }}"
-                                                 alt="image-product">
-                                            <!-- Nếu muốn ảnh hover, có thể lấy ảnh thứ 2 nếu có -->
-                                            @if(isset($product->images[1]))
-                                                <img class="lazyload img-hover"
-                                                     src="{{ asset($product->images[1]->image_url) }}"
-                                                     alt="image-product">
-                                            @endif
+                        <div class="swiper-slide" lazy="true">
+                            <div class="card-product">
+                                <div class="card-product-wrapper">
+                                    <a href="product-detail.html" class="product-img">
+                                        <img class="lazyload img-product" data-src="images/products/orange-1.jpg"
+                                            src="images/products/orange-1.jpg" alt="image-product">
+                                        <img class="lazyload img-hover" data-src="images/products/white-1.jpg"
+                                            src="images/products/white-1.jpg" alt="image-product">
+                                    </a>
+                                    <div class="list-product-btn">
+                                        <a href="#quick_add" data-bs-toggle="modal"
+                                            class="box-icon bg_white quick-add tf-btn-loading">
+                                            <span class="icon icon-bag"></span>
+                                            <span class="tooltip">Quick Add</span>
                                         </a>
-                                        <div class="list-product-btn">
-                                            <a href="#quick_add" data-bs-toggle="modal"
-                                                class="box-icon bg_white quick-add tf-btn-loading">
-                                                <span class="icon icon-bag"></span>
-                                                <span class="tooltip">Quick Add</span>
-                                            </a>
-                                            <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
-                                                <span class="icon icon-heart"></span>
-                                                <span class="tooltip">Add to Wishlist</span>
-                                                <span class="icon icon-delete"></span>
-                                            </a>
-                                            <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft"
-                                                class="box-icon bg_white compare btn-icon-action">
-                                                <span class="icon icon-compare"></span>
-                                                <span class="tooltip">Add to Compare</span>
-                                                <span class="icon icon-check"></span>
-                                            </a>
-                                            <a href="#quick_view" data-bs-toggle="modal"
-                                                class="box-icon bg_white quickview tf-btn-loading">
-                                                <span class="icon icon-view"></span>
-                                                <span class="tooltip">Quick View</span>
-                                            </a>
-                                        </div>
-                                       
+                                        <a href="javascript:void(0);" class="box-icon bg_white wishlist btn-icon-action">
+                                            <span class="icon icon-heart"></span>
+                                            <span class="tooltip">Add to Wishlist</span>
+                                            <span class="icon icon-delete"></span>
+                                        </a>
+                                        <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft"
+                                            class="box-icon bg_white compare btn-icon-action">
+                                            <span class="icon icon-compare"></span>
+                                            <span class="tooltip">Add to Compare</span>
+                                            <span class="icon icon-check"></span>
+                                        </a>
+                                        <a href="#quick_view" data-bs-toggle="modal"
+                                            class="box-icon bg_white quickview tf-btn-loading">
+                                            <span class="icon icon-view"></span>
+                                            <span class="tooltip">Quick View</span>
+                                        </a>
                                     </div>
-                                    <div class="card-product-info">
-                                        <a href="{{ route('client.product.show', $product->slug) }}" class="title link">{{ $product->name }}</a>
-                                        <span class="price">{{ number_format($product->regular_price, 0, ',', '.') }}đ</span>
-                                        <!-- Nếu muốn hiển thị màu, size động thì cần thêm dữ liệu -->
+                                    <div class="size-list">
+                                        <span>S</span>
+                                        <span>M</span>
+                                        <span>L</span>
+                                        <span>XL</span>
                                     </div>
                                 </div>
+                                <div class="card-product-info">
+                                    <a href="product-detail.html" class="title link">Ribbed Tank Top</a>
+                                    <span class="price">$16.95</span>
+                                    <ul class="list-color-product">
+                                        <li class="list-color-item color-swatch active">
+                                            <span class="tooltip">Orange</span>
+                                            <span class="swatch-value bg_orange-3"></span>
+                                            <img class="lazyload" data-src="images/products/orange-1.jpg"
+                                                src="images/products/orange-1.jpg" alt="image-product">
+                                        </li>
+                                        <li class="list-color-item color-swatch">
+                                            <span class="tooltip">Black</span>
+                                            <span class="swatch-value bg_dark"></span>
+                                            <img class="lazyload" data-src="images/products/black-1.jpg"
+                                                src="images/products/black-1.jpg" alt="image-product">
+                                        </li>
+                                        <li class="list-color-item color-swatch">
+                                            <span class="tooltip">White</span>
+                                            <span class="swatch-value bg_white"></span>
+                                            <img class="lazyload" data-src="images/products/white-1.jpg"
+                                                src="images/products/white-1.jpg" alt="image-product">
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                        @endforeach
+                        </div>
+
                     </div>
                 </div>
                 <div class="nav-sw nav-next-slider nav-next-product box-icon w_46 round"><span
@@ -462,7 +483,14 @@
                     totalValueElement.style.color = '#ff3029';
 
                     // Thêm tooltip hoặc text nhỏ để hiển thị số lượng sản phẩm được chọn
-                   
+                    const cartTotalsElement = document.querySelector('.tf-cart-totals-discounts h3');
+                    if (cartTotalsElement) {
+                        if (selectedItems.length === 1) {
+                            cartTotalsElement.textContent = 'Tổng tiền hàng (1 sản phẩm)';
+                        } else {
+                            cartTotalsElement.textContent = `Tổng tiền hàng (${selectedItems.length} sản phẩm)`;
+                        }
+                    }
 
                     // Cập nhật tổng cộng = tổng đã chọn - giảm giá + phí vận chuyển
                     const discount = 0; // Nếu có biến discount, lấy từ DOM hoặc JS
@@ -702,31 +730,6 @@
             }
         }
 
-        function updateCartCountBadge(count) {
-            let badge = document.getElementById('cart-count-badge');
-
-            if (count > 0) {
-                if (!badge) {
-                    // Nếu chưa có badge thì tạo mới
-                    const cartIcon = document.querySelector('.box-cart');
-                    badge = document.createElement('span');
-                    badge.id = 'cart-count-badge';
-                    badge.className = 'cart-count-badge';
-                    badge.style =
-                        'position: absolute; top: -14px; right: -10px; background: #e53935; color: #fff; border-radius: 50%; padding: 0 5px; font-size: 11px; font-weight: bold; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 2;';
-                    cartIcon.appendChild(badge);
-                }
-
-                badge.textContent = count;
-                badge.style.display = 'flex';
-            } else {
-                if (badge) badge.remove(); // hoặc: badge.style.display = 'none';
-            }
-        }
-
-
-
-
         // Hàm gọi API để cập nhật database (không block UI)
         function updateCartOnServer(itemId, quantity, input) {
             const url = "/cart/update";
@@ -755,6 +758,8 @@
                 .then(data => {
                     if (data && data.success) {
                         console.log('Server updated successfully');
+                        // Reload lại trang để đảm bảo dữ liệu session mới nhất
+                        location.reload();
                     }
                 })
                 .catch(error => {
@@ -856,6 +861,13 @@
             });
         }
 
+        function updateCartCountBadge(newCount) {
+            const badge = document.getElementById('cart-count-badge');
+            if (badge) {
+                badge.textContent = newCount;
+                badge.style.display = newCount > 0 ? 'flex' : 'none';
+            }
+        }
 
         const agreeCheckbox = document.getElementById('check-agree');
         const grandTotalElement = document.querySelector('.grand-total-value');
@@ -895,6 +907,23 @@
         if (agreeCheckbox) {
             agreeCheckbox.addEventListener('change', toggleCheckoutState);
             toggleCheckoutState(); // Gọi khi load trang
+        }
+
+        // Thay thế đoạn xử lý nút checkout cũ bằng:
+        const checkoutForm = document.getElementById('checkout-selected-form');
+        const selectedItemsInput = document.getElementById('selected-items-input');
+        if (checkoutForm && selectedItemsInput) {
+            checkoutForm.addEventListener('submit', function(e) {
+                const checked = document.querySelectorAll('.cart-item-checkbox:checked');
+                if (checked.length === 0) {
+                    alert('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán!');
+                    e.preventDefault();
+                    return false;
+                }
+                // Lấy danh sách id sản phẩm đã chọn
+                const ids = Array.from(checked).map(cb => cb.dataset.itemId);
+                selectedItemsInput.value = ids.join(',');
+            });
         }
     });
 </script>

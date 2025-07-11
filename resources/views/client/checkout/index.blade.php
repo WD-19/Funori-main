@@ -159,6 +159,7 @@
         <div class="container">
             <form action="{{ route('client.checkout.process') }}" method="POST" class="checkout-form">
                 @csrf
+                <input type="hidden" name="selected_items" value="{{ request('selected_items') }}">
                 <div class="row">
                     <div class="col-lg-7">
                         <!-- Buyer Information Form -->
@@ -286,7 +287,7 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <div class="order-summary sticky-top">
+                        <div class="order-summary">
                             <h4>Tóm tắt đơn hàng</h4>
                             @foreach ($cart['items'] as $item)
                                 <div class="summary-item">

@@ -657,9 +657,9 @@ html {
     font-weight: 700;
 }
 
-/* .new-product:hover .price-product {
+.new-product:hover .price-product {
     display: none;
-} */
+}
 
 .buttom-1 {
     display: none;

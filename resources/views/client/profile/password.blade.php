@@ -5,46 +5,38 @@
 @section('content_profile')
     <div class="my-account-content account-edit">
         <div class="">
-            <form id="form-password-change" method="POST" action="{{ route('client.profile.password.update') }}">
-                @csrf
-                <h6 class="mb_20">Đổi mật khẩu</h6>
+            <form class="" id="form-password-change" action="#">
+                <div class="tf-field style-1 mb_15">
+                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="property1" name="first name">
+                    <label class="tf-field-label fw-4 text_black-2" for="property1">First name</label>
+                </div>
+                <div class="tf-field style-1 mb_15">
+                    <input class="tf-field-input tf-input" placeholder=" " type="text" id="property2" name="last name">
+                    <label class="tf-field-label fw-4 text_black-2" for="property2">Last name</label>
+                </div>
+                <div class="tf-field style-1 mb_15">
+                    <input class="tf-field-input tf-input" placeholder=" " type="email" id="property3" name="email">
+                    <label class="tf-field-label fw-4 text_black-2" for="property3">Email</label>
+                </div>
+                <h6 class="mb_20">Password Change</h6>
                 <div class="tf-field style-1 mb_30">
-                    <input class="tf-field-input tf-input" placeholder=" " type="password" id="current_password"
-                        name="current_password" required>
-                    <label class="tf-field-label fw-4 text_black-2" for="current_password">Mật khẩu cũ</label>
+                    <input class="tf-field-input tf-input" placeholder=" " type="password" id="property4" name="password">
+                    <label class="tf-field-label fw-4 text_black-2" for="property4">Current password</label>
                 </div>
                 <div class="tf-field style-1 mb_30">
-                    <input class="tf-field-input tf-input" placeholder=" " type="password" id="new_password"
-                        name="new_password" required>
-                    <label class="tf-field-label fw-4 text_black-2" for="new_password">Mật khẩu mới</label>
+                    <input class="tf-field-input tf-input" placeholder=" " type="password" id="property5" name="password">
+                    <label class="tf-field-label fw-4 text_black-2" for="property5">New password</label>
                 </div>
                 <div class="tf-field style-1 mb_30">
-                    <input class="tf-field-input tf-input" placeholder=" " type="password" id="new_password_confirmation"
-                        name="new_password_confirmation" required>
-                    <label class="tf-field-label fw-4 text_black-2" for="new_password_confirmation">Xác nhận mật
-                        khẩu</label>
+                    <input class="tf-field-input tf-input" placeholder=" " type="password" id="property6" name="password">
+                    <label class="tf-field-label fw-4 text_black-2" for="property6">Confirm password</label>
                 </div>
                 <div class="mb_20">
                     <button type="submit"
-                        class="tf-btn w-100 radius-3 btn-fill animate-hover-btn justify-content-center">Lưu thay
-                        đổi</button>
+                        class="tf-btn w-100 radius-3 btn-fill animate-hover-btn justify-content-center">Save
+                        Changes</button>
                 </div>
             </form>
         </div>
     </div>
-    @if (session('success'))
-        <div class="alert alert-success mt-2">{{ session('success') }}</div>
-    @endif
-    @if (session('error'))
-        <div class="alert alert-danger mt-2">{{ session('error') }}</div>
-    @endif
-    @if ($errors->any())
-        <div class="alert alert-danger mt-2">
-            <ul style="margin-bottom:0;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 @endsection
