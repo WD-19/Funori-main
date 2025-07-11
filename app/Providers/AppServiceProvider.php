@@ -80,7 +80,11 @@ class AppServiceProvider extends ServiceProvider
                             return $attrVal->attribute->name . ': ' . $attrVal->value;
                         })->all() ?? [],
                         'quantity' => $item['quantity'],
+<<<<<<< Updated upstream
                         'price_at_addition' => $item['price'] ?? null,
+=======
+                        'price_at_addition' => $item['price'] ?? 0,
+>>>>>>> Stashed changes
                         'image_url' => $variant->image->image_url ?? ($product->images[0]->image_url ?? null),
                     ];
                 })->filter()->values()->all();
