@@ -77,4 +77,15 @@ class Product extends Model
     {
         return $this->belongsToMany(Promotion::class, 'promotion_product', 'product_id', 'promotion_id');
     }
+    public function materialAttributeValues()
+    {
+        return $this->hasManyThrough(
+            AttributeValue::class,
+            ProductVariantAttributeValue::class,
+            'product_id', // Foreign key on ProductVariantAttributeValue table
+            'id',         // Foreign key on AttributeValue table
+            'id',         // Local key on Product table
+            'attribute_value_id' // Local key on ProductVariantAttributeValue table
+        );
+    }
 }
