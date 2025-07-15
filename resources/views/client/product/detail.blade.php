@@ -46,7 +46,7 @@
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide stagger-item">
                                                 <div class="item">
-                                                    <img class="lazyload mb-1" data-src="{{ asset($image->image_url) }}"
+                                                    <img style="width: 100%;" class="lazyload mb-1" data-src="{{ asset($image->image_url) }}"
                                                         src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
                                                 </div>
                                             </div>
@@ -57,7 +57,7 @@
                                     <div class="swiper-wrapper">
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide">
-                                                <img class="tf-image-zoom lazyload"
+                                                <img  style="width: 100%;" class="tf-image-zoom lazyload"
                                                     data-zoom="{{ asset($image->image_url) }}"
                                                     data-src="{{ asset($image->image_url) }}"
                                                     src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
@@ -123,9 +123,14 @@
                                     });
                                 </script>
                                 <style>
+                                    @media (min-width: 1200px) {
+                                        .container, .container-lg, .container-md, .container-sm, .container-xl {
+                                            max-width: 1440px;
+                                        }
+                                    }
                                     #gallery-swiper-started {
-                                        max-width: 700px;
-                                        height: 600px;
+                                        max-width: 1200px;
+                                        height: 100%;
                                         margin: 0 auto;
                                         border-radius: 18px;
                                         border: #ff6600 1px solid;
@@ -190,6 +195,7 @@
                                         font-size: 80%;
                                     }
                                     .tf-product-info-variant-picker .variant-box {
+                                        
                                      min-width: 112px !important;
                                     padding: 1.4rem !important;
                                     border-width: 1px !important;
@@ -256,7 +262,7 @@
                                                     @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
                                                     style="margin-right: 8px;">
                                                     @if ($variant->image)
-                                                        <img src="{{ asset($variant->image->image_url) }}"
+                                                        <img  style="width: 100%;" src="{{ asset($variant->image->image_url) }}"
                                                             alt="Ảnh biến thể"
                                                             style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
                                                     @endif
@@ -314,7 +320,7 @@
                                             <i class="icon-delete"></i>
                                         </div>
                                         <div class="w-100">
-                                            <a href="#" class="btns-full">Mua với <img
+                                            <a href="#" class="btns-full">Mua với <img 
                                                     src="{{ asset('client/ecomus/images/payments/paypal.png') }}"
                                                     alt=""></a>
                                             <a href="#" class="payment-more-option">Thêm phương thức thanh toán</a>

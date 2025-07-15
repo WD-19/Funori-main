@@ -15,15 +15,22 @@ class ProductController
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'brand', 'images', 'variants']);
+        $categories = Category::all();
+        $brands = Brand::all();
+
+        $query = Product::query();
+
+        if ($request->filled('category_id')) {
+            $categoryIds = Category::getAllChildrenIds($request->category_id);
+            $categoryIds[] = (int)$request->category_id;
+
+            $query->whereIn('category_id', $categoryIds);
+        }
 
         if ($request->filled('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }
-        // Thêm lọc theo danh mục
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
+
         // Thêm lọc theo thương hiệu
         if ($request->filled('brand_id')) {
             $query->where('brand_id', $request->brand_id);
@@ -32,9 +39,6 @@ class ProductController
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
-        $categories = Category::all();
-        $brands = Brand::all();
 
         $products = $query->orderBy('updated_at', 'desc')->paginate(10)->appends($request->all());
         return view('admin.products.index', compact('products', 'categories', 'brands'));
