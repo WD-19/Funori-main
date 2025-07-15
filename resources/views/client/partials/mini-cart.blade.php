@@ -9,11 +9,15 @@
                     {{ $cartItem['product']->name ?? 'Sản phẩm đã xóa' }}
                 </div>
                 @if (!empty($cartItem['variant']))
-                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                    <div style="font-size: 11px; color: #b0b0b0; margin-top: 2px; font-style: italic;">
                         @foreach ($cartItem['variant']->attributeValues as $attrValue)
                             {{ $attrValue->attribute->name }}: {{ $attrValue->value }}
                             @if (!$loop->last), @endif
                         @endforeach
+                        @if (!empty($cartItem['variant']->size))
+                            @if(count($cartItem['variant']->attributeValues)) , @endif
+                            Kích thước: {{ $cartItem['variant']->size }}
+                        @endif
                     </div>
                 @endif
             </div>
