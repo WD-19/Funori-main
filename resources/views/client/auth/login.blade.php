@@ -58,7 +58,7 @@
                             <br>
                             <br>
                             @error('email')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                             @enderror
                         </fieldset>
                         <fieldset class="password">
@@ -71,7 +71,7 @@
                             <br>
                             <br>
                             @error('password')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                             @enderror
                         </fieldset>
                         <div class="flex justify-between items-center">
@@ -85,7 +85,7 @@
                             <a href="{{ route('client.password.request') }}" class="body-text tf-color">Quên mật khẩu?</a>
                         </div>
                         @if ($errors->has('email&password'))
-                        <div class="text-danger mt-2" style="color: #ff4d4f; font-size: 14px;">
+                        <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">
                             {{ $errors->first('email&password') }}
                         </div>
                         @endif

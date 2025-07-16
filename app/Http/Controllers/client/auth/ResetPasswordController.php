@@ -21,6 +21,13 @@ class ResetPasswordController
             'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
+        ], [
+            'token.required' => 'Thiếu mã xác thực!',
+            'email.required' => 'Vui lòng nhập email!',
+            'email.email' => 'Email không hợp lệ!',
+            'password.required' => 'Vui lòng nhập mật khẩu mới!',
+            'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự!',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp!',
         ]);
 
         $status = Password::reset(
@@ -32,7 +39,7 @@ class ResetPasswordController
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('client.login')->with('success', __($status))
-            : back()->withErrors(['email' => [__($status)]]);
+            ? redirect()->route('client.login')->with('success', 'Đặt lại mật khẩu thành công!')
+            : back()->withErrors(['email' => 'Có lỗi xảy ra hoặc liên kết đã hết hạn. Vui lòng thử lại!']);
     }
 }

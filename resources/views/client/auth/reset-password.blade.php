@@ -22,9 +22,10 @@
                                 </div>
                                 <input class="flex-grow" type="email" name="email"
                                     value="{{ old('email', $email ?? '') }}" required autofocus
-                                    placeholder="Nhập địa chỉ email">
+                                    placeholder="Nhập địa chỉ email" readonly>
                                 @error('email')
-                                    <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
+                                    </div>
                                 @enderror
                             </fieldset>
 
@@ -34,7 +35,8 @@
                                 <input class="password-input" type="password" name="password" required
                                     placeholder="Nhập mật khẩu mới">
                                 @error('password')
-                                    <div class="text-danger">{{ $message }}</div>
+                                    <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}
+                                    </div>
                                 @enderror
                             </fieldset>
 
