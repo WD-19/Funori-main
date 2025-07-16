@@ -38,6 +38,7 @@ class Order extends Model
         'delivered_at',
         'cancelled_at',
         'cancellation_reason',
+        'discount_code',
     ];
 
     protected $casts = [

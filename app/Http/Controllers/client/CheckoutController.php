@@ -19,16 +19,61 @@ use Illuminate\Support\Facades\Auth;
 class CheckoutController
 {
     /**
+     * Prepares the cart for checkout by filtering only selected items.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function prepareCheckout(Request $request)
+    {
+        $selectedItemIds = $request->input('selected_items', []);
+
+        if (empty($selectedItemIds)) {
+            return redirect()->route('client.view-cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán.');
+        }
+
+        // Get the full cart items from the session, which were set by CartController
+        $fullCartItems = Session::get('cart.items', []);
+        if (empty($fullCartItems)) {
+            return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống.');
+        }
+
+        $selectedItems = [];
+        $newTotal = 0;
+
+        // Filter the cart items based on the IDs of the selected checkboxes
+        foreach ($fullCartItems as $item) {
+            if (in_array($item['id'], $selectedItemIds)) {
+                $selectedItems[] = $item;
+                $newTotal += $item['quantity'] * $item['price_at_addition'];
+            }
+        }
+
+        if (empty($selectedItems)) {
+             return redirect()->route('client.view-cart')->with('error', 'Sản phẩm bạn chọn không hợp lệ.');
+        }
+
+        // Overwrite the session cart with ONLY the selected items for the checkout process.
+        Session::put('cart.items', $selectedItems);
+        Session::put('cart.total', $newTotal);
+
+        // Now, redirect to the actual checkout page
+        return redirect()->route('client.checkout.index');
+    }
+    /**
      * Hiển thị trang thanh toán duy nhất (One-Page Checkout).
      */
     public function index()
     {
-        $cart = Session::get('cart');
+        $cart = [
+            'items' => Session::get('cart.items', []),
+            'total' => Session::get('cart.total', 0),
+            'discount' => Session::get('cart.discount', 0),
+            'discount_code' => Session::get('cart.discount_code', null),
+        ];
 
-        // Kiểm tra giỏ hàng có trống không
         if (empty($cart['items'])) {
-            return redirect()->route('client.view-cart')
-                ->with('error', 'Giỏ hàng trống!');
+            return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng trống hoặc chưa chọn sản phẩm để thanh toán!');
         }
 
         // Lấy thông tin cần thiết cho trang checkout
@@ -125,7 +170,13 @@ class CheckoutController
 
         $validatedData = $request->validate($rules, $messages, $attributes);
 
-        $cart = Session::get('cart');
+        $cart = [
+            'items' => Session::get('cart.items', []),
+            'total' => Session::get('cart.total', 0),
+            'discount' => Session::get('cart.discount', 0),
+            'discount_code' => Session::get('cart.discount_code', null),
+        ];
+
         if (empty($cart['items'])) {
             return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống!');
         }
@@ -165,10 +216,10 @@ class CheckoutController
             $shippingMethod = ShippingMethod::find($validatedData['shipping_method_id']);
             $shippingFee = $shippingMethod ? $shippingMethod->cost : 0;
 
-            // Tính toán lại tổng tiền cuối cùng
-            $subtotal = $cart['total']; // Giả sử 'total' từ cart() là subtotal
-            $tax = 0; // Hoặc tính toán lại nếu cần
-            $discount = 0; // Hoặc tính toán lại nếu cần
+            $discount = $cart['discount'] ?? 0;
+            $discountCode = $cart['discount_code'] ?? null;
+            $subtotal = $cart['total'];
+            $tax = 0;
             $totalAmount = $subtotal + $shippingFee + $tax - $discount;
 
             // Ghép địa chỉ người mua
@@ -220,6 +271,7 @@ class CheckoutController
                 'tax_amount'         => $tax,
                 'shipping_fee'       => $shippingFee,
                 'discount_amount'    => $discount,
+                'discount_code'      => $discountCode,
                 'total_amount'       => $totalAmount,
                 'order_status'       => 'pending_confirmation',
 
@@ -285,14 +337,15 @@ class CheckoutController
 
     public function success(Request $request)
     {
-        if (!session('success')) {
-            return redirect()->route('home');
-        }
-
+        // Không kiểm tra session('success') vì khi redirect từ route khác sẽ mất session này
         $order = null;
         if ($request->has('order')) {
-            $order = Order::with(['items.product.thumbnail', 'items.productVariant', 'paymentMethod', 'shippingMethod'])
+            $order = Order::with(['items.product.images', 'items.productVariant', 'paymentMethod', 'shippingMethod'])
                 ->find($request->query('order'));
+        }
+        // Nếu không tìm thấy order, chuyển về trang chủ hoặc trang đơn hàng của user
+        if (!$order) {
+            return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng!');
         }
         return view('client.checkout.success', compact('order'));
     }

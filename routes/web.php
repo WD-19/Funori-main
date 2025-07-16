@@ -26,8 +26,8 @@ use App\Http\Controllers\client\ContactController as ClientContactCController;
 use App\Http\Controllers\client\ProfileController as ProfileController;
 use App\Http\Controllers\client\ShopController;
 use App\Http\Controllers\client\CheckoutController;
-use App\Http\Controllers\client\WishlistController;
 use App\Http\Middleware\CheckClientLogin;
+use App\Http\Controllers\Client\WishlistController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Auth;
@@ -152,6 +152,11 @@ Route::prefix('admin')->name('admin.')
     });
 
 Route::get('/', [ClientController::class, 'index'])->name('home');
+// checkout 
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('client.checkout.index');
+Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('client.checkout.process');
+Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('client.checkout.prepare');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('client.checkout.success');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
 
@@ -159,8 +164,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
-
-    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
+     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
@@ -171,14 +175,13 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
-    Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('page.show');
-    
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
     Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
-    Route::get('/search/suggest', [ShopController::class, 'suggest'])->name('search');
+    Route::get('/search', [ClientProductController::class, 'search'])->name('search');
+
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);
@@ -194,41 +197,30 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
     // Đảm bảo route này là POST, vì JS gọi POST /cart/remove
     Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
-    // JS gọi POST nên route phải là POST
-    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
+    // Thêm lại route mã giảm giá:
+    Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.applyDiscount');
 
+    Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 
-    // Checkout (One-Page)
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
-    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
-
-    // Profile (gộp các route trùng lặp và thêm middleware)
-    Route::prefix('profile')->name('profile.')->middleware(CheckClientLogin::class)->group(function () {
+    Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('order');
-
-        // Address Management
-        Route::prefix('address')->name('address.')->group(function () {
-            Route::get('/', [ProfileController::class, 'address'])->name('index');
-            Route::post('/', [ProfileController::class, 'storeAddress'])->name('store');
-            Route::get('/{address}/edit', [ProfileController::class, 'editAddress'])->name('edit');
-            Route::post('/{address}/update', [ProfileController::class, 'updateAddress'])->name('update');
-            Route::delete('/{address}', [ProfileController::class, 'destroyAddress'])->name('destroy');
-            Route::post('/{address}/set-default', [ProfileController::class, 'setDefaultAddress'])->name('setDefault');
-        });
-
+        Route::get('/address', [ProfileController::class, 'address'])->name('address');
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
-        Route::post('/account', [ProfileController::class, 'updateAccount'])->name('account.update');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
     });
-
-    // Route chi tiết sản phẩm (để cuối cùng để không bắt các route khác)
-    Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
+    Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
+    Route::get('/order', [ProfileController::class, 'order'])->name('order');
+    Route::get('/address', [ProfileController::class, 'address'])->name('address');
+    Route::get('/account', [ProfileController::class, 'account'])->name('account');
+    Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
 });
 
-// Fallback cho các route không tồn tại
+
 Route::fallback(function () {
     return response()->view('client.errors.404', [], 404);
 });
+
+
