@@ -9,6 +9,9 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property bool $is_default
      * @property string|null $address_type
+     * @property string|null $ward
+     * @property string|null $district
+     * @property string|null $province
      * @property string $street_address
      * @property string $receiver_phone
      * @property string $receiver_name
@@ -20,6 +23,9 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereReceiverName($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereReceiverPhone($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereStreetAddress($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereProvince($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereDistrict($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereWard($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereAddressType($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereIsDefault($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Address>|Address whereCreatedAt($value)
@@ -7720,7 +7726,11 @@ namespace App\Models {
      * @property string $account_status
      * @property string|null $avatar_url
      * @property string|null $phone_number
+     * @property string|null $two_factor_confirmed_at
+     * @property string|null $two_factor_recovery_codes
+     * @property string|null $two_factor_secret
      * @property string $password
+     * @property string|null $phone
      * @property string $email
      * @property string $full_name
      * @property int $id
@@ -7744,7 +7754,11 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereFullName($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereEmail($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User wherePhone($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User wherePassword($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereTwoFactorSecret($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereTwoFactorRecoveryCodes($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereTwoFactorConfirmedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User wherePhoneNumber($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereAvatarUrl($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereAccountStatus($value)

@@ -82,7 +82,7 @@
                             <br>
                             <br>
 
-                            <a href="#" class="body-text tf-color">Quên mật khẩu?</a>
+                            <a href="{{ route('client.password.request') }}" class="body-text tf-color">Quên mật khẩu?</a>
                         </div>
                         @if ($errors->has('email&password'))
                         <div class="text-danger mt-2" style="color: #ff4d4f; font-size: 14px;">
