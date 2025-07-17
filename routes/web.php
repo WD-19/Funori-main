@@ -35,6 +35,10 @@ use App\Http\Middleware\CheckLogin;
 use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
+
+use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -175,6 +179,39 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Điều hướng người dùng tới Google
+    Route::get('/auth/google', function () {
+        return Socialite::driver('google')->redirect();
+    })->name('auth.google')->middleware(RedirectIfAuthenticatedCustom::class);
+
+    // Callback từ Google
+    Route::get('/auth/google/callback', function () {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if ($user) {
+            // Chỉ update google_id nếu chưa có
+            if (!$user->google_id) {
+                $user->update([
+                    'google_id' => $googleUser->getId()
+                ]);
+            }
+        } else {
+            // Tạo mới nếu chưa có tài khoản
+            $user = User::create([
+                'email' => $googleUser->getEmail(),
+                'name' => $googleUser->getName(),
+                'full_name' => $googleUser->getName(),
+                'google_id' => $googleUser->getId(),
+                'password' => Hash::make(uniqid()),
+            ]);
+        }
+
+        Auth::login($user);
+        return redirect('/');
+    })->name('auth.google.callback')->middleware(RedirectIfAuthenticatedCustom::class);
 
     Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])->name('password.email');
