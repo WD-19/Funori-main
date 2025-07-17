@@ -112,7 +112,7 @@
                     <i class="fa-regular fa-heart heart"></i>
                     @if (isset($headerWishlistCount) && $headerWishlistCount > 0)
                         <span class="wishlist-badge"
-                            style="position:absolute;top:-12px;right:-12px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#e53935;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;">{{ $headerWishlistCount }}</span>
+                            style="position:absolute;top:-11px;right:-11px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#e53935;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;">{{ $headerWishlistCount }}</span>
                     @endif
                 </a>
 

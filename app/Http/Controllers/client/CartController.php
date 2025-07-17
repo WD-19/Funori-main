@@ -468,16 +468,20 @@ class CartController
             $sessionCart = Session::get('cart', []);
             $cartItems = collect($sessionCart)->reverse()->take(3)->map(function ($item) {
                 $product = Product::with(['images'])->find($item['product_id']);
+                // Nếu không tìm thấy product, trả về null hoặc giá trị mặc định
+                if (!$product) {
+                    return null;
+                }
                 // Nếu có variant thì lấy, không thì null
                 $variant = !empty($item['product_variant_id']) ? ProductVariant::with(['attributeValues.attribute'])->find($item['product_variant_id']) : null;
                 return [
                     'product' => $product,
-                    'image_url' => $product && $product->images->first() ? $product->images->first()->image_url : 'images/products/no-image.png',
-                    'price_at_addition' => $item['price'],
+                    'image_url' => $product->images->first() ? $product->images->first()->image_url : 'images/products/no-image.png',
+                    'price_at_addition' => $item['price_at_addition'] ?? $item['price'] ?? 0,
                     'quantity' => $item['quantity'],
                     'variant' => $variant,
                 ];
-            })->values();
+            })->filter()->values();
             $cartCount = count($sessionCart);
         }
 
