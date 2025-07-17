@@ -40,8 +40,8 @@
                                 <input type="text" class="form-control" id="full_name" name="full_name" value="{{ old('full_name', $user->full_name) }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="phone">Số điện thoại</label>
-                                <input type="text" class="form-control" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" required>
+                                <label for="phone_number">Số điện thoại</label>
+                                <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ old('phone_number', $user->phone_number) }}" required>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
@@ -49,32 +49,9 @@
                             </div>
 
                             <hr>
-                            <h5>Địa chỉ mặc định</h5>
-                            <div class="form-group">
-                                <label for="province">Tỉnh/Thành phố</label>
-                                <select class="form-control" disabled>
-                                    <option>Thành phố Hà Nội</option>
-                                </select>
-                                <input type="hidden" name="province" value="Thành phố Hà Nội">
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 form-group">
-                                    <label for="district">Quận/Huyện</label>
-                                    <select class="form-control" id="district" name="district"></select>
-                                </div>
-                                <div class="col-md-6 form-group">
-                                    <label for="ward">Phường/Xã</label>
-                                    <select class="form-control" id="ward" name="ward"></select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="address">Địa chỉ cụ thể (Số nhà, tên đường...)</label>
-                                <input type="text" class="form-control" id="address" name="address" value="{{ old('address', $user->address) }}">
-                            </div>
 
-                            <hr>
                             <h5 id="change-password-section">Đổi mật khẩu</h5>
-                             <div class="form-group">
+                            <div class="form-group">
                                 <label for="password">Mật khẩu mới</label>
                                 <input type="password" class="form-control" id="password" name="password" placeholder="Bỏ trống nếu không muốn đổi">
                             </div>
@@ -91,79 +68,5 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const host = "https://provinces.open-api.vn/api/";
-    const hanoiCode = 1;
-
-    const districtSelect = document.getElementById('district');
-    const wardSelect = document.getElementById('ward');
-
-    // Get saved values from Blade
-    const userDistrict = `{{ old('district', $user->district) }}`.trim();
-    const userWard = `{{ old('ward', $user->ward) }}`.trim();
-
-    const renderOptions = (items, selectElement) => {
-        selectElement.innerHTML = '<option value="">-- Chọn --</option>';
-        items.forEach(item => {
-            const option = document.createElement('option');
-            option.dataset.code = item.code;
-            option.value = item.name;
-            option.textContent = item.name;
-            selectElement.appendChild(option);
-        });
-    };
-
-    const callApi = (url) => {
-        return axios.get(url);
-    };
-
-    const loadWards = async (districtCode) => {
-        wardSelect.innerHTML = '<option value="">-- Đang tải Phường/Xã --</option>';
-        if (!districtCode) {
-            wardSelect.innerHTML = '<option value="">-- Vui lòng chọn Quận/Huyện --</option>';
-            return;
-        }
-        try {
-            const response = await callApi(`${host}d/${districtCode}?depth=2`);
-            renderOptions(response.data.wards, wardSelect);
-            if (userWard) {
-                wardSelect.value = userWard;
-            }
-        } catch (error) {
-            console.error("Lỗi khi tải danh sách Phường/Xã:", error);
-            wardSelect.innerHTML = '<option value="">-- Lỗi tải dữ liệu --</option>';
-        }
-    };
-
-    const initializeAddress = async () => {
-        try {
-            const districtResponse = await callApi(host + "p/" + hanoiCode + "?depth=2");
-            renderOptions(districtResponse.data.districts, districtSelect);
-
-            if (userDistrict) {
-                districtSelect.value = userDistrict;
-                const selectedDistrictOption = districtSelect.options[districtSelect.selectedIndex];
-                const districtCode = selectedDistrictOption ? selectedDistrictOption.dataset.code : null;
-
-                if (districtCode) {
-                    await loadWards(districtCode);
-                }
-            }
-        } catch (error) {
-            console.error("Lỗi tải Quận/Huyện:", error);
-            districtSelect.innerHTML = '<option value="">-- Lỗi tải dữ liệu --</option>';
-        }
-    };
-
-    districtSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const districtCode = selectedOption ? selectedOption.dataset.code : null;
-        loadWards(districtCode);
-    });
-
-    initializeAddress();
-});
-</script>
+  
 @endsection

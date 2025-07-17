@@ -19,7 +19,34 @@
                                             <label class="tf-field-label fw-4 text_black-2">Số điện thoại</label>
                                         </div>
                                     </div>
-                                    <div class="box-field">
+                                    <div class="d-flex gap-3 mb-3">
+                                        <div class="box-field w-100">
+                                            <div class="tf-field style-1">
+                                                <select class="tf-field-input tf-input" name="province_disabled" id="add_province_disabled" disabled>
+                                                    <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
+                                                </select>
+                                                <input type="hidden" name="province" value="Thành phố Hà Nội">
+                                                <label class="tf-field-label fw-4 text_black-2">Tỉnh/Thành phố</label>
+                                            </div>
+                                        </div>
+                                        <div class="box-field w-100">
+                                            <div class="tf-field style-1">
+                                                <select class="tf-field-input tf-input" name="district" id="add_district" required>
+                                                    <option value="">-- Quận/Huyện --</option>
+                                                </select>
+                                                <label class="tf-field-label fw-4 text_black-2">Quận/Huyện</label>
+                                            </div>
+                                        </div>
+                                        <div class="box-field w-100">
+                                            <div class="tf-field style-1">
+                                                <select class="tf-field-input tf-input" name="ward" id="add_ward" required>
+                                                    <option value="">-- Phường/Xã --</option>
+                                                </select>
+                                                <label class="tf-field-label fw-4 text_black-2">Phường/Xã</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="box-field"> <!-- Địa chỉ cụ thể -->
                                         <div class="tf-field style-1">
                                             <input class="tf-field-input tf-input" type="text" name="street_address" id="street_address" value="{{ old('street_address') }}" required>
                                             <label class="tf-field-label fw-4 text_black-2">Địa chỉ cụ thể</label>
@@ -98,6 +125,33 @@
                         <label class="tf-field-label fw-4 text_black-2">Số điện thoại</label>
                     </div>
                 </div>
+                <div class="d-flex gap-3 mb-3">
+                    <div class="box-field w-100">
+                        <div class="tf-field style-1">
+                            <select class="tf-field-input tf-input" name="province_disabled" id="edit_province_disabled" disabled>
+                                <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
+                            </select>
+                            <input type="hidden" name="province" value="Thành phố Hà Nội">
+                            <label class="tf-field-label fw-4 text_black-2">Tỉnh/Thành phố</label>
+                        </div>
+                    </div>
+                    <div class="box-field w-100">
+                        <div class="tf-field style-1">
+                            <select class="tf-field-input tf-input" name="district" id="edit_district" required>
+                                <option value="">-- Quận/Huyện --</option>
+                            </select>
+                            <label class="tf-field-label fw-4 text_black-2">Quận/Huyện</label>
+                        </div>
+                    </div>
+                    <div class="box-field w-100">
+                        <div class="tf-field style-1">
+                            <select class="tf-field-input tf-input" name="ward" id="edit_ward" required>
+                                <option value="">-- Phường/Xã --</option>
+                            </select>
+                            <label class="tf-field-label fw-4 text_black-2">Phường/Xã</label>
+                        </div>
+                    </div>
+                </div>
                 <div class="box-field">
                     <div class="tf-field style-1">
                         <input class="tf-field-input tf-input" type="text" name="street_address" id="edit_street_address" required>
@@ -111,6 +165,7 @@
             </form>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script>
         document.getElementById('btnShowAddAddress').onclick = function() {
             document.getElementById('formnewAddress').style.display = 'block';
@@ -203,12 +258,30 @@ document.querySelectorAll('.edit-address-btn').forEach(btn => {
         e.preventDefault();
         let id = this.dataset.id;
         let url = '{{ route("client.profile.address.edit", ["address" => ":id"]) }}'.replace(':id', id);
-        let res = await fetch(url);
-        let data = await res.json();
-        document.getElementById('edit_address_id').value = id;
-        document.getElementById('edit_receiver_name').value = data.receiver_name;
-        document.getElementById('edit_receiver_phone').value = data.receiver_phone;
-        document.getElementById('edit_street_address').value = data.street_address;
+        let response = await fetch(url);
+        let addressData = await response.json();
+
+        // Điền thông tin cơ bản
+        document.getElementById('edit_address_id').value = addressData.id;
+        document.getElementById('edit_receiver_name').value = addressData.receiver_name;
+        document.getElementById('edit_receiver_phone').value = addressData.receiver_phone;
+        document.getElementById('edit_street_address').value = addressData.street_address;
+
+        // Xử lý dropdown địa chỉ
+        const editDistrictSelect = document.getElementById('edit_district');
+        const editWardSelect = document.getElementById('edit_ward');
+
+        // Tải danh sách quận/huyện và chọn đúng quận
+        const districtResponse = await axios.get("https://provinces.open-api.vn/api/p/1?depth=2");
+        renderData(districtResponse.data.districts, 'edit_district');
+        editDistrictSelect.value = addressData.district;
+
+        // Tải danh sách phường/xã và chọn đúng phường
+        const districtCode = editDistrictSelect.options[editDistrictSelect.selectedIndex]?.dataset.code;
+        const wardResponse = await axios.get(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
+        renderData(wardResponse.data.wards, 'edit_ward');
+        editWardSelect.value = addressData.ward;
+
         document.getElementById('editAddressModal').style.display = 'flex';
     }
 });
@@ -236,5 +309,42 @@ document.getElementById('editAddressForm').onsubmit = async function(e) {
         location.reload();
     }
 };
+
+// --- Thêm JS cho API Tỉnh/Thành ---
+const host = "https://provinces.open-api.vn/api/";
+const hanoiCode = 1;
+
+var renderData = (array, selectId) => {
+    let row = '<option value="">-- Chọn --</option>';
+    array.forEach(element => {
+        row += `<option data-code="${element.code}" value="${element.name}">${element.name}</option>`
+    });
+    document.getElementById(selectId).innerHTML = row;
+}
+
+// Tải quận/huyện cho form THÊM MỚI khi trang load
+axios.get(host + "p/" + hanoiCode + "?depth=2").then(res => {
+    renderData(res.data.districts, "add_district");
+});
+
+// Khi chọn quận/huyện -> tải phường/xã cho form THÊM MỚI
+document.getElementById('add_district').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    if (selectedOption.dataset.code) {
+        axios.get(host + "d/" + selectedOption.dataset.code + "?depth=2").then(res => {
+            renderData(res.data.wards, "add_ward");
+        });
+    }
+});
+
+// Khi chọn quận/huyện -> tải phường/xã cho form CẬP NHẬT
+document.getElementById('edit_district').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    if (selectedOption.dataset.code) {
+        axios.get(host + "d/" + selectedOption.dataset.code + "?depth=2").then(res => {
+            renderData(res.data.wards, "edit_ward");
+        });
+    }
+});
 </script>
 @endsection

@@ -50,23 +50,14 @@ class ProfileController
 
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'phone' => ['required', 'string', 'max:15', Rule::unique('users')->ignore($user->id)],
+            'phone_number' => ['required', 'string', 'max:15', Rule::unique('users', 'phone_number')->ignore($user->id, 'id')],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'address' => 'nullable|string|max:255',
-            // Nếu người dùng nhập địa chỉ cụ thể, thì Tỉnh/Quận/Phường là bắt buộc
-            'province' => ['required_with:address', 'nullable', 'string', 'max:255'],
-            'district' => ['required_with:address', 'nullable', 'string', 'max:255'],
-            'ward' => ['required_with:address', 'nullable', 'string', 'max:255'],
             'password' => 'nullable|string|min:8|confirmed',
-        ], [
-            // Thêm thông báo lỗi tùy chỉnh
-            'province.required_with' => 'Vui lòng chọn Tỉnh/Thành phố khi đã nhập địa chỉ cụ thể.',
-            'district.required_with' => 'Vui lòng chọn Quận/Huyện khi đã nhập địa chỉ cụ thể.',
-            'ward.required_with' => 'Vui lòng chọn Phường/Xã khi đã nhập địa chỉ cụ thể.',
         ]);
 
         // Cập nhật thông tin chính
-        $user->fill($request->only(['full_name', 'phone', 'email', 'address', 'province', 'district', 'ward']));
+        // Sửa 'phone' thành 'phone_number' để khớp với các nơi khác và chỉ lấy các trường cần thiết
+        $user->fill($request->only(['full_name', 'phone_number', 'email']));
 
         // Cập nhật mật khẩu nếu có
         if (!empty($validated['password'])) {
@@ -82,10 +73,10 @@ class ProfileController
         $request->validate([
             'receiver_name' => ['required', 'string', 'min:5'],
             'receiver_phone' => ['required', 'regex:/^0\d{9}$/'],
-            'street_address' => ['required', 'string'],
             'province' => 'required|string',
             'district' => 'required|string',
             'ward' => 'required|string',
+            'street_address' => ['required', 'string'],
         ], [
             'receiver_name.required' => 'Vui lòng nhập họ và tên.',
             'receiver_name.min' => 'Họ và tên phải dài hơn 5 ký tự.',
@@ -95,6 +86,7 @@ class ProfileController
             'province.required' => 'Vui lòng chọn Tỉnh/Thành phố.',
             'district.required' => 'Vui lòng chọn Quận/Huyện.',
             'ward.required' => 'Vui lòng chọn Phường/Xã.',
+            'street_address.required' => 'Vui lòng nhập địa chỉ cụ thể.',
         ]);
 
         // Nếu chọn mặc định, bỏ mặc định các địa chỉ khác
@@ -106,10 +98,10 @@ class ProfileController
             'user_id' => Auth::id(),
             'receiver_name' => $request->receiver_name,
             'receiver_phone' => $request->receiver_phone,
-            'street_address' => $request->street_address,
             'province' => $request->province,
             'district' => $request->district,
             'ward' => $request->ward,
+            'street_address' => $request->street_address,
             'is_default' => $request->has('is_default') ? 1 : 0,
         ]);
 
@@ -132,13 +124,20 @@ class ProfileController
         $request->validate([
             'receiver_name' => ['required', 'string', 'min:5'],
             'receiver_phone' => ['required', 'regex:/^0\d{9}$/'],
-            'street_address' => ['required', 'string'],
             'province' => 'required|string',
             'district' => 'required|string',
             'ward' => 'required|string',
+            'street_address' => ['required', 'string'],
         ]);
 
-        $address->update($request->all());
+        $address->update([
+            'receiver_name' => $request->receiver_name,
+            'receiver_phone' => $request->receiver_phone,
+            'province' => $request->province,
+            'district' => $request->district,
+            'ward' => $request->ward,
+            'street_address' => $request->street_address,
+        ]);
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Cập nhật địa chỉ thành công!']);
