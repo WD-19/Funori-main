@@ -7,6 +7,8 @@ use App\Models\ContactSubmission;
 use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ContactExport;
+use App\Mail\ContactReplyMail;
+use Illuminate\Support\Facades\Mail;
 
 class ContactController
 {
@@ -71,7 +73,7 @@ class ContactController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'email' => 'required|email',
@@ -91,7 +93,10 @@ class ContactController
         $contact->replied_by = $request->replied_by;
         $contact->save();
 
-        return redirect()->route('admin.contacts.index')->with('success', 'Cập nhật liên hệ thành công!');
+        // Gửi mail cho người liên hệ
+        Mail::to($contact->email)->send(new ContactReplyMail($contact));
+
+        return redirect()->route('admin.contacts.index')->with('success', 'Đã trả lời liên hệ và gửi email cho khách hàng.');
     }
 
     /**

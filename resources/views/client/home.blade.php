@@ -15,7 +15,7 @@
                 @foreach ($banners as $banner)
                     "{{ asset('storage/' . $banner->image_url) }}",
                 @endforeach
-                ];
+                    ];
         </script>
         <img id="pic" src="{{ count($banners) ? asset('storage/' . $banners[0]->image_url) : '' }}" alt="" />
 
@@ -45,19 +45,41 @@
         </div>
     </div>
 
-    <div class="all-box-banner">
+    {{-- <div class="all-box-banner">
         @foreach ($banners->where('position', 'banner_category') as $banner)
-            <div class="box-first-banner">
-                <div class="box-img-banner">
-                    <a href="{{ $banner->link_url }}">
-                        <img src="{{ asset('storage/' . $banner->image_url) }}" alt="{{ $banner->title ?? '' }}" />
-                    </a>
-                </div>
-                <div class="title-in-banner">
-                    <h3>{{ $banner->title ?? '' }}</h3>
-                    <a href="{{ $banner->link_url }}">Xem Bộ Sưu Tập</a>
-                </div>
+        <div class="box-first-banner">
+            <div class="box-img-banner">
+                <a href="{{ $banner->link_url }}">
+                    <img src="{{ asset('storage/' . $banner->image_url) }}" alt="{{ $banner->title ?? '' }}" />
+                </a>
             </div>
+            <div class="title-in-banner">
+                <h3>{{ $banner->title ?? '' }}</h3>
+                <a href="{{ $banner->link_url }}">Xem Bộ Sưu Tập</a>
+            </div>
+        </div>
+        @endforeach
+    </div> --}}
+    <style>
+
+        .title-Living-room {
+            position: absolute;
+            left: 45%;
+ 
+        }
+
+
+    </style>
+    <div class="box-room">
+        @foreach ($banners->where('position', 'banner_category') as $banner)
+            <a href="{{ $banner->link_url }}">
+                <div class="living-room">
+                    <img src="{{ asset('storage/' . $banner->image_url) }}" alt="{{ $banner->title ?? '' }}" />
+                    <div style="text-align:center;display:flex;justify-content:center;align-items:center;"
+                        class="title-Living-room">{{ $banner->title ?? '' }}</div>
+                    <div class="Shop-col"> Bộ Sưu Tập</div>
+                </div>
+            </a>
         @endforeach
     </div>
     <div class="setion-shop">
@@ -126,7 +148,7 @@
 
                             <div class="box-name-product" data-product-id="{{ $product->id }}">
                                 <div class="name-product">{{ $product->name }}</div>
-                                <div id="Prict-prod" >
+                                <div id="Prict-prod">
                                     <span>{{ number_format($product->regular_price, decimals: 2) }} đ</span>
                                 </div>
                                 {{-- <div class="buttom-1">

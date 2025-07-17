@@ -333,7 +333,7 @@ html {
     font-size: 30px;
     font-weight: 400;
     color: white;
-    transition: 0.5s;
+    transition: 0.5s;       
 }
 
 .living-room .Shop-col, .bed-room .Shop-col, .ketchen-room .Shop-col {
