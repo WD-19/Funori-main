@@ -1,8 +1,7 @@
-<div class="headermain" style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background: #fff;">
-    <div class="contentmain"
-        style="display: flex; align-items: center; justify-content: space-between; min-height: 64px;">
+<div class="headermain" style="position: sticky; top: 0; z-index: 1000; background: #fff;">
+    <div class="contentmain">
 
-        <nav class="box-menu" style="flex: 1; min-width: 0;">
+        <nav class="box-menu" style="flex: 1; min-width: 0; align-items: center; ">
             <ul class="all-list-menu">
                 <li>
                     <a href="{{ route('home') }}" class="hover-a">Trang chủ</a>
@@ -33,7 +32,7 @@
                 </li>
             </ul>
         </nav>
-        <div class="box-logo" style="flex: 0 0 auto; display: flex; align-items: center; height: 64px;">
+        <div class="box-logo" style="flex: 0 0 auto; display: flex; align-items: center; height: 48px;">
             <div class="logo">
                 <a href="{{ route('home') }}" class="logo-link">
                     {{-- <img src="{{ asset('client/picture/logo.png') }}" alt="Logo" /> --}}
@@ -42,7 +41,7 @@
             </div>
         </div>
         <div class="box-icon d-flex align-items-center gap-3"
-            style="flex: 1; justify-content: flex-end; height: 64px; display: flex; align-items: center;">
+            style="flex: 1; justify-content: flex-end; height: 48px; display: flex; align-items: center;">
             <form action="{{ route('client.search') }}" method="GET" class="search-bar"
                 style="position:relative; width:320px; margin-right:12px; height:36px; display:flex; align-items:center;">
                 <input type="text" name="q" id="search-input" autocomplete="off"
@@ -58,35 +57,36 @@
                 </div>
             </form>
             <div class="box-user dropdown d-flex align-items-center"
-                style="height: 36px; display: flex; align-items: center;">
+                style="height: 36px; display: flex;  position: relative;">
                 <a href="{{ Auth::check() ? '#' : route('client.login') }}" id="userDropdown"
                     style="padding: 0; border: none; background: none; display: flex; align-items: center; height: 36px;">
                     @if (Auth::check())
                         <img src="{{ asset(Auth::user()->avatar_url ? Auth::user()->avatar_url : 'images/images.jpg') }}"
                             alt="avatar"
                             style="width:32px;height:32px;object-fit:cover;border-radius:50%; display: block; vertical-align: middle;">
+                        <span
+                            style="margin-left: 8px; color: #fc573b; font-weight: 600; font-size: 13px;">{{ Auth::user()->username ?? Auth::user()->name }}</span>
                     @else
                         <i class="fa-regular fa-user user"
                             style="font-size: 24px; vertical-align: middle; line-height: 1;"></i>
                     @endif
                 </a>
                 @if (Auth::check())
-                    <div class="dropdown-menu"
-                        style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 10px; overflow: hidden; padding: 18px 0;">
+                    <div class="dropdown-menu simple-profile-dropdown"
+                        style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 12px; overflow: hidden; padding: 0;">
                         <a href="{{ route('client.profile.dashboard') }}"
-                            class="dropdown-item d-flex align-items-center"
-                            style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
-                            <i class="fa-regular fa-user"
-                                style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i>
-                            Tài Khoản
-                        </a>
+                            style="display: block; padding: 10px 18px; color: #222; text-decoration: none; font-size: 15px; border-bottom: 1px solid #f5f5f5; font-weight: 400; text-align: left;">Tài
+                            Khoản Của Tôi</a>
+                        <a href=""
+                            style="display: block; padding: 10px 18px; color: #222; text-decoration: none; font-size: 15px; border-bottom: 1px solid #f5f5f5; font-weight: 400; text-align: left;">Đơn
+                            Mua</a>
                         <form action="{{ route('client.logout') }}" method="POST" style="margin: 0;">
                             @csrf
-                            <button type="submit" class="dropdown-item d-flex align-items-center"
-                                style="background: none; border: none; padding: 16px 28px; color: #e53935; font-size: 15px; font-weight: 500; cursor: pointer;">
-                                <i class="fa-solid fa-right-from-bracket"
-                                    style="font-size: 18px; color: #e53935; margin-right: 16px;"></i> Đăng xuất
+                            <button type="submit"
+                                style="display: block; width: 100%; background: none; border: none; padding: 10px 30px; color: #222; font-size: 15px; font-weight: 400; text-align: left; box-sizing: border-box; outline: none; border-bottom: 1px solid #f5f5f5; cursor: pointer; font-family: inherit;">
+                                Đăng Xuất
                             </button>
+
                         </form>
                     </div>
                     <script>
@@ -157,8 +157,7 @@
                 </div>
             </div>
 
-            <div class="cart-popup-group"
-                style="position: relative; display: flex; align-items: center; height: 36px;">
+            <div class="cart-popup-group" style="position: relative; display: flex; align-items: center; height: 36px;">
                 <a href="{{ route('client.view-cart') }}" class="box-cart" style="position: relative; z-index: 10;">
                     <i class="fa-solid fa-cart-shopping cart"></i>
                     @if (isset($cartCount) && $cartCount > 0)
@@ -318,94 +317,6 @@
     });
 </script>
 <style>
-    .contentmain {
-        min-height: 64px;
-        height: 64px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .box-menu {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .box-logo {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        height: 64px;
-        justify-content: center;
-    }
-
-    .box-icon {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        height: 64px;
-    }
-
-    .box-menu ul.all-list-menu {
-        display: flex;
-        align-items: center;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        white-space: nowrap;
-        /* Ngăn các item xuống dòng */
-    }
-
-    .box-menu ul.all-list-menu li {
-        height: 64px;
-        display: flex;
-        align-items: center;
-        white-space: nowrap;
-        /* Ngăn từng mục xuống dòng */
-    }
-
-    .box-menu ul.all-list-menu li a {
-        height: 100%;
-        display: flex;
-        align-items: center;
-        line-height: 64px;
-        font-size: 18px;
-    }
-
-    .box-logo img {
-        height: 40px;
-        object-fit: contain;
-    }
-
-    .box-icon>* {
-        height: 100%;
-        display: flex;
-        align-items: center;
-    }
-
-    .box-icon i,
-    .box-icon img {
-        font-size: 24px;
-        height: 32px;
-        width: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .search-bar {
-        height: 40px !important;
-        min-width: 240px;
-        max-width: 320px;
-        display: flex;
-        align-items: center;
-    }
-
-    .search-bar input {
-        height: 36px;
-    }
-
     .mini-wishlist-item-link:hover .mini-wishlist-name {
         color: #fcad02 !important;
         text-decoration: underline;
