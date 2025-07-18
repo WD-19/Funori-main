@@ -41,10 +41,10 @@
         /* Tăng cỡ chữ cho toastr */
         #toast-container>.toast {
             font-size: 18px;
-            min-width: 350px;
+            min-width: 400px;
             max-width: 500px;
             padding: 18px 24px;
-            padding-left: 40px;
+            padding-left: 50px;
         }
 
         /* Tùy chỉnh màu nền/toast nếu muốn */
