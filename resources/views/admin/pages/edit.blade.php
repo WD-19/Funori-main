@@ -1,3 +1,4 @@
+{{-- filepath: resources/views/admin/pages/edit.blade.php --}}
 @extends('admin.layout.admin')
 
 @section('title', 'Chỉnh sửa trang')
@@ -9,7 +10,7 @@
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
                     <a href="{{ route('admin.dashboard') }}">
-                        <div class="text-tiny">Dashboard</div>
+                        <div class="text-tiny">Bảng điều khiển</div>
                     </a>
                 </li>
                 <li>
@@ -34,7 +35,7 @@
                 @csrf
                 @method('PUT')
                 <!-- Tiêu đề -->
-                <fieldset class="name">
+                <fieldset class="form-fieldset">
                     <div class="body-title">Tiêu đề trang <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('title') is-invalid @enderror" type="text"
                         placeholder="Tiêu đề trang" name="title" id="title" value="{{ old('title', $page->title) }}">
@@ -44,7 +45,7 @@
                 </fieldset>
                 <input type="hidden" name="slug" id="slug" value="{{ old('slug', $page->slug) }}">
                 <!-- Nội dung -->
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Nội dung <span class="tf-color-1">*</span></div>
                     <div class="ck-editor-container">
                         <textarea class="flex-grow @error('content') is-invalid @enderror" name="content" id="content" rows="6" cols="100"
@@ -54,7 +55,7 @@
                         @enderror
                     </div>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Tác giả <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="author_id" id="author_id" class="@error('author_id') is-invalid @enderror">
@@ -71,7 +72,7 @@
                         @enderror
                     </div>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Loại trang <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="page_type" id="page_type" class="@error('page_type') is-invalid @enderror">
@@ -86,7 +87,7 @@
                         @enderror
                     </div>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Trạng thái <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="status" id="status" class="@error('status') is-invalid @enderror">
@@ -101,7 +102,7 @@
                     </div>
                 </fieldset>
                 <!-- Ảnh đại diện -->
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Ảnh đại diện <span class="tf-color-1">*</span></div>
                     <div class="upload-image flex-grow d-block">
                         <div class="item up-load" style="display: flex; align-items: flex-start; gap: 24px;">
@@ -126,7 +127,7 @@
                         @enderror
                     </div>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Meta title <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('meta_title') is-invalid @enderror" type="text"
                         placeholder="Meta title" name="meta_title" id="meta_title"
@@ -135,7 +136,7 @@
                         <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Meta description <span class="tf-color-1">*</span></div>
                     <textarea class="flex-grow @error('meta_description') is-invalid @enderror" name="meta_description"
                         id="meta_description" rows="2" placeholder="Meta description">{{ old('meta_description', $page->meta_description) }}</textarea>
@@ -143,7 +144,7 @@
                         <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Ngày xuất bản <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('published_at') is-invalid @enderror"
                         type="datetime-local" name="published_at" id="published_at"
@@ -152,11 +153,11 @@
                         <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Ngày tạo</div>
                     <input type="text" class="form-control" value="{{ $page->created_at }}" readonly>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Ngày cập nhật</div>
                     <input type="text" class="form-control" value="{{ $page->updated_at }}" readonly>
                 </fieldset>
@@ -210,6 +211,9 @@
             color: #dc3545;
             font-size: 0.9rem;
             margin-top: 5px;
+        }
+        .form-fieldset {
+            margin-bottom: 30px; /* Tăng khoảng cách giữa các fieldset */
         }
     </style>
     <script>
@@ -274,43 +278,43 @@
     @push('scripts')
         <script src="https://cdn.tiny.cloud/1/hs04m6101y0gorgukhuffqutjnhs52o68gb16y52y7nvuj6u/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
         <script>
-    tinymce.init({
-        selector: '#content',
-        plugins: 'image media link table lists advlist',
-        toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
-        height: 800,
-        menubar: false,
-        images_upload_url: '{{ route('admin.pages.upload-image') }}',
-        images_upload_credentials: true,
-        images_upload_handler: async (blobInfo, progress) => {
-    let formData = new FormData();
-    formData.append('file', blobInfo.blob(), blobInfo.filename());
-    formData.append('_token', '{{ csrf_token() }}');
+            tinymce.init({
+                selector: '#content',
+                plugins: 'image media link table lists advlist',
+                toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
+                height: 800,
+                menubar: false,
+                images_upload_url: '{{ route('admin.pages.upload-image') }}',
+                images_upload_credentials: true,
+                images_upload_handler: async (blobInfo, progress) => {
+                    let formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    formData.append('_token', '{{ csrf_token() }}');
 
-    const response = await fetch('{{ route('admin.pages.upload-image') }}', {
-        method: 'POST',
-        body: formData,
-        headers: { 'Accept': 'application/json' }
-    });
-    const json = await response.json();
-    console.log('Upload response:', json);
-    if (!json.location) {
-        throw new Error('Tải ảnh thất bại: ' + (json.error || 'Lỗi không xác định'));
-    }
-    // Trả về đường dẫn tương đối
-    return '/storage/' + json.location.split('storage/')[1];
-},
-        setup: (editor) => {
-            editor.on('init', () => {
-                console.log('Editor content:', editor.getContent()); // Debug nội dung
+                    const response = await fetch('{{ route('admin.pages.upload-image') }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const json = await response.json();
+                    console.log('Upload response:', json);
+                    if (!json.location) {
+                        throw new Error('Tải ảnh thất bại: ' + (json.error || 'Lỗi không xác định'));
+                    }
+                    // Trả về đường dẫn tương đối
+                    return '/storage/' + json.location.split('storage/')[1];
+                },
+                setup: (editor) => {
+                    editor.on('init', () => {
+                        console.log('Editor content:', editor.getContent()); // Debug nội dung
+                    });
+                },
+                readonly: false,
+                image_caption: true,
+                image_advtab: true,
+                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
             });
-        },
-        readonly: false,
-        image_caption: true,
-        image_advtab: true,
-        content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
-    });
-</script>
+        </script>
     @endpush
     @push('head')
         <style>

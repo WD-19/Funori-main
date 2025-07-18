@@ -1,19 +1,21 @@
 @extends('admin.layout.admin')
 
+@section('title', 'Thêm giá trị thuộc tính')
+
 @section('content')
     <div class="flex items-center flex-wrap justify-between gap20 mb-30">
         <h3>Thêm giá trị thuộc tính</h3>
         <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
             <li>
-                <a href="index.html">
-                    <div class="text-tiny">Trang chủ</div>
+                <a href="{{ route('admin.dashboard') }}">
+                    <div class="text-tiny">Bảng điều khiển</div>
                 </a>
             </li>
             <li>
                 <i class="icon-chevron-right"></i>
             </li>
             <li>
-                <a href="#">
+                <a href="{{ route('admin.attributes.index') }}">
                     <div class="text-tiny">Thuộc tính</div>
                 </a>
             </li>
@@ -28,19 +30,25 @@
     <div class="wg-box">
         <form action="{{ route('admin.attributes.store') }}" method="POST">
             @csrf
-            <fieldset class="name mb-5">
+            <fieldset class="name mb-6">
                 <div class="body-title">Thuộc tính</div>
-                <select name="attribute_id" id="attribute_id" class="form-control fs-4 rounded px-4" required>
+                <select name="attribute_id" id="attribute_id" class="form-control fs-4 rounded px-4 @error('attribute_id') is-invalid @enderror" required>
                     <option value="">-- Chọn thuộc tính --</option>
                     @foreach ($attributes as $attribute)
                         <option value="{{ $attribute->id }}">{{ $attribute->name }}</option>
                     @endforeach
                 </select>
+                @error('attribute_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </fieldset>
-            <fieldset class="name">
+            <fieldset class="name mt-6">
                 <div class="body-title">Giá trị</div>
-                <input class="flex-grow" type="text" placeholder="Nhập giá trị thuộc tính" name="value" tabindex="0"
+                <input class="flex-grow form-control @error('value') is-invalid @enderror" type="text" placeholder="Nhập giá trị thuộc tính" name="value" tabindex="0"
                     value="" aria-required="true" required="">
+                @error('value')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </fieldset>
             <div class="row mt-5">
                 <div class="col-md-6 mb-2">
@@ -56,4 +64,32 @@
             </div>
         </form>
     </div>
+    <style>
+        .name {
+            padding: 15px 0;
+        }
+        .body-title {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .form-control {
+            padding: 12px 16px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
 @endsection

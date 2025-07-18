@@ -22,7 +22,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
+    <!-- Toastr JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     @stack('head')
+    <style>
+        /* Tăng cỡ chữ cho toastr */
+        #toast-container>.toast {
+            font-size: 18px;
+            min-width: 400px;
+            max-width: 500px;
+            padding: 18px 24px;
+            padding-left: 50px;
+        }
+
+        /* Tùy chỉnh màu nền/toast nếu muốn */
+        #toast-container>.toast-success {
+            background-color: #43d477;
+        }
+
+        #toast-container>.toast-error {
+            background-color: #ff4d4f;
+        }
+    </style>
 </head>
 
 <body>
@@ -82,6 +104,29 @@
     <script src="{{ asset('js/switcher.js') }}"></script>
     <script defer src="{{ asset('js/theme-settings.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
+
+
+    <!-- Toastr JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    {{-- Thông báo --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            toastr.options = {
+                "positionClass": "toast-bottom-right",
+                "timeOut": "3000",
+                "closeButton": true,
+                "progressBar": true
+            };
+            @if (session('success'))
+                toastr.success("{{ session('success') }}");
+            @endif
+
+            @if (session('error'))
+                toastr.error("{{ session('error') }}");
+            @endif
+        });
+    </script>
     @stack('scripts')
 </body>
 

@@ -1,5 +1,7 @@
 @extends('admin.layout.admin')
 
+@section('title', 'Chỉnh sửa danh mục')
+
 @section('content')
     <div class="main-content-wrap">
         <div class="flex items-center flex-wrap justify-between gap20 mb-30">
@@ -7,7 +9,7 @@
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
                     <a href="{{ route('admin.dashboard') }}">
-                        <div class="text-tiny">Dashboard</div>
+                        <div class="text-tiny">Bảng điều khiển</div>
                     </a>
                 </li>
                 <li><i class="icon-chevron-right"></i></li>

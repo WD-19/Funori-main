@@ -1,5 +1,7 @@
 @extends('admin.layout.admin')
+
 @section('title', 'Cập nhật banner')
+
 @section('content')
     <div class="main-content-inner">
         @if (session('success'))
@@ -21,10 +23,9 @@
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Ảnh banner</label>
                     <input type="file" name="image" id="banner-image" class="form-control" accept="image/*">
-                    <input type="hidden" name="cropped_image" id="cropped-image">
-                    <div id="cropper-preview" class="mt-2">
+                    <div id="image-preview" class="mt-2">
                         @if ($banner->image_url)
-                            <img src="{{ asset('storage/' . $banner->image_url) }}" style="max-width:100%;">
+                            <img src="{{ asset('storage/' . $banner->image_url) }}" style="width: 100%; height: auto; display: block;">
                         @endif
                     </div>
                 </fieldset>
@@ -82,47 +83,20 @@
         </div>
     </div>
     @push('scripts')
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
         <script>
-            let cropper;
-            let croppedData = '';
             document.getElementById('banner-image')?.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = function(ev) {
-                    let img = document.createElement('img');
+                    const img = document.createElement('img');
                     img.src = ev.target.result;
-                    img.style.maxWidth = '100%';
-                    document.getElementById('cropper-preview').innerHTML = '';
-                    document.getElementById('cropper-preview').appendChild(img);
-                    if (cropper) cropper.destroy();
-                    cropper = new Cropper(img, {
-                        aspectRatio: 2 / 1,
-                        viewMode: 1,
-                        autoCropArea: 1,
-                    });
+                    img.style.width = '100%'; // Hiển thị full chiều rộng
+                    img.style.height = 'auto'; // Giữ tỷ lệ khung hình
+                    document.getElementById('image-preview').innerHTML = '';
+                    document.getElementById('image-preview').appendChild(img);
                 };
                 reader.readAsDataURL(file);
-            });
-
-            document.getElementById('submit-btn').addEventListener('click', function(e) {
-                if (cropper) {
-                    e.preventDefault();
-                    cropper.getCroppedCanvas({
-                        width: 1200,
-                        height: 600,
-                        imageSmoothingQuality: 'high'
-                    }).toBlob(function(blob) {
-                        let reader = new FileReader();
-                        reader.onloadend = function() {
-                            document.getElementById('cropped-image').value = reader.result;
-                            e.target.form.submit();
-                        };
-                        reader.readAsDataURL(blob);
-                    }, 'image/jpeg', 0.92);
-                }
             });
         </script>
     @endpush

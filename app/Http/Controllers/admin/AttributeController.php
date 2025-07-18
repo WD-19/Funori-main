@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\AttributeValue;
 use App\Models\Attribute;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AttributeController
 {
@@ -29,7 +30,9 @@ class AttributeController
     {
         $request->validate([
             'attribute_id' => 'required|exists:attributes,id',
-            'value' => 'required|string|max:255',
+            'value' => ['required', 'string', 'max:255', Rule::unique('attribute_values')->where(function ($query) use ($request) {
+                return $query->where('attribute_id', $request->attribute_id);
+            })],
         ]);
 
         AttributeValue::create([
@@ -51,7 +54,9 @@ class AttributeController
     {
         $request->validate([
             'attribute_id' => 'required|exists:attributes,id',
-            'value' => 'required|string|max:255',
+            'value' => ['required', 'string', 'max:255', Rule::unique('attribute_values')->where(function ($query) use ($request, $id) {
+                return $query->where('attribute_id', $request->attribute_id)->where('id', '!=', $id);
+            })],
         ]);
 
         $attributeValue = AttributeValue::findOrFail($id);

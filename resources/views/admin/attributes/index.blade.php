@@ -7,15 +7,15 @@
         <h3>Danh sách thuộc tính</h3>
         <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
             <li>
-                <a href="index.html">
-                    <div class="text-tiny">Trang chủ</div>
+                <a href="{{ route('admin.dashboard') }}">
+                    <div class="text-tiny">Bảng điều khiển</div>
                 </a>
             </li>
             <li>
                 <i class="icon-chevron-right"></i>
             </li>
             <li>
-                <a href="#">
+                <a href="{{ route('admin.attributes.index') }}">
                     <div class="text-tiny">Thuộc tính</div>
                 </a>
             </li>

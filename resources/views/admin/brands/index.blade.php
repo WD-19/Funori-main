@@ -1,4 +1,7 @@
 @extends('admin.layout.admin')
+
+@section('title', 'Danh sách thương hiệu')
+
 @section('content')
     <div class="main-content-inner">
         <div class="main-content-wrap">
@@ -6,23 +9,23 @@
                 <h3>Tất cả thương hiệu</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
-                        <a href="#">
-                            <div class="text-tiny">Dashboard</div>
+                        <a href="{{ route('admin.dashboard') }}">
+                            <div class="text-tiny">Bảng điều khiển</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <a href="#">
-                            <div class="text-tiny">thương hiệu</div>
+                        <a href="{{ route('admin.brands.index') }}">
+                            <div class="text-tiny">Thương hiệu</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Tất cả thương hiệu</div>
+                        <div class="text-tiny">Danh sách thương hiệu</div>
                     </li>
                 </ul>
 

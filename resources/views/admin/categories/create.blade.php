@@ -8,7 +8,7 @@
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
                     <a href="{{ route('admin.dashboard') }}">
-                        <div class="text-tiny">Dashboard</div>
+                        <div class="text-tiny">Bang điều khiển</div>
                     </a>
                 </li>
                 <li>

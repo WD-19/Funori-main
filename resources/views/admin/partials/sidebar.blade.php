@@ -14,7 +14,7 @@
             <div class="center-item">
                 <ul class="">
                     <!-- Thống Kê -->
-                    <li class="menu-item active">
+                    <li class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                         <a href="{{ route('admin.dashboard') }}">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -27,7 +27,7 @@
                         </a>
                     </li>
                     <!-- Sản Phẩm -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -52,10 +52,9 @@
                         </ul>
                     </li>
                     <!-- Thương Hiệu -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
-                                <!-- icon thương hiệu: huy chương -->
                                 <svg width="24" height="24" fill="none">
                                     <circle cx="12" cy="8" r="5" stroke="#111" stroke-width="2" />
                                     <path d="M7 21l5-4 5 4" stroke="#111" stroke-width="2" fill="none" />
@@ -77,10 +76,9 @@
                         </ul>
                     </li>
                     <!-- Danh Mục -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
-                                <!-- icon danh mục: 3 dòng menu -->
                                 <svg width="24" height="24" fill="none">
                                     <rect x="4" y="6" width="16" height="2" rx="1" fill="#111" />
                                     <rect x="4" y="11" width="16" height="2" rx="1" fill="#111" />
@@ -103,7 +101,7 @@
                         </ul>
                     </li>
                     <!-- Thuộc Tính -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.attributes.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -129,7 +127,7 @@
                         </ul>
                     </li>
                     <!-- Phương Thức -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.payment_methods.*', 'admin.shipping_methods.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -154,7 +152,7 @@
                         </ul>
                     </li>
                     <!-- Mã Giảm Giá -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.promotions.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -180,10 +178,9 @@
                         </ul>
                     </li>
                     <!-- Banner -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
-                                <!-- icon banner: lá cờ -->
                                 <svg width="24" height="24" fill="none">
                                     <path d="M5 21V5a1 1 0 0 1 1-1h12l-2 4 2 4H6" stroke="#111" stroke-width="2"
                                         fill="none" />
@@ -205,10 +202,9 @@
                         </ul>
                     </li>
                     <!-- Đơn Hàng -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
-                                <!-- icon đơn hàng: giỏ hàng -->
                                 <svg width="24" height="24" fill="none">
                                     <circle cx="9" cy="21" r="1" fill="#111" />
                                     <circle cx="19" cy="21" r="1" fill="#111" />
@@ -232,7 +228,7 @@
                         </ul>
                     </li>
                     <!-- Người Dùng -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -256,7 +252,7 @@
                         </ul>
                     </li>
                     <!-- Đánh Giá -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -275,7 +271,7 @@
                         </ul>
                     </li>
                     <!-- Trang -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -305,7 +301,7 @@
                         </ul>
                     </li>
                     <!-- Liên Hệ -->
-                    <li class="menu-item has-children">
+                    <li class="menu-item has-children {{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -344,3 +340,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const currentRoute = window.location.pathname;
+        const menuItems = document.querySelectorAll('.menu-item a');
+        
+        menuItems.forEach(item => {
+            const href = item.getAttribute('href');
+            if (href && currentRoute.includes(href.replace(/^\//, ''))) {
+                item.closest('.menu-item').classList.add('active');
+            }
+        });
+    });
+</script>
+
+<style>
+    .menu-item.active > a {
+        background-color: #f8f9fa;
+        color: #007bff;
+    }
+    .menu-item.active > a .icon svg {
+        fill: #007bff;
+    }
+    .menu-item.active .text {
+        color: #007bff;
+    }
+</style>
