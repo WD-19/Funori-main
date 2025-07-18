@@ -14,7 +14,7 @@
             if(Auth::check() && Auth::user()->wishlist) {
               $wishlistProductIds = Auth::user()->wishlist->items->pluck('product_id')->toArray();
                }
-    @endphp
+      @endphp
     <!-- breadcrumb -->
     <div class="tf-breadcrumb">
         <div class="container">
