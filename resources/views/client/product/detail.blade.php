@@ -595,34 +595,57 @@
 
                             {{-- biến thể --}}
                             <div class="widget-content-inner">
-                                <table class="tf-pr-attrs">
-                                    <tbody>
-                                        <tr>
-                                            <th class="tf-attr-label">Màu sắc</th>
-                                            <td class="tf-attr-value">
-                                                <p>Trắng sữa, Gỗ tự nhiên, Đen nhám</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th class="tf-attr-label">Kích thước</th>
-                                            <td class="tf-attr-value">
-                                                <p>Dài 120cm x Rộng 60cm x Cao 75cm</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th class="tf-attr-label">Chất liệu</th>
-                                            <td class="tf-attr-value">
-                                                <p>Gỗ MDF phủ Melamine chống trầy xước</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th class="tf-attr-label">Bảo hành</th>
-                                            <td class="tf-attr-value">
-                                                <p>12 tháng</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="variant-picker-slider-wrap">
+                                    <div class="swiper variant-picker-swiper" id="variant-picker-swiper">
+                                        <div class="swiper-wrapper">
+                                            @foreach ($product->variants as $variant)
+                                                <div class="swiper-slide">
+                                                    <label class="variant-box p-2 border rounded mb-2"
+                                                        style="min-width:160px; cursor:pointer;">
+
+                                                        <input type="radio" name="variant_id" value="{{ $variant->id }}"
+                                                        data-title="{{ $variant->name_variant ?? '' }}"
+                                                        data-price="{{ $product->regular_price + $variant->price_modifier }}"
+                                                        data-material="{{ $variant->material ?? '' }}"
+
+                                                        @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
+                                                        style="margin-right: 8px;">
+                                                        @if ($variant->image)
+                                                            <img  style="width: 100%;" src="{{ asset($variant->image->image_url) }}"
+                                                                alt="Ảnh biến thể"
+                                                                style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
+                                                        @endif
+                                                        <div>
+                                                            <br>
+                                                            <strong>Kho:</strong>
+                                                            @if(($variant->stock_quantity ?? 0) <= 0)
+                                                                <span style="color:red;font-weight:bold;">Hết hàng</span>
+                                                            @else
+                                                                {{ $variant->stock_quantity }}
+                                                            @endif
+                                                            <br>
+                                                            <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
+                                                                {{-- Hiển thị các thuộc tính của biến thể --}}
+                                                            @if ($variant->attributeValues && $variant->attributeValues->count())
+                                                                {{-- <div> --}}
+                                                                    {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
+                                                                    @foreach ($variant->attributeValues as $attrVal)
+                                                                        <strong>{{ $attrVal->attribute->name ?? '' }}</strong> {{ $attrVal->value ?? '' }}<br>
+                                                                        {{-- <span
+                                                                            class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
+                                                                            {{ $attrVal->value ?? '' }}</span> --}}
+                                                                    @endforeach
+                                                                {{-- </div> --}}
+                                                            @endif
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="swiper-button-next"></div>
+                                        <div class="swiper-button-prev"></div>
+                                    </div>
+                                </div>
                             </div>
                             {{-- /biến thể --}}
 
@@ -1145,7 +1168,7 @@ if (addToCartBtn) {
             })
         })
         .then(response => response.json())
-        .then(data => {
+        .then data => {
             if (data.success) {
                 toastr.success('Đã thêm vào giỏ hàng!');
             } else {
