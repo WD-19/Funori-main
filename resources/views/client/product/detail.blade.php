@@ -197,10 +197,9 @@
                                     .tf-product-info-variant-picker .variant-box {
                                         
                                      min-width: 112px !important;
-                                    padding: 1.4rem !important;
                                     border-width: 1px !important;
                                     border-radius: 4px !important;
-                                    font-size: 80%;
+                                    font-size: 110%;
                                     }
                                     .tf-product-info-variant-picker .variant-box img {
                                         width: 25px !important;  /* 36px * 0.7 */
