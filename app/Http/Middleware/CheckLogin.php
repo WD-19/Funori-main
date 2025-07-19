@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckLogin
 {
-     public function handle($request, Closure $next)
+    public function handle($request, Closure $next)
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect()->route('client.login');
@@ -17,5 +17,3 @@ class CheckLogin
         return $next($request);
     }
 }
-
-
