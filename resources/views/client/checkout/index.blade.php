@@ -329,30 +329,43 @@
                                             {{ number_format($method->cost, 0, ',', '.') }}đ</span>
                                     </label>
                                 @endforeach
-                            </div>
+                            </div> 
 
                             <div class="mt-4">
                                 <h5>Phương thức thanh toán</h5>
                                 @foreach ($paymentMethods as $method)
                                     <label class="payment-method d-flex align-items-center">
                                         <input type="radio" name="payment_method_id" value="{{ $method->id }}"
-                                            required>
+                                            required
+                                            {{ old('payment_method_id') == $method->id ? 'checked' : '' }}
+                                            data-method="{{ strtolower($method->name) }}">
                                         <span>{{ $method->name }}</span>
                                     </label>
                                 @endforeach
+                                
                             </div>
 
                             <div class="totals-row mt-4">
                                 <span>Tạm tính</span>
                                 <span>{{ number_format($cart['total'], 0, ',', '.') }}đ</span>
                             </div>
+                            @if (($cart['discount'] ?? 0) > 0)
+                                <div class="totals-row">
+                                    <span>Giảm
+                                        giá{{ $cart['discount_code'] ? ' (' . $cart['discount_code'] . ')' : '' }}</span>
+                                    <span
+                                        style="color:#ff3029;">-{{ number_format($cart['discount'], 0, ',', '.') }}đ</span>
+                                </div>
+                            @endif
                             <div class="totals-row">
                                 <span>Phí vận chuyển</span>
                                 <span id="shipping-fee-display">0đ</span>
                             </div>
                             <div class="totals-row grand-total">
                                 <span>Tổng cộng</span>
-                                <span id="grand-total-display">{{ number_format($cart['total'], 0, ',', '.') }}đ</span>
+                                <span id="grand-total-display">
+                                    {{ number_format($cart['total'] - ($cart['discount'] ?? 0), 0, ',', '.') }}đ
+                                </span>
                             </div>
 
                             <button type="submit"
@@ -481,11 +494,13 @@
             const shippingFeeDisplay = document.getElementById('shipping-fee-display');
             const grandTotalDisplay = document.getElementById('grand-total-display');
             const subtotal = {{ $cart['total'] }};
+            const discount = {{ $cart['discount'] ?? 0 }};
             shippingRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
                     const cost = parseFloat(this.dataset.cost);
                     shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
-                    grandTotalDisplay.textContent = (subtotal + cost).toLocaleString('vi-VN') + 'đ';
+                    grandTotalDisplay.textContent = (subtotal - discount + cost).toLocaleString(
+                        'vi-VN') + 'đ';
                 });
             });
 
@@ -510,7 +525,7 @@
                         buyerPhoneInput.value =
                             '{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}';
                         buyerEmailInput.value =
-                        '{{ old('buyer_email', auth()->user()->email ?? '') }}';
+                            '{{ old('buyer_email', auth()->user()->email ?? '') }}';
                         buyerAddressInput.value =
                             '{{ old('buyer_address', auth()->user()->address ?? '') }}';
                         // Gọi lại hàm khởi tạo để chọn lại địa chỉ mặc định của user nếu có
@@ -544,5 +559,7 @@
                 });
             }
         });
+
+        
     </script>
 @endsection
