@@ -29,6 +29,7 @@ class Order extends Model
         'tax_amount',
         'total_amount',
         'payment_method_id',
+        'payment_details',
         'payment_status',
         'shipping_method_id',
         'order_status',
@@ -48,6 +49,7 @@ class Order extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'ordered_at' => 'datetime',
+        'payment_details' => 'array',
         'delivered_at' => 'datetime',
         'cancelled_at' => 'datetime',
         'payment_status' => 'string', // Enum

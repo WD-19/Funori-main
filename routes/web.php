@@ -28,6 +28,7 @@ use App\Http\Controllers\client\ShopController;
 use App\Http\Controllers\client\CheckoutController;
 use App\Http\Middleware\CheckClientLogin;
 use App\Http\Controllers\Client\WishlistController;
+use App\Http\Controllers\VnPayController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Auth;
@@ -156,6 +157,8 @@ Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('client.checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('client.checkout.process');
 Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('client.checkout.prepare');
+Route::post('/vnpay-pay', [VnPayController::class, 'pay'])->name('vnpay.payment');
+Route::get('/vnpay-return', [VnPayController::class, 'vnpayReturn'])->name('vnpay.return');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('client.checkout.success');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
@@ -202,25 +205,30 @@ Route::prefix('/')->name('client.')->group(function () {
     // Thêm lại route mã giảm giá:
     Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.applyDiscount');
 
-    Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 
-    Route::prefix('profile')->name('profile.')->group(function () {
+    Route::prefix('profile')->name('profile.')->middleware(CheckClientLogin::class)->group(function () {
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('order');
-        Route::get('/address', [ProfileController::class, 'address'])->name('address');
+
+        // Address Management
+        Route::prefix('address')->name('address.')->group(function () {
+            Route::get('/', [ProfileController::class, 'address'])->name('index');
+            Route::post('/', [ProfileController::class, 'storeAddress'])->name('store');
+            Route::get('/{address}/edit', [ProfileController::class, 'editAddress'])->name('edit');
+            Route::post('/{address}/update', [ProfileController::class, 'updateAddress'])->name('update');
+            Route::delete('/{address}', [ProfileController::class, 'destroyAddress'])->name('destroy');
+            Route::post('/{address}/set-default', [ProfileController::class, 'setDefaultAddress'])->name('setDefault');
+        });
+
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
+        Route::post('/account', [ProfileController::class, 'updateAccount'])->name('account.update');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
     });
-    Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
-    Route::get('/order', [ProfileController::class, 'order'])->name('order');
-    Route::get('/address', [ProfileController::class, 'address'])->name('address');
-    Route::get('/account', [ProfileController::class, 'account'])->name('account');
-    Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
+        Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
+
 });
 
 
 Route::fallback(function () {
     return response()->view('client.errors.404', [], 404);
 });
-
-
