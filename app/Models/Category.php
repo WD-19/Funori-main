@@ -30,6 +30,17 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
+    public static function getAllChildrenIds($parentId)
+    {
+        $ids = [];
+        $children = Category::where('parent_id', $parentId)->get();
+        foreach ($children as $child) {
+            $ids[] = $child->id;
+            $ids = array_merge($ids, self::getAllChildrenIds($child->id));
+        }
+        return $ids;
+    }
+
     public function products()
     {
         return $this->hasMany(Product::class);

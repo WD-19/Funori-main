@@ -178,7 +178,7 @@
                             <img src="{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}"
                                 alt="{{ $product->name }}" style="width:100%;height:120px;object-fit:cover;">
                             <div style="font-weight:600;margin:10px 0 6px 0;">{{ $product->name }}</div>
-                            <div style="font-size:0.97rem;color:#666;">{{ number_format($product->regular_price, 0, ',', '.') }} đ
+                            <div style="font-size:0.97rem;color:#666;">{{ number_format($product->price, 0, ',', '.') }} đ
                             </div>
                         </a>
                     </div>

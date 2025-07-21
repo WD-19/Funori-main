@@ -38,8 +38,7 @@
         </div>
     @endif
 
-    <form class="form-add-product" method="POST" action="{{ route('admin.products.store') }}"
-        enctype="multipart/form-data">
+    <form class="form-add-product" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
         @csrf
         <div class="wg-box mb-30">
             <fieldset>
@@ -73,7 +72,8 @@
                     <option value="">-- Chọn danh mục --</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}" @if (old('category_id') == $category->id) selected @endif>
-                            {{ $category->name }}</option>
+                            {{ $category->name }}
+                        </option>
                     @endforeach
                 </select>
             </fieldset>
@@ -83,7 +83,8 @@
                     <option value="">-- Chọn thương hiệu --</option>
                     @foreach ($brands as $brand)
                         <option value="{{ $brand->id }}" @if (old('brand_id') == $brand->id) selected @endif>
-                            {{ $brand->name }}</option>
+                            {{ $brand->name }}
+                        </option>
                     @endforeach
                 </select>
             </fieldset>
@@ -132,7 +133,7 @@
     @endphp
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const dropArea = document.getElementById('drop-area');
             const input = document.getElementById('myFile');
             const gallery = document.getElementById('gallery');
@@ -157,7 +158,7 @@
                 updateInputFiles();
                 previewFiles(filesArray);
             }
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
                 const files = Array.from(this.files);
                 filesArray = filesArray.concat(files);
                 updateInputFiles();
@@ -198,27 +199,81 @@
 
             const attributeSelectsTemplate = `{!! addslashes($attributeSelects) !!}`;
 
-            addVariantBtn.addEventListener('click', function() {
+            addVariantBtn.addEventListener('click', function () {
                 const variantDiv = document.createElement('div');
                 variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
                 let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g,
                     `variants[${variantIndex}]`);
                 variantDiv.innerHTML = `
-            ${selects}
-            <input type="text" name="variants[${variantIndex}][name_variant]" value="" placeholder="Tên biến thể" style="width:28%;">
-            <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
-            <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
-            <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="width:180px;">
-            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">&times;</button>
-        `;
+                            ${selects}
+                            <input type="text" name="variants[${variantIndex}][name_variant]" value="" placeholder="Tên biến thể" style="width:28%;">
+                            <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
+                            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+                            <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
+                            <div class="variant-image-upload">
+                                <label style="cursor:pointer; display:block; border:1px dashed #ccc; border-radius:6px; padding:10px; text-align:center; background:#fafafa;">
+                                    <span class="icon"><i class="icon-upload-cloud"></i></span>
+                                    <span class="text-tiny">Chọn ảnh biến thể</span>
+                                    <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="display:none;">
+                                </label>
+                                <div class="variant-image-preview"></div>
+                            </div>
+                            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 30px; height: 30px;">&times;</button>
+                        `;
                 variantList.appendChild(variantDiv);
 
-                variantDiv.querySelector('.remove-variant').onclick = function() {
+                const imageInput = variantDiv.querySelector('input[type="file"]');
+                const previewDiv = variantDiv.querySelector('.variant-image-preview');
+                imageInput.addEventListener('change', function () {
+                    previewDiv.innerHTML = '';
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxWidth = '160px';
+                            img.style.maxHeight = '80px';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '4px';
+                            img.style.border = '1px solid #eee';
+                            previewDiv.appendChild(img);
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+
+                variantDiv.querySelector('.remove-variant').onclick = function () {
                     variantDiv.remove();
                 };
                 variantIndex++;
             });
         });
     </script>
+    <style>
+        .variant-image-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 180px;
+        }
+
+        .variant-image-preview {
+            margin-top: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90px;
+        }
+
+        .variant-image-preview img {
+            max-width: 160px;
+            max-height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            background: #fff;
+            padding: 4px;
+        }
+    </style>
 @endsection

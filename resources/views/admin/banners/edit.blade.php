@@ -30,7 +30,7 @@
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Link</label>
-                    <input type="text" name="link" class="input-field" value="{{ old('link', $banner->link) }}">
+                    <input type="text" name="link_url" class="input-field" value="{{ old('link_url', $banner->link_url) }}">
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Vị trí</label>
@@ -50,11 +50,11 @@
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Thời gian hiển thị</label>
                     <div class="flex gap-2">
-                        <input type="datetime-local" name="start_at" class="input-field"
-                            value="{{ old('start_at', $banner->start_at ? \Carbon\Carbon::parse($banner->start_at)->format('Y-m-d\TH:i') : '') }}">
+                        <input type="datetime-local" name="start_date" class="input-field"
+                            value="{{ old('start_date', $banner->start_date ? \Carbon\Carbon::parse($banner->start_date)->format('Y-m-d\TH:i') : '') }}">
                         <span class="align-content-center">-</span>
-                        <input type="datetime-local" name="end_at" class="input-field"
-                            value="{{ old('end_at', $banner->end_at ? \Carbon\Carbon::parse($banner->end_at)->format('Y-m-d\TH:i') : '') }}">
+                        <input type="datetime-local" name="end_date" class="input-field"
+                            value="{{ old('end_date', $banner->end_date ? \Carbon\Carbon::parse($banner->end_date)->format('Y-m-d\TH:i') : '') }}">
                     </div>
                 </fieldset>
                 <fieldset class="mb-4">

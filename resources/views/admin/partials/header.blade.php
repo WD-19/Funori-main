@@ -12,12 +12,6 @@
                 $newContactCount = ContactSubmission::where('status', 'new')->count();
                 $contacts = ContactSubmission::where('status', 'new')->orderBy('created_at', 'desc')->get();
             @endphp
-            <div class="header-item country">
-                <select class="image-select no-text">
-                    <option data-thumbnail="{{ asset('images/country/1.png') }}">ENG</option>
-                    <option data-thumbnail="{{ asset('images/country/9.png') }}">VIE</option>
-                </select>
-            </div>
             <div class="header-item button-dark-light">
                 <i class="icon-moon"></i>
             </div>
@@ -40,8 +34,9 @@
                                     <li style="margin-bottom: 14px;">
                                         <div class="noti-item w-full wg-user active">
                                             <div class="image">
-                                                <img src="{{ asset('images/customers/customer-1.jpg') }}"
-                                                    alt="">
+                                                <img src="{{ $contact->avatar_url ? asset('storage/' . $contact->avatar_url) : asset('images/images.jpg') }}"
+                                                    alt=""
+                                                    style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
                                             </div>
                                             <div class="flex-grow">
                                                 <div class="flex items-center justify-between">
@@ -86,6 +81,10 @@
                     </style>
                 </div>
             </div>
+            @php
+                use App\Models\Order;
+                $orders = Order::orderBy('updated_at', 'desc')->take(5)->get();
+            @endphp
             <div class="popup-wrap message type-header">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
@@ -97,63 +96,70 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton2">
                         <li>
-                            <h6>Thông Báo</h6>
+                            <h6>Thông Báo Đơn Hàng</h6>
                         </li>
-                        <li>
-                            <div class="message-item item-1">
-                                <div class="image">
-                                    <i class="icon-noti-1"></i>
+                        @foreach ($orders as $order)
+                            <li>
+                                <div class="message-item">
+                                    <div class="image">
+                                        @switch(trim($order->order_status))
+                                            @case('pending_confirmation')
+                                                <i class="icon-noti-2"></i>
+                                                @break
+                                            @case('processing')
+                                                <i class="icon-noti-3"></i>
+                                                @break
+                                            @case('shipped')
+                                                <i class="icon-noti-1"></i>
+                                                @break
+                                            @case('delivered')
+                                                <i class="fa fa-check-circle"></i>
+                                                @break
+                                            @case('cancelled')
+                                                <i class="icon-noti-4"></i>
+                                                @break
+                                            @case('returned')
+                                                <i class="fa fa-undo"></i>
+                                                @break
+                                            @case('pending_cancellation')
+                                                <i class="icon-noti-7"></i>
+                                                @break
+                                            @default
+                                                <i class="icon-bell"></i>
+                                        @endswitch
+                                    </div>
+                                    <div>
+                                        <div class="body-title-2">
+                                            Đơn hàng #{{ $order->id }} -
+                                            @switch(trim($order->order_status))
+                                                @case('pending_confirmation') Chờ xác nhận @break
+                                                @case('processing') Đang xử lý @break
+                                                @case('shipped') Đã gửi hàng @break
+                                                @case('delivered') Đã giao hàng @break
+                                                @case('cancelled') Đã hủy @break
+                                                @case('returned') Đã trả hàng @break
+                                                @case('pending_cancellation') Chờ hủy @break
+                                                @default Không xác định
+                                            @endswitch
+                                        </div>
+                                        <div class="text-tiny">
+                                            {{ $order->customer_name }} - {{ $order->created_at->format('d/m/Y H:i') }}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div class="body-title-2">Discount available</div>
-                                    <div class="text-tiny">Morbi sapien massa, ultricies at rhoncus at, ullamcorper nec
-                                        diam</div>
-                                </div>
-                            </div>
+                            </li>
+                        @endforeach
+                        <li><a href="{{ route('admin.orders.index') }}" class="tf-button w-full">Xem tất cả đơn hàng</a>
                         </li>
-                        <li>
-                            <div class="message-item item-2">
-                                <div class="image">
-                                    <i class="icon-noti-2"></i>
-                                </div>
-                                <div>
-                                    <div class="body-title-2">Account has been verified</div>
-                                    <div class="text-tiny">Mauris libero ex, iaculis vitae rhoncus et</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="message-item item-3">
-                                <div class="image">
-                                    <i class="icon-noti-3"></i>
-                                </div>
-                                <div>
-                                    <div class="body-title-2">Order shipped successfully</div>
-                                    <div class="text-tiny">Integer aliquam eros nec sollicitudin sollicitudin</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="message-item item-4">
-                                <div class="image">
-                                    <i class="icon-noti-4"></i>
-                                </div>
-                                <div>
-                                    <div class="body-title-2">Order pending: <span>ID 305830</span></div>
-                                    <div class="text-tiny">Ultricies at rhoncus at ullamcorper</div>
-                                </div>
-                            </div>
-                        </li>
-                        <li><a href="#" class="tf-button w-full">View all</a></li>
                     </ul>
                 </div>
             </div>
             <div class="header-item button-zoom-maximize">
-                <div class="">
+                <div class="">  
                     <i class="icon-maximize"></i>
                 </div>
             </div>
-            <div class="popup-wrap apps type-header">
+            {{-- <div class="popup-wrap apps type-header">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton4"
                         data-bs-toggle="dropdown" aria-expanded="false">
@@ -249,7 +255,7 @@
                         <li><a href="#" class="tf-button w-full">View all app</a></li>
                     </ul>
                 </div>
-            </div>
+            </div> --}}
             <div class="popup-wrap user type-header">
                 <div class="dropdown">
                     @php
@@ -273,24 +279,24 @@
                     @endif
 
                     <ul class="dropdown-menu dropdown-menu-end has-content" aria-labelledby="dropdownMenuButton3">
-                        <li>
+                        {{-- <li>
                             <a href="#" class="user-item">
                                 <div class="icon">
                                     <i class="icon-user"></i>
                                 </div>
                                 <div class="body-title-2">Account</div>
                             </a>
-                        </li>
+                        </li> --}}
                         <li>
-                            <a href="#" class="user-item">
+                            <a href="{{ route('admin.contacts.index') }}" class="user-item">
                                 <div class="icon">
                                     <i class="icon-mail"></i>
                                 </div>
                                 <div class="body-title-2">Inbox</div>
-                                <div class="number">27</div>
+                                <div class="number">{{ $newContactCount }}</div>
                             </a>
                         </li>
-                        <li>
+                        {{-- <li>
                             <a href="#" class="user-item">
                                 <div class="icon">
                                     <i class="icon-file-text"></i>
@@ -313,7 +319,7 @@
                                 </div>
                                 <div class="body-title-2">Support</div>
                             </a>
-                        </li>
+                        </li> --}}
                         <li>
                             {{-- filepath: resources/views/admin/partials/header.blade.php --}}
                             <form action="{{ route('client.logout') }}" method="POST" class="d-inline w-100">

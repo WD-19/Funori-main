@@ -1,7 +1,6 @@
 @extends('client.profile.index')
 
-@section('title', 'Đơn hàng')
-@section('page_title', 'Đơn hàng')
+@section('page_title', 'Đơn Hàng')
 
 @section('content_profile')
 
