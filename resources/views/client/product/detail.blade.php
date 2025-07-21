@@ -67,6 +67,8 @@
                                     <div class="swiper-button-next button-style-arrow thumbs-next"></div>
                                     <div class="swiper-button-prev button-style-arrow thumbs-prev"></div>
                                 </div>
+
+
                                 <script>
                                     document.addEventListener('DOMContentLoaded', function() {
                                         var thumbsSwiper = new Swiper('#thumbs-swiper', {
@@ -317,12 +319,6 @@
                                            <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};" class="fa-solid fa-heart" id="heart-Product"></i>
                                         </button>
                                             <i class="icon-delete"></i>
-                                        </div>
-                                        <div class="w-100">
-                                            <a href="#" class="btns-full">Mua với <img 
-                                                    src="{{ asset('client/ecomus/images/payments/paypal.png') }}"
-                                                    alt=""></a>
-                                            <a href="#" class="payment-more-option">Thêm phương thức thanh toán</a>
                                         </div>
                                     </form>
                                 </div>
@@ -1124,216 +1120,212 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    toastr.options = {
-        "positionClass": "toast-bottom-right",
-        "timeOut": "3000",
-        "closeButton": true,
-        "progressBar": true
-    };
-    @if (session('success'))
-        toastr.success("{{ session('success') }}");
-    @endif
-
-    @if (session('error'))
-        toastr.error("{{ session('error') }}");
-    @endif
-});
-
-// Đặt ngoài DOMContentLoaded để luôn hoạt động kể cả khi toastr chưa hiện
-const addToCartBtn = document.querySelector('.btn-add-to-cart');
-if (addToCartBtn) {
-    addToCartBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        let productId = {{ $product->id }};
-        let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
-        let variantInput = document.querySelector('input[name="variant_id"]:checked');
-        let productVariantId = variantInput ? variantInput.value : null;
-        let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
-        if (hasVariants && !productVariantId) {
-            toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
-            return;
-        }
-        fetch('{{ route('client.cart.add') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                product_id: productId,
-                quantity: quantity,
-                product_variant_id: productVariantId
-            })
-        })
-        .then(response => response.json())
-        .then data => {
-            if (data.success) {
-                toastr.success('Đã thêm vào giỏ hàng!');
-            } else {
-                toastr.error(data.message || 'Có lỗi xảy ra!');
-            }
-        })
-        .catch(error => {
-            toastr.error('Có lỗi xảy ra!');
-            console.error(error);
-        });
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
-    const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
-    tabTitles.forEach((tab, idx) => {
-        tab.addEventListener('click', function() {
-            tabTitles.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            tabContents[idx].classList.add('active');
-        });
-    });
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-    const writeBtn = document.querySelector('.btn-write-review');
-    const cancelBtn = document.querySelector('.btn-cancel-review');
-    const formReview = document.querySelector('.form-write-review');
-    const commentWrap = document.querySelector('.reply-comment'); // Phần chứa tất cả bình luận
-
-    if (writeBtn && cancelBtn && formReview && commentWrap) {
-        // Mặc định ẩn form, hiện bình luận
-        formReview.style.display = "none";
-        cancelBtn.style.display = "none";
-        commentWrap.style.display = "block";
-
-        // Khi bấm nút "Viết đánh giá"
-        writeBtn.addEventListener('click', function() {
-            formReview.style.display = "block";
-            commentWrap.style.display = "none";
-            writeBtn.style.display = "none";
-            cancelBtn.style.display = "inline-block";
-            // formReview.scrollIntoView({ behavior: "smooth" });
-        });
-
-        // Khi bấm nút "Hủy đánh giá"
-        cancelBtn.addEventListener('click', function() {
-            formReview.style.display = "none";
-            commentWrap.style.display = "block";
-            writeBtn.style.display = "inline-block";
-            cancelBtn.style.display = "none";
-        });
-    }
-});
- // thêm vào yêu thích
-    document.addEventListener("DOMContentLoaded", function () {
-    toastr.options = {
-        "positionClass": "toast-top-right",
-        "timeOut": "1000",
-        "closeButton": true,
-        "progressBar": true
-    };
-    let wishlistProcessing = false;
-    document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (wishlistProcessing) {
-                toastr.warning('Bạn thao tác quá nhanh, vui lòng chờ!');
-                return;
-            }
-            wishlistProcessing = true;
-            var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
-            if (!isLoggedIn) {
-                toastr.error('Bạn cần đăng nhập!');
-                wishlistProcessing = false;
-                return;
-            }
-            var productId = this.getAttribute('data-product-id');
-            var icon = this.querySelector('i');
-            var isActive = icon.style.color === 'red';
-            var url = isActive ? "{{ route('client.wishlist.remove') }}" : "{{ route('client.wishlist.add') }}";
-            var method = 'POST';
-            var body = isActive ? new FormData() : JSON.stringify({ product_id: productId });
-            if(isActive) body.append('product_id', productId);
-            fetch(url, {
-                method: method,
-                headers: isActive ? {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
-                    'Accept': 'application/json'
-                } : {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
-                },
-                body: body
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(!isActive && data.success !== false) {
-                    toastr.success(data.message || 'Đã thêm vào yêu thích!');
-                    icon.classList.remove('fa-regular');
-                    icon.classList.add('fa-solid');
-                    icon.style.color = 'red';
-                    // Badge +1
-                    var badge = document.querySelector('.wishlist-badge');
-                    if (badge) {
-                        let count = parseInt(badge.textContent) || 0;
-                        badge.textContent = count + 1;
-                    } else {
-                        var heartIcon = document.querySelector('#wishlist-header-btn .fa-heart');
-                        if (heartIcon) {
-                            var span = document.createElement('span');
-                            span.className = 'wishlist-badge';
-                            span.style = 'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
-                            span.textContent = '1';
-                            heartIcon.parentNode.appendChild(span);
-                        }
-                    }
-                } else if(isActive && data.success) {
-                    toastr.success('Đã xóa khỏi yêu thích!');
-                    icon.classList.remove('fa-solid');
-                    icon.classList.add('fa-regular');
-                    icon.style.color = '#545353';
-                    // Badge -1
-                    var badge = document.querySelector('.wishlist-badge');
-                    if (badge) {
-                        let count = parseInt(badge.textContent) || 0;
-                        badge.textContent = Math.max(count - 1, 0);
-                        if(badge.textContent == '0') badge.remove();
-                    }
-                    // Đổi màu thông báo xóa khỏi yêu thích
-                    setTimeout(function() {
-                        var toast = document.querySelector('.toast-success');
-                        if(toast) {
-                            toast.style.backgroundColor = '#e53935';
-                            toast.style.color = '#fff';
-                        }
-                    }, 100);
-                } else {
-                    if(data.message && data.message.includes('đăng nhập')) {
-                        toastr.error(data.message);
-                    } else {
-                        toastr.info(data.message || 'Sản phẩm đã có trong yêu thích!');
-                    }
+ <script>
+        // Đặt ngoài DOMContentLoaded để luôn hoạt động kể cả khi toastr chưa hiện
+        const addToCartBtn = document.querySelector('.btn-add-to-cart');
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                let productId = {{ $product->id }};
+                let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
+                let variantInput = document.querySelector('input[name="variant_id"]:checked');
+                let productVariantId = variantInput ? variantInput.value : null;
+                let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
+                if (hasVariants && !productVariantId) {
+                    toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
+                    return;
                 }
-                // Cập nhật mini-wishlist
-                fetch('{{ route("wishlist.miniList") }}')
-                    .then(res => res.text())
-                    .then(html => {
-                        var miniWishlist = document.querySelector('#mini-wishlist-content');
-                        if (miniWishlist) miniWishlist.innerHTML = html;
+                fetch('{{ route('client.cart.add') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            quantity: quantity,
+                            product_variant_id: productVariantId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            toastr.success('Đã thêm vào giỏ hàng!');
+                        } else {
+                            toastr.error(data.message || 'Có lỗi xảy ra!');
+                        }
+                    })
+                    .catch(error => {
+                        toastr.error('Có lỗi xảy ra!');
+                        console.error(error);
                     });
-            })
-            .catch(error => {
-                toastr.error('Lỗi xảy ra!');
-                console.error(error);
-            })
-            .finally(() => {
-                setTimeout(function(){ wishlistProcessing = false; }, 600);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
+            const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
+            tabTitles.forEach((tab, idx) => {
+                tab.addEventListener('click', function() {
+                    tabTitles.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    tabContents[idx].classList.add('active');
+                });
             });
         });
-    });
-});
-//
-</script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const writeBtn = document.querySelector('.btn-write-review');
+            const cancelBtn = document.querySelector('.btn-cancel-review');
+            const formReview = document.querySelector('.form-write-review');
+            const commentWrap = document.querySelector('.reply-comment'); // Phần chứa tất cả bình luận
+
+            if (writeBtn && cancelBtn && formReview && commentWrap) {
+                // Mặc định ẩn form, hiện bình luận
+                formReview.style.display = "none";
+                cancelBtn.style.display = "none";
+                commentWrap.style.display = "block";
+
+                // Khi bấm nút "Viết đánh giá"
+                writeBtn.addEventListener('click', function() {
+                    formReview.style.display = "block";
+                    commentWrap.style.display = "none";
+                    writeBtn.style.display = "none";
+                    cancelBtn.style.display = "inline-block";
+                    // formReview.scrollIntoView({ behavior: "smooth" });
+                });
+
+                // Khi bấm nút "Hủy đánh giá"
+                cancelBtn.addEventListener('click', function() {
+                    formReview.style.display = "none";
+                    commentWrap.style.display = "block";
+                    writeBtn.style.display = "inline-block";
+                    cancelBtn.style.display = "none";
+                });
+            }
+        });
+        // thêm vào yêu thích
+        document.addEventListener("DOMContentLoaded", function() {
+            toastr.options = {
+                "positionClass": "toast-top-right",
+                "timeOut": "1000",
+                "closeButton": true,
+                "progressBar": true
+            };
+            let wishlistProcessing = false;
+            document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (wishlistProcessing) {
+                        toastr.warning('Bạn thao tác quá nhanh, vui lòng chờ!');
+                        return;
+                    }
+                    wishlistProcessing = true;
+                    var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+                    if (!isLoggedIn) {
+                        toastr.error('Bạn cần đăng nhập!');
+                        wishlistProcessing = false;
+                        return;
+                    }
+                    var productId = this.getAttribute('data-product-id');
+                    var icon = this.querySelector('i');
+                    var isActive = icon.style.color === 'red';
+                    var url = isActive ? "{{ route('client.wishlist.remove') }}" :
+                        "{{ route('client.wishlist.add') }}";
+                    var method = 'POST';
+                    var body = isActive ? new FormData() : JSON.stringify({
+                        product_id: productId
+                    });
+                    if (isActive) body.append('product_id', productId);
+                    fetch(url, {
+                            method: method,
+                            headers: isActive ? {
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name=csrf-token]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            } : {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name=csrf-token]').getAttribute('content')
+                            },
+                            body: body
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!isActive && data.success !== false) {
+                                toastr.success(data.message || 'Đã thêm vào yêu thích!');
+                                icon.classList.remove('fa-regular');
+                                icon.classList.add('fa-solid');
+                                icon.style.color = 'red';
+                                // Badge +1
+                                var badge = document.querySelector('.wishlist-badge');
+                                if (badge) {
+                                    let count = parseInt(badge.textContent) || 0;
+                                    badge.textContent = count + 1;
+                                } else {
+                                    var heartIcon = document.querySelector(
+                                        '#wishlist-header-btn .fa-heart');
+                                    if (heartIcon) {
+                                        var span = document.createElement('span');
+                                        span.className = 'wishlist-badge';
+                                        span.style =
+                                            'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
+                                        span.textContent = '1';
+                                        heartIcon.parentNode.appendChild(span);
+                                    }
+                                }
+                            } else if (isActive && data.success) {
+                                toastr.success('Đã xóa khỏi yêu thích!');
+                                icon.classList.remove('fa-solid');
+                                icon.classList.add('fa-regular');
+                                icon.style.color = '#545353';
+                                // Badge -1
+                                var badge = document.querySelector('.wishlist-badge');
+                                if (badge) {
+                                    let count = parseInt(badge.textContent) || 0;
+                                    badge.textContent = Math.max(count - 1, 0);
+                                    if (badge.textContent == '0') badge.remove();
+                                }
+                                // Đổi màu thông báo xóa khỏi yêu thích
+                                setTimeout(function() {
+                                    var toast = document.querySelector(
+                                    '.toast-success');
+                                    if (toast) {
+                                        toast.style.backgroundColor = '#e53935';
+                                        toast.style.color = '#fff';
+                                    }
+                                }, 100);
+                            } else {
+                                if (data.message && data.message.includes('đăng nhập')) {
+                                    toastr.error(data.message);
+                                } else {
+                                    toastr.info(data.message ||
+                                        'Sản phẩm đã có trong yêu thích!');
+                                }
+                            }
+                            // Cập nhật mini-wishlist
+                            fetch('/wishlist/mini-list')
+                                .then(res => res.text())
+                                .then(html => {
+                                    var miniWishlist = document.querySelector(
+                                        '#mini-wishlist-content');
+                                    if (miniWishlist) miniclient.wishlist.innerHTML = html;
+                                });
+                        })
+                        .catch(error => {
+                            toastr.error('Lỗi xảy ra!');
+                            console.error(error);
+                        })
+                        .finally(() => {
+                            setTimeout(function() {
+                                wishlistProcessing = false;
+                            }, 600);
+                        });
+                });
+            });
+        });
+        //
+    </script>
 @endsection

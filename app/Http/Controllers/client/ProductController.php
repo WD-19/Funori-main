@@ -36,15 +36,22 @@ class ProductController
         $sort = request()->get('sort', 'newest'); // giá trị mặc định: mới nhất
 
         $reviews = Review::where('product_id', $product->id)
-            ->where('status', 'approved')
+            ->where(function ($q) {
+                $q->where('status', 'approved');
+                if (Auth::check()) {
+                    $q->orWhere(function ($q2) {
+                        $q2->where('status', 'pending')
+                            ->where('user_id', auth()->id());
+                    });
+                }
+            })
             ->when($sort === 'oldest', fn($q) => $q->orderBy('created_at', 'asc'))
             ->when($sort !== 'oldest', fn($q) => $q->orderBy('created_at', 'desc'))
-            ->with('user') // nếu cần user
+            ->with('user')
             ->get();
 
         return view('client.product.detail', compact('product', 'reviews'));
     }
-
     public function store(Request $request, $productId)
     {
         $userId = Auth::id();

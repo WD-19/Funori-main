@@ -44,6 +44,7 @@
     @include('client.partials.footer')
     <!-- <div style="margin-bottom: 600px;"></div> -->
 </body>
+<!--Start of Tawk.to Script-->
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 (function(){
@@ -55,7 +56,7 @@ s1.setAttribute('crossorigin','*');
 s0.parentNode.insertBefore(s1,s0);
 })();
 </script>
-<!--End of Tawk.to Script-->
+
 <!--End of Tawk.to Script-->
 <script src="https://kit.fontawesome.com/eda05fcf5c.js" crossorigin="anonymous"></script>
 <script src="{{ asset('client/js/main.js') }}"></script>
