@@ -7,10 +7,12 @@ use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Review;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use App\Models\Promotion;
 use Illuminate\Support\Collection;
 
 class CartController
@@ -118,6 +120,7 @@ class CartController
         // Đảm bảo dữ liệu giỏ hàng được lưu vào session['cart'] để checkout lấy được
         Session::put('cart.items', $cartItems);
         Session::put('cart.total', $total);
+        Session::put('cart.discount', 0); // Khởi tạo discount = 0
         // Có thể thêm các giá trị khác nếu cần (discount, shipping_fee...)
 
         $cartItems = collect($cartItems)->mapWithKeys(function ($item) {
@@ -125,7 +128,80 @@ class CartController
             return [$key => $item];
         })->toArray();
 
-        return view('client.cart.cart', compact('cartItems', 'total', 'cartCount'));
+        return view('client.cart.cart', compact('cartItems', 'total', 'cartCount')); 
+    }    
+    
+       public function applyDiscount(Request $request)
+    {
+        $request->validate([
+            'discount_code' => 'required|string',
+        ]);
+    
+        $discountCode = $request->discount_code;
+        // Sửa lỗi: Lấy trực tiếp 'cart.items' và 'cart.total' từ session
+        $cartItems = Session::get('cart.items', []);
+        $total = Session::get('cart.total', 0);
+
+        // Tìm khuyến mãi hợp lệ
+        $promotion = Promotion::where('code', $discountCode)
+            ->where('is_active', 1)
+            ->where(function ($query) {
+                $query->whereNull('start_date')
+                      ->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                      ->orWhere('end_date', '>=', now());
+            })
+            ->first();
+    
+        if (!$promotion) {
+            return response()->json(['success' => false, 'message' => 'Mã giảm giá không hợp lệ hoặc đã hết hạn!'], 400);
+        }
+    
+        // Kiểm tra điều kiện áp dụng (nếu có)
+        if ($promotion->min_order_value && $total < $promotion->min_order_value) {
+            return response()->json(['success' => false, 'message' => "Giá trị đơn hàng tối thiểu để áp dụng mã là " . number_format($promotion->min_order_value, 0, ',', '.') . "đ"], 400);
+        }
+    
+        // Tính giá trị giảm
+        $discountAmount = 0;
+    
+        if ($promotion->discount_type == 'percentage') {
+            $discountAmount = ($total * $promotion->discount_value) / 100;
+            if ($promotion->max_discount_amount && $discountAmount > $promotion->max_discount_amount) {
+                $discountAmount = $promotion->max_discount_amount;
+            }
+        } elseif ($promotion->discount_type == 'fixed_amount') {
+            $discountAmount = $promotion->discount_value;
+        }
+    
+        // Kiểm tra giới hạn sử dụng (nếu có)
+        if ($promotion->usage_limit_per_voucher !== null) {
+            $usedCount = Order::where('discount_code', $discountCode)->count();
+            if ($usedCount >= $promotion->usage_limit_per_voucher) {
+                return response()->json(['success' => false, 'message' => 'Mã giảm giá đã hết lượt sử dụng!'], 400);
+            }
+        }
+    
+        // Kiểm tra giới hạn sử dụng cho mỗi user (nếu user đã đăng nhập và có giới hạn)
+        if (Auth::check() && $promotion->usage_limit_per_user !== null) {
+            $userUsedCount = Order::where('user_id', Auth::id())->where('discount_code', $discountCode)->count();
+            if ($userUsedCount >= $promotion->usage_limit_per_user) {
+                return response()->json(['success' => false, 'message' => 'Bạn đã sử dụng mã giảm giá này rồi!'], 400);
+            }
+        }
+    
+        // Lưu thông tin khuyến mãi vào session
+        Session::put('cart.discount', $discountAmount);
+        Session::put('cart.discount_code', $discountCode); // Lưu mã code để kiểm tra sau này
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Mã giảm giá đã được áp dụng!',
+            'discount' => $discountAmount,
+            'new_total' => $total - $discountAmount
+        ]);
     }
 
 
@@ -425,4 +501,6 @@ class CartController
         $items = Session::get('cart.items', []);
         return count($items);
     }
+    
+
 }

@@ -52,16 +52,13 @@
 
     @php
         // Không còn 4 bước, chỉ cần 2 bước: giỏ hàng -> checkout
-        $steps = [
-            ['label' => 'Giỏ hàng', 'key' => 'cart'],
-            ['label' => 'Thanh toán', 'key' => 'checkout'],
-        ];
+        $steps = [['label' => 'Giỏ hàng', 'key' => 'cart'], ['label' => 'Thanh toán', 'key' => 'checkout']];
         $currentStep = 'cart';
     @endphp
 
     <div class="tf-page-title">
         <div class="container-full">
-            <div class="heading text-center">@yield('page_title','Giỏ Hàng')</div>
+            <div class="heading text-center">@yield('page_title', 'Giỏ Hàng')</div>
         </div>
     </div>
 
@@ -282,6 +279,99 @@
                                 </div>
                             </div>
 
+                            <div class="tf-cart-coupon" style="margin-top: 24px;">
+                                <div class="body-title mb-2">Mã giảm giá</div>
+                                <div class="tf-coupon-field d-flex gap-2">
+                                    <input type="text" id="discount_code" placeholder="Nhập mã giảm giá"
+                                        style="height: 48px; border-radius: 6px; border: 1px solid #ddd; padding: 0 12px;">
+                                    <button type="button" id="apply_discount"
+                                        class="tf-btn btn-sm btn-fill animate-hover-btn"
+                                        style="height: 48px; padding: 0 24px; border-radius: 6px;">Áp dụng</button>
+                                </div>
+                                <div id="discount_message" style="margin-top: 8px; display: none;"></div>
+                            </div>
+
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const applyDiscountBtn = document.getElementById('apply_discount');
+                                    const discountCodeInput = document.getElementById('discount_code');
+
+                                    applyDiscountBtn.addEventListener('click', function() {
+                                        const discountCode = discountCodeInput.value;
+                                        if (discountCode) {
+                                            applyDiscount(discountCode);
+                                        }
+                                    });
+                                });
+
+                                // Thêm định nghĩa hàm applyDiscount ở đây
+                                function applyDiscount(discountCode) {
+                                    fetch('/cart/apply-discount', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                                            },
+                                            body: JSON.stringify({
+                                                discount_code: discountCode
+                                            })
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            const messageDiv = document.getElementById('discount_message');
+                                            const totalValue = document.querySelector('.total-value');
+                                            const grandTotalValue = document.querySelector('.grand-total-value');
+                                            const discountValue = document.querySelector('.discount-value');
+
+                                            messageDiv.style.display = 'block';
+                                            if (data.success) {
+                                                messageDiv.textContent = data.message;
+                                                messageDiv.style.color = 'green';
+
+                                                // Cập nhật tổng tiền hàng (nếu cần)
+                                                if (data.new_total !== undefined) {
+                                                    totalValue.textContent = data.new_total.toLocaleString('vi-VN') + 'đ';
+                                                }
+
+                                                // Cập nhật giá trị giảm giá
+                                                discountValue.textContent = '-' + data.discount.toLocaleString('vi-VN') + 'đ';
+
+                                                // Cập nhật tổng cộng (tạm thời giữ nguyên, có thể cần điều chỉnh nếu có phí ship)
+                                                let currentTotal = parseFloat(totalValue.textContent.replace(/[^\d]/g, '')) || 0;
+                                                grandTotalValue.textContent = (currentTotal - data.discount).toLocaleString('vi-VN') + 'đ';
+
+                                            } else {
+                                                messageDiv.textContent = data.message;
+                                                messageDiv.style.color = 'red';
+                                                // Ẩn thông tin giảm giá nếu không thành công
+                                                discountValue.textContent = '-0đ';
+
+                                                // Khôi phục lại tổng ban đầu
+                                                let originalTotal = <?php echo e($total); ?>;
+                                                totalValue.textContent = originalTotal.toLocaleString('vi-VN') + 'đ';
+                                                grandTotalValue.textContent = originalTotal.toLocaleString('vi-VN') + 'đ';
+                                            }
+                                            // Tự động ẩn thông báo sau 5 giây
+                                            setTimeout(() => {
+                                                messageDiv.style.display = 'none';
+                                            }, 5000);
+                                        })
+                                        .catch(error => {
+                                            const messageDiv = document.getElementById('discount_message');
+                                            messageDiv.style.display = 'block';
+                                            messageDiv.textContent = 'Có lỗi xảy ra khi áp dụng mã giảm giá!';
+                                            messageDiv.style.color = 'red';
+                                            // Ẩn thông tin giảm giá nếu có lỗi
+                                            const discountValue = document.querySelector('.discount-value');
+                                            discountValue.textContent = '-0đ';
+
+                                            setTimeout(() => {
+                                                messageDiv.style.display = 'none';
+                                            }, 5000);
+                                        });
+                                }
+                            </script>
+
                             <div style="font-family: 'Inter', Arial, Helvetica, sans-serif;">
                                 <div class="tf-cart-totals-discounts">
                                     <h3 style="font-weight: 600; font-size: 18px;">Tổng tiền hàng</h3>
@@ -318,14 +408,12 @@
                                     </label>
                                 </div>
                                 <div class="cart-checkout-btn" style="margin-top: 18px;">
-                                    <form id="checkout-selected-form" action="{{ route('client.checkout.index') }}" method="GET">
-                                        <input type="hidden" name="selected_items" id="selected-items-input" value="">
-                                        <button type="submit"
-                                            class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center {{ empty($cartItems) ? 'disabled' : '' }}"
-                                            style="{{ empty($cartItems) ? 'pointer-events: none; opacity: 0.5;' : '' }}">
-                                            <span>Đặt hàng</span>
-                                        </button>
-                                    </form>
+                                    <a href="{{ route('client.checkout.index') }}"
+                                        id="checkout-btn"
+                                        class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center {{ empty($cartItems) ? 'disabled' : '' }}"
+                                        style="{{ empty($cartItems) ? 'pointer-events: none; opacity: 0.5;' : '' }}">
+                                        <span>Đặt hàng</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -346,7 +434,7 @@
                 <div dir="ltr" class="swiper tf-sw-product-sell wrap-sw-over" data-preview="4" data-tablet="3"
                     data-mobile="2" data-space-lg="30" data-space-md="15" data-pagination="2" data-pagination-md="3"
                     data-pagination-lg="3">
-                    <div class="swiper-wrapper">
+                    <div class="swiper-wrapper"> 
                         <div class="swiper-slide" lazy="true">
                             <div class="card-product">
                                 <div class="card-product-wrapper">
@@ -354,7 +442,7 @@
                                         <img class="lazyload img-product" data-src="images/products/orange-1.jpg"
                                             src="images/products/orange-1.jpg" alt="image-product">
                                         <img class="lazyload img-hover" data-src="images/products/white-1.jpg"
-                                            src="images/products/white-1.jpg" alt="image-product">
+                                            src="images/products/white-1.jpg" alt="image-product">                                         
                                     </a>
                                     <div class="list-product-btn">
                                         <a href="#quick_add" data-bs-toggle="modal"
@@ -759,8 +847,6 @@
                 .then(data => {
                     if (data && data.success) {
                         console.log('Server updated successfully');
-                        // Reload lại trang để đảm bảo dữ liệu session mới nhất
-                        location.reload();
                     }
                 })
                 .catch(error => {
@@ -870,6 +956,73 @@
             }
         }
 
+        // Áp dụng mã giảm giá
+        function applyDiscount(discountCode) {
+            fetch('/cart/apply-discount', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                    },
+                    body: JSON.stringify({
+                        discount_code: discountCode
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const messageDiv = document.getElementById('discount_message');
+                    const totalValue = document.querySelector('.total-value');
+                    const grandTotalValue = document.querySelector('.grand-total-value');
+                    const discountValue = document.querySelector('.discount-value');
+
+                    messageDiv.style.display = 'block';
+                    if (data.success) {
+                        messageDiv.textContent = data.message;
+                        messageDiv.style.color = 'green';
+
+                        // Cập nhật tổng tiền hàng (nếu cần)
+                        if (data.new_total !== undefined) {
+                            totalValue.textContent = data.new_total.toLocaleString('vi-VN') + 'đ';
+                        }
+
+                        // Cập nhật giá trị giảm giá
+                        discountValue.textContent = '-' + data.discount.toLocaleString('vi-VN') + 'đ';
+
+                        // Cập nhật tổng cộng (tạm thời giữ nguyên, có thể cần điều chỉnh nếu có phí ship)
+                        let currentTotal = parseFloat(totalValue.textContent.replace(/[^\d]/g, '')) || 0;
+                        grandTotalValue.textContent = (currentTotal - data.discount).toLocaleString('vi-VN') + 'đ';
+
+                    } else {
+                        messageDiv.textContent = data.message;
+                        messageDiv.style.color = 'red';
+                        // Ẩn thông tin giảm giá nếu không thành công
+                        discountValue.textContent = '-0đ';
+
+                        // Khôi phục lại tổng ban đầu
+                        let originalTotal = <?php echo e($total); ?>;
+                        totalValue.textContent = originalTotal.toLocaleString('vi-VN') + 'đ';
+                        grandTotalValue.textContent = originalTotal.toLocaleString('vi-VN') + 'đ';
+                    }
+                    // Tự động ẩn thông báo sau 5 giây
+                    setTimeout(() => {
+                        messageDiv.style.display = 'none';
+                    }, 5000);
+                })
+                .catch(error => {
+                    const messageDiv = document.getElementById('discount_message');
+                    messageDiv.style.display = 'block';
+                    messageDiv.textContent = 'Có lỗi xảy ra khi áp dụng mã giảm giá!';
+                    messageDiv.style.color = 'red';
+                    // Ẩn thông tin giảm giá nếu có lỗi
+                    const discountValue = document.querySelector('.discount-value');
+                    discountValue.textContent = '-0đ';
+
+                    setTimeout(() => {
+                        messageDiv.style.display = 'none';
+                    }, 5000);
+                });
+        }
+
         const agreeCheckbox = document.getElementById('check-agree');
         const checkoutBtn = document.querySelector('.cart-checkout-btn a');
         const checkoutDiv = document.querySelector('.cart-checkout-btn');
@@ -893,20 +1046,43 @@
             toggleCheckoutState(); // Gọi khi load trang
         }
 
-        // Thay thế đoạn xử lý nút checkout cũ bằng:
-        const checkoutForm = document.getElementById('checkout-selected-form');
-        const selectedItemsInput = document.getElementById('selected-items-input');
-        if (checkoutForm && selectedItemsInput) {
-            checkoutForm.addEventListener('submit', function(e) {
-                const checked = document.querySelectorAll('.cart-item-checkbox:checked');
-                if (checked.length === 0) {
-                    alert('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán!');
-                    e.preventDefault();
-                    return false;
+        // Xử lý nút "Đặt hàng" để chỉ gửi các sản phẩm đã chọn
+        const checkoutBtnEl = document.getElementById('checkout-btn');
+        if (checkoutBtnEl) {
+            checkoutBtnEl.addEventListener('click', function(e) {
+                e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ <a>
+
+                const selectedItems = document.querySelectorAll('.cart-item-checkbox:checked');
+
+                if (selectedItems.length === 0) {
+                    alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+                    return;
                 }
-                // Lấy danh sách id sản phẩm đã chọn
-                const ids = Array.from(checked).map(cb => cb.dataset.itemId);
-                selectedItemsInput.value = ids.join(',');
+
+                // Lấy ID của các sản phẩm đã chọn
+                const selectedItemIds = Array.from(selectedItems).map(checkbox => checkbox.dataset.itemId);
+
+                // Tạo một form ẩn để gửi dữ liệu qua POST
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("client.checkout.prepare") }}'; // Route mới để xử lý
+
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                selectedItemIds.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'selected_items[]';
+                    input.value = id;
+                    form.appendChild(input);
+                });
+
+                document.body.appendChild(form);
+                form.submit();
             });
         }
     });

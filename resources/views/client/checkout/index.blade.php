@@ -108,6 +108,7 @@
         border-radius: 5px;
         margin-bottom: 5px;
     }
+
     .address-item:hover {
         background-color: #f5f5f5;
     }
@@ -115,12 +116,14 @@
 
 @section('content')
     @php
-        $steps = [
-            ['label' => 'Giỏ hàng', 'key' => 'cart'],
-            ['label' => 'Thanh toán', 'key' => 'checkout'],
-        ];
+        $steps = [['label' => 'Giỏ hàng', 'key' => 'cart'], ['label' => 'Thanh toán', 'key' => 'checkout']];
         $currentStep = 'checkout';
     @endphp
+    <div class="tf-page-title">
+        <div class="container-full">
+            <div class="heading text-center">@yield('page_title', 'Thanh Toán')</div>
+        </div>
+    </div>
     <div style="max-width: 66vw; margin: 60px auto 0 auto; padding: 0 16px;">
         <div class="cart-checkout-progress"
             style="background: #fff; padding: 32px 16px 24px 16px; border-radius: 10px; margin-bottom: 16px;">
@@ -159,7 +162,6 @@
         <div class="container">
             <form action="{{ route('client.checkout.process') }}" method="POST" class="checkout-form">
                 @csrf
-                <input type="hidden" name="selected_items" value="{{ request('selected_items') }}">
                 <div class="row">
                     <div class="col-lg-7">
                         <!-- Buyer Information Form -->
@@ -170,8 +172,7 @@
                                 <select id="saved_address" class="form-control">
                                     <option value="">-- Nhập địa chỉ mới --</option>
                                     @foreach ($addresses as $index => $address)
-                                        <option value="{{ $address->id }}"
-                                            data-name="{{ $address->receiver_name ?? '' }}"
+                                        <option value="{{ $address->id }}" data-name="{{ $address->receiver_name ?? '' }}"
                                             data-phone="{{ $address->receiver_phone ?? '' }}"
                                             data-email="{{ auth()->user()->email ?? '' }}"
                                             data-address="{{ $address->street_address ?? '' }}"
@@ -188,22 +189,26 @@
                         <div class="row">
                             <div class="col-md-12 form-group">
                                 <label for="buyer_name">Họ và tên <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="buyer_name" name="buyer_name" value="{{ old('buyer_name', auth()->user()->full_name ?? '') }}" required>
+                                <input type="text" class="form-control" id="buyer_name" name="buyer_name"
+                                    value="{{ old('buyer_name', auth()->user()->full_name ?? '') }}" required>
                             </div>
                             <div class="col-md-6 form-group">
                                 <label for="buyer_email">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="buyer_email" name="buyer_email" value="{{ old('buyer_email', auth()->user()->email ?? '') }}" required>
+                                <input type="email" class="form-control" id="buyer_email" name="buyer_email"
+                                    value="{{ old('buyer_email', auth()->user()->email ?? '') }}" required>
                             </div>
                             <div class="col-md-6 form-group">
                                 <label for="buyer_phone">Số điện thoại <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="buyer_phone" name="buyer_phone" value="{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}" required>
+                                <input type="text" class="form-control" id="buyer_phone" name="buyer_phone"
+                                    value="{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}" required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 form-group">
                                 <label for="buyer_province">Tỉnh/Thành phố <span class="text-danger">*</span></label>
-                                <select class="form-control" id="buyer_province_disabled" name="buyer_province_disabled" required disabled>
+                                <select class="form-control" id="buyer_province_disabled" name="buyer_province_disabled"
+                                    required disabled>
                                     <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
                                 </select>
                                 <input type="hidden" name="buyer_province" value="Thành phố Hà Nội">
@@ -223,14 +228,17 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="buyer_address">Địa chỉ cụ thể (Số nhà, tên đường...) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="buyer_address" name="buyer_address" value="{{ old('buyer_address', auth()->user()->address ?? '') }}" required>
+                            <label for="buyer_address">Địa chỉ cụ thể (Số nhà, tên đường...) <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="buyer_address" name="buyer_address"
+                                value="{{ old('buyer_address', auth()->user()->address ?? '') }}" required>
                         </div>
 
                         <!-- Shipping Information Form -->
                         <div class="form-group">
                             <label>
-                                <input type="checkbox" id="ship_to_different_address" name="ship_to_different_address" {{ old('ship_to_different_address') ? 'checked' : '' }}>
+                                <input type="checkbox" id="ship_to_different_address" name="ship_to_different_address"
+                                    {{ old('ship_to_different_address') ? 'checked' : '' }}>
                                 Giao hàng đến địa chỉ khác
                             </label>
                         </div>
@@ -240,22 +248,27 @@
                             <div class="row">
                                 <div class="col-md-12 form-group">
                                     <label for="shipping_name">Họ và tên <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="shipping_name" name="shipping_name" value="{{ old('shipping_name') }}">
+                                    <input type="text" class="form-control" id="shipping_name" name="shipping_name"
+                                        value="{{ old('shipping_name') }}">
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label for="shipping_email">Email <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" id="shipping_email" name="shipping_email" value="{{ old('shipping_email') }}">
+                                    <input type="email" class="form-control" id="shipping_email" name="shipping_email"
+                                        value="{{ old('shipping_email') }}">
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label for="shipping_phone">Số điện thoại <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="shipping_phone" name="shipping_phone" value="{{ old('shipping_phone') }}">
+                                    <input type="text" class="form-control" id="shipping_phone" name="shipping_phone"
+                                        value="{{ old('shipping_phone') }}">
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-4 form-group">
-                                    <label for="shipping_province">Tỉnh/Thành phố <span class="text-danger">*</span></label>
-                                    <select class="form-control" id="shipping_province_disabled" name="shipping_province_disabled" disabled>
+                                    <label for="shipping_province">Tỉnh/Thành phố <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="shipping_province_disabled"
+                                        name="shipping_province_disabled" disabled>
                                         <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
                                     </select>
                                     <input type="hidden" name="shipping_province" value="Thành phố Hà Nội">
@@ -275,8 +288,10 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="shipping_address">Địa chỉ cụ thể (Số nhà, tên đường...) <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="shipping_address" name="shipping_address" value="{{ old('shipping_address') }}">
+                                <label for="shipping_address">Địa chỉ cụ thể (Số nhà, tên đường...) <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="shipping_address" name="shipping_address"
+                                    value="{{ old('shipping_address') }}">
                             </div>
                         </div>
 
@@ -287,7 +302,7 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <div class="order-summary">
+                        <div class="order-summary sticky-top">
                             <h4>Tóm tắt đơn hàng</h4>
                             @foreach ($cart['items'] as $item)
                                 <div class="summary-item">
@@ -296,7 +311,9 @@
                                         <div class="product-name">{{ $item['product']['name'] }}</div>
                                         <div class="product-qty">Số lượng: {{ $item['quantity'] }}</div>
                                     </div>
-                                    <div class="product-price">{{ number_format($item['price_at_addition'] * $item['quantity'], 0, ',', '.') }}đ</div>
+                                    <div class="product-price">
+                                        {{ number_format($item['price_at_addition'] * $item['quantity'], 0, ',', '.') }}đ
+                                    </div>
                                 </div>
                             @endforeach
 
@@ -306,36 +323,53 @@
                                 <h5>Phương thức vận chuyển</h5>
                                 @foreach ($shippingMethods as $method)
                                     <label class="shipping-method d-flex align-items-center">
-                                        <input type="radio" name="shipping_method_id" value="{{ $method->id }}" data-cost="{{ $method->cost }}" required>
-                                        <span>{{ $method->name }} - {{ number_format($method->cost, 0, ',', '.') }}đ</span>
+                                        <input type="radio" name="shipping_method_id" value="{{ $method->id }}"
+                                            data-cost="{{ $method->cost }}" required>
+                                        <span>{{ $method->name }} -
+                                            {{ number_format($method->cost, 0, ',', '.') }}đ</span>
                                     </label>
                                 @endforeach
-                            </div>
+                            </div> 
 
                             <div class="mt-4">
                                 <h5>Phương thức thanh toán</h5>
                                 @foreach ($paymentMethods as $method)
                                     <label class="payment-method d-flex align-items-center">
-                                        <input type="radio" name="payment_method_id" value="{{ $method->id }}" required>
+                                        <input type="radio" name="payment_method_id" value="{{ $method->id }}"
+                                            required
+                                            {{ old('payment_method_id') == $method->id ? 'checked' : '' }}
+                                            data-method="{{ strtolower($method->name) }}">
                                         <span>{{ $method->name }}</span>
                                     </label>
                                 @endforeach
+                                
                             </div>
 
                             <div class="totals-row mt-4">
                                 <span>Tạm tính</span>
                                 <span>{{ number_format($cart['total'], 0, ',', '.') }}đ</span>
                             </div>
+                            @if (($cart['discount'] ?? 0) > 0)
+                                <div class="totals-row">
+                                    <span>Giảm
+                                        giá{{ $cart['discount_code'] ? ' (' . $cart['discount_code'] . ')' : '' }}</span>
+                                    <span
+                                        style="color:#ff3029;">-{{ number_format($cart['discount'], 0, ',', '.') }}đ</span>
+                                </div>
+                            @endif
                             <div class="totals-row">
                                 <span>Phí vận chuyển</span>
                                 <span id="shipping-fee-display">0đ</span>
                             </div>
                             <div class="totals-row grand-total">
                                 <span>Tổng cộng</span>
-                                <span id="grand-total-display">{{ number_format($cart['total'], 0, ',', '.') }}đ</span>
+                                <span id="grand-total-display">
+                                    {{ number_format($cart['total'] - ($cart['discount'] ?? 0), 0, ',', '.') }}đ
+                                </span>
                             </div>
 
-                            <button type="submit" class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center mt-4">
+                            <button type="submit"
+                                class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center mt-4">
                                 <span>Hoàn tất đơn hàng</span>
                             </button>
                         </div>
@@ -362,7 +396,8 @@
             var renderData = (array, selectId) => {
                 let row = '<option value="">-- Chọn --</option>';
                 array.forEach(element => {
-                    row += `<option data-code="${element.code}" value="${element.name}">${element.name}</option>`
+                    row +=
+                        `<option data-code="${element.code}" value="${element.name}">${element.name}</option>`
                 });
                 document.getElementById(selectId).innerHTML = row;
             }
@@ -390,7 +425,8 @@
                         buyerDistrictSelect.value = userDistrict;
 
                         // Lấy mã quận để tải phường/xã
-                        const districtCode = buyerDistrictSelect.options[buyerDistrictSelect.selectedIndex]?.dataset.code;
+                        const districtCode = buyerDistrictSelect.options[buyerDistrictSelect.selectedIndex]
+                            ?.dataset.code;
                         if (districtCode) {
                             const wardResponse = await callApiWard(host + "d/" + districtCode + "?depth=2");
                             renderData(wardResponse.data.wards, "buyer_ward");
@@ -444,7 +480,9 @@
             shipToDifferentAddressCheckbox.addEventListener('change', function() {
                 shippingInfoSection.style.display = this.checked ? 'block' : 'none';
                 // Update required attributes based on checkbox state
-                const shippingFields = ['shipping_name', 'shipping_email', 'shipping_phone', 'shipping_address', 'shipping_district', 'shipping_ward'];
+                const shippingFields = ['shipping_name', 'shipping_email', 'shipping_phone',
+                    'shipping_address', 'shipping_district', 'shipping_ward'
+                ];
                 shippingFields.forEach(field => {
                     const input = document.getElementById(field);
                     if (input) input.required = this.checked;
@@ -456,11 +494,13 @@
             const shippingFeeDisplay = document.getElementById('shipping-fee-display');
             const grandTotalDisplay = document.getElementById('grand-total-display');
             const subtotal = {{ $cart['total'] }};
+            const discount = {{ $cart['discount'] ?? 0 }};
             shippingRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
                     const cost = parseFloat(this.dataset.cost);
                     shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
-                    grandTotalDisplay.textContent = (subtotal + cost).toLocaleString('vi-VN') + 'đ';
+                    grandTotalDisplay.textContent = (subtotal - discount + cost).toLocaleString(
+                        'vi-VN') + 'đ';
                 });
             });
 
@@ -480,10 +520,14 @@
 
                     if (!selectedOption.value) {
                         // Nếu chọn "-- Nhập địa chỉ mới --", khôi phục thông tin người dùng mặc định
-                        buyerNameInput.value = '{{ old('buyer_name', auth()->user()->full_name ?? '') }}';
-                        buyerPhoneInput.value = '{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}';
-                        buyerEmailInput.value = '{{ old('buyer_email', auth()->user()->email ?? '') }}';
-                        buyerAddressInput.value = '{{ old('buyer_address', auth()->user()->address ?? '') }}';
+                        buyerNameInput.value =
+                            '{{ old('buyer_name', auth()->user()->full_name ?? '') }}';
+                        buyerPhoneInput.value =
+                            '{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}';
+                        buyerEmailInput.value =
+                            '{{ old('buyer_email', auth()->user()->email ?? '') }}';
+                        buyerAddressInput.value =
+                            '{{ old('buyer_address', auth()->user()->address ?? '') }}';
                         // Gọi lại hàm khởi tạo để chọn lại địa chỉ mặc định của user nếu có
                         await initializeUserAddress();
                         return;
@@ -503,7 +547,8 @@
                     buyerDistrictSelect.value = selectedDistrict;
 
                     // Tải danh sách phường/xã tương ứng và chọn đúng phường/xã
-                    const districtCode = Array.from(buyerDistrictSelect.options).find(opt => opt.value === selectedDistrict)?.dataset.code;
+                    const districtCode = Array.from(buyerDistrictSelect.options).find(opt => opt
+                        .value === selectedDistrict)?.dataset.code;
                     if (districtCode) {
                         const wardResponse = await callApiWard(host + "d/" + districtCode + "?depth=2");
                         renderData(wardResponse.data.wards, "buyer_ward");
@@ -514,5 +559,7 @@
                 });
             }
         });
+
+        
     </script>
 @endsection
