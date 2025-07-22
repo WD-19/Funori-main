@@ -35,7 +35,26 @@
     <!-- Favicon and Touch Icons  -->
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
     <link rel="apple-touch-icon-precomposed" href="{{ asset('images/favicon.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        /* Tăng cỡ chữ cho toastr */
+        #toast-container>.toast {
+            font-size: 18px;
+            min-width: 350px;
+            max-width: 500px;
+            padding: 18px 24px;
+            padding-left: 40px;
+        }
 
+        /* Tùy chỉnh màu nền/toast nếu muốn */
+        #toast-container>.toast-success {
+            background-color: #43d477;
+        }
+
+        #toast-container>.toast-error {
+            background-color: #ff4d4f;
+        }
+    </style>
 </head>
 
 <body class="body">

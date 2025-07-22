@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\Address;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Order; // Add this at the top if not already imported
 
 class ProfileController
 {
@@ -18,11 +19,40 @@ class ProfileController
         ]);
     }
 
-    public function order()
+    public function order(Request $request)
     {
+        $user = Auth::user();
+        $orders = $user->orders()->with('paymentMethod')->latest();
+
+        $status = $request->query('order_status', 'all');
+        if ($status !== 'all') {
+            $orders = $orders->where('order_status', $status);
+        }
+
+        $orders = $orders->get();
+
+        // Nếu vẫn muốn groupBy để dùng lại view cũ:
+        $ordersByStatus = $status === 'all'
+            ? $orders->groupBy('order_status')
+            : collect([$status => $orders]);
+
         return view('client.profile.order', [
-            'pageTitle' => 'My Orders'
+            'pageTitle' => 'My Orders',
+            'ordersByStatus' => $ordersByStatus
         ]);
+    }
+
+    public function detailOrder($orderId)
+    {
+        $user = Auth::user();
+        $order = Order::with([
+            'items.product',
+            'items.productVariant.image',
+            'items.productVariant.attributeValues.attribute',
+            'items.product.thumbnail'
+        ])->find($orderId);
+
+        return view('client.profile.orderDetail', ['order' => $order]);
     }
 
     public function address()
@@ -50,27 +80,29 @@ class ProfileController
 
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'phone' => ['required', 'string', 'max:15', Rule::unique('users')->ignore($user->id)],
+            'phone_number' => ['required', 'string', 'max:15', Rule::unique('users', 'phone_number')->ignore($user->id, 'id')],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'address' => 'nullable|string|max:255',
-            // Nếu người dùng nhập địa chỉ cụ thể, thì Tỉnh/Quận/Phường là bắt buộc
-            'province' => ['required_with:address', 'nullable', 'string', 'max:255'],
-            'district' => ['required_with:address', 'nullable', 'string', 'max:255'],
-            'ward' => ['required_with:address', 'nullable', 'string', 'max:255'],
             'password' => 'nullable|string|min:8|confirmed',
-        ], [
-            // Thêm thông báo lỗi tùy chỉnh
-            'province.required_with' => 'Vui lòng chọn Tỉnh/Thành phố khi đã nhập địa chỉ cụ thể.',
-            'district.required_with' => 'Vui lòng chọn Quận/Huyện khi đã nhập địa chỉ cụ thể.',
-            'ward.required_with' => 'Vui lòng chọn Phường/Xã khi đã nhập địa chỉ cụ thể.',
+            'avatar_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // validate ảnh
         ]);
 
         // Cập nhật thông tin chính
-        $user->fill($request->only(['full_name', 'phone', 'email', 'address', 'province', 'district', 'ward']));
+        // Sửa 'phone' thành 'phone_number' để khớp với các nơi khác và chỉ lấy các trường cần thiết
+        $user->fill($request->only(['full_name', 'phone_number', 'email']));
 
         // Cập nhật mật khẩu nếu có
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
+        }
+
+        if ($request->hasFile('avatar_url')) {
+            // Xóa ảnh cũ nếu có
+            if ($user->avatar_url) {
+                Storage::disk('public')->delete($user->avatar_url);
+            }
+            // Lưu ảnh mới
+            $path = $request->file('avatar_url')->store('images/avatar', 'public');
+            $user->avatar_url = $path;
         }
 
         $user->save();
@@ -82,10 +114,10 @@ class ProfileController
         $request->validate([
             'receiver_name' => ['required', 'string', 'min:5'],
             'receiver_phone' => ['required', 'regex:/^0\d{9}$/'],
-            'street_address' => ['required', 'string'],
             'province' => 'required|string',
             'district' => 'required|string',
             'ward' => 'required|string',
+            'street_address' => ['required', 'string'],
         ], [
             'receiver_name.required' => 'Vui lòng nhập họ và tên.',
             'receiver_name.min' => 'Họ và tên phải dài hơn 5 ký tự.',
@@ -95,6 +127,7 @@ class ProfileController
             'province.required' => 'Vui lòng chọn Tỉnh/Thành phố.',
             'district.required' => 'Vui lòng chọn Quận/Huyện.',
             'ward.required' => 'Vui lòng chọn Phường/Xã.',
+            'street_address.required' => 'Vui lòng nhập địa chỉ cụ thể.',
         ]);
 
         // Nếu chọn mặc định, bỏ mặc định các địa chỉ khác
@@ -106,10 +139,10 @@ class ProfileController
             'user_id' => Auth::id(),
             'receiver_name' => $request->receiver_name,
             'receiver_phone' => $request->receiver_phone,
-            'street_address' => $request->street_address,
             'province' => $request->province,
             'district' => $request->district,
             'ward' => $request->ward,
+            'street_address' => $request->street_address,
             'is_default' => $request->has('is_default') ? 1 : 0,
         ]);
 
@@ -132,13 +165,20 @@ class ProfileController
         $request->validate([
             'receiver_name' => ['required', 'string', 'min:5'],
             'receiver_phone' => ['required', 'regex:/^0\d{9}$/'],
-            'street_address' => ['required', 'string'],
             'province' => 'required|string',
             'district' => 'required|string',
             'ward' => 'required|string',
+            'street_address' => ['required', 'string'],
         ]);
 
-        $address->update($request->all());
+        $address->update([
+            'receiver_name' => $request->receiver_name,
+            'receiver_phone' => $request->receiver_phone,
+            'province' => $request->province,
+            'district' => $request->district,
+            'ward' => $request->ward,
+            'street_address' => $request->street_address,
+        ]);
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => 'Cập nhật địa chỉ thành công!']);
@@ -198,5 +238,63 @@ class ProfileController
             $wishlistItems = collect();
         }
         return view('client.profile.wishlist', compact('wishlistItems'));
+    }
+
+    public function editPassword()
+    {
+        return view('client.profile.password');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => ['required'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
+            'new_password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'new_password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'new_password.confirmed' => 'Xác nhận mật khẩu mới không khớp.',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không đúng.']);
+        }
+
+        if (Hash::check($request->new_password, $user->password)) {
+            return back()->withErrors(['new_password' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.']);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', 'Đổi mật khẩu thành công!');
+    }
+
+    /**
+     * User request to cancel an order (chuyển trạng thái sang pending_cancellation)
+     */
+    public function cancelOrder(Request $request, $orderId)
+    {
+        $user = Auth::user();
+        $order = Order::where('id', $orderId)->where('user_id', $user->id)->first();
+        if (!$order) {
+            return back()->with('error', 'Không tìm thấy đơn hàng hoặc bạn không có quyền hủy đơn này.');
+        }
+        // Chỉ cho phép hủy nếu trạng thái là chờ xác nhận hoặc đang xử lý
+        if (!in_array($order->order_status, ['pending_confirmation', 'processing'])) {
+            return back()->with('error', 'Chỉ có thể hủy đơn hàng khi đang chờ xác nhận hoặc đang xử lý.');
+        }
+        $reason = $request->input('cancel_reason');
+        if ($reason === 'other') {
+            $reason = $request->input('cancel_reason_other');
+        }
+        $order->order_status = 'pending_cancellation';
+        $order->cancellation_reason = $reason;
+        $order->cancelled_at = now();
+        $order->save();
+        return back()->with('success', 'Yêu cầu hủy đơn hàng đã được gửi. Vui lòng chờ xác nhận từ quản trị viên.');
     }
 }

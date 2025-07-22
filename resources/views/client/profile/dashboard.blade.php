@@ -1,4 +1,4 @@
-@extends('client.profile.index')
+@extends('client.profile.profile_base')
 
 @section('page_title', 'Thông Báo')
 

@@ -125,12 +125,12 @@ return [
 
 
     // 'providers' => [
-    //     // ...
-    //     Maatwebsite\Excel\ExcelServiceProvider::class,
-    // ],
-    // 'aliases' => [
-    //     // ...
-    //     'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+    //     Laravel\Socialite\SocialiteServiceProvider::class,
+    //     // Maatwebsite\Excel\ExcelServiceProvider::class, // nếu dùng Excel
     // ],
 
+    // 'aliases' => [
+    //     'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+    //     // 'Excel' => Maatwebsite\Excel\Facades\Excel::class, // nếu dùng Excel
+    // ],
 ];

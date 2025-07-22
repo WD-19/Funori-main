@@ -43,6 +43,8 @@
     <!-- Phần footer -->
     @include('client.partials.footer')
     <!-- <div style="margin-bottom: 600px;"></div> -->
+
+    @stack('scripts')
 </body>
 
 <script src="https://kit.fontawesome.com/eda05fcf5c.js" crossorigin="anonymous"></script>

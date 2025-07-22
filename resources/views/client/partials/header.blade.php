@@ -1,4 +1,8 @@
-<div class="headermain" style="position: sticky; top: 0; z-index: 1000; background: #fff;">
+@php
+    $user = Auth::user();
+@endphp
+<div class="headermain"
+    style="position: sticky; top: 0; z-index: 1000; background: #fff;  box-shadow: 0 5px 35px rgb(16 16 16 / 25%);">
     <div class="contentmain">
 
         <nav class="box-menu" style="flex: 1; min-width: 0; align-items: center; ">
@@ -61,11 +65,11 @@
                 <a href="{{ Auth::check() ? '#' : route('client.login') }}" id="userDropdown"
                     style="padding: 0; border: none; background: none; display: flex; align-items: center; height: 36px;">
                     @if (Auth::check())
-                        <img src="{{ asset(Auth::user()->avatar_url ? Auth::user()->avatar_url : 'images/images.jpg') }}"
+                        <img src="{{ $user && $user->avatar_url ? asset('storage/' . $user->avatar_url) : asset('images/images.jpg') }}"
                             alt="avatar"
-                            style="width:32px;height:32px;object-fit:cover;border-radius:50%; display: block; vertical-align: middle;">
+                            style="width:32px;height:32px;object-fit:cover;border-radius:50%; display: block; vertical-align: middle; border: 3px solid rgba(255, 48, 41, 0.15);">
                         <span
-                            style="margin-left: 8px; color: #fc573b; font-weight: 600; font-size: 13px;">{{ Auth::user()->username ?? Auth::user()->name }}</span>
+                            style="margin-left: 8px; color: #fc573b; font-weight: 600; font-size: 13px;">{{ $user && $user->username ? $user->username : ($user && $user->name ? $user->name : '') }}</span>
                     @else
                         <i class="fa-regular fa-user user"
                             style="font-size: 24px; vertical-align: middle; line-height: 1;"></i>
@@ -74,12 +78,12 @@
                 @if (Auth::check())
                     <div class="dropdown-menu simple-profile-dropdown"
                         style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 12px; overflow: hidden; padding: 0;">
-                        <a href="{{ route('client.profile.dashboard') }}"
-                            style="display: block; padding: 10px 18px; color: #222; text-decoration: none; font-size: 15px; border-bottom: 1px solid #f5f5f5; font-weight: 400; text-align: left;">Tài
-                            Khoản Của Tôi</a>
-                        <a href=""
-                            style="display: block; padding: 10px 18px; color: #222; text-decoration: none; font-size: 15px; border-bottom: 1px solid #f5f5f5; font-weight: 400; text-align: left;">Đơn
-                            Mua</a>
+                        <a href="{{ route('client.profile.account') }}"
+                            style="display: block; padding: 10px 18px; color: #222; text-decoration: none; font-size: 15px; border-bottom: 1px solid #f5f5f5; font-weight: 400; text-align: left;">
+                            Tài Khoản Của Tôi</a>
+                        <a href="{{ route('client.profile.my_account.order') }}"
+                            style="display: block; padding: 10px 18px; color: #222; text-decoration: none; font-size: 15px; border-bottom: 1px solid #f5f5f5; font-weight: 400; text-align: left;">
+                            Đơn Mua</a>
                         <form action="{{ route('client.logout') }}" method="POST" style="margin: 0;">
                             @csrf
                             <button type="submit"

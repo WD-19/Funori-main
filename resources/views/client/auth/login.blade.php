@@ -18,7 +18,7 @@
                         <div class="body-text text-white">Hoặc nhập email và mật khẩu để đăng nhập</div>
                     </div>
                     <div class="flex flex-column gap16 w-full">
-                        <a href="index.html" class="tf-button style-2 w-full">
+                        <a href="{{ route('client.auth.google') }}" class="tf-button style-2 w-full">
                             <svg xmlns="http://www.w3.org/2000/svg" width="23" height="22" viewBox="0 0 23 22" fill="none">
                                 <g clip-path="url(#clip0_604_19993)">
                                     <path d="M21.6676 9.08734L12.694 9.08691C12.2978 9.08691 11.9766 9.40806 11.9766 9.80432V12.671C11.9766 13.0672 12.2978 13.3884 12.694 13.3884H17.7474C17.194 14.8244 16.1612 16.0271 14.8435 16.7913L16.9983 20.5213C20.4548 18.5223 22.4983 15.0148 22.4983 11.0884C22.4983 10.5293 22.4571 10.1297 22.3747 9.67967C22.312 9.33777 22.0152 9.08734 21.6676 9.08734Z" fill="#167EE6" />
@@ -36,20 +36,6 @@
                             </svg>
                             <span class="">Sign in with Google</span>
                         </a>
-                        <a href="index.html" class="tf-button style-2 w-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="23" height="22" viewBox="0 0 23 22" fill="none">
-                                <g clip-path="url(#clip0_604_20003)">
-                                    <path d="M22.5 11C22.5 16.4905 18.4773 21.0414 13.2188 21.8664V14.1797H15.7818L16.2695 11H13.2188V8.93664C13.2188 8.06652 13.645 7.21875 15.0114 7.21875H16.3984V4.51172C16.3984 4.51172 15.1395 4.29688 13.9359 4.29688C11.4235 4.29688 9.78125 5.81969 9.78125 8.57656V11H6.98828V14.1797H9.78125V21.8664C4.52273 21.0414 0.5 16.4905 0.5 11C0.5 4.92508 5.42508 0 11.5 0C17.5749 0 22.5 4.92508 22.5 11Z" fill="#1877F2" />
-                                    <path d="M15.7818 14.1797L16.2695 11H13.2188V8.9366C13.2188 8.0667 13.6449 7.21875 15.0114 7.21875H16.3984V4.51172C16.3984 4.51172 15.1396 4.29688 13.9361 4.29688C11.4235 4.29688 9.78125 5.81969 9.78125 8.57656V11H6.98828V14.1797H9.78125V21.8663C10.3413 21.9542 10.9153 22 11.5 22C12.0847 22 12.6587 21.9542 13.2188 21.8663V14.1797H15.7818Z" fill="white" />
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_604_20003">
-                                        <rect width="22" height="22" fill="white" transform="translate(0.5)" />
-                                    </clipPath>
-                                </defs>
-                            </svg>
-                            <span class="">Sign in with Facebook</span>
-                        </a>
                     </div>
 
                     <form class="form-login flex flex-column gap22 w-full" action="{{ route('client.login') }}" method="POST">
@@ -61,7 +47,7 @@
                             <br>
                             <br>
                             @error('email')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                             @enderror
                         </fieldset>
                         <fieldset class="password">
@@ -74,7 +60,7 @@
                             <br>
                             <br>
                             @error('password')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">{{ $message }}</div>
                             @enderror
                         </fieldset>
                         <div class="flex justify-between items-center">
@@ -85,10 +71,10 @@
                             <br>
                             <br>
 
-                            <a href="#" class="body-text tf-color">Quên mật khẩu?</a>
+                            <a href="{{ route('client.password.request') }}" class="body-text tf-color">Quên mật khẩu?</a>
                         </div>
                         @if ($errors->has('email&password'))
-                        <div class="text-danger mt-2" style="color: #ff4d4f; font-size: 14px;">
+                        <div class="text-danger mt-1" style="color: #ffb3b3; font-size: 16px;">
                             {{ $errors->first('email&password') }}
                         </div>
                         @endif
