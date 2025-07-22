@@ -361,7 +361,9 @@ class OrderController
             $order->order_status = 'cancelled';
             $order->cancelled_at = now();
             $order->admin_note = $adminNote;
-            $order->cancellation_reason = $cancelReason;
+            if (!empty($cancelReason)) {
+                $order->cancellation_reason = $cancelReason;
+            }
 
             // Trả lại số lượng tồn kho cho từng sản phẩm/biến thể trong đơn hàng
             // Sửa lỗi: Cần trả kho cho cả biến thể và sản phẩm, và đúng cột `stock_quantity`

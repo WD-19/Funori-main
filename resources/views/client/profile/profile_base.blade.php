@@ -11,7 +11,7 @@
         <div class="container1 mx-auto px-4 profile">
             <div class="row d-flex">
                 {{-- Cột bên trái: Sidebar Điều Hướng --}}
-                <div class="col-lg-4 col-md-4 mb-4">
+                <div class="col-lg-4 col-md-4">
                     @include('client.profile.sidebar')
                 </div>
 

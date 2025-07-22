@@ -49,11 +49,13 @@
                         <div class="info-item common-info"><strong>Ghi chú:</strong>
                             <span>{{ $order->note ?? 'Không có' }}</span>
                         </div>
-                        @if (in_array($orderStatusKey, ['cancelled', 'pending_cancellation']) && !empty($order->cancellation_reason))
-                        <div class="info-item common-info text-danger"><strong>Lý do hủy:</strong>
-                            <span>{{ $order->cancellation_reason }}</span>
-                        </div>
+                        @if (in_array($order->order_status, ['cancelled', 'pending_cancellation']) && !empty($order->cancellation_reason))
+                            <div class="info-item common-info text-danger"><strong>Lý do hủy:</strong>
+                                <span>{{ $order->cancellation_reason }}</span>
+                            </div>
                         @endif
+
+
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -93,7 +95,7 @@
                                         $finalImageUrl = $variantImageUrl ?? $productThumbnailUrl;
                                     @endphp
                                     <img src="{{ $finalImageUrl ? asset($finalImageUrl) : 'https://via.placeholder.com/70?text=No+Image' }}"
-                                         alt="{{ optional($item->product)->name ?? 'Sản phẩm' }}" class="product-thumb">
+                                        alt="{{ optional($item->product)->name ?? 'Sản phẩm' }}" class="product-thumb">
                                 </div>
                                 <div class="product-card-details ps-2" style="width:100%;">
                                     <div class="d-flex justify-content-between align-items-end w-100">
@@ -102,17 +104,26 @@
                                                 {{ $item->product->name ?? 'N/A' }}
                                             </div>
                                             @php
-                                                $variantAttrs = $item->productVariant && $item->productVariant->attributeValues
-                                                    ? $item->productVariant->attributeValues->map(function ($v) {
-                                                        return (optional($v->attribute)->name ?? '') . ': ' . ($v->value ?? '');
-                                                    })->filter()->toArray()
-                                                    : [];
+                                                $variantAttrs =
+                                                    $item->productVariant && $item->productVariant->attributeValues
+                                                        ? $item->productVariant->attributeValues
+                                                            ->map(function ($v) {
+                                                                return (optional($v->attribute)->name ?? '') .
+                                                                    ': ' .
+                                                                    ($v->value ?? '');
+                                                            })
+                                                            ->filter()
+                                                            ->toArray()
+                                                        : [];
                                             @endphp
 
                                             @if (!empty($variantAttrs))
                                                 <div class="product-card-variant text-muted mb-1">
                                                     @foreach ($variantAttrs as $attr)
-                                                        <span>{{ $attr }}</span>@if (!$loop->last), @endif
+                                                        <span>{{ $attr }}</span>
+                                                        @if (!$loop->last)
+                                                            ,
+                                                        @endif
                                                     @endforeach
                                                 </div>
                                             @else
@@ -149,11 +160,18 @@
                                             <div class="d-flex flex-column justify-content-end" style="height: 100%;">
                                                 <div class="d-flex gap-2 align-items-center" style="height: 100%;">
                                                     <!-- Button trigger modal -->
-                                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                                                    <button type="button" class="btn btn-outline-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
                                                         <i class="bi bi-x-circle me-1"></i>Hủy đơn hàng
                                                     </button>
                                                 </div>
                                             </div>
+                                        @endif
+                                        @if ($order->order_status === 'cancelled' && $order->items && count($order->items) > 0)
+                                            <a href="{{ route('client.product.show', ['slug' => $order->items[0]->product->slug ?? '']) }}"
+                                                class="btn btn-primary">
+                                                <i class="bi bi-cart-plus me-2"></i>Mua lại
+                                            </a>
                                         @endif
                                     </div>
                                 </div>
@@ -176,14 +194,18 @@
                 <a href="{{ route('client.profile.my_account.order') }}" class="btn btn-outline-dark">
                     <i class="bi bi-list-ul me-2"></i>Quay lại danh sách đơn hàng
                 </a>
+
             </div>
         </div>
 
         <!-- Modal Hủy đơn hàng -->
-        <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+        <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form method="POST" action="{{ route('client.profile.my_account.order.cancel', ['id' => $order->id]) }}" id="cancelOrderForm">
+                    <form method="POST"
+                        action="{{ route('client.profile.my_account.order.cancel', ['id' => $order->id]) }}"
+                        id="cancelOrderForm">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="cancelOrderModalLabel">Chọn lý do hủy đơn hàng</h5>
@@ -192,30 +214,40 @@
                         <div class="modal-body">
                             <div class="mb-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason1" value="Đặt nhầm sản phẩm hoặc số lượng" required>
+                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason1"
+                                        value="Đặt nhầm sản phẩm hoặc số lượng" required>
                                     <label class="form-check-label" for="reason1">Đặt nhầm sản phẩm hoặc số lượng</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason2" value="Không còn nhu cầu sử dụng sản phẩm">
-                                    <label class="form-check-label" for="reason2">Không còn nhu cầu sử dụng sản phẩm</label>
+                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason2"
+                                        value="Không còn nhu cầu sử dụng sản phẩm">
+                                    <label class="form-check-label" for="reason2">Không còn nhu cầu sử dụng sản
+                                        phẩm</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason3" value="Tìm thấy sản phẩm tương tự với giá tốt hơn">
-                                    <label class="form-check-label" for="reason3">Tìm thấy sản phẩm tương tự với giá tốt hơn</label>
+                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason3"
+                                        value="Tìm thấy sản phẩm tương tự với giá tốt hơn">
+                                    <label class="form-check-label" for="reason3">Tìm thấy sản phẩm tương tự với giá tốt
+                                        hơn</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason4" value="Thời gian giao hàng quá lâu">
+                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason4"
+                                        value="Thời gian giao hàng quá lâu">
                                     <label class="form-check-label" for="reason4">Thời gian giao hàng quá lâu</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason5" value="Thay đổi địa chỉ hoặc thông tin nhận hàng">
-                                    <label class="form-check-label" for="reason5">Thay đổi địa chỉ hoặc thông tin nhận hàng</label>
+                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reason5"
+                                        value="Thay đổi địa chỉ hoặc thông tin nhận hàng">
+                                    <label class="form-check-label" for="reason5">Thay đổi địa chỉ hoặc thông tin nhận
+                                        hàng</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reasonOther" value="other">
+                                    <input class="form-check-input" type="radio" name="cancel_reason" id="reasonOther"
+                                        value="other">
                                     <label class="form-check-label" for="reasonOther">Lý do khác (vui lòng ghi rõ)</label>
                                 </div>
-                                <textarea class="form-control mt-2 d-none" name="cancel_reason_other" id="cancelReasonOtherText" rows="2" placeholder="Nhập lý do khác..."></textarea>
+                                <textarea class="form-control mt-2 d-none" name="cancel_reason_other" id="cancelReasonOtherText" rows="2"
+                                    placeholder="Nhập lý do khác..."></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">

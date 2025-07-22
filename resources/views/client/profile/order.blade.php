@@ -103,6 +103,16 @@
                                                         Huỷ đơn hàng
                                                     </button>
                                                 @endif
+                                                @if (Str::slug($order->order_status, '_') === 'cancelled' && $order->items && count($order->items) > 0)
+                                                    <a href="{{ route('client.product.show', ['slug' => $order->items[0]->product->slug ?? '']) }}" class="btn btn-outline-primary">
+                                                        <i class="bi bi-cart-plus me-2"></i>Mua lại
+                                                    </a>
+                                                @endif
+                                                @if (Str::slug($order->order_status, '_') === 'delivered')
+                                                    <a href="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}" class="btn btn-outline-danger">
+                                                        <i class="bi bi-arrow-counterclockwise me-2"></i>Hoàn/Trả hàng
+                                                    </a>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -128,30 +138,30 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="list_reason1" value="Đặt nhầm sản phẩm hoặc số lượng" required>
-                                <label class="form-check-label" for="list_reason1">Đặt nhầm sản phẩm hoặc số lượng</label>
+                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason1" value="Đặt nhầm sản phẩm hoặc số lượng" required>
+                                <label class="form-check-label" for="order_reason1">Đặt nhầm sản phẩm hoặc số lượng</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="list_reason2" value="Không còn nhu cầu sử dụng sản phẩm">
-                                <label class="form-check-label" for="list_reason2">Không còn nhu cầu sử dụng sản phẩm</label>
+                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason2" value="Không còn nhu cầu sử dụng sản phẩm">
+                                <label class="form-check-label" for="order_reason2">Không còn nhu cầu sử dụng sản phẩm</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="list_reason3" value="Tìm thấy sản phẩm tương tự với giá tốt hơn">
-                                <label class="form-check-label" for="list_reason3">Tìm thấy sản phẩm tương tự với giá tốt hơn</label>
+                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason3" value="Tìm thấy sản phẩm tương tự với giá tốt hơn">
+                                <label class="form-check-label" for="order_reason3">Tìm thấy sản phẩm tương tự với giá tốt hơn</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="list_reason4" value="Thời gian giao hàng quá lâu">
-                                <label class="form-check-label" for="list_reason4">Thời gian giao hàng quá lâu</label>
+                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason4" value="Thời gian giao hàng quá lâu">
+                                <label class="form-check-label" for="order_reason4">Thời gian giao hàng quá lâu</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="list_reason5" value="Thay đổi địa chỉ hoặc thông tin nhận hàng">
-                                <label class="form-check-label" for="list_reason5">Thay đổi địa chỉ hoặc thông tin nhận hàng</label>
+                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason5" value="Thay đổi địa chỉ hoặc thông tin nhận hàng">
+                                <label class="form-check-label" for="order_reason5">Thay đổi địa chỉ hoặc thông tin nhận hàng</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="list_reasonOther" value="other">
-                                <label class="form-check-label" for="list_reasonOther">Lý do khác (vui lòng ghi rõ)</label>
+                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reasonOther" value="other">
+                                <label class="form-check-label" for="order_reasonOther">Lý do khác (vui lòng ghi rõ)</label>
                             </div>
-                            <textarea class="form-control mt-2 d-none" name="cancel_reason_other" id="list_cancelReasonOtherText" rows="2" placeholder="Nhập lý do khác..."></textarea>
+                            <textarea class="form-control mt-2 d-none" name="cancel_reason_other" id="order_cancelReasonOtherText" rows="2" placeholder="Nhập lý do khác..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -176,8 +186,8 @@
                 const cancelOrderModal = document.getElementById('cancelOrderModal');
                 if (cancelOrderModal) {
                     const cancelOrderForm = document.getElementById('cancelOrderForm');
-                    const reasonOtherRadio = document.getElementById('list_reasonOther');
-                    const otherTextarea = document.getElementById('list_cancelReasonOtherText');
+                    const reasonOtherRadio = document.getElementById('order_reasonOther');
+                    const otherTextarea = document.getElementById('order_cancelReasonOtherText');
                     
                     // Cập nhật action của form khi modal được mở
                     cancelOrderModal.addEventListener('show.bs.modal', function (event) {
