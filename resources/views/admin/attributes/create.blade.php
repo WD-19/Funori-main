@@ -32,7 +32,7 @@
             @csrf
             <fieldset class="name mb-6">
                 <div class="body-title">Thuộc tính</div>
-                <select name="attribute_id" id="attribute_id" class="form-control fs-4 rounded px-4 @error('attribute_id') is-invalid @enderror" required>
+                <select name="attribute_id" id="attribute_id" class="form-control fs-4 rounded px-4 @error('attribute_id') is-invalid @enderror">
                     <option value="">-- Chọn thuộc tính --</option>
                     @foreach ($attributes as $attribute)
                         <option value="{{ $attribute->id }}">{{ $attribute->name }}</option>
@@ -45,7 +45,7 @@
             <fieldset class="name mt-6">
                 <div class="body-title">Giá trị</div>
                 <input class="flex-grow form-control @error('value') is-invalid @enderror" type="text" placeholder="Nhập giá trị thuộc tính" name="value" tabindex="0"
-                    value="" aria-required="true" required="">
+                    value="" aria-required="true">
                 @error('value')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

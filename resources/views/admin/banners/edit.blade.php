@@ -17,12 +17,18 @@
                 @method('PUT')
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Tiêu đề</label>
-                    <input type="text" name="title" class="input-field" required
+                    <input type="text" name="title" class="input-field"
                         value="{{ old('title', $banner->title) }}">
+                    @error('title')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Ảnh banner</label>
                     <input type="file" name="image" id="banner-image" class="form-control" accept="image/*">
+                    @error('image')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                     <div id="image-preview" class="mt-2">
                         @if ($banner->image_url)
                             <img src="{{ asset('storage/' . $banner->image_url) }}" style="width: 100%; height: auto; display: block;">
@@ -32,10 +38,13 @@
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Link</label>
                     <input type="text" name="link" class="input-field" value="{{ old('link', $banner->link) }}">
+                    @error('link')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Vị trí</label>
-                    <select name="position" class="input-field" required>
+                    <select name="position" class="input-field">
                         @foreach ($positions as $pos)
                             <option value="{{ $pos }}" @if ($banner->position == $pos) selected @endif>
                                 {{ $pos }}</option>
@@ -43,19 +52,35 @@
                         <option value="main" @if ($banner->position == 'main') selected @endif>main</option>
                         <option value="sidebar" @if ($banner->position == 'sidebar') selected @endif>sidebar</option>
                     </select>
+                    @error('position')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Thứ tự</label>
                     <input type="number" name="order" class="input-field" value="{{ old('order', $banner->order) }}">
+                    @error('order')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Thời gian hiển thị</label>
                     <div class="flex gap-2">
-                        <input type="datetime-local" name="start_at" class="input-field"
-                            value="{{ old('start_at', $banner->start_at ? \Carbon\Carbon::parse($banner->start_at)->format('Y-m-d\TH:i') : '') }}">
+                        <div>
+                            <input type="datetime-local" name="start_at" class="input-field"
+                                value="{{ old('start_at', $banner->start_at ? \Carbon\Carbon::parse($banner->start_at)->format('Y-m-d\TH:i') : '') }}">
+                            @error('start_at')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
                         <span class="align-content-center">-</span>
-                        <input type="datetime-local" name="end_at" class="input-field"
-                            value="{{ old('end_at', $banner->end_at ? \Carbon\Carbon::parse($banner->end_at)->format('Y-m-d\TH:i') : '') }}">
+                        <div>
+                            <input type="datetime-local" name="end_at" class="input-field"
+                                value="{{ old('end_at', $banner->end_at ? \Carbon\Carbon::parse($banner->end_at)->format('Y-m-d\TH:i') : '') }}">
+                            @error('end_at')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </fieldset>
                 <fieldset class="mb-4">
@@ -65,6 +90,9 @@
                             {{ old('is_active', $banner->is_active) ? 'checked' : '' }}>
                         <span class="slider round"></span>
                     </label>
+                    @error('is_active')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
                 </fieldset>
 
                 <div class="row">

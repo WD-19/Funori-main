@@ -28,10 +28,17 @@ use App\Http\Controllers\client\ShopController;
 use App\Http\Controllers\client\CheckoutController;
 use App\Http\Controllers\client\WishlistController;
 use App\Http\Middleware\CheckClientLogin;
+use App\Http\Controllers\client\Auth\ForgotPasswordController;
+use App\Http\Controllers\client\Auth\ResetPasswordController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
+use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
+
+use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -155,6 +162,9 @@ Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
 
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
@@ -163,16 +173,53 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
 
-    Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
+    Route::get('/register', [RegisterController::class, 'index'])->name('register.index')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+    // Điều hướng người dùng tới Google
+    Route::get('/auth/google', function () {
+        return Socialite::driver('google')->redirect();
+    })->name('auth.google')->middleware(RedirectIfAuthenticatedCustom::class);
+
+    // Callback từ Google
+    Route::get('/auth/google/callback', function () {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if ($user) {
+            // Chỉ update google_id nếu chưa có
+            if (!$user->google_id) {
+                $user->update([
+                    'google_id' => $googleUser->getId()
+                ]);
+            }
+        } else {
+            // Tạo mới nếu chưa có tài khoản
+            $user = User::create([
+                'email' => $googleUser->getEmail(),
+                'name' => $googleUser->getName(),
+                'full_name' => $googleUser->getName(),
+                'google_id' => $googleUser->getId(),
+                'password' => Hash::make(uniqid()),
+            ]);
+        }
+
+        Auth::login($user);
+        return redirect('/');
+    })->name('auth.google.callback')->middleware(RedirectIfAuthenticatedCustom::class);
+
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])->name('password.email');
+
+
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('page.show');
-    
+
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
@@ -196,8 +243,6 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
     // JS gọi POST nên route phải là POST
     Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
-
-
 
     // Checkout (One-Page)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');

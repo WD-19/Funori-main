@@ -37,7 +37,7 @@
                 @csrf
                 <div class="form-group mb-5">
                     <label class="form-label fw-bold fs-5 mb-3" for="name">Tên thương hiệu <span class="text-danger">*</span></label>
-                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
