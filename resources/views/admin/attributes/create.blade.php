@@ -28,6 +28,11 @@
         </ul>
     </div>
     <div class="wg-box">
+        @if (session('success'))
+            <div class="alert alert-success mb-3" style="font-size:1.5rem; font-weight:bold; padding:15px;">
+                {{ session('success') }}
+            </div>
+        @endif
         <form action="{{ route('admin.attributes.store') }}" method="POST">
             @csrf
             <fieldset class="name mb-6">
@@ -39,15 +44,15 @@
                     @endforeach
                 </select>
                 @error('attribute_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                 @enderror
             </fieldset>
             <fieldset class="name mt-6">
                 <div class="body-title">Giá trị</div>
                 <input class="flex-grow form-control @error('value') is-invalid @enderror" type="text" placeholder="Nhập giá trị thuộc tính" name="value" tabindex="0"
-                    value="" aria-required="true">
+                    value="{{ old('value') }}" aria-required="true">
                 @error('value')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                 @enderror
             </fieldset>
             <div class="row mt-5">

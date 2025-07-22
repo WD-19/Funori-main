@@ -18,27 +18,35 @@ class BrandController
         return view('admin.brands.create');
     }
 
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255|unique:brands,name',
-        'description' => 'nullable|string',
-        'logo' => 'nullable|image|max:2048', // giới hạn 2MB
-    ]);
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:brands,name',
+            'description' => 'nullable|string',
+            'logo' => 'nullable|image|max:2048', // giới hạn 2MB
+        ], [
+            'name.required' => 'Tên thương hiệu là bắt buộc.',
+            'name.string' => 'Tên thương hiệu phải là chuỗi ký tự.',
+            'name.max' => 'Tên thương hiệu không được vượt quá 255 ký tự.',
+            'name.unique' => 'Tên thương hiệu đã tồn tại, vui lòng chọn tên khác.',
+            'description.string' => 'Mô tả phải là chuỗi ký tự.',
+            'logo.image' => 'Tệp logo phải là một hình ảnh.',
+            'logo.max' => 'Kích thước logo không được vượt quá 2MB.',
+        ]);
 
-    // Sinh slug
-    $validated['slug'] = Str::slug($validated['name']);
+        // Sinh slug
+        $validated['slug'] = Str::slug($validated['name']);
 
-    // Xử lý logo nếu có
-    if ($request->hasFile('logo')) {
-        $path = $request->file('logo')->store('logos', 'public');
-        $validated['logo_url'] = $path; 
+        // Xử lý logo nếu có
+        if ($request->hasFile('logo')) {
+            $path = $request->file('logo')->store('logos', 'public');
+            $validated['logo_url'] = $path; 
+        }
+
+        Brand::create($validated);
+
+        return redirect()->route('admin.brands.index')->with('success', 'Thêm thương hiệu thành công!');
     }
-
-    Brand::create($validated);
-
-    return redirect()->route('admin.brands.index')->with('success', 'Thêm thương hiệu thành công!');
-}
 
     public function edit(Brand $brand)
     {
@@ -52,6 +60,15 @@ public function store(Request $request)
             'slug' => 'nullable|max:255|unique:brands,slug,' . $brand->id,
             'logo' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
+        ], [
+            'name.required' => 'Tên thương hiệu là bắt buộc.',
+            'name.max' => 'Tên thương hiệu không được vượt quá 255 ký tự.',
+            'name.unique' => 'Tên thương hiệu đã tồn tại, vui lòng chọn tên khác.',
+            'slug.max' => 'Slug không được vượt quá 255 ký tự.',
+            'slug.unique' => 'Slug đã tồn tại, vui lòng chọn slug khác.',
+            'logo.image' => 'Tệp logo phải là một hình ảnh.',
+            'logo.max' => 'Kích thước logo không được vượt quá 2MB.',
+            'description.string' => 'Mô tả phải là chuỗi ký tự.',
         ]);
 
         $data['slug'] = $data['slug'] ?? Str::slug($data['name']);

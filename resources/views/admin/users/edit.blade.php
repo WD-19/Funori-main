@@ -37,6 +37,17 @@
                 $isCurrentAdmin = auth()->user()->role === 'admin';
             @endphp
 
+            {{-- @if (session('success'))
+                <div class="alert alert-success mb-3" style="font-size:1.5rem; font-weight:bold; padding:15px;">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger mb-3" style="font-size:1.5rem; font-weight:bold; padding:15px;">
+                    {{ session('error') }}
+                </div>
+            @endif --}}
+
             <form class="form-add-new-user form-style-2" enctype="multipart/form-data" method="POST"
                 action="{{ route('admin.users.update', $user->id) }}" id="editForm">
                 @csrf
@@ -62,6 +73,9 @@
                                 <input type="file" id="avatarInput" name="avatar_url" accept="image/*"
                                     style="display: none;">
                             @endif
+                            @error('avatar_url')
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </div>
                     </div>
                     <div class="right flex-grow">
@@ -69,16 +83,25 @@
                             <div class="body-title mb-10">Tên người dùng</div>
                             <input class="flex-grow" type="text" name="full_name" value="{{ $user->full_name }}"
                                 @if (!$isSelf) readonly @endif>
+                            @error('full_name')
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset class="email mb-24">
                             <div class="body-title mb-10">Email</div>
                             <input class="flex-grow" type="email" name="email" value="{{ $user->email }}"
                                 @if (!$isSelf) readonly @endif>
+                            @error('email')
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset class="phone mb-24">
                             <div class="body-title mb-10">Số điện thoại</div>
                             <input class="flex-grow" type="text" name="phone_number" value="{{ $user->phone_number }}"
                                 @if (!$isSelf) readonly @endif>
+                            @error('phone_number')
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset class="password mb-24">
                             <div class="body-title mb-10">Mật khẩu</div>
@@ -122,8 +145,8 @@
                                 </div>
                             </div>
                             @error('account_status')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset>
                             <div class="body-title mb-10">Quyền</div>
@@ -142,8 +165,8 @@
                                 </div>
                             </div>
                             @error('role')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                     </div>
                 </div>
@@ -180,16 +203,25 @@
                             <label style="font-weight:700; font-size: 10px;">Mật khẩu cũ</label>
                             <input type="password" name="old_password" class="form-control strong-input" required
                                 style="width:100%;margin-top:8px; background-color: #e5e2e2;">
+                            @error('old_password')
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </div>
                         <div style="margin-bottom:20px;">
                             <label style="font-weight:700; font-size: 10px;">Mật khẩu mới</label>
                             <input type="password" name="new_password" class="form-control strong-input" required
                                 style="width:100%;margin-top:8px; background-color: #e5e2e2;">
+                            @error('new_password')
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </div>
                         <div style="margin-bottom:28px;">
                             <label style="font-weight:600; font-size: 10px;">Xác nhận mật khẩu</label>
                             <input type="password" name="new_password_confirmation" class="form-control strong-input"
                                 required style="width:100%;margin-top:8px; background-color: #e5e2e2;">
+                            @error('new_password_confirmation')
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </div>
 
                         <button type="submit" class="tf-button w100" style="font-size:1.1rem;">Lưu</button>

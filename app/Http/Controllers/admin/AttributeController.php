@@ -20,6 +20,7 @@ class AttributeController
         $attributes = $query->paginate(20)->appends($request->all());
         return view('admin.attributes.index', compact('attributes'));
     }
+
     public function create()
     {
         $attributes = Attribute::all();
@@ -33,6 +34,13 @@ class AttributeController
             'value' => ['required', 'string', 'max:255', Rule::unique('attribute_values')->where(function ($query) use ($request) {
                 return $query->where('attribute_id', $request->attribute_id);
             })],
+        ], [
+            'attribute_id.required' => 'Thuộc tính là bắt buộc.',
+            'attribute_id.exists' => 'Thuộc tính không tồn tại.',
+            'value.required' => 'Giá trị thuộc tính là bắt buộc.',
+            'value.string' => 'Giá trị thuộc tính phải là chuỗi ký tự.',
+            'value.max' => 'Giá trị thuộc tính không được vượt quá 255 ký tự.',
+            'value.unique' => 'Giá trị thuộc tính đã tồn tại cho thuộc tính này.',
         ]);
 
         AttributeValue::create([
@@ -40,7 +48,7 @@ class AttributeController
             'value' => $request->value,
         ]);
 
-        return redirect()->route('admin.attributes.index')->with('success', 'Attribute value created successfully.');
+        return redirect()->route('admin.attributes.index')->with('success', 'Thêm giá trị thuộc tính thành công.');
     }
 
     public function edit($id)
@@ -57,6 +65,13 @@ class AttributeController
             'value' => ['required', 'string', 'max:255', Rule::unique('attribute_values')->where(function ($query) use ($request, $id) {
                 return $query->where('attribute_id', $request->attribute_id)->where('id', '!=', $id);
             })],
+        ], [
+            'attribute_id.required' => 'Thuộc tính là bắt buộc.',
+            'attribute_id.exists' => 'Thuộc tính không tồn tại.',
+            'value.required' => 'Giá trị thuộc tính là bắt buộc.',
+            'value.string' => 'Giá trị thuộc tính phải là chuỗi ký tự.',
+            'value.max' => 'Giá trị thuộc tính không được vượt quá 255 ký tự.',
+            'value.unique' => 'Giá trị thuộc tính đã tồn tại cho thuộc tính này.',
         ]);
 
         $attributeValue = AttributeValue::findOrFail($id);
@@ -65,7 +80,7 @@ class AttributeController
             'value' => $request->value,
         ]);
 
-        return redirect()->route('admin.attributes.index')->with('success', 'Attribute value updated successfully.');
+        return redirect()->route('admin.attributes.index')->with('success', 'Cập nhật giá trị thuộc tính thành công.');
     }
 
     public function destroy($id)
@@ -73,6 +88,6 @@ class AttributeController
         $attributeValue = AttributeValue::findOrFail($id);
         $attributeValue->delete();
 
-        return redirect()->route('admin.attributes.index')->with('success', 'Attribute value deleted successfully.');
+        return redirect()->route('admin.attributes.index')->with('success', 'Xóa giá trị thuộc tính thành công.');
     }
 }

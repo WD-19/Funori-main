@@ -5,7 +5,7 @@
 @section('content')
     <div class="main-content-inner">
         @if (session('success'))
-            <div class="alert alert-success">
+            <div class="alert alert-success" style="font-size:1.5rem; font-weight:bold; padding:15px;">
                 {{ session('success') }}
             </div>
         @endif
@@ -20,14 +20,14 @@
                     <input type="text" name="title" class="input-field"
                         value="{{ old('title', $banner->title) }}">
                     @error('title')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Ảnh banner</label>
                     <input type="file" name="image" id="banner-image" class="form-control" accept="image/*">
                     @error('image')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                     <div id="image-preview" class="mt-2">
                         @if ($banner->image_url)
@@ -39,7 +39,7 @@
                     <label class="body-title mb-2">Link</label>
                     <input type="text" name="link" class="input-field" value="{{ old('link', $banner->link) }}">
                     @error('link')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset class="mb-4">
@@ -53,14 +53,14 @@
                         <option value="sidebar" @if ($banner->position == 'sidebar') selected @endif>sidebar</option>
                     </select>
                     @error('position')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Thứ tự</label>
                     <input type="number" name="order" class="input-field" value="{{ old('order', $banner->order) }}">
                     @error('order')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset class="mb-4">
@@ -70,7 +70,7 @@
                             <input type="datetime-local" name="start_at" class="input-field"
                                 value="{{ old('start_at', $banner->start_at ? \Carbon\Carbon::parse($banner->start_at)->format('Y-m-d\TH:i') : '') }}">
                             @error('start_at')
-                                <div class="text-danger mt-1">{{ $message }}</div>
+                                <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                             @enderror
                         </div>
                         <span class="align-content-center">-</span>
@@ -78,7 +78,7 @@
                             <input type="datetime-local" name="end_at" class="input-field"
                                 value="{{ old('end_at', $banner->end_at ? \Carbon\Carbon::parse($banner->end_at)->format('Y-m-d\TH:i') : '') }}">
                             @error('end_at')
-                                <div class="text-danger mt-1">{{ $message }}</div>
+                                <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                         <span class="slider round"></span>
                     </label>
                     @error('is_active')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
 

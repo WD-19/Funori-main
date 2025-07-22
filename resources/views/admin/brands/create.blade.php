@@ -29,7 +29,7 @@
                 <div class="body-text">Điền thông tin thương hiệu mới vào form bên dưới.</div>
             </div>
             @if (session('success'))
-                <div class="alert alert-success mb-3" style="font-size:1.25rem; font-weight:bold;">
+                <div class="alert alert-success mb-3" style="font-size:1.5rem; font-weight:bold; padding:15px;">
                     {{ session('success') }}
                 </div>
             @endif
@@ -39,7 +39,7 @@
                     <label class="form-label fw-bold fs-5 mb-3" for="name">Tên thương hiệu <span class="text-danger">*</span></label>
                     <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}">
                     @error('name')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                     @enderror
                 </div>
                 
@@ -47,7 +47,7 @@
                     <label class="form-label fw-bold fs-5 mb-3" for="logo">Logo</label>
                     <input type="file" name="logo" id="logo" class="form-control @error('logo') is-invalid @enderror">
                     @error('logo')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                     @enderror
                 </div>
                 
@@ -55,7 +55,7 @@
                     <label class="form-label fw-bold fs-5 mb-3" for="description">Mô tả</label>
                     <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" rows="4">{{ old('description') }}</textarea>
                     @error('description')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                     @enderror
                 </div>
 

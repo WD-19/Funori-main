@@ -12,14 +12,14 @@
                     <label class="body-title mb-2">Tiêu đề</label>
                     <input type="text" name="title" class="input-field" value="{{ old('title') }}">
                     @error('title')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Ảnh banner</label>
                     <input type="file" name="image" id="banner-image" class="input-field" accept="image/*">
                     @error('image')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                     <div id="image-preview" class="mt-2"></div>
                 </fieldset>
@@ -27,7 +27,7 @@
                     <label class="body-title mb-2">Link</label>
                     <input type="text" name="link" class="input-field" value="{{ old('link') }}">
                     @error('link')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset class="mb-4">
@@ -40,14 +40,14 @@
                         <option value="sidebar">sidebar</option>
                     </select>
                     @error('position')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Thứ tự</label>
                     <input type="number" name="order" class="input-field" value="{{ old('order', 1) }}">
                     @error('order')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <fieldset class="mb-4">
@@ -56,14 +56,14 @@
                         <div>
                             <input type="datetime-local" name="start_at" class="input-field" value="{{ old('start_at') }}">
                             @error('start_at')
-                                <div class="text-danger mt-1">{{ $message }}</div>
+                                <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                             @enderror
                         </div>
                         <span>đến</span>
                         <div>
                             <input type="datetime-local" name="end_at" class="input-field" value="{{ old('end_at') }}">
                             @error('end_at')
-                                <div class="text-danger mt-1">{{ $message }}</div>
+                                <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                         <span class="slider round"></span>
                     </label>
                     @error('is_active')
-                        <div class="text-danger mt-1">{{ $message }}</div>
+                        <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <button class="tf-button" type="submit" id="submit-btn">Tạo banner</button>

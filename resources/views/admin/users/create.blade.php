@@ -31,6 +31,11 @@
                 </ul>
             </div>
             <!-- add-new-user -->
+            @if (session('success'))
+                <div class="alert alert-success mb-3" style="font-size:1.5rem; font-weight:bold; padding:15px;">
+                    {{ session('success') }}
+                </div>
+            @endif
             <form class="form-add-new-user form-style-2" enctype="multipart/form-data" method="POST"
                 action="{{ route('admin.users.store') }}">
                 @csrf
@@ -46,8 +51,8 @@
                             <input type="file" id="avatarInput" name="avatar_url" accept="image/*"
                                 style="display: none;">
                             @error('avatar_url')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </div>
                     </div>
                     <div class="right flex-grow">
@@ -56,24 +61,24 @@
                             <input class="flex-grow" type="text" placeholder="Nhập họ tên" name="full_name"
                                 tabindex="0" value="{{ old('full_name') }}" aria-required="true">
                             @error('full_name')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset class="email mb-24">
                             <div class="body-title mb-10">Email</div>
                             <input class="flex-grow" type="email" placeholder="Nhập email" name="email" tabindex="0"
                                 value="{{ old('email') }}" aria-required="true">
                             @error('email')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset class="phone mb-24">
                             <div class="body-title mb-10">Số điện thoại</div>
                             <input class="flex-grow" type="text" placeholder="Nhập số điện thoại" name="phone_number"
                                 tabindex="0" value="{{ old('phone_number') }}" aria-required="true">
                             @error('phone_number')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset class="password mb-24">
                             <div class="body-title mb-10">Mật khẩu</div>
@@ -84,8 +89,8 @@
                                 <i class="icon-eye-off hide"></i>
                             </span>
                             @error('password')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset class="password">
                             <div class="body-title mb-10">Xác nhận mật khẩu</div>
@@ -96,8 +101,8 @@
                                 <i class="icon-eye-off hide"></i>
                             </span>
                             @error('password_confirmation')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                     </div>
                 </div>
@@ -127,8 +132,8 @@
                                 </div>
                             </div>
                             @error('account_status')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                         <fieldset>
                             <div class="body-title mb-10">Quyền</div>
@@ -145,8 +150,8 @@
                                 </div>
                             </div>
                             @error('role')
-                                <div class="text text-danger">{{ $message }}</div>
-                            @enderror
+                                <div class="text text-danger" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
+                            @endif
                         </fieldset>
                     </div>
                 </div>

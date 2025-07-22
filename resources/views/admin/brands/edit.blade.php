@@ -31,7 +31,7 @@
                     <div class="body-text">Cập nhật thông tin thương hiệu bên dưới.</div>
                 </div>
                 @if (session('success'))
-                    <div class="alert alert-success mb-3" style="font-size:1.25rem; font-weight:bold;">
+                    <div class="alert alert-success mb-3" style="font-size:1.5rem; font-weight:bold; padding:15px;">
                         {{ session('success') }}
                     </div>
                 @endif
@@ -45,7 +45,7 @@
                         <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror"
                             value="{{ old('name', $brand->name) }}">
                         @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="form-group mb-5">
@@ -53,7 +53,7 @@
                         <input type="text" name="slug" id="slug" class="form-control @error('slug') is-invalid @enderror"
                             value="{{ old('slug', $brand->slug) }}">
                         @error('slug')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="form-group mb-5">
@@ -66,14 +66,14 @@
                         @endif
                         <input type="file" name="logo" id="logo" class="form-control @error('logo') is-invalid @enderror">
                         @error('logo')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="form-group mb-5">
                         <label class="form-label fw-bold fs-5 mb-3" for="description">Mô tả</label>
                         <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" rows="3">{{ old('description', $brand->description) }}</textarea>
                         @error('description')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback" style="font-size:1.25rem; padding:8px;">{{ $message }}</div>
                         @enderror
                     </div>
 
