@@ -28,16 +28,6 @@
         </ul>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger mb-3">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form class="form-add-product" method="POST" action="{{ route('admin.products.store') }}"
         enctype="multipart/form-data">
         @csrf
@@ -56,6 +46,9 @@
                             <input type="file" id="myFile" name="images[]" multiple style="display:none;">
                         </label>
                     </div>
+                    @error('images.*')
+                        <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                    @enderror
                     <div class="flex gap20 flex-wrap" id="gallery">
                     </div>
                 </div>
@@ -66,6 +59,9 @@
                 <div class="body-title mb-10">Tên sản phẩm <span class="tf-color-1">*</span></div>
                 <input class="mb-10" type="text" placeholder="Nhập tên sản phẩm" name="name" maxlength="100"
                     value="{{ old('name') }}">
+                @error('name')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
             </fieldset>
             <fieldset class="category">
                 <div class="body-title mb-10">Danh mục <span class="tf-color-1">*</span></div>
@@ -76,6 +72,9 @@
                             {{ $category->name }}</option>
                     @endforeach
                 </select>
+                @error('category_id')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
             </fieldset>
             <fieldset class="brand">
                 <div class="body-title mb-10">Thương hiệu <span class="tf-color-1">*</span></div>
@@ -86,25 +85,44 @@
                             {{ $brand->name }}</option>
                     @endforeach
                 </select>
+                @error('brand_id')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
             </fieldset>
             <fieldset class="price">
                 <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
                 <input type="number" name="regular_price" min="0" step="0.01" value="{{ old('regular_price') }}">
+                @error('regular_price')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
             </fieldset>
             <fieldset class="short_description">
                 <div class="body-title mb-10">Mô tả ngắn <span class="tf-color-1">*</span></div>
                 <textarea name="short_description" maxlength="255">{{ old('short_description') }}</textarea>
+                @error('short_description')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
             </fieldset>
             <fieldset class="description">
                 <div class="body-title mb-10">Mô tả chi tiết</div>
                 <textarea name="description">{{ old('description') }}</textarea>
+                @error('description')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
             </fieldset>
 
             <!-- VARIANTS -->
             <fieldset class="variants">
                 <div class="body-title mb-10">Biến thể</div>
+                @error('variants')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
+                @foreach (['name_variant', 'size', 'price_modifier', 'stock_quantity', 'image'] as $field)
+                    @error('variants.*.' . $field)
+                        <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                    @enderror
+                @endforeach
                 <div id="variant-list">
-                    <br>
                 </div>
                 <br><br>
                 <button type="button" class="tf-button style-1 mt-10" id="add-variant-btn">
@@ -198,25 +216,42 @@
 
             const attributeSelectsTemplate = `{!! addslashes($attributeSelects) !!}`;
 
-            addVariantBtn.addEventListener('click', function() {
+            // Function to create a variant row
+            function createVariantRow(index, variantData = {}) {
                 const variantDiv = document.createElement('div');
                 variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
-                let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g,
-                    `variants[${variantIndex}]`);
+                let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${index}]`);
                 variantDiv.innerHTML = `
-            ${selects}
-            <input type="text" name="variants[${variantIndex}][name_variant]" value="" placeholder="Tên biến thể" style="width:28%;">
-            <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
-            <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
-            <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="width:180px;">
-            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">&times;</button>
-        `;
+                    ${selects}
+                    <input type="text" name="variants[${index}][name_variant]" value="${variantData.name_variant || ''}" placeholder="Tên biến thể" style="width:28%;">
+                    <input type="text" name="variants[${index}][size]" value="${variantData.size || ''}" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
+                    <input type="number" name="variants[${index}][price_modifier]" value="${variantData.price_modifier || ''}" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+                    <input type="number" name="variants[${index}][stock_quantity]" value="${variantData.stock_quantity || ''}" placeholder="Kho" min="0" style="width: 100px;">
+                    <input type="file" name="variants[${index}][image]" accept="image/*" style="width:180px;">
+                    <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">×</button>
+                `;
                 variantList.appendChild(variantDiv);
 
                 variantDiv.querySelector('.remove-variant').onclick = function() {
                     variantDiv.remove();
                 };
+            }
+
+            // Initialize variants from old data
+            @if (old('variants'))
+                @foreach (old('variants') as $i => $variant)
+                    variantIndex = {{ $i + 1 }};
+                    createVariantRow({{ $i }}, {
+                        name_variant: "{{ addslashes($variant['name_variant'] ?? '') }}",
+                        size: "{{ addslashes($variant['size'] ?? '') }}",
+                        price_modifier: "{{ $variant['price_modifier'] ?? '' }}",
+                        stock_quantity: "{{ $variant['stock_quantity'] ?? '' }}"
+                    });
+                @endforeach
+            @endif
+
+            addVariantBtn.addEventListener('click', function() {
+                createVariantRow(variantIndex);
                 variantIndex++;
             });
         });
