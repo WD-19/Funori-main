@@ -107,7 +107,7 @@
             transform: translateX(-50%);
             width: 60px;
             height: 3px;
-            background: linear-gradient(90deg, #0066cc, #004499);
+            background: linear-gradient(90deg, #ff6200, #ff8c00); /* Đổi màu xanh thành cam vàng */
             border-radius: 2px;
         }
 
@@ -191,7 +191,7 @@
         }
 
         .related-card:hover .related-card-title {
-            color: #0066cc;
+            color: #ff6200; /* Đổi màu hover từ xanh (#0066cc) thành cam (#ff6200) */
         }
 
         .related-card-desc {
@@ -207,7 +207,7 @@
 
         .related-card-price {
             font-size: 1.1rem;
-            color: #0066cc;
+            color: #ff0000; /* Đổi màu giá tiền thành đỏ */
             font-weight: 700;
             margin-top: 8px;
         }
@@ -222,7 +222,7 @@
             position: absolute;
             top: 12px;
             right: 12px;
-            background: rgba(0, 102, 204, 0.9);
+            background: rgba(255, 98, 0, 0.9); /* Đổi màu badge từ xanh thành cam */
             color: white;
             padding: 4px 10px;
             border-radius: 12px;
@@ -234,20 +234,20 @@
 
         .view-more-btn {
             display: inline-block;
-            background: linear-gradient(135deg, #0066cc, #004499);
+            background: linear-gradient(135deg, #ff6200, #ff8c00); /* Đổi màu nút từ xanh thành cam vàng */
             color: white;
             padding: 12px 32px;
             border-radius: 25px;
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 98, 0, 0.3); /* Đổi shadow thành cam */
         }
 
         .view-more-btn:hover {
-            background: linear-gradient(135deg, #004499, #0066cc);
+            background: linear-gradient(135deg, #ff8c00, #ff6200); /* Đổi màu hover nút thành cam vàng */
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.4);
+            box-shadow: 0 8px 25px rgba(255, 98, 0, 0.4); /* Đổi shadow hover thành cam */
             color: white;
             text-decoration: none;
         }
