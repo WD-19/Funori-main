@@ -415,6 +415,7 @@
                 </div>
             </div>
         </div>
+
         {{-- <div class="wg-box">
             <div class="flex items-center justify-between">
                 <h5>User Location</h5>
