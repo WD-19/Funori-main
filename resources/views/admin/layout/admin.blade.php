@@ -23,13 +23,50 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     @stack('head')
+
+    <style>
+        /* Loader full screen */
+        #preload {
+            position: fixed;
+            z-index: 9999;
+            inset: 0;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #preload.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloading i {
+            font-size: 5rem;
+            color: #333;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <!-- Loader -->
+    <div id="preload">
+        <div class="preloading">
+            <i class="fas fa-spinner"></i>
+        </div>
+    </div>
+
     <div id="wrapper">
         <div id="page">
             <div class="layout-wrap">
-
                 @include('admin.partials.sidebar')
                 <div class="section-content-right">
                     @include('admin.partials.header')
@@ -59,6 +96,14 @@
             </div>
         </div>
     </div>
+    <!-- Fade-out effect on load -->
+    <script>
+        window.addEventListener('load', function() {
+            const preload = document.getElementById('preload');
+            preload.classList.add('fade-out');
+        });
+    </script>
+
     <!-- JS -->
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>

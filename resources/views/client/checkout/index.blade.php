@@ -302,7 +302,7 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <div class="order-summary sticky-top">
+                        <div class="order-summary">
                             <h4>Tóm tắt đơn hàng</h4>
                             @foreach ($cart['items'] as $item)
                                 <div class="summary-item">
@@ -329,20 +329,19 @@
                                             {{ number_format($method->cost, 0, ',', '.') }}đ</span>
                                     </label>
                                 @endforeach
-                            </div> 
+                            </div>
 
                             <div class="mt-4">
                                 <h5>Phương thức thanh toán</h5>
                                 @foreach ($paymentMethods as $method)
                                     <label class="payment-method d-flex align-items-center">
                                         <input type="radio" name="payment_method_id" value="{{ $method->id }}"
-                                            required
-                                            {{ old('payment_method_id') == $method->id ? 'checked' : '' }}
+                                            required {{ old('payment_method_id') == $method->id ? 'checked' : '' }}
                                             data-method="{{ strtolower($method->name) }}">
                                         <span>{{ $method->name }}</span>
                                     </label>
                                 @endforeach
-                                
+
                             </div>
 
                             <div class="totals-row mt-4">
@@ -559,7 +558,5 @@
                 });
             }
         });
-
-        
     </script>
 @endsection

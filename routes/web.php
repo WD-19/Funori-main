@@ -31,6 +31,7 @@ use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\VnPayController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
+use App\Http\Controllers\PayOSController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use App\Http\Middleware\RedirectIfAuthenticatedCustom;
@@ -159,40 +160,47 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
+// Client Routes home
 Route::get('/', [ClientController::class, 'index'])->name('home');
-// checkout 
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('client.checkout.index');
-Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('client.checkout.process');
-Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('client.checkout.prepare');
+
+// checkout vnpay
 Route::post('/vnpay-pay', [VnPayController::class, 'pay'])->name('vnpay.payment');
 Route::get('/vnpay-return', [VnPayController::class, 'vnpayReturn'])->name('vnpay.return');
-Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('client.checkout.success');
+
+//trang cửa hàng
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+
+// danh sách yêu thích mini (wishlist)
 Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
 
+// trang reset password
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+Route::get('/payos/create', [PayOSController::class, 'createPayment'])->name('payos.create');
+Route::get('/payos/return', [PayOSController::class, 'return'])->name('payos.return');
+Route::get('/payos/cancel', [PayOSController::class, 'cancel'])->name('payos.cancel');
 
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
-     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
+
+    // thêm và xóa sản phẩm trong danh sách yêu thích (wishlist)
+    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
 
+    // đăng ký, đăng nhập và đăng xuất
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
-
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // Điều hướng người dùng tới Google
+    // đăng nhập bằng Google
     Route::get('/auth/google', function () {
         return Socialite::driver('google')->redirect();
     })->name('auth.google')->middleware(RedirectIfAuthenticatedCustom::class);
-
-    // Callback từ Google
     Route::get('/auth/google/callback', function () {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
@@ -220,15 +228,20 @@ Route::prefix('/')->name('client.')->group(function () {
         return redirect('/');
     })->name('auth.google.callback')->middleware(RedirectIfAuthenticatedCustom::class);
 
+    // checkout vnpay
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+    Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('checkout.prepare');
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    //trang quên mật khẩu
     Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])->name('password.email');
 
-
+    // tin tức, giới thiệu, liên hệ
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('page.show');
-
     Route::get('/about', [AboutController::class, 'index'])->name('about');
-
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
     Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
@@ -243,11 +256,10 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
-    // Route giỏ hàng (Cart)
+    // giỏ hàng (Cart)
     Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
-    // Đảm bảo route này là POST, vì JS gọi POST /cart/remove
     Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
     Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
@@ -278,8 +290,7 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::post('/account', [ProfileController::class, 'updateAccount'])->name('account.update');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
     });
-        Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
-
+    Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });
 
 
