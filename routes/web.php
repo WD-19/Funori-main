@@ -41,7 +41,13 @@ use Illuminate\Support\Facades\Hash;
 
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use Spatie\Analytics\Facades\Analytics;
+use Spatie\Analytics\Period;
+Route::get('/analytics-test', function () {
+    $analyticsData = Analytics::fetchMostVisitedPages(Period::days(7));
 
+    return $analyticsData;
+});
 Route::get('/', function () {
     if (Auth::check()) {
         $user = Auth::user();
@@ -62,6 +68,8 @@ Route::prefix('admin')->name('admin.')
         Route::get('/', [DashboardController::class, 'index'])
             ->middleware(CheckLogin::class)
             ->name('dashboard');
+
+        Route::get('dashboard/data', [DashboardController::class, 'fetchData'])->name('dashboard.data');
 
         // Quản lý thương hiệu
         Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
