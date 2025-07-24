@@ -1,7 +1,6 @@
 @extends('client.profile.index')
 
-@section('title', 'Quản lý mật khẩu')
-@section('page_title', 'Quản lý mật khẩu')
+@section('page_title', 'Đổi Mật Khẩu')
 
 @section('content_profile')
     <div class="my-account-content account-edit">

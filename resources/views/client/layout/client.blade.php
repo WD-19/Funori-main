@@ -21,6 +21,10 @@
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('client/ecomus/css/styles.css') }}">
 
+
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -40,7 +44,19 @@
     @include('client.partials.footer')
     <!-- <div style="margin-bottom: 600px;"></div> -->
 </body>
-
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/687856501786aa1911e6b66b/1j0b12bap';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+<!--End of Tawk.to Script-->
 <script src="https://kit.fontawesome.com/eda05fcf5c.js" crossorigin="anonymous"></script>
 <script src="{{ asset('client/js/main.js') }}"></script>
 
@@ -60,23 +76,4 @@
 <!-- Toastr JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        toastr.options = {
-            "positionClass": "toast-bottom-right",
-            "timeOut": "3000",
-            "closeButton": true,
-            "progressBar": true
-        };
-        @if (session('success'))
-            toastr.success("{{ session('success') }}");
-        @endif
-
-        @if (session('error'))
-            toastr.error("{{ session('error') }}");
-        @endif
-    });
-</script>
-
 </html>

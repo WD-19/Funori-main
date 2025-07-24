@@ -86,33 +86,31 @@
     <div class="box-map">
         <div class="box-iframe">
             <iframe class="frame-1"
-                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d418611.9805369903!2d138.641952!3d-34.946429!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ab0cc1c57991f1f%3A0xb6edce7ffcd0eb9c!2s68%20Sydney%20St%2C%20Glenunga%20SA%205064%2C%20Australia!5e0!3m2!1svi!2s!4v1654734496149!5m2!1svi!2s"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.8638060211515!2d105.74468151143324!3d21.038134787374535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313455e940879933%3A0xcf10b34e9f1a03df!2zVHLGsOG7nW5nIENhbyDEkeG6s25nIEZQVCBQb2x5dGVjaG5pYw!5e0!3m2!1svi!2s!4v1752569490635!5m2!1svi!2s"
                 width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"></iframe>
             <div class="in-frame-1">
                 <h2>
-                    Dexandria,
-                    <br>
-                    Sydney
+                    FPT Polytechnic,<br>
+                    Hà Nội
                 </h2>
                 <div class="location">
-                    4 Copley Place, Tầng 7, Boston, MA 6
+                    Tòa nhà FPT Polytechnic, Trịnh Văn Bô, Nam Từ Liêm, Hà Nội
                 </div>
             </div>
         </div>
         <div class="box-iframe">
             <iframe class="frame-2"
-                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d318040.82414280676!2d0.044254!3d51.482132!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d8a8579fa1586d%3A0x5af1c465a3af91ca!2s77%20Guild%20Rd%2C%20London%20SE7%208HW%2C%20UK!5e0!3m2!1svi!2s!4v1654734672496!5m2!1svi!2s"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.8638060211515!2d105.74468151143324!3d21.038134787374535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313455e940879933%3A0xcf10b34e9f1a03df!2zVHLGsOG7nW5nIENhbyDEkeG6s25nIEZQVCBQb2x5dGVjaG5pYw!5e0!3m2!1svi!2s!4v1752569490635!5m2!1svi!2s"
                 width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"></iframe>
             <div class="in-frame-1">
                 <h2>
-                    Dexandria,
-                    <br>
-                    London
+                    FPT Polytechnic,<br>
+                    Hà Nội
                 </h2>
                 <div class="location">
-                    4 Copley Place, Tầng 7, Boston, MA 6
+                    Tòa nhà FPT Polytechnic, Trịnh Văn Bô, Nam Từ Liêm, Hà Nội
                 </div>
             </div>
         </div>

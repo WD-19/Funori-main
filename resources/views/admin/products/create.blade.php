@@ -69,7 +69,8 @@
                     <option value="">-- Chọn danh mục --</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}" @if (old('category_id') == $category->id) selected @endif>
-                            {{ $category->name }}</option>
+                            {{ $category->name }}
+                        </option>
                     @endforeach
                 </select>
                 @error('category_id')
@@ -82,7 +83,8 @@
                     <option value="">-- Chọn thương hiệu --</option>
                     @foreach ($brands as $brand)
                         <option value="{{ $brand->id }}" @if (old('brand_id') == $brand->id) selected @endif>
-                            {{ $brand->name }}</option>
+                            {{ $brand->name }}
+                        </option>
                     @endforeach
                 </select>
                 @error('brand_id')
@@ -150,7 +152,7 @@
     @endphp
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const dropArea = document.getElementById('drop-area');
             const input = document.getElementById('myFile');
             const gallery = document.getElementById('gallery');
@@ -175,7 +177,7 @@
                 updateInputFiles();
                 previewFiles(filesArray);
             }
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
                 const files = Array.from(this.files);
                 filesArray = filesArray.concat(files);
                 updateInputFiles();
@@ -232,7 +234,27 @@
                 `;
                 variantList.appendChild(variantDiv);
 
-                variantDiv.querySelector('.remove-variant').onclick = function() {
+                const imageInput = variantDiv.querySelector('input[type="file"]');
+                const previewDiv = variantDiv.querySelector('.variant-image-preview');
+                imageInput.addEventListener('change', function () {
+                    previewDiv.innerHTML = '';
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxWidth = '160px';
+                            img.style.maxHeight = '80px';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '4px';
+                            img.style.border = '1px solid #eee';
+                            previewDiv.appendChild(img);
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+
+                variantDiv.querySelector('.remove-variant').onclick = function () {
                     variantDiv.remove();
                 };
             }

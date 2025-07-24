@@ -10,48 +10,38 @@
     </div>
     <div class="contact">
         <h2>DANH MỤC</h2>
+        <?php
+        use App\Models\Category;
+        $footerCategories = Category::all();
+
+        ?>
         <div class="in">
-            <a href="">
-                <div>Nội thất</div>
-            </a>
-            <a href="">
-                <div>Bàn</div>
-            </a>
-            <a href="">
-                <div>Ghế ngồi</div>
-            </a>
-            <a href="">
-                <div>Bàn làm việc & văn phòng</div>
-            </a>
-            <a href="">
-                <div>Lưu trữ</div>
-            </a>
-            <a href="">
-                <div>Phòng ngủ & phòng tắm</div>
-            </a>
+            @foreach ($footerCategories->chunk(3) as $chunk)
+                <div class="footer-category-row">
+                    @foreach ($chunk as $cat)
+                        <a href="{{ route('shop', ['category_id' => $cat->id]) }}" style="flex: 1;">
+                            <div>{{ $cat->name }},</div>
+                        </a>
+                    @endforeach
+                </div>
+            @endforeach
         </div>
     </div>
     <div class="contact">
         <h2>DỊCH VỤ</h2>
         <div class="in">
-            <a href="">
                 <div>Khuyến mãi</div>
-            </a>
-            <a href="">
+
                 <div>Giao hàng nhanh</div>
-            </a>
-            <a href="">
+
                 <div>Thiết kế mới</div>
-            </a>
-            <a href="">
+
                 <div>Bảo vệ vải chống sự cố</div>
-            </a>
-            <a href="">
+
                 <div>Bảo dưỡng nội thất</div>
-            </a>
-            <a href="">
+
                 <div>Thẻ quà tặng</div>
-            </a>
+
         </div>
     </div>
     <div class="contact">
