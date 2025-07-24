@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\PromotionController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
@@ -58,9 +59,7 @@ Route::get('/', function () {
 Route::prefix('admin')->name('admin.')
     ->middleware([CheckLogin::class])
     ->group(function () {
-        Route::get('/', function () {
-            return view('admin.index');
-        })
+        Route::get('/', [DashboardController::class, 'index'])
             ->middleware(CheckLogin::class)
             ->name('dashboard');
 
