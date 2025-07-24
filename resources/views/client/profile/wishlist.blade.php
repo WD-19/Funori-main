@@ -25,49 +25,57 @@
                 </a>
             </div> --}}
         </form>
-        <div class="grid-layout wrapper-shop" data-grid="grid-3">
-            <!-- card product 1 -->
-            @foreach($wishlistItems as $item)
-            <div class="card-product">
-                <div class="card-product-wrapper">
-                    <a href="{{ route('client.product.show', $item->product->slug) }}" class="product-img">
-                        <img class="lazyload img-product" src="{{ $item->product->images->first() ? asset($item->product->images->first()->image_url) : asset('images/no-image.png') }}" alt="image-product">
-                        @if($item->product->images->get(1))
-                            <img class="lazyload img-hover" src="{{ asset($item->product->images->get(1)->image_url) }}" alt="image-product">
-                        @endif
-                    </a>
-                    <div class="list-product-btn absolute-2 ">
-                        <a href="#quick_add" data-bs-toggle="modal" class="box-icon bg_white quick-add tf-btn-loading justify-content-center">
-                            <span class="icon icon-bag "></span>
-                            <span class="tooltip">Quick Add</span>
+        <div class="all-box-new-product" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+            @foreach ($wishlistItems as $item)
+                <div class="new-product-1" style="min-width: 280px; max-width: 320px; flex: 1 1 300px;">
+                    <div class="pic-product-1">
+                        <a href="{{ route('client.product.show', $item->product->slug) }}">
+                            <img src="{{ $item->product->images->first() ? asset($item->product->images->first()->image_url) : asset('images/no-image.png') }}"
+                                alt="{{ $item->product->name }}"
+                                onmouseover="this.src='{{ $item->product->images->get(1) ? asset($item->product->images->get(1)->image_url) : asset($item->product->images->first() ? $item->product->images->first()->image_url : 'images/no-image.png') }}'"
+                                onmouseout="this.src='{{ $item->product->images->first() ? asset($item->product->images->first()->image_url) : asset('images/no-image.png') }}'">
                         </a>
-                        <form action="{{ route('client.wishlist.remove') }}" method="POST" class="form-remove-wishlist" style="display:inline;">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $item->product->id }}">
-                            <button type="submit" class="box-icon bg_white wishlist btn-icon-action  justify-content-center btn-remove-wishlist" style="background:none;border:none;padding:0;cursor:pointer;">
-                                <span class="icon icon-heart "></span>
-                                <span class="tooltip">Remove from Wishlist</span>
-                                <span class="icon icon-delete"></span>
-                            </button>
-                        </form>
-                        <a href="#compare" data-bs-toggle="offcanvas" aria-controls="offcanvasLeft" class="box-icon bg_white compare btn-icon-action justify-content-center">
-                            <span class="icon icon-compare"></span>
-                            <span class="tooltip">Add to Compare</span>
-                            <span class="icon icon-check"></span>
-                        </a>
-                        <a href="#quick_view" data-bs-toggle="modal" class="box-icon bg_white quickview tf-btn-loading justify-content-center">
-                            <span class="icon icon-view"></span>
-                            <span class="tooltip">Quick View</span>
-                        </a>
+                        <div class="box-icon-new-product">
+                            <form action="{{ route('client.wishlist.remove') }}" method="POST" class="form-remove-wishlist" style="display:inline;">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+                                <button type="submit" class="wishlist-btn" data-product-id="{{ $item->product->id }}"
+                                    style="background:none;border:none;padding:0;cursor:pointer;">
+                                    <i style="font-size: 18px; color:red;" class="fa-solid fa-heart" id="heart-Product"></i>
+                                </button>
+                            </form>
+                            <a href="{{ route('client.product.show', $item->product->slug) }}"><i style="font-size: 19px;"
+                                id="search-Product" class="fa-solid fa-magnifying-glass"></i>
+                            </a>
+                            <a href="{{ route('client.product.show', $item->product->slug) }}"><i style="font-size: 18px;" id="cart-Product" class="fa-solid fa-cart-shopping"></i></a>
+                        </div>
+                    </div>
+                    <div class="box-star" style="width: 100%; height: 23px;">
+                        @php
+                            $avg = round($item->product->reviews->avg('rating'), 1);
+                            $count = $item->product->reviews->count();
+                        @endphp
+                        @for ($i = 1; $i <= 5; $i++)
+                            @if ($i <= floor($avg))
+                                <i style="color: #fcad02; margin-left: 0;" class="fa-solid fa-star"></i>
+                            @elseif($i - $avg < 1 && $avg - floor($avg) >= 0.5)
+                                <i style="color: #fcad02; margin-left: 0;" class="fa-solid fa-star-half-stroke"></i>
+                            @else
+                                <i style="color: #ccc; margin-left: 0;" class="fa-solid fa-star"></i>
+                            @endif
+                        @endfor
+                        <span style="margin-left: 5px; color: rgb(201, 201, 201); font-size: 12px;">
+                            ({{ $count }} review{{ $count != 1 ? 's' : '' }})
+                        </span>
+                    </div>
+                    <div class="title-new-product">
+                        <a href="{{ route('client.product.show', $item->product->slug) }}">{{ $item->product->name }}</a>
+                    </div>
+                    <div style="font-size: 16px; color: rgb(170, 167, 167);">
+                        {{ number_format($item->product->regular_price, 0, ',', '.') }} đ
                     </div>
                 </div>
-                <div class="card-product-info">
-                    <a href="{{ route('client.product.show', $item->product->slug) }}" class="title link">{{ $item->product->name }}</a>
-                    <span class="price">{{ number_format($item->product->regular_price, 0, ',', '.') }} đ</span>
-                </div>
-            </div>
             @endforeach
-            <!-- end card product -->
         </div>
         @if($wishlistItems instanceof \Illuminate\Pagination\LengthAwarePaginator)
             <div class="mt-4 d-flex justify-content-center">

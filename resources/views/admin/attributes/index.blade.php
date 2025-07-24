@@ -11,7 +11,7 @@
                     <div class="text-tiny">Trang chủ</div>
                 </a>
             </li>
-            <li>
+            <li >
                 <i class="icon-chevron-right"></i>
             </li>
             <li>
@@ -46,25 +46,31 @@
         </div>
         <div class="wg-table table-all-attribute">
             <ul class="table-title flex gap20 mb-14">
-                <li>
+                <li style=" text-align: center; width:10%;" >
+                    <div  class="body-title">STT</div>
+                </li>
+                <li style=" text-align: center; width:35%;">
                     <div class="body-title">Tên thuộc tính</div>
                 </li>
-                <li>
+                <li style=" text-align: center; width:35%;">
                     <div class="body-title">Giá trị</div>
                 </li>
-                <li>
+                <li style=" text-align: center; width:20%;">
                     <div class="body-title">Hành động</div>
                 </li>
             </ul>
             <ul class="flex flex-column">
-                @foreach ($attributes as $attributeValue)
-                    <li class="attribute-item item-row flex items-center justify-between gap20">
-                        <div class="name">
+                @foreach ($attributes as $key => $attributeValue)
+                    <li class="attribute-item flex items-center justify-between gap20">
+                        <div style="font-size: 15px; text-align: center; width:10%;" class="stt">
+                            {{ $attributes->firstItem() + $key }}
+                        </div>
+                        <div  style=" text-align: center; width:35%;" class="name">
                             <span class="body-title-2">{{ $attributeValue->attribute->name ?? 'Không xác định' }}</span>
                         </div>
-                        <div class="body-text">{{ $attributeValue->value }}</div>
+                        <div style=" text-align: center; width:35%;" class="body-text">{{ $attributeValue->value }}</div>
 
-                        <div class="list-icon-function">
+                        <div style=" display: flex; justify-content: center; width:20%;" class="list-icon-function">
                             <div class="item edit">
                                 <a href="{{ route('admin.attributes.edit', $attributeValue->id) }}" class="item edit"><i
                                         class="icon-edit-3"></i></a>

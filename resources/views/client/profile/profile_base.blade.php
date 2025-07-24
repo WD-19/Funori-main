@@ -8,6 +8,7 @@
     {{-- Ví dụ: --}}
   
     <section class="flat-spacing-11 py-5 profile">
+        <div class="profile-bg-blur"></div>
         <div class="container1 mx-auto px-4 profile">
             <div class="row d-flex">
                 {{-- Cột bên trái: Sidebar Điều Hướng --}}
@@ -38,15 +39,38 @@
 {
     background-color: #ffffff; /* Nền trắng */
     border-radius: 12px; /* Bo tròn góc nhiều hơn */
-    box-shadow: 0 5px 35px rgb(16 16 16 / 46%); /* Bóng đổ mạnh và rõ ràng hơn */
+    box-shadow: 0 5px 35px rgb(16 16 16 / 8%); /* Bóng đổ mạnh và rõ ràng hơn */
     padding: 25px 20px; /* Đệm trên dưới */
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Ngăn chặn nội dung tràn ra ngoài nếu quá lớn */
+    overflow: auto; /* Cho phép cuộn nếu nội dung vượt quá */
+    max-height: 100vh; /* Giới hạn chiều cao, có thể điều chỉnh */
 }
-.profile
-{
+.profile {
     padding-left: 50px;
     padding-right: 50px;
+    position: relative;
+    z-index: 1;
+}
+/* Thêm background mờ */
+.profile-bg-blur {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 100%;
+    background: url('/images/blank-living-room-interior-with-copy-space_43614-928.jpg') center center/cover no-repeat;
+    filter: blur(1px);
+    z-index: 0;
+    pointer-events: none;
+}
+/* Đảm bảo nội dung phía trên */
+.profile > .container1 {
+    position: relative;
+    z-index: 2;
+}
+@media (max-width: 991px) {
+    .right {
+        max-height: none;
+        overflow: visible;
+    }
 }
 </style>

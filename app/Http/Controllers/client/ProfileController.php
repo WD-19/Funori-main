@@ -297,4 +297,71 @@ class ProfileController
         $order->save();
         return back()->with('success', 'Yêu cầu hủy đơn hàng đã được gửi. Vui lòng chờ xác nhận từ quản trị viên.');
     }
+
+    public function repeatOrder($id)
+    {
+        $order = Order::with('items')->findOrFail($id);
+
+        // Lấy giỏ hàng hiện tại (theo user hoặc session)
+        $cart = auth()->check()
+            ? \App\Models\Cart::firstOrCreate(['user_id' => auth()->id()])
+            : session()->get('cart', []);
+
+        $repeatIds = [];
+
+        foreach ($order->items as $item) {
+            $key = $item->product_id . '_' . ($item->product_variant_id ?? 'null');
+            $repeatIds[] = $key;
+
+            // Tính đơn giá tại thời điểm đặt hàng
+            $unitPrice = $item->quantity > 0 ? ($item->subtotal / $item->quantity) : 0;
+
+            if (auth()->check()) {
+                $cartItem = $cart->items()->where([
+                    'product_id' => $item->product_id,
+                    'product_variant_id' => $item->product_variant_id
+                ])->first();
+
+                if ($cartItem) {
+                    $cartItem->quantity += $item->quantity;
+                    $cartItem->save();
+                } else {
+                    $cart->items()->create([
+                        'product_id' => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'quantity' => $item->quantity,
+                        'price_at_addition' => $unitPrice // <-- Lưu đơn giá vào cart
+                    ]);
+                }
+            } else {
+                $cartArr = session()->get('cart', []);
+                if (isset($cartArr[$key])) {
+                    $cartArr[$key]['quantity'] += $item->quantity;
+                } else {
+                    $cartArr[$key] = [
+                        'product_id' => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'quantity' => $item->quantity,
+                        'price_at_addition' => $unitPrice // <-- Lưu đơn giá vào session
+                    ];
+                }
+                session()->put('cart', $cartArr);
+            }
+        }
+
+        // Chuyển hướng sang trang giỏ hàng, tick các sản phẩm vừa thêm
+        return redirect()->route('client.view-cart')->with('repeat_ids', implode(',', $repeatIds));
+    }
+
+    public function vouchers()
+    {
+        $user = Auth::user();
+        // Lấy các promotion còn hiệu lực, có thể lọc theo user nếu cần
+        $vouchers = \App\Models\Promotion::where('is_active', 1)
+            ->where(function($q){
+                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+            })
+            ->get();
+        return view('client.profile.voucher', compact('vouchers'));
+    }
 }

@@ -148,28 +148,16 @@
                                         @if ($orderStatusVN == 'Đã giao')
                                             <div class="d-flex flex-column justify-content-end" style="height: 100%;">
                                                 <div class="d-flex gap-2 align-items-center" style="height: 100%;">
-                                                    <a href="" class="btn btn-outline-primary">
+                                                    <a href="{{ route('client.product.show', ['slug' => $item->product->slug ?? '']) }}#product-reviews" class="btn btn-outline-primary">
                                                         <i class="bi bi-star-fill me-1"></i>Đánh giá
                                                     </a>
-                                                    <a href="" class="btn btn-outline-secondary">
-                                                        <i class="bi bi-arrow-counterclockwise me-1"></i>Hoàn/Trả hàng
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        @elseif ($orderStatusVN == 'Chờ xác nhận' || $orderStatusVN == 'Đang xử lý')
-                                            <div class="d-flex flex-column justify-content-end" style="height: 100%;">
-                                                <div class="d-flex gap-2 align-items-center" style="height: 100%;">
-                                                    <!-- Button trigger modal -->
-                                                    <button type="button" class="btn btn-outline-danger"
-                                                        data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
-                                                        <i class="bi bi-x-circle me-1"></i>Hủy đơn hàng
-                                                    </button>
+                                                   
                                                 </div>
                                             </div>
                                         @endif
                                         @if ($order->order_status === 'cancelled' && $order->items && count($order->items) > 0)
                                             <a href="{{ route('client.product.show', ['slug' => $order->items[0]->product->slug ?? '']) }}"
-                                                class="btn btn-primary">
+                                                class="btn btn-primary btn-repeat-order" data-order-id="{{ $order->id }}">
                                                 <i class="bi bi-cart-plus me-2"></i>Mua lại
                                             </a>
                                         @endif
@@ -623,3 +611,38 @@
         }
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-repeat-order').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.dataset.orderId;
+            fetch(`/api/order/${orderId}/items`) // API trả về danh sách sản phẩm của đơn
+                .then(res => res.json())
+                .then(items => {
+                    // items = [{product_id, product_variant_id, quantity}, ...]
+                    const addPromises = items.map(item => {
+                        return fetch('/cart/add', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                product_id: item.product_id,
+                                product_variant_id: item.product_variant_id,
+                                quantity: item.quantity
+                            })
+                        }).then(res => res.json());
+                    });
+                    Promise.all(addPromises).then(results => {
+                        // Lấy danh sách key sản phẩm vừa thêm để truyền sang cart
+                        const keys = items.map(i => i.product_id + '_' + (i.product_variant_id ?? 'null'));
+                        window.location.href = '/cart?repeat_ids=' + encodeURIComponent(keys.join(','));
+                    });
+                });
+        });
+    });
+});
+</script>

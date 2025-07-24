@@ -79,6 +79,23 @@
                     @endforeach
                 </div>
             </div>
+            <div class="first-sidebar" style="margin-bottom: 20px;">
+                <div class="title-sidebar">
+                    Chất liệu
+                </div>
+                @foreach ($materials as $material)
+                    <div class="in-sidebar">
+                        <a href="{{ route('shop', array_merge(request()->except('page'), ['material' => $material->id])) }}"
+                            style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit;">
+                            <div class="name"
+                                @if (request('material') == $material->id) style="font-weight:bold;color:#fcad02;" @endif>
+                                {{ $material->value }}
+                            </div>
+
+                        </a>
+                    </div>
+                @endforeach
+            </div>
             <div class="box-feature-product">
                 <div class="text-feature-product">Feature Product</div>
                 <div>
@@ -179,13 +196,14 @@
                             </a>
                             <div class="box-icon-new-product">
                                 <a href="{{ route('client.product.show', $product->slug) }}"><i style="font-size: 19px;"
-                                        id="search-Product" class="fa-solid fa-magnifying-glass" ></i></a>
+                                        id="search-Product" class="fa-solid fa-magnifying-glass" ></i>
+                                </a>
                                 <button class="wishlist-btn" data-product-id="{{ $product->id }}"
                                     style="background:none;border:none;padding:0;cursor:pointer;">
                                     <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
                                         class="fa-solid fa-heart" id="heart-Product"></i>
                                 </button>
-                                <i style="font-size: 18px;" id="cart-Product" class="fa-solid fa-cart-shopping"></i>
+                            <a href="{{ route('client.product.show', $product->slug) }}"><i style="font-size: 18px;" id="cart-Product" class="fa-solid fa-cart-shopping"></i></a>
                             </div>
                         </div>
                         <div class="box-star" style="width: 100%; height: 23px;">
@@ -238,6 +256,7 @@
             </div>
         </div>
     </div>
+
     <script>
         // thêm vào yêu thích
         document.addEventListener("DOMContentLoaded", function() {

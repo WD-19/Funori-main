@@ -26,8 +26,9 @@ use App\Http\Controllers\client\ContactController as ClientContactCController;
 use App\Http\Controllers\client\ProfileController as ProfileController;
 use App\Http\Controllers\client\ShopController;
 use App\Http\Controllers\client\CheckoutController;
-use App\Http\Controllers\client\WishlistController;
 use App\Http\Middleware\CheckClientLogin;
+use App\Http\Controllers\Client\WishlistController;
+use App\Http\Controllers\VnPayController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
 // Middleware
@@ -159,6 +160,13 @@ Route::prefix('admin')->name('admin.')
     });
 
 Route::get('/', [ClientController::class, 'index'])->name('home');
+// checkout 
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('client.checkout.index');
+Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('client.checkout.process');
+Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('client.checkout.prepare');
+Route::post('/vnpay-pay', [VnPayController::class, 'pay'])->name('vnpay.payment');
+Route::get('/vnpay-return', [VnPayController::class, 'vnpayReturn'])->name('vnpay.return');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('client.checkout.success');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
 
@@ -169,7 +177,6 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
-
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
 
@@ -225,7 +232,8 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
     Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
-    Route::get('/search/suggest', [ShopController::class, 'suggest'])->name('search');
+    Route::get('/search', [ClientProductController::class, 'search'])->name('search');
+
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);
@@ -244,6 +252,9 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/cart/mini-list', [CartController::class, 'miniCart'])->name('cart.miniList');
 
 
+    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+
+    Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.applyDiscount');
 
     // Checkout (One-Page)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
@@ -256,6 +267,9 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/order', [ProfileController::class, 'order'])->name('my_account.order');
         Route::get('/order/detail/{id}', [ProfileController::class, 'detailOrder'])->name('my_account.orderdetail');
         Route::post('/order/cancel/{id}', [ProfileController::class, 'cancelOrder'])->name('my_account.order.cancel');
+        Route::post('/order/{id}/repeat', [ProfileController::class, 'repeatOrder'])->name('order.repeat');
+        Route::get('/voucher', [ProfileController::class, 'vouchers'])->name('voucher');
+
 
         // Address Management
         Route::prefix('address')->name('address.')->group(function () {
@@ -274,6 +288,7 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::post('/password/edit', [ProfileController::class, 'updatePassword'])->name('password.update');
 
     });
+        Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 
 
     // Route chi tiết sản phẩm (để cuối cùng để không bắt các route khác)

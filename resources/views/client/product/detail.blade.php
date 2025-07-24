@@ -46,7 +46,7 @@
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide stagger-item">
                                                 <div class="item">
-                                                    <img class="lazyload mb-1" data-src="{{ asset($image->image_url) }}"
+                                                    <img style="width: 100%;" class="lazyload mb-1" data-src="{{ asset($image->image_url) }}"
                                                         src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
                                                 </div>
                                             </div>
@@ -57,7 +57,7 @@
                                     <div class="swiper-wrapper">
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide">
-                                                <img class="tf-image-zoom lazyload"
+                                                <img  style="width: 100%;" class="tf-image-zoom lazyload"
                                                     data-zoom="{{ asset($image->image_url) }}"
                                                     data-src="{{ asset($image->image_url) }}"
                                                     src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
@@ -123,9 +123,14 @@
                                     });
                                 </script>
                                 <style>
+                                    @media (min-width: 1200px) {
+                                        .container, .container-lg, .container-md, .container-sm, .container-xl {
+                                            max-width: 1440px;
+                                        }
+                                    }
                                     #gallery-swiper-started {
-                                        max-width: 700px;
-                                        height: 600px;
+                                        max-width: 1200px;
+                                        height: 100%;
                                         margin: 0 auto;
                                         border-radius: 18px;
                                         border: #ff6600 1px solid;
@@ -259,7 +264,7 @@
                                                         @if ($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
                                                         style="margin-right: 8px;">
                                                     @if ($variant->image)
-                                                        <img src="{{ asset($variant->image->image_url) }}"
+                                                        <img  style="width: 100%;" src="{{ asset($variant->image->image_url) }}"
                                                             alt="Ảnh biến thể"
                                                             style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
                                                     @endif
@@ -320,7 +325,7 @@
                                             <i class="icon-delete"></i>
                                         </div>
                                         <div class="w-100">
-                                            <a href="#" class="btns-full">Mua với <img
+                                            <a href="#" class="btns-full">Mua với <img 
                                                     src="{{ asset('client/ecomus/images/payments/paypal.png') }}"
                                                     alt=""></a>
                                             <a href="#" class="payment-more-option">Thêm phương thức thanh toán</a>
@@ -597,34 +602,57 @@
 
                             {{-- biến thể --}}
                             <div class="widget-content-inner">
-                                <table class="tf-pr-attrs">
-                                    <tbody>
-                                        <tr>
-                                            <th class="tf-attr-label">Màu sắc</th>
-                                            <td class="tf-attr-value">
-                                                <p>Trắng sữa, Gỗ tự nhiên, Đen nhám</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th class="tf-attr-label">Kích thước</th>
-                                            <td class="tf-attr-value">
-                                                <p>Dài 120cm x Rộng 60cm x Cao 75cm</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th class="tf-attr-label">Chất liệu</th>
-                                            <td class="tf-attr-value">
-                                                <p>Gỗ MDF phủ Melamine chống trầy xước</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th class="tf-attr-label">Bảo hành</th>
-                                            <td class="tf-attr-value">
-                                                <p>12 tháng</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="variant-picker-slider-wrap">
+                                    <div class="swiper variant-picker-swiper" id="variant-picker-swiper">
+                                        <div class="swiper-wrapper">
+                                            @foreach ($product->variants as $variant)
+                                                <div class="swiper-slide">
+                                                    <label class="variant-box p-2 border rounded mb-2"
+                                                        style="min-width:160px; cursor:pointer;">
+
+                                                        <input type="radio" name="variant_id" value="{{ $variant->id }}"
+                                                        data-title="{{ $variant->name_variant ?? '' }}"
+                                                        data-price="{{ $product->regular_price + $variant->price_modifier }}"
+                                                        data-material="{{ $variant->material ?? '' }}"
+
+                                                        @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
+                                                        style="margin-right: 8px;">
+                                                        @if ($variant->image)
+                                                            <img  style="width: 100%;" src="{{ asset($variant->image->image_url) }}"
+                                                                alt="Ảnh biến thể"
+                                                                style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
+                                                        @endif
+                                                        <div>
+                                                            <br>
+                                                            <strong>Kho:</strong>
+                                                            @if(($variant->stock_quantity ?? 0) <= 0)
+                                                                <span style="color:red;font-weight:bold;">Hết hàng</span>
+                                                            @else
+                                                                {{ $variant->stock_quantity }}
+                                                            @endif
+                                                            <br>
+                                                            <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
+                                                                {{-- Hiển thị các thuộc tính của biến thể --}}
+                                                            @if ($variant->attributeValues && $variant->attributeValues->count())
+                                                                {{-- <div> --}}
+                                                                    {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
+                                                                    @foreach ($variant->attributeValues as $attrVal)
+                                                                        <strong>{{ $attrVal->attribute->name ?? '' }}</strong> {{ $attrVal->value ?? '' }}<br>
+                                                                        {{-- <span
+                                                                            class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
+                                                                            {{ $attrVal->value ?? '' }}</span> --}}
+                                                                    @endforeach
+                                                                {{-- </div> --}}
+                                                            @endif
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="swiper-button-next"></div>
+                                        <div class="swiper-button-prev"></div>
+                                    </div>
+                                </div>
                             </div>
                             {{-- /biến thể --}}
 
@@ -870,15 +898,9 @@
                                         <div class="form-content">
                                             <fieldset class="box-field">
                                                 <label class="label">Nội dung đánh giá</label>
-                                                <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây" tabindex="2" required></textarea>
+                                                <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây" tabindex="2" ></textarea>
                                             </fieldset>
-                                            {{-- <div class="box-check">
-                                                <input type="checkbox" name="availability" class="tf-check"
-                                                    id="check1" {{ old('availability') ? 'checked' : '' }}>
-                                                <label class="text_black-3" for="check1">
-                                                    Tôi Đồng Ý Tuân Thủ Quy Tắc Cộng Đồng Và Tôn Trọng Mọi Người.
-                                                </label>
-                                            </div> --}}
+                                            
                                         </div>
                                         <div class="button-submit">
                                             <button type="submit" class="tf-btn btn-fill animate-hover-btn">
@@ -1367,5 +1389,23 @@
             });
         });
         //
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Nếu URL có #product-reviews thì active tab Đánh giá
+            if (window.location.hash === '#product-reviews') {
+                const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
+                const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
+                // Tab Đánh giá là tab thứ 3 (index 2)
+                if (tabTitles.length >= 3 && tabContents.length >= 3) {
+                    tabTitles.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    tabTitles[2].classList.add('active');
+                    tabContents[2].classList.add('active');
+                    // Cuộn đến tab nếu cần
+                    tabContents[2].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
     </script>
 @endsection

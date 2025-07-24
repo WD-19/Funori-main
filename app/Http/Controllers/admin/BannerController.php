@@ -47,9 +47,9 @@ class BannerController
             'image' => 'required|image',
             'position' => 'required|string|max:50',
             'is_active' => 'nullable|boolean',
-            'start_at' => 'nullable|date',
-            'end_at' => 'nullable|date|after_or_equal:start_at',
-            'link' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'link_url' => 'nullable|string|max:255',
             'order' => 'nullable|integer',
         ]);
 
@@ -92,9 +92,9 @@ class BannerController
             'image' => 'nullable|image', // Ảnh có thể không đổi
             'position' => 'required|string|max:50',
             'is_active' => 'boolean',
-            'start_at' => 'nullable|date',
-            'end_at' => 'nullable|date|after_or_equal:start_at',
-            'link' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'link_url' => 'nullable|string|max:255',
             'order' => 'nullable|integer',
             'cropped_image' => 'nullable|string',
         ]);

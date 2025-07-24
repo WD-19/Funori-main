@@ -58,7 +58,7 @@
         </li>
         <li>
             {{-- Kho Voucher --}}
-            <a href="#" class="my-account-nav-item">
+            <a href="{{ route('client.profile.voucher') }}" class="my-account-nav-item">
                 <i class="bx bxs-discount icon"></i>
                 <span class="text-label">Kho Voucher</span>
             </a>
@@ -80,7 +80,7 @@
 .wrap-sidebar-account {
     background-color: #ffffff; /* Nền trắng */
     border-radius: 12px; /* Bo tròn góc nhiều hơn */
-    box-shadow: 0 5px 35px rgb(16 16 16 / 46%); /* Bóng đổ mạnh và rõ ràng hơn */
+    box-shadow: 0 5px 35px rgb(16 16 16 / 8%); /* Bóng đổ mạnh và rõ ràng hơn */
     padding: 25px 0; /* Đệm trên dưới */
     display: flex;
     flex-direction: column;

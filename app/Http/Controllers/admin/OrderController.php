@@ -251,6 +251,18 @@ class OrderController
         $newStatus = $request->input('order_status');
         $adminNote = $request->input('admin_note');
 
+        // Kiểm tra hoàn trả hàng chỉ trong 7 ngày kể từ khi nhận hàng
+        if ($oldStatus === 'delivered' && $newStatus === 'returned') {
+            if (!$order->delivered_at) {
+                return redirect()->back()->with('error', 'Không xác định được ngày giao hàng. Không thể hoàn trả.');
+            }
+            $now = now();
+            $deliveredAt = $order->delivered_at instanceof \Carbon\Carbon ? $order->delivered_at : \Carbon\Carbon::parse($order->delivered_at);
+            if ($now->diffInDays($deliveredAt) > 7) {
+                return redirect()->back()->with('error', 'Chỉ được hoàn trả hàng trong vòng 7 ngày kể từ khi nhận hàng. Đơn hàng này đã quá hạn hoàn trả.');
+            }
+        }
+
         // Cho phép chuyển đổi tự do giữa các trạng thái để test
 
         // Gán trạng thái mới cho đơn hàng

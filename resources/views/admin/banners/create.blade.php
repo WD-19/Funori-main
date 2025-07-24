@@ -18,7 +18,7 @@
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Link</label>
-                    <input type="text" name="link" class="input-field" value="{{ old('link') }}">
+                    <input type="text" name="link_url" class="input-field" value="{{ old('link_url') }}">
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Vị trí</label>
@@ -37,9 +37,9 @@
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Thời gian hiển thị</label>
                     <div class="flex gap-2">
-                        <input type="datetime-local" name="start_at" class="input-field" value="{{ old('start_at') }}">
+                        <input type="datetime-local" name="start_date" class="input-field" value="{{ old('start_date') }}">
                         <span>đến</span>
-                        <input type="datetime-local" name="end_at" class="input-field" value="{{ old('end_at') }}">
+                        <input type="datetime-local" name="end_date" class="input-field" value="{{ old('end_date') }}">
                     </div>
                 </fieldset>
                 <fieldset class="mb-4">

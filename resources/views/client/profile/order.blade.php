@@ -74,9 +74,21 @@
                                             <div class="order-summary-details">
                                                 {{-- Row 2: Payment, Method, Count --}}
                                                 <div class="order-other-details" style="display: flex; flex-direction: column; gap: 5px; font-size:14px;">
+                                                    @php
+                                                        $paymentStatusMap = [
+                                                            'pending' => ['label' => 'Chờ thanh toán', 'class' => 'status-pending'],
+                                                            'paid' => ['label' => 'Đã thanh toán', 'class' => 'status-paid'],
+                                                            'failed' => ['label' => 'Thanh toán thất bại', 'class' => 'status-failed'],
+                                                            'refunded' => ['label' => 'Đã hoàn tiền', 'class' => 'status-refunded'],
+                                                        ];
+                                                        $status = $order->payment_status ?? 'pending';
+                                                        $statusInfo = $paymentStatusMap[$status] ?? $paymentStatusMap['pending'];
+                                                    @endphp
                                                     <div class="order-payment-status">
                                                         Thanh toán:
-                                                        <span class="payment-status {{ $order->payment_status == 'paid' ? 'status-paid' : 'status-unpaid' }}">{{ $order->payment_status == 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}</span>
+                                                        <span class="payment-status {{ $statusInfo['class'] }}">
+                                                            {{ $statusInfo['label'] }}
+                                                        </span>
                                                     </div>
                                                     <div class="order-payment-method">
                                                         Phương thức thanh toán: <span>{{ $order->paymentMethod->name ?? '---' }}</span>
@@ -103,15 +115,37 @@
                                                         Huỷ đơn hàng
                                                     </button>
                                                 @endif
-                                                @if (Str::slug($order->order_status, '_') === 'cancelled' && $order->items && count($order->items) > 0)
-                                                    <a href="{{ route('client.product.show', ['slug' => $order->items[0]->product->slug ?? '']) }}" class="btn btn-outline-primary">
-                                                        <i class="bi bi-cart-plus me-2"></i>Mua lại
-                                                    </a>
-                                                @endif
                                                 @if (Str::slug($order->order_status, '_') === 'delivered')
-                                                    <a href="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}" class="btn btn-outline-danger">
-                                                        <i class="bi bi-arrow-counterclockwise me-2"></i>Hoàn/Trả hàng
-                                                    </a>
+                                                    @php
+                                                        $canReturn = false;
+                                                        if ($order->delivered_at) {
+                                                            $deliveredAt = \Carbon\Carbon::parse($order->delivered_at);
+                                                            $canReturn = now()->diffInDays($deliveredAt) <= 7;
+                                                        }
+                                                    @endphp
+                                                    @if ($canReturn)
+                                                        <form action="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-outline-danger">
+                                                                <i class="bi bi-arrow-counterclockwise me-2"></i>Hoàn/Trả hàng
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <form action="{{ route('client.profile.order.repeat', $order->id) }}" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-outline-primary">
+                                                                <i class="bi bi-cart-plus me-2"></i>Mua lại
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endif
+                                                @if (Str::slug($order->order_status, '_') === 'cancelled')
+                                                    <form action="{{ route('client.profile.order.repeat', $order->id) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-primary">
+                                                            <i class="bi bi-cart-plus me-2"></i>Mua lại
+                                                        </button>
+                                                    </form>
                                                 @endif
                                             </div>
                                         </div>
@@ -176,7 +210,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
 
-                const currentStatus = '{{ request('status', 'all') }}';
+                const currentStatus = '{{ request('order_status', 'all') }}';
                 const activeTab = document.querySelector(`.status-tab[data-status="${currentStatus}"]`);
 
                 if (activeTab) {
@@ -229,6 +263,21 @@
                 }
             });
         </script>
+        <script>
+document.addEventListener('DOMContentLoaded', function() {
+    @php
+        $repeatIds = session('repeat_ids') ? explode(',', session('repeat_ids')) : [];
+    @endphp
+    @if(!empty($repeatIds))
+        const ids = @json($repeatIds);
+        ids.forEach(id => {
+            const checkbox = document.querySelector('.cart-item-checkbox[data-item-id="' + id + '"]');
+            if (checkbox) checkbox.checked = true;
+        });
+        if (typeof updateSelectedTotal === 'function') updateSelectedTotal();
+    @endif
+});
+</script>
     @endpush
 @endsection
 <style>
@@ -373,8 +422,7 @@
     .status-pending,
     .status-processing,
     .status-shipping {
-        background-color: #fff3cd;
-        /* Yellowish for in-progress */
+        
         color: #856404;
     }
 
@@ -519,9 +567,19 @@
         /* Green for paid */
     }
 
-    .status-unpaid {
+    .status-pending {
+        color: #ffc107;
+        /* Yellow for pending */
+    }
+
+    .status-failed {
         color: #dc3545;
-        /* Red for unpaid */
+        /* Red for failed */
+    }
+
+    .status-refunded {
+        color: #007bff;
+        /* Blue for refunded */
     }
 
     .order-date {
