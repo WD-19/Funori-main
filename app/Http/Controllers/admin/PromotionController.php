@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Promotion;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\User;
+use App\Mail\NewPromotionMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class PromotionController
@@ -58,6 +61,12 @@ class PromotionController
         }
         if ($request->applies_to == 'specific_brands' && $request->filled('brand_ids')) {
             $promotion->brands()->sync($request->brand_ids);
+        }
+
+        // Gửi email cho tất cả user
+        $users = User::whereNotNull('email')->pluck('email');
+        foreach ($users as $email) {
+            Mail::to($email)->send(new NewPromotionMail($promotion));
         }
 
         return redirect()->route('admin.promotions.index')->with('success', 'Tạo khuyến mãi thành công!');
