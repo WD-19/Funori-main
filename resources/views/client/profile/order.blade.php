@@ -3,6 +3,11 @@
 @section('page_title', 'Đơn Hàng')
 
 @section('content_profile')
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="my-account-content account-order">
         <div class="wrap-account-order">
             <div class="order-history-header">
@@ -52,37 +57,63 @@
                                 <div class="order-card" data-order-status="{{ Str::slug($order->status) }}">
                                     <div class="order-details-content">
                                         {{-- Row 1: Image, Code, and Date --}}
-                                        <div class="order-date-and-id" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed #eee;">
+                                        <div class="order-date-and-id"
+                                            style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px dashed #eee;">
                                             <div class="order-id" style="display: flex; align-items: center; gap: 8px;">
                                                 @php
                                                     $firstItem = $order->items->first();
-                                                    $variantImage = $firstItem && $firstItem->productVariant && $firstItem->productVariant->image ? $firstItem->productVariant->image->image_url : null;
-                                                    $productImage = $firstItem && $firstItem->product && $firstItem->product->thumbnail ? $firstItem->product->thumbnail->image_url : null;
+                                                    $variantImage =
+                                                        $firstItem &&
+                                                        $firstItem->productVariant &&
+                                                        $firstItem->productVariant->image
+                                                            ? $firstItem->productVariant->image->image_url
+                                                            : null;
+                                                    $productImage =
+                                                        $firstItem &&
+                                                        $firstItem->product &&
+                                                        $firstItem->product->thumbnail
+                                                            ? $firstItem->product->thumbnail->image_url
+                                                            : null;
                                                     $imageUrl = $variantImage ?? $productImage;
                                                 @endphp
                                                 <img src="{{ $imageUrl ? asset($imageUrl) : 'https://via.placeholder.com/60?text=N/A' }}"
-                                                     alt="Ảnh đại diện đơn"
-                                                     style="width:60px;height:60px;object-fit:cover;border-radius:4px;">
+                                                    alt="Ảnh đại diện đơn"
+                                                    style="width:60px;height:60px;object-fit:cover;border-radius:4px;">
                                                 <span>Mã đơn hàng: {{ $order->order_code }}</span>
                                             </div>
                                             <div class="order-date">
-                                                Ngày đặt hàng: {{ $order->created_at ? $order->created_at->format('d/m/Y - H:i') : '' }}
+                                                Ngày đặt hàng:
+                                                {{ $order->created_at ? $order->created_at->format('d/m/Y - H:i') : '' }}
                                             </div>
                                         </div>
 
                                         <div class="order-summary-footer-combined">
                                             <div class="order-summary-details">
                                                 {{-- Row 2: Payment, Method, Count --}}
-                                                <div class="order-other-details" style="display: flex; flex-direction: column; gap: 5px; font-size:14px;">
+                                                <div class="order-other-details"
+                                                    style="display: flex; flex-direction: column; gap: 5px; font-size:14px;">
                                                     @php
                                                         $paymentStatusMap = [
-                                                            'pending' => ['label' => 'Chờ thanh toán', 'class' => 'status-pending'],
-                                                            'paid' => ['label' => 'Đã thanh toán', 'class' => 'status-paid'],
-                                                            'failed' => ['label' => 'Thanh toán thất bại', 'class' => 'status-failed'],
-                                                            'refunded' => ['label' => 'Đã hoàn tiền', 'class' => 'status-refunded'],
+                                                            'pending' => [
+                                                                'label' => 'Chờ thanh toán',
+                                                                'class' => 'status-pending',
+                                                            ],
+                                                            'paid' => [
+                                                                'label' => 'Đã thanh toán',
+                                                                'class' => 'status-paid',
+                                                            ],
+                                                            'failed' => [
+                                                                'label' => 'Thanh toán thất bại',
+                                                                'class' => 'status-failed',
+                                                            ],
+                                                            'refunded' => [
+                                                                'label' => 'Đã hoàn tiền',
+                                                                'class' => 'status-refunded',
+                                                            ],
                                                         ];
                                                         $status = $order->payment_status ?? 'pending';
-                                                        $statusInfo = $paymentStatusMap[$status] ?? $paymentStatusMap['pending'];
+                                                        $statusInfo =
+                                                            $paymentStatusMap[$status] ?? $paymentStatusMap['pending'];
                                                     @endphp
                                                     <div class="order-payment-status">
                                                         Thanh toán:
@@ -91,10 +122,12 @@
                                                         </span>
                                                     </div>
                                                     <div class="order-payment-method">
-                                                        Phương thức thanh toán: <span>{{ $order->paymentMethod->name ?? '---' }}</span>
+                                                        Phương thức thanh toán:
+                                                        <span>{{ $order->paymentMethod->name ?? '---' }}</span>
                                                     </div>
                                                     <div class="order-product-count">
-                                                        Số lượng sản phẩm: <strong>{{ $order->items->sum('quantity') }}</strong>
+                                                        Số lượng sản phẩm:
+                                                        <strong>{{ $order->items->sum('quantity') }}</strong>
                                                     </div>
                                                 </div>
                                             </div>
@@ -102,18 +135,28 @@
                                             {{-- Right Part: Total and Actions --}}
                                             <div class="order-total-amount">
                                                 <p>Tổng tiền:</p>
-                                                <span class="amount">{{ number_format($order->total_amount, 0, ',', '.') }}₫</span>
+                                                <span
+                                                    class="amount">{{ number_format($order->total_amount, 0, ',', '.') }}₫</span>
                                             </div>
                                             <div class="order-actions">
-                                                <a href="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}" class="btn btn-outline-success">
+                                                <a href="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}"
+                                                    class="btn btn-outline-success">
                                                     <span>Xem chi tiết</span>
                                                 </a>
                                                 @if (in_array(Str::slug($order->order_status, '_'), ['pending_confirmation', 'processing']))
-                                                    <button type="button" class="btn btn-outline-danger cancel-order-btn"
-                                                        data-bs-toggle="modal" data-bs-target="#cancelOrderModal"
-                                                        data-order-id="{{ $order->id }}">
+                                                    <!-- Nút hủy -->
+                                                    <button type="button" class="btn btn-outline-danger" onclick="openCancelModal({{ $order->id }})">
                                                         Huỷ đơn hàng
                                                     </button>
+                                                  
+                                                @endif
+                                                @if (Str::slug($order->order_status, '_') === 'shipped')
+                                                    <form action="{{ route('client.profile.order.markDelivered', $order->id) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-success">
+                                                            Đã nhận hàng
+                                                        </button>
+                                                    </form>
                                                 @endif
                                                 @if (Str::slug($order->order_status, '_') === 'delivered')
                                                     @php
@@ -124,14 +167,19 @@
                                                         }
                                                     @endphp
                                                     @if ($canReturn)
-                                                        <form action="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}" method="POST" style="display:inline;">
+                                                        <form
+                                                            action="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}"
+                                                            method="POST" style="display:inline;">
                                                             @csrf
                                                             <button type="submit" class="btn btn-outline-danger">
-                                                                <i class="bi bi-arrow-counterclockwise me-2"></i>Hoàn/Trả hàng
+                                                                <i class="bi bi-arrow-counterclockwise me-2"></i>Hoàn/Trả
+                                                                hàng
                                                             </button>
                                                         </form>
                                                     @else
-                                                        <form action="{{ route('client.profile.order.repeat', $order->id) }}" method="POST" style="display:inline;">
+                                                        <form
+                                                            action="{{ route('client.profile.order.repeat', $order->id) }}"
+                                                            method="POST" style="display:inline;">
                                                             @csrf
                                                             <button type="submit" class="btn btn-outline-primary">
                                                                 <i class="bi bi-cart-plus me-2"></i>Mua lại
@@ -140,7 +188,8 @@
                                                     @endif
                                                 @endif
                                                 @if (Str::slug($order->order_status, '_') === 'cancelled')
-                                                    <form action="{{ route('client.profile.order.repeat', $order->id) }}" method="POST" style="display:inline;">
+                                                    <form action="{{ route('client.profile.order.repeat', $order->id) }}"
+                                                        method="POST" style="display:inline;">
                                                         @csrf
                                                         <button type="submit" class="btn btn-outline-primary">
                                                             <i class="bi bi-cart-plus me-2"></i>Mua lại
@@ -159,7 +208,7 @@
         </div>
     </div>
 
-    <!-- Modal Hủy đơn hàng (dùng chung cho cả trang) -->
+    {{-- Modal hủy đơn hàng --}}
     <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -172,27 +221,27 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason1" value="Đặt nhầm sản phẩm hoặc số lượng" required>
+                                <input class="form-check-input" type="radio" name="cancellation_reason" id="order_reason1" value="Đặt nhầm sản phẩm hoặc số lượng" required>
                                 <label class="form-check-label" for="order_reason1">Đặt nhầm sản phẩm hoặc số lượng</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason2" value="Không còn nhu cầu sử dụng sản phẩm">
+                                <input class="form-check-input" type="radio" name="cancellation_reason" id="order_reason2" value="Không còn nhu cầu sử dụng sản phẩm">
                                 <label class="form-check-label" for="order_reason2">Không còn nhu cầu sử dụng sản phẩm</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason3" value="Tìm thấy sản phẩm tương tự với giá tốt hơn">
+                                <input class="form-check-input" type="radio" name="cancellation_reason" id="order_reason3" value="Tìm thấy sản phẩm tương tự với giá tốt hơn">
                                 <label class="form-check-label" for="order_reason3">Tìm thấy sản phẩm tương tự với giá tốt hơn</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason4" value="Thời gian giao hàng quá lâu">
+                                <input class="form-check-input" type="radio" name="cancellation_reason" id="order_reason4" value="Thời gian giao hàng quá lâu">
                                 <label class="form-check-label" for="order_reason4">Thời gian giao hàng quá lâu</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reason5" value="Thay đổi địa chỉ hoặc thông tin nhận hàng">
+                                <input class="form-check-input" type="radio" name="cancellation_reason" id="order_reason5" value="Thay đổi địa chỉ hoặc thông tin nhận hàng">
                                 <label class="form-check-label" for="order_reason5">Thay đổi địa chỉ hoặc thông tin nhận hàng</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cancel_reason" id="order_reasonOther" value="other">
+                                <input class="form-check-input" type="radio" name="cancellation_reason" id="order_reasonOther" value="other">
                                 <label class="form-check-label" for="order_reasonOther">Lý do khác (vui lòng ghi rõ)</label>
                             </div>
                             <textarea class="form-control mt-2 d-none" name="cancel_reason_other" id="order_cancelReasonOtherText" rows="2" placeholder="Nhập lý do khác..."></textarea>
@@ -206,80 +255,103 @@
             </div>
         </div>
     </div>
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
+@endsection
 
-                const currentStatus = '{{ request('order_status', 'all') }}';
-                const activeTab = document.querySelector(`.status-tab[data-status="${currentStatus}"]`);
 
-                if (activeTab) {
-                    activeTab.classList.add('active');
-                }
-
-                const cancelOrderModal = document.getElementById('cancelOrderModal');
-                if (cancelOrderModal) {
-                    const cancelOrderForm = document.getElementById('cancelOrderForm');
-                    const reasonOtherRadio = document.getElementById('order_reasonOther');
-                    const otherTextarea = document.getElementById('order_cancelReasonOtherText');
-                    
-                    // Cập nhật action của form khi modal được mở
-                    cancelOrderModal.addEventListener('show.bs.modal', function (event) {
-                        const button = event.relatedTarget;
-                        const orderId = button.getAttribute('data-order-id');
-                        // Cập nhật action của form
-                        const actionUrl = "{{ route('client.profile.my_account.order.cancel', ['id' => ':id']) }}".replace(':id', orderId);
-                        cancelOrderForm.setAttribute('action', actionUrl);
-                        
-                        // Reset form khi mở modal
-                        cancelOrderForm.reset();
-                        otherTextarea.classList.add('d-none');
-                        otherTextarea.required = false;
-                    });
-
-                    // Xử lý hiện/ẩn textarea cho "Lý do khác"
-                    const radios = cancelOrderForm.querySelectorAll('input[name="cancel_reason"]');
-                    radios.forEach(radio => {
-                        radio.addEventListener('change', function() {
-                            if (reasonOtherRadio.checked) {
-                                otherTextarea.classList.remove('d-none');
-                                otherTextarea.required = true;
-                            } else {
-                                otherTextarea.classList.add('d-none');
-                                otherTextarea.required = false;
-                                otherTextarea.value = '';
-                            }
-                        });
-                    });
-
-                    // Validate khi submit
-                    cancelOrderForm.addEventListener('submit', function(e) {
-                        if (reasonOtherRadio.checked && !otherTextarea.value.trim()) {
-                            alert('Vui lòng nhập lý do hủy đơn hàng.');
-                            otherTextarea.focus();
-                            e.preventDefault();
-                        }
-                    });
+@push('scripts')
+<script>
+    // Hiện/ẩn textarea khi chọn "Lý do khác"
+    document.addEventListener('DOMContentLoaded', function() {
+        const radios = document.querySelectorAll('input[name="cancellation_reason"]');
+        const otherText = document.getElementById('order_cancelReasonOtherText');
+        radios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                if (this.value === 'other') {
+                    otherText.classList.remove('d-none');
+                    otherText.required = true;
+                } else {
+                    otherText.classList.add('d-none');
+                    otherText.required = false;
                 }
             });
-        </script>
-        <script>
-document.addEventListener('DOMContentLoaded', function() {
-    @php
-        $repeatIds = session('repeat_ids') ? explode(',', session('repeat_ids')) : [];
-    @endphp
-    @if(!empty($repeatIds))
-        const ids = @json($repeatIds);
-        ids.forEach(id => {
-            const checkbox = document.querySelector('.cart-item-checkbox[data-item-id="' + id + '"]');
-            if (checkbox) checkbox.checked = true;
         });
-        if (typeof updateSelectedTotal === 'function') updateSelectedTotal();
-    @endif
-});
+    });
+
+    // Hàm mở modal và set action động
+    function openCancelModal(orderId) {
+        const form = document.getElementById('cancelOrderForm');
+        form.action = '{{ route("client.profile.my_account.order.cancel", ":id") }}'.replace(':id', orderId);
+        form.reset();
+        document.getElementById('order_cancelReasonOtherText').classList.add('d-none');
+        document.getElementById('order_cancelReasonOtherText').required = false;
+        // Tắt backdrop
+        var myModal = new bootstrap.Modal(document.getElementById('cancelOrderModal'), {
+            backdrop: false
+        });
+        myModal.show();
+    }
+
+    function hideCancelForm(orderId) {
+        document.getElementById('cancel-form-' + orderId).style.display = 'none';
+    }
+
+    document.querySelectorAll('[id^="cancel-reason-"]').forEach(function(select) {
+        select.addEventListener('change', function() {
+            var orderId = this.id.replace('cancel-reason-', '');
+            var otherInput = document.getElementById('other-reason-' + orderId);
+            if (this.value === 'Lý do khác') {
+                otherInput.style.display = 'inline-block';
+            } else {
+                otherInput.style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('cancelOrderForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Lấy radio được chọn
+        const reasonRadio = document.querySelector('input[name="cancellation_reason"]:checked');
+        const reason = reasonRadio ? reasonRadio.value : '';
+        // Lấy lý do khác nếu có
+        const otherReason = document.getElementById('order_cancelReasonOtherText').value;
+
+        if (!reason) {
+            alert('Vui lòng chọn lý do!');
+            return;
+        }
+
+        // Lấy orderId từ action của form (hoặc truyền qua biến JS khi mở modal)
+        const action = this.action;
+        // Gửi dữ liệu
+        var data = {
+            cancellation_reason: reason,
+            cancel_reason_other: reason === 'other' ? otherReason : '',
+            _token: '{{ csrf_token() }}'
+        };
+
+        fetch(action, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': data._token},
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                location.reload();
+            } else {
+                alert(res.message || 'Có lỗi xảy ra!');
+            }
+        })
+        .catch(() => alert('Có lỗi xảy ra!'));
+    });
+
+   
 </script>
-    @endpush
-@endsection
+@endpush
+
+
+
 <style>
     .order-header {
         display: flex;
@@ -290,10 +362,9 @@ document.addEventListener('DOMContentLoaded', function() {
     .my-account-content.account-order {
         padding: 25px;
         background-color: #f7f7f7;
-        /* Light grey background for the whole section */
+
         border-radius: 8px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
-        /* Subtle shadow */
     }
 
     .order-history-header {
@@ -422,7 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .status-pending,
     .status-processing,
     .status-shipping {
-        
+
         color: #856404;
     }
 
@@ -785,5 +856,16 @@ document.addEventListener('DOMContentLoaded', function() {
         color: #ee4d2d;
         margin: 30px 0 10px 0;
         text-transform: uppercase;
+    }
+
+    /* Kéo modal xuống dưới (ví dụ: cách top 100px) */
+    #cancelOrderModal .modal-dialog {
+        margin-top: 100px !important;
+    }
+
+    /* Modal backdrop */
+    .modal-backdrop.show {
+        opacity: 0.7 !important; /* Mặc định là 0.5, tăng lên nếu muốn mờ hơn */
+        background-color: #000 !important;
     }
 </style>

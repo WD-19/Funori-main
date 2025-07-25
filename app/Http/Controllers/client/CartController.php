@@ -59,7 +59,7 @@ class CartController
                         : [];
 
                     $cartItems[] = [
-                        'id' => $item->id,
+                        'id' => $item->product_id . '_' . ($item->product_variant_id ?? 'null'),
                         'product_id' => $product->id,
                         'product_variant_id' => $variant->id ?? null,
                         'quantity' => $item->quantity,
@@ -317,9 +317,11 @@ class CartController
             'quantity' => 'nullable|integer|min:1'
         ]);
 
+        // Nếu user đã đăng nhập
         if (Auth::check()) {
             $cart = Cart::where('user_id', Auth::id())->first();
             if ($cart) {
+                // item_id dạng: productId_variantId (VD: 12_5 hoặc 12_null)
                 $parts = explode('_', $request->item_id);
                 $productId = $parts[0] ?? null;
                 $variantId = $parts[1] ?? null;
@@ -338,12 +340,12 @@ class CartController
                 ])->first();
 
                 if ($cartItem) {
-                    // Chỉ cập nhật số lượng
+                    // Nếu có truyền quantity thì cập nhật
                     if ($request->has('quantity')) {
-                        // Lấy tồn kho phù hợp
-                        $currentVariantId = $cartItem->product_variant_id;
-                        if ($currentVariantId) {
-                            $variant = ProductVariant::find($currentVariantId);
+                        // Kiểm tra tồn kho
+                        $stockQuantity = 0;
+                        if ($cartItem->product_variant_id) {
+                            $variant = ProductVariant::find($cartItem->product_variant_id);
                             $stockQuantity = $variant ? $variant->stock_quantity : 0;
                         } else {
                             $product = Product::find($productId);
@@ -357,8 +359,11 @@ class CartController
                         }
                         $cartItem->quantity = $request->quantity;
                     }
-                    $cartItem->save();
+                    $cartItem->save(); // Lưu vào database
+
+                    // Tính lại tổng tiền giỏ hàng
                     $total = $cart->items->sum(fn($item) => $item->quantity * $item->price_at_addition);
+
                     return response()->json([
                         'success' => true,
                         'item_total' => $cartItem->quantity * $cartItem->price_at_addition,
@@ -372,7 +377,7 @@ class CartController
                 'message' => 'Không tìm thấy sản phẩm trong giỏ hàng!'
             ], 404);
         } else {
-            // Session
+            // Nếu là khách (chưa đăng nhập) thì lưu vào session
             $cart = Session::get('cart', []);
             if (isset($cart[$request->item_id])) {
                 $parts = explode('_', $request->item_id);
@@ -386,9 +391,9 @@ class CartController
                         'message' => 'ID sản phẩm không hợp lệ!'
                     ], 400);
                 }
-                // Chỉ cập nhật số lượng
                 if ($request->has('quantity')) {
-                    // Lấy tồn kho phù hợp
+                    // Kiểm tra tồn kho
+                    $stockQuantity = 0;
                     if ($variantId) {
                         $variant = ProductVariant::find($variantId);
                         $stockQuantity = $variant ? $variant->stock_quantity : 0;
@@ -404,11 +409,13 @@ class CartController
                     }
                     $cart[$request->item_id]['quantity'] = $request->quantity;
                     Session::put('cart', $cart);
-                    // Tính toán dữ liệu trả về cho guest
+
+                    // Tính lại tổng tiền giỏ hàng
                     $currentItem = $cart[$request->item_id];
                     $itemTotal = $currentItem['quantity'] * $currentItem['price_at_addition'];
                     $itemPrice = $currentItem['price_at_addition'];
                     $total = collect($cart)->sum(fn($item) => $item['quantity'] * $item['price_at_addition']);
+
                     return response()->json([
                         'success' => true,
                         'item_total' => $itemTotal,

@@ -22,7 +22,7 @@ class ProfileController
     public function order(Request $request)
     {
         $user = Auth::user();
-        $orders = $user->orders()->with('paymentMethod')->latest();
+        $orders = $user->orders()->latest();
 
         $status = $request->query('order_status', 'all');
         if ($status !== 'all') {
@@ -278,24 +278,35 @@ class ProfileController
      */
     public function cancelOrder(Request $request, $orderId)
     {
-        $user = Auth::user();
-        $order = Order::where('id', $orderId)->where('user_id', $user->id)->first();
+        // Nếu là request JSON (AJAX), merge dữ liệu vào $request
+        if ($request->isJson()) {
+            $request->merge($request->json()->all());
+        }
+
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:255',
+            'cancel_reason_other' => 'nullable|string|max:255',
+        ]);
+
+        $order = Order::where('id', $orderId)
+            ->where('user_id', auth()->id())
+            ->whereIn('order_status', ['pending_confirmation', 'processing'])
+            ->first();
+
         if (!$order) {
-            return back()->with('error', 'Không tìm thấy đơn hàng hoặc bạn không có quyền hủy đơn này.');
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy đơn hàng hoặc không có quyền!'], 404);
         }
-        // Chỉ cho phép hủy nếu trạng thái là chờ xác nhận hoặc đang xử lý
-        if (!in_array($order->order_status, ['pending_confirmation', 'processing'])) {
-            return back()->with('error', 'Chỉ có thể hủy đơn hàng khi đang chờ xác nhận hoặc đang xử lý.');
-        }
-        $reason = $request->input('cancel_reason');
-        if ($reason === 'other') {
-            $reason = $request->input('cancel_reason_other');
-        }
-        $order->order_status = 'pending_cancellation';
-        $order->cancellation_reason = $reason;
+
+        $reason = $request->cancellation_reason === 'other'
+            ? $request->cancel_reason_other
+            : $request->cancellation_reason;
+
+        $order->order_status = 'cancelled';
         $order->cancelled_at = now();
+        $order->cancellation_reason = $reason;
         $order->save();
-        return back()->with('success', 'Yêu cầu hủy đơn hàng đã được gửi. Vui lòng chờ xác nhận từ quản trị viên.');
+
+        return response()->json(['success' => true]);
     }
 
     public function repeatOrder($id)
@@ -357,11 +368,56 @@ class ProfileController
     {
         $user = Auth::user();
         // Lấy các promotion còn hiệu lực, có thể lọc theo user nếu cần
-        $vouchers = \App\Models\Promotion::where('is_active', 1)
+        $vouchers = Promotion::where('is_active', 1)
             ->where(function($q){
                 $q->whereNull('end_date')->orWhere('end_date', '>=', now());
             })
             ->get();
         return view('client.profile.voucher', compact('vouchers'));
+    }
+
+   
+
+    public function ajaxOrderList(Request $request)
+    {
+        $user = Auth::user();
+        $orders = $user->orders()->latest();
+
+        $status = $request->query('order_status', 'all');
+        if ($status !== 'all') {
+            $orders = $orders->where('order_status', $status);
+        }
+        $orders = $orders->get();
+
+        $ordersByStatus = $status === 'all'
+            ? $orders->groupBy('order_status')
+            : collect([$status => $orders]);
+
+        // Trả về view partial chỉ chứa danh sách đơn hàng
+        return view('client.profile.order_list', [
+            'ordersByStatus' => $ordersByStatus
+        ])->render();
+    }
+
+    public function markDelivered($orderId)
+    {
+        $user = Auth::user();
+        $order = Order::where('id', $orderId)->where('user_id', $user->id)->firstOrFail();
+
+        // Chấp nhận nhiều giá trị trạng thái giao hàng
+        $shippingStatuses = ['shipped', 'shipping', 'dang_giao', 'Đang giao'];
+        if (in_array($order->order_status, $shippingStatuses)) {
+            $order->order_status = 'delivered';
+            $order->delivered_at = now();
+            $order->save();
+
+            $order->status_histories()->create([
+                'status' => 'delivered',
+                'note' => 'Khách hàng xác nhận đã nhận hàng',
+                'created_at' => now(),
+            ]);
+        }
+        // Redirect về trang đơn hàng (hoặc trang trước đó)
+        return redirect()->back();
     }
 }

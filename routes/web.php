@@ -266,9 +266,13 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('my_account.order');
         Route::get('/order/detail/{id}', [ProfileController::class, 'detailOrder'])->name('my_account.orderdetail');
-        Route::post('/order/cancel/{id}', [ProfileController::class, 'cancelOrder'])->name('my_account.order.cancel');
+        Route::post('/order/{order}/cancel', [ProfileController::class, 'cancelOrder'])
+        ->name('my_account.order.cancel');
+      
         Route::post('/order/{id}/repeat', [ProfileController::class, 'repeatOrder'])->name('order.repeat');
         Route::get('/voucher', [ProfileController::class, 'vouchers'])->name('voucher');
+        Route::post('/order/{id}/mark-delivered', [ProfileController::class, 'markDelivered'])->name('order.markDelivered');
+
 
 
         // Address Management

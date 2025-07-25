@@ -659,7 +659,11 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data && data.success) {
-                            // Không reload trang nữa
+                            // Hiển thị thông báo thành công (nếu muốn)
+                            // alert('Cập nhật số lượng thành công!');
+                        } else {
+                            // Hiển thị thông báo lỗi
+                            alert(data.message || 'Cập nhật số lượng thất bại!');
                         }
                     })
                     .catch(() => {})
