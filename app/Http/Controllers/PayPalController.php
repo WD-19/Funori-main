@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\client\CheckoutController;
 use Illuminate\Http\Request;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Illuminate\Support\Facades\Log;
@@ -115,7 +116,10 @@ class PayPalController
                 }
 
                 if (isset($response['status']) && $response['status'] === 'COMPLETED') {
-                    return $this->handleSuccessfulPayment($response);
+                    $order = Order::find('order_id');
+                    return view('client.checkout.success', [
+                'order'
+                 ]);
                 }
 
                 Log::warning('Payment not completed', [
@@ -149,108 +153,7 @@ class PayPalController
     }
 
 
-    private function handleSuccessfulPayment($response)
-    {
-        DB::beginTransaction();
-        try {
-            $orderData = session('pending_order');
 
-            // Validate order data
-            if (!isset($orderData['total_amount'], $orderData['shipping_address'], $orderData['cart_data'])) {
-                throw new \Exception('Thiếu thông tin đơn hàng.');
-            }
-
-            $shippingAddress = $orderData['shipping_address'];
-            $orderData = [
-                'order_code' => 'ORD-' . strtoupper(uniqid()),
-                'ordered_at' => now(),
-
-                // Thông tin người mua/nhận hàng
-                'customer_name' => $shippingAddress['name'],
-                'customer_phone' => $shippingAddress['phone'],
-                'customer_email' => $shippingAddress['email'],
-                'buyer_name' => $shippingAddress['name'],
-                'buyer_phone' => $shippingAddress['phone'],
-                'buyer_email' => $shippingAddress['email'],
-                'buyer_address' => $shippingAddress['address'],
-
-                'shipping_name' => $shippingAddress['name'],
-                'shipping_phone' => $shippingAddress['phone'],
-                'shipping_email' => $shippingAddress['email'],
-                'shipping_address' => $shippingAddress['address'],
-
-                // Thông tin đơn hàng
-                'payment_method_id' => $orderData['payment_method_id'],
-                'shipping_method_id' => $orderData['shipping_method_id'],
-                'subtotal_amount' => $orderData['total_amount'],
-                'shipping_fee' => $orderData['shipping_fee'] ?? 0,
-                'tax_amount' => 0,
-                'discount_amount' => $orderData['discount'] ?? 0,
-                'discount_code' => $orderData['discount_code'] ?? null,
-                'total_amount' => $orderData['total_amount'],
-
-                'order_status' => 'pending_confirmation',
-                'payment_status' => 'paid',
-                'transaction_id' => $response['id']
-            ];
-
-            if (Auth::check()) {
-                $orderData['user_id'] = Auth::id();
-            }
-
-            $order = Order::create($orderData);
-
-            // Tạo order items
-            foreach ($orderData['cart_data'] as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item['product_id'],
-                    'product_variant_id' => $item['product_variant_id'] ?? null,
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price_at_addition'],
-                    'subtotal' => $item['price_at_addition'] * $item['quantity'],
-                    'product_name' => $item['product']['name'],
-                ]);
-
-                // Cập nhật kho hàng
-                if (isset($item['product_variant_id'])) {
-                    $updated = ProductVariant::where('id', $item['product_variant_id'])
-                        ->where('stock_quantity', '>=', $item['quantity'])
-                        ->decrement('stock_quantity', $item['quantity']);
-                    if (!$updated) {
-                        throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
-                    }
-                } else {
-                    $updated = Product::where('id', $item['product_id'])
-                        ->where('stock_quantity', '>=', $item['quantity'])
-                        ->decrement('stock_quantity', $item['quantity']);
-                    if (!$updated) {
-                        throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
-                    }
-                }
-            }
-
-            DB::commit();
-
-            // Clear sessions
-            session()->forget(['pending_order', 'cart']);
-
-            Log::info('Payment processed successfully', [
-                'order_id' => $order->id,
-                'transaction_id' => $response['id']
-            ]);
-
-            return view('client.checkout.success', [
-                'order' => $order
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Order Creation Failed: ' . $e->getMessage());
-            return view('client.checkout.failed', [
-                'error' => 'Không thể tạo đơn hàng: ' . $e->getMessage()
-            ]);
-        }
-    }
     public function cancel()
     {
         // Xóa session đơn hàng

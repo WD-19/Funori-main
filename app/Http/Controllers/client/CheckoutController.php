@@ -279,8 +279,20 @@ class CheckoutController
             // --- END: Cập nhật kho hàng an toàn ---
         }
 
-        if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'VNPAY') {
-            // Gọi phương thức pay của VnPayController
+
+
+        $paymentMethod = PaymentMethod::find($request->payment_method_id);
+
+        if ($paymentMethod->code === 'paypal') {
+            if (!isset($order) || !$order->id) {
+                return redirect()->route('client.checkout.index')
+                    ->with('error', 'Có lỗi xảy ra khi tạo đơn hàng');
+            }
+
+            return redirect()->route('paypal.process', ['order_id' => $order->id]);
+        }
+
+        if ($paymentMethod->code === 'vnpay') {
             $vnpayController = new \App\Http\Controllers\VnPayController();
             $vnpayRequest = new Request();
             $vnpayRequest->replace([
@@ -302,6 +314,7 @@ class CheckoutController
             }
             return back()->with('error', 'Không thể chuyển hướng sang VNPAY!');
         }
+
 
 
 
