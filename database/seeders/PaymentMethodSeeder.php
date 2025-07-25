@@ -15,7 +15,8 @@ class PaymentMethodSeeder extends Seeder
         $methods = [
             ['name' => 'Thanh toán khi nhận hàng', 'code' => 'cod', 'description' => 'Thanh toán trực tiếp khi nhận hàng'],
             ['name' => 'Chuyển khoản ngân hàng', 'code' => 'bank', 'description' => 'Chuyển khoản qua tài khoản ngân hàng'],
-            ['name' => 'Thanh toán bằng VNPAY', 'code' => 'vnpay', 'description' => 'Thanh toán bằng VNPAY'],
+            ['name' => 'VNPAY', 'code' => 'vnpay', 'description' => 'VNPAY'],
+            ['name' => 'MOMO', 'code' => 'vnpay', 'description' => 'MOMO'],
         ];
         foreach ($methods as $m) {
             PaymentMethod::create($m);

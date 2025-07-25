@@ -104,7 +104,7 @@
             </div>
         </div>
     </div>
-    <!-- Fade-out effect on load -->
+
 
     <!-- JS -->
     <script src="{{ asset('js/jquery.min.js') }}"></script>
@@ -133,6 +133,7 @@
     @stack('scripts')
 
     <script>
+        // Fade-out effect on load
         window.addEventListener('load', function() {
             const preload = document.getElementById('preload');
             preload.classList.add('fade-out');
