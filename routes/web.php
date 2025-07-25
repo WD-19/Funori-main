@@ -31,6 +31,8 @@ use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\VnPayController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
+use App\Http\Controllers\MomoController;
+use App\Http\Controllers\OnePayController;
 use App\Http\Controllers\PayOSController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
@@ -167,6 +169,11 @@ Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::post('/vnpay-pay', [VnPayController::class, 'pay'])->name('vnpay.payment');
 Route::get('/vnpay-return', [VnPayController::class, 'vnpayReturn'])->name('vnpay.return');
 
+// checkout momo
+Route::post('/momo/payment', [MomoController::class, 'pay'])->name('momo.payment');
+Route::get('/momo/return', [MomoController::class, 'return'])->name('momo.return');
+Route::post('/momo/notify', [MomoController::class, 'notify'])->name('momo.notify');
+
 //trang cửa hàng
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 
@@ -176,10 +183,6 @@ Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name
 // trang reset password
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
-
-Route::get('/payos/create', [PayOSController::class, 'createPayment'])->name('payos.create');
-Route::get('/payos/return', [PayOSController::class, 'return'])->name('payos.return');
-Route::get('/payos/cancel', [PayOSController::class, 'cancel'])->name('payos.cancel');
 
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
@@ -228,7 +231,7 @@ Route::prefix('/')->name('client.')->group(function () {
         return redirect('/');
     })->name('auth.google.callback')->middleware(RedirectIfAuthenticatedCustom::class);
 
-    // checkout vnpay
+    // checkout vnpay & momo
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
     Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('checkout.prepare');
