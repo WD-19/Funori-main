@@ -3,16 +3,9 @@
 @section('title', 'Tìm Kiếm')
 
 @section('content')
-    <div class="box-banner-about" style="background-position: 50%; margin-bottom: -30px;">
-        <div class="in-banner-about">
-            <div class="title-banner">Tìm Kiếm</div>
-            <div class="box-path-about">
-                <div>Trang chủ</div>
-                <div class="icon">
-                    <i class="fa-solid fa-angle-right"></i>
-                </div>
-                <div>Tìm Kiếm</div>
-            </div>
+   <div class="tf-page-title">
+        <div class="container-full">
+            <div class="heading text-center">@yield('page_title', 'Tìm Kiếm')</div>
         </div>
     </div>
 

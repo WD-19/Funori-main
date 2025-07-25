@@ -3,16 +3,9 @@
 @section('title', 'Về Chúng Tôi')
 
 @section('content')
-    <div class="box-banner-about">
-        <div class="in-banner-about">
-            <div class="title-banner">Về chúng tôi</div>
-            <div class="box-path-about">
-                <div>Trang chủ</div>
-                <div class="icon">
-                    <i class="fa-solid fa-angle-right"></i>
-                </div>
-                <div>Về chúng tôi</div>
-            </div>
+    <div class="tf-page-title">
+        <div class="container-full">
+            <div class="heading text-center">@yield('page_title', 'Về Chúng Tôi')</div>
         </div>
     </div>
     <div class="box-introduce">

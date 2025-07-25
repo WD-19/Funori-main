@@ -3,12 +3,6 @@
 @section('title', 'Danh sách phương thức thanh toán')
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success mb-3" style="font-size:1.25rem; font-weight:bold;">
-            {{ session('success') }}
-        </div>
-    @endif
-
     <div class="main-content-inner">
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
@@ -55,7 +49,7 @@
                 <div class="wg-table table-product-list">
                     <ul class="table-title flex gap20 mb-14">
                         <li style="width:7%">
-                            <div class="body-title">ID</div>
+                            <div class="body-title">STT</div>
                         </li>
                         <li style="width:18%">
                             <div class="body-title">Tên</div>
@@ -75,12 +69,18 @@
                     </ul>
                     <ul class="flex flex-column">
                         @foreach ($methods as $method)
-                            <li class="wg-product item-row gap20" style="align-items:center;">
-                                <div class="body-text" style="width:7%">{{ $method->id }}</div>
+                            <li class="wg-product item-row gap20" style="align-items:center; display: flex;">
+                                <div class="body-text" style="width:7%">
+                                    {{ ($methods->currentPage() - 1) * $methods->perPage() + $loop->iteration }}
+                                </div>
+
                                 <div class="body-text fw-7" style="width:18%">{{ $method->name }}</div>
+
                                 <div class="body-text" style="width:15%">{{ $method->code }}</div>
+
                                 <div class="body-text" style="width:30%">{{ Str::limit($method->description, 40) }}</div>
-                                <div style="width:12%">
+
+                                <div class="body-text" style="width:12%">
                                     @if ($method->is_active)
                                         <span class="block-available bg-1 fw-7">Đang bật</span>
                                     @else
@@ -90,32 +90,35 @@
 
                                 <div class="list-icon-function"
                                     style="width: 18%; display: flex; gap: 8px; align-items: center;">
+                                    <form action="{{ route('admin.payment_methods.destroy', $method->id) }}" method="POST"
+                                        style="display:inline;"
+                                        onsubmit="return confirm('Bạn có chắc chắn muốn xóa phương thức thanh toán này?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
+                                            <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
+                                        </button>
+                                    </form>
+                                    <a href="{{ route('admin.payment_methods.edit', $method->id) }}" class="item edit"
+                                        style="background:none; border:none; padding:0; margin:0; cursor:pointer;">
+                                        <i class="icon-edit-3" style="color:#22c55e;font-size:20px;"></i>
+                                    </a>
                                     <form action="{{ route('admin.payment_methods.toggle', $method->id) }}" method="POST"
                                         style="display:inline-block;">
                                         @csrf
                                         @method('PUT')
                                         <button type="submit" class="item eye"
                                             style="background:none; border:none; padding:0; margin:0; cursor:pointer;">
-                                            <i class="{{ $method->is_active ? 'icon-eye-off' : 'icon-eye' }}"></i>
+                                            <i class="{{ $method->is_active ? 'icon-eye-off' : 'icon-eye' }}"
+                                                style="color:#f59e0b;font-size:20px;"></i>
                                         </button>
                                     </form>
-
-                                    <div class="item trash">
-                                        <form action="{{ route('admin.payment_methods.destroy', $method->id) }}"
-                                            method="POST" style="display:inline;"
-                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa phương thức thanh toán này?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
-                                                <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
-                                            </button>
-                                        </form>
-                                    </div>
                                 </div>
                             </li>
                         @endforeach
                     </ul>
+
                 </div>
             </div>
         </div>

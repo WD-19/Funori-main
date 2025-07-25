@@ -70,8 +70,8 @@
                         <i class="icon-file-text"></i>Xuất tất cả đánh giá
                     </a>
                 </div>
-                <div class="wg-table table-all-category">
-                    <ul class="table-title flex gap20 mb-14">
+                <div class="wg-table table-all-category" style="min-width: max-content;">
+                    <ul class="table-title flex gap20 mb-14" style="min-width: max-content;">
                         <li>
                             <div class="body-title">Người dùng</div>
                         </li>
@@ -88,7 +88,7 @@
                             <div class="body-title">Thao tác</div>
                         </li>
                     </ul>
-                    <ul class="flex flex-column">
+                    <ul class="flex flex-column" style="min-width: max-content;">
                         @foreach ($reviews as $value)
                             <li class="wg-product item-row gap20">
 

@@ -22,30 +22,29 @@
                     </ul>
                 </div>
                 {{-- Nút bật bộ lọc --}}
-                <div class="mb-3">
+                {{-- <div class="mb-3">
                     <button type="button" onclick="toggleOrderFilter()"
                         class="btn btn-outline-primary flex items-center gap-1 px-3 py-1 rounded-md"
-                        style="color: #f59e0b; border: 1px solid #f59e0b; hover: border-color: #f59e0b; background-color: #fff;">>
+                        style="color: #f59e0b; border: 1px solid #f59e0b; hover: border-color: #f59e0b; background-color: #fff;">
                         <i class="icon-filter"></i>
                         <span>Lọc đơn hàng</span>
                     </button>
-                </div>
-
+                </div> --}}
                 {{-- FORM LỌC - Ẩn mặc định --}}
-                <div id="order-filter-form" class="form-search bg-gray-50 p-4 rounded-lg mb-4 hidden">
-                    <form method="get" action="{{ route('admin.orders.index') }}" class="flex flex-wrap gap-4 items-end">
-                        {{-- Tìm kiếm --}}
-                        <div class="flex flex-col">
-                            <label class="body-title mb-1">Tìm kiếm</label>
-                            <input type="text" name="q" value="{{ request('q') }}"
-                                placeholder="Mã đơn, tên khách, SĐT..." class="input-field"
-                                style="min-width:220px; height:36px;">
-                        </div>
 
-                        {{-- Trạng thái --}}
-                        <div class="flex flex-col">
-                            <label class="body-title mb-1">Trạng thái</label>
-                            <select name="status" class="form-select" style="min-width:160px; height:36px;">
+                <div id="order-filter-form" class="hidden">
+                    <form method="get" action="{{ route('admin.orders.index') }}" class="flex flex-wrap gap-4 items-end">
+                        <!-- Tìm kiếm -->
+                        <div class="form-group" style="min-width:220px;">
+                            <label class="body-title" for="q">Tìm kiếm</label>
+                            <input type="text" id="q" name="q" value="{{ request('q') }}"
+                                placeholder="Mã đơn, tên khách, SĐT..." class="input-field"
+                                style="height:40px; font-size:15px;">
+                        </div>
+                        <!-- Trạng thái --> 
+                        <div class="form-group" style="margin-left:32px;">
+                            <label class="body-title" for="status">Trạng thái</label>
+                            <select id="status" name="status" class="form-select" style="min-width:200px; height:44px;">
                                 <option value="">-- Tất cả --</option>
                                 <option value="pending_confirmation" @selected(request('status') == 'pending_confirmation')>Chờ xử lý</option>
                                 <option value="processing" @selected(request('status') == 'processing')>Đang xử lý</option>
@@ -55,54 +54,55 @@
                                 <option value="returned" @selected(request('status') == 'returned')>Đã trả hàng</option>
                             </select>
                         </div>
-
-                        {{-- Phương thức thanh toán --}}
-                        <div class="flex flex-col">
-                            <label class="body-title mb-1">Phương thức thanh toán</label>
-                            <select name="payment_method_id" class="form-select" style="min-width:160px; height:36px;">
-                                <option value="">-- Tất cả --</option>
-                                <option value="1" @selected(request('payment_method_id') == '1')>COD</option>
-                                <option value="2" @selected(request('payment_method_id') == '2')>Chuyển khoản</option>
-                                <option value="3" @selected(request('payment_method_id') == '3')>Momo</option>
-                            </select>
-                        </div>
-
-                        {{-- Phương thức vận chuyển --}}
-                        <div class="flex flex-col">
-                            <label class="body-title mb-1">Vận chuyển</label>
-                            <select name="shipping_method_id" class="form-select" style="min-width:160px; height:36px;">
+                        <!-- Vận chuyển -->
+                        <div class="form-group shipping-group">
+                            <label class="body-title" for="shipping_method_id">Vận chuyển</label>
+                            <select id="shipping_method_id" name="shipping_method_id" class="form-select shipping-select"
+                                style="height:44px; min-width:200px;">
                                 <option value="">-- Tất cả --</option>
                                 <option value="1" @selected(request('shipping_method_id') == '1')>Giao hàng tiêu chuẩn</option>
                                 <option value="2" @selected(request('shipping_method_id') == '2')>Giao hàng nhanh</option>
                                 <option value="3" @selected(request('shipping_method_id') == '3')>Nhận tại cửa hàng</option>
                             </select>
                         </div>
-                        {{-- Nút tìm kiếm --}}
-                        <div class="flex items-end">
-                            <button class="btn btn-primary flex items-center gap-1 px-3 py-1 rounded-md"
-                                style="color: #fff; border: 1px solid #f59e0b; background-color: #f59e0b ;" type="submit"
-                                style="height:36px;">
-                                <i class="icon-search text-sm"></i>
-                                <span>Tìm</span>
+                        <!-- Ngày đặt hàng từ -->
+                        <div class="form-group">
+                            <label class="body-title" for="start_date">Từ ngày</label>
+                            <input type="date" id="start_date" name="start_date" value="{{ request('start_date') }}"
+                                class="input-field" style="min-width:160px; height:40px; font-size:15px;"onchange="validateDateRange()">
+                        </div>
+                        <!-- Ngày đặt hàng đến -->
+                        <div class="form-group">
+                            <label class="body-title" for="end_date">Đến ngày</label>
+                            <input type="date" id="end_date" name="end_date" value="{{ request('end_date') }}"
+                                class="input-field" style="min-width:160px; height:40px; font-size:15px;"onchange="validateDateRange()">
+                        </div>
+                        <!-- Nút tìm kiếm và đặt lại -->
+                        <div class="form-group icon-group"
+                            style="margin-left:auto; flex-direction: row; align-items: flex-end; gap: 12px; padding-bottom:4px;">
+                            <button type="submit" class="btn-search"
+                                style="margin-bottom:0; min-width:110px; font-size:15px; height:40px;">
+                                <i class="fa fa-search"></i> Tìm
                             </button>
+                            <a href="{{ route('admin.orders.index') }}" class="btn-reset"
+                                style="margin-bottom:0; min-width:110px; font-size:13px; height:40px;">
+                                <i class="fa fa-refresh"></i> Đặt lại
+                            </a>
                         </div>
                     </form>
                 </div>
 
                 {{-- SCRIPT --}}
-                <script>
+                {{-- <script>
                     function toggleOrderFilter() {
                         const filter = document.getElementById('order-filter-form');
                         filter.classList.toggle('hidden');
                     }
-                </script>
-
-
-
+                </script> --}}
             </div>
             <div class="wg-box">
                 <div class="wg-table table-all-category mt-2">
-                    <ul class="table-title flex gap10 mb-14" style="background:#f3f4f6; padding: 0 12px;">
+                    <ul class="table-title flex gap10 mb-14" style="background:#f3f4f6; padding: 10px 12px;">
                         <li style="width: 30px; text-align: center; flex-shrink: 0;">
                             <div class="body-title">STT</div>
                         </li>
@@ -123,9 +123,9 @@
                             <div class="body-title">Ngày đặt</div>
                         </li>
 
-                        <li style="min-width: 100px; padding-left: 10px;">
+                        {{-- <li style="min-width: 100px; padding-left: 10px;">
                             <div class="body-title">Hình thức</div>
-                        </li>
+                        </li> --}}
 
                         <li style="min-width: 120px; padding-left: 10px;">
                             <div class="body-title">Vận chuyển</div>
@@ -136,7 +136,7 @@
                         </li>
 
                         <li style="min-width: 50px; padding-left: 10px;">
-                            <div class="body-title"></div>
+                            <div class="body-title">Hành động</div>
                         </li>
                     </ul>
 
@@ -170,9 +170,9 @@
                                 <div class="body-text text-main-dark" style="min-width: 120px; padding-left: 10px;">
                                     {{ optional($order->created_at)->format('d/m/Y H:i') }}
                                 </div>
-                                <div class="body-text text-main-dark" style="min-width: 100px; padding-left: 10px;">
+                                {{-- <div class="body-text text-main-dark" style="min-width: 100px; padding-left: 10px;">
                                     {{ optional($order->paymentMethod)->name ?? 'Không có' }}
-                                </div>
+                                </div> --}}
                                 <div class="body-text text-main-dark" style="min-width: 120px; padding-left: 10px;">
                                     {{ optional($order->shippingMethod)->name ?? 'Không có' }}
                                 </div>
@@ -207,7 +207,7 @@
                                         </span>
                                     @endif
                                 </div>
-                                <div class="list-icon-function" style="padding-left: 10px;">
+                                <div class="list-icon-function justify-content-center" style="padding-left: 10px;">
                                     <a href="{{ route('admin.orders.show', $order->id) }}" class="item eye"
                                         title="View"><i class="icon-eye"></i></a>
                                 </div>
@@ -253,4 +253,132 @@
             </div>
         </div>
     </div>
+    <script>
+    function validateDateRange() {
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+
+        const start = new Date(startDateInput.value);
+        const end = new Date(endDateInput.value);
+
+        if (startDateInput.value && endDateInput.value && end < start) {
+            alert('Ngày đến không được nhỏ hơn ngày bắt đầu.');
+            endDateInput.value = startDateInput.value; // Reset về ngày bắt đầu
+        }
+    }
+</script>
+    <style>
+        #order-filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+            padding: 16px;
+            background-color: #f9fafb;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 100%;
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0;
+            min-width: 200px;
+            flex: 1;
+            max-width: 300px;
+            justify-content: center;
+        }
+
+        .body-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 15px;
+            color: #374151;
+        }
+
+        .input-field,
+        .form-select {
+            padding: 10px 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            width: 100%;
+            height: 40px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus,
+        .form-select:focus {
+            border-color: #f59e0b;
+            outline: none;
+            box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+        }
+
+        .btn-search,
+        .btn-reset {
+            height: 40px;
+            padding: 0 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            justify-content: center;
+            min-width: 110px;
+        }
+
+        .btn-search {
+            background-color: #f59e0b;
+            color: #fff;
+            border: none;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-search:hover {
+            background-color: #fbbf24;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-reset {
+            background-color: #fff;
+            color: #374151;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s, border-color 0.3s;
+            font-size: 16px;
+        }
+
+        .btn-reset:hover {
+            background-color: #f9fafb;
+            border-color: #999;
+        }
+
+        .form-group.icon-group {
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            min-width: unset;
+            max-width: unset;
+            margin-bottom: 0;
+            gap: 12px;
+            padding-bottom: 4px;
+        }
+
+        .form-group.shipping-group {
+            max-width: 260px;
+            min-width: 200px;
+        }
+
+        .form-select.shipping-select {
+            min-width: 200px !important;
+            max-width: 260px !important;
+        }
+    </style>
 @endsection

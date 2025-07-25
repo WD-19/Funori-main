@@ -51,13 +51,17 @@
 @section('content')
 
     @php
-        $steps = [
-            ['label' => 'Giỏ hàng', 'key' => 'cart'],
-            ['label' => 'Thanh toán', 'key' => 'checkout'],
-            ['label' => 'Hóa đơn', 'key' => 'invoice'],
-        ];
-        $currentStep = $step ?? 'cart'; // Mặc định là giỏ hàng
+        // Không còn 4 bước, chỉ cần 2 bước: giỏ hàng -> checkout
+        $steps = [['label' => 'Giỏ hàng', 'key' => 'cart'], ['label' => 'Thanh toán', 'key' => 'checkout']];
+        $currentStep = 'cart';
     @endphp
+
+    <div class="tf-page-title">
+        <div class="container-full">
+            <div class="heading text-center">@yield('page_title', 'Giỏ Hàng')</div>
+        </div>
+    </div>
+
     <div style="max-width: 66vw; margin: 60px auto 0 auto; padding: 0 16px;">
         <div class="cart-checkout-progress"
             style="background: #fff; padding: 32px 16px 24px 16px; border-radius: 10px; margin-bottom: 16px;">
@@ -311,9 +315,10 @@
                                     </label>
                                 </div>
                                 <div class="cart-checkout-btn" style="margin-top: 18px;">
-                                    <a href="checkout.html"
-                                        class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center">
-                                        <span>Thanh toán</span>
+                                    <a href="{{ route('client.checkout.index') }}"
+                                        class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center {{ empty($cartItems) ? 'disabled' : '' }}"
+                                        style="{{ empty($cartItems) ? 'pointer-events: none; opacity: 0.5;' : '' }}">
+                                        <span>Đặt hàng</span>
                                     </a>
                                 </div>
                             </div>
@@ -521,7 +526,6 @@
                 alert('Vui lòng chọn sản phẩm cần xóa!');
                 return;
             }
-
             if (!confirm(`Bạn có chắc muốn xóa ${selectedItems.length} sản phẩm đã chọn?`)) {
                 return;
             }

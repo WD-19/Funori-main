@@ -45,9 +45,19 @@
             </div>
         </div>
         <div class="box-icon d-flex align-items-center gap-3">
-            <a href="{{ route('client.search') }}" class="box-search">
-                <i class="fa-solid fa-magnifying-glass search"></i>
-            </a>
+            <form action="{{ route('client.search') }}" method="GET" class="search-bar"
+                style="position:relative; width:320px; margin-right:12px;">
+                <input type="text" name="q" id="search-input" autocomplete="off" placeholder="Tìm kiếm sản phẩm..."
+                    style="width:100%;padding:8px 40px 8px 16px;border-radius:20px;border:1px solid #ddd;font-size:15px;">
+                <button type="submit" disabled
+                    style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;">
+                    <i class="fa-solid fa-magnifying-glass" style="color:#fcad02;font-size:18px;"></i>
+                </button>
+                <div id="search-suggestions"
+                    style="display:none;position:absolute;top:110%;left:0;width:100%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;max-height:400px;overflow:auto;">
+                    <!-- Gợi ý sản phẩm sẽ hiển thị ở đây -->
+                </div>
+            </form>
             <div class="box-user dropdown d-flex align-items-center" style="position: relative;">
                 <a href="{{ Auth::check() ? '#' : route('client.login') }}" id="userDropdown"
                     style="padding: 0; border: none; background: none; display: flex; align-items: center; vertical-align: middle;">
@@ -62,11 +72,10 @@
                 @if (Auth::check())
                     <div class="dropdown-menu"
                         style="display: none; position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 200px; z-index: 100; border-radius: 10px; overflow: hidden; padding: 18px 0;">
-                        <a href="{{ route('client.profile.dashboard') }}"
-                            class="dropdown-item d-flex align-items-center"
+                        <a href="{{ route('client.profile.dashboard') }}" class="dropdown-item d-flex align-items-center"
                             style="padding: 16px 28px; color: #1976d2; font-weight: 600; font-size: 15px; background: none; border: none;">
-                            <i class="fa-regular fa-user"
-                                style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i> Profile
+                            <i class="fa-regular fa-user" style="font-size: 18px; color: #1976d2; margin-right: 16px;"></i>
+                            Tài Khoản
                         </a>
                         <form action="{{ route('client.logout') }}" method="POST" style="margin: 0;">
                             @csrf
@@ -78,14 +87,14 @@
                         </form>
                     </div>
                     <script>
-                        document.addEventListener('DOMContentLoaded', function() {
+                        document.addEventListener('DOMContentLoaded', function () {
                             var userDropdown = document.getElementById('userDropdown');
                             var dropdownMenu = userDropdown.nextElementSibling;
-                            userDropdown.addEventListener('click', function(e) {
+                            userDropdown.addEventListener('click', function (e) {
                                 e.preventDefault();
                                 dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
                             });
-                            document.addEventListener('click', function(e) {
+                            document.addEventListener('click', function (e) {
                                 if (!userDropdown.contains(e.target) && !dropdownMenu.contains(e.target)) {
                                     dropdownMenu.style.display = 'none';
                                 }
@@ -110,12 +119,12 @@
                         @php
                             $wishlistItems =
                                 Auth::check() && Auth::user()->wishlist
-                                    ? Auth::user()
-                                        ->wishlist->items()
-                                        ->with('product.images')
-                                        ->orderByDesc('created_at')
-                                        ->get()
-                                    : collect();
+                                ? Auth::user()
+                                    ->wishlist->items()
+                                    ->with('product.images')
+                                    ->orderByDesc('created_at')
+                                    ->get()
+                                : collect();
                             $maxShow = 5;
                         @endphp
                         @if ($wishlistItems->count())
@@ -144,7 +153,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="cart-popup-group" style="position: relative; display: inline-block;">
                 <a href="{{ route('client.view-cart') }}" class="box-cart" style="position: relative; z-index: 10;">
                     <i class="fa-solid fa-cart-shopping cart"></i>
@@ -167,8 +176,7 @@
                                 @if ($i < 3)
                                     <div style="display:flex;align-items:center;margin-bottom:14px;">
                                         @if (!empty($cartItem['variant']['image']['image_url']))
-                                            <img src="{{ asset($cartItem['variant']['image']['image_url']) }}"
-                                                alt="Biến thể"
+                                            <img src="{{ asset($cartItem['variant']['image']['image_url']) }}" alt="Biến thể"
                                                 style="object-fit: cover; border-radius: 6px; margin-bottom: 6px; width: 80px">
                                         @endif
                                         <div style="flex:1; overflow:hidden; padding-left: 12px;">
@@ -217,14 +225,14 @@
     </div>
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         var group = document.querySelector('.cart-popup-group');
         var popup = document.getElementById('cart-popup-modal');
         if (group && popup) {
-            group.addEventListener('mouseenter', function() {
+            group.addEventListener('mouseenter', function () {
                 popup.style.display = 'block';
             });
-            group.addEventListener('mouseleave', function() {
+            group.addEventListener('mouseleave', function () {
                 popup.style.display = 'none';
             });
         }
@@ -241,12 +249,12 @@
 
     // Ví dụ về fetch để thêm sản phẩm vào giỏ hàng và cập nhật badge
     fetch('/cart/add', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        })
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
         .then(response => response.json())
         .then(data => {
             if (data.cartCount !== undefined) {
@@ -257,7 +265,7 @@
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         var btn = document.getElementById('wishlist-header-btn');
         var dropdown = btn.querySelector('.wishlist-dropdown');
         var timeout;
@@ -268,7 +276,7 @@
         }
 
         function hideDropdown() {
-            timeout = setTimeout(function() {
+            timeout = setTimeout(function () {
                 dropdown.style.display = 'none';
             }, 120);
         }
@@ -290,4 +298,120 @@
         background: #fcf3e6 !important;
         text-decoration: none;
     }
+
+    #search-suggestions {
+        display: none;
+        position: absolute;
+        top: 110%;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        z-index: 9999;
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 0;
+    }
+
+    .suggest-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid #f2f2f2;
+        text-decoration: none;
+        color: #222;
+        transition: background 0.15s;
+    }
+
+    .suggest-item:last-child {
+        border-bottom: none;
+    }
+
+    .suggest-item:hover {
+        background: #fcf3e6;
+    }
+
+    .suggest-thumb {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-right: 12px;
+        background: #f8f8f8;
+    }
+
+    .suggest-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .suggest-title {
+        font-size: 15px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .suggest-price {
+        color: #fcad02;
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 2px;
+    }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var input = document.getElementById('search-input');
+    var suggestions = document.getElementById('search-suggestions');
+    var timeout = null;
+
+    input.addEventListener('input', function() {
+        clearTimeout(timeout);
+        var query = this.value.trim();
+        if (query.length < 2) {
+            suggestions.style.display = 'none';
+            suggestions.innerHTML = '';
+            return;
+        }
+        timeout = setTimeout(function() {
+            fetch('/search/suggest?q=' + encodeURIComponent(query))
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length) {
+                        suggestions.innerHTML = data.map(item => `
+                            <a href="/${item.slug}" class="suggest-item">
+                                <img src="${item.image_url}" class="suggest-thumb" alt="${item.name}">
+                                <div class="suggest-info">
+                                    <div class="suggest-title">${item.name}</div>
+                                    <div class="suggest-price">${item.price}đ</div>
+                                </div>
+                            </a>
+                        `).join('');
+                        suggestions.style.display = 'block';
+                    } else {
+                        suggestions.innerHTML = '<div style="padding:12px;color:#888;">Không tìm thấy sản phẩm</div>';
+                        suggestions.style.display = 'block';
+                    }
+                });
+        }, 250);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.style.display = 'none';
+        }
+    });
+});
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.querySelector('.search-bar');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+        }
+    });
+</script>

@@ -54,7 +54,7 @@
                         <li style="min-width:100px">
                             <div class="body-title">Ảnh</div>
                         </li>
-                        <li style="min-width:160px">
+                        <li style="min-width:100px">
                             <div class="body-title">Tiêu đề</div>
                         </li>
                         <li style="min-width:100px">

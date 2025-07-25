@@ -3,16 +3,9 @@
 @section('title', 'Liên hệ')
 
 @section('content')
-    <div class="box-banner-about" style="background-position: 50%;">
-        <div class="in-banner-about">
-            <div class="title-banner">Liên Hệ</div>
-            <div class="box-path-about">
-                <div>Trang chủ</div>
-                <div class="icon">
-                    <i class="fa-solid fa-angle-right"></i>
-                </div>
-                <div>Liên Hệ</div>
-            </div>
+    <div class="tf-page-title">
+        <div class="container-full">
+            <div class="heading text-center">@yield('page_title', 'Liên Hệ')</div>
         </div>
     </div>
 
@@ -95,10 +88,11 @@
                                 </div>
                             @else
                                 <div class="send-wrap">
-                                    <a href="{{ route('client.login') }}"
+                                    <button type="button"
+                                        onclick="window.location.href='{{ route('client.login', ['error' => 'Bạn cần đăng nhập để gửi liên hệ']) }}'"
                                         class="tf-btn w-100 radius-3 btn-fill animate-hover-btn justify-content-center">
                                         Gửi
-                                    </a>
+                                    </button>
                                 </div>
                             @endauth
                         </form>
@@ -108,4 +102,31 @@
         </div>
     </section>
     <!-- /form -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        $(function() {
+            $('#contactform').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function(res) {
+                        toastr.success('Gửi liên hệ thành công!');
+                        form[0].reset();
+                    },
+                    error: function(xhr) {
+                        let msg = 'Có lỗi xảy ra!';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        toastr.error(msg);
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

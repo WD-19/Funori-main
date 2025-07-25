@@ -29,17 +29,14 @@
         .inspiration-article-image {
             margin-bottom: 32px;
             width: 100%;
-            /* Đảm bảo container ảnh khớp với chiều rộng nội dung */
         }
 
         .inspiration-article-image img {
             width: 100%;
             max-width: 100%;
             height: auto;
-            /* Bỏ chiều cao cố định để ảnh tỷ lệ đúng */
             box-shadow: none;
             object-fit: contain;
-            /* Giữ ảnh hiển thị đầy đủ, không bị cắt */
             background: #eee;
             display: block;
             margin: 0 auto;
@@ -51,6 +48,35 @@
             line-height: 1.8;
             text-align: justify;
             margin-bottom: 0;
+            overflow: hidden;
+            /* Ngăn nội dung tràn */
+        }
+
+        .inspiration-article-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px auto;
+        }
+
+        .inspiration-article-content img[align="left"],
+        .inspiration-article-content img[data-mce-style*="float: left"] {
+            float: left;
+            margin-right: 20px;
+            margin-bottom: 10px;
+            max-width: 40%;
+            /* Giảm xuống để tránh tràn */
+            clear: both;
+        }
+
+        .inspiration-article-content img[align="right"],
+        .inspiration-article-content img[data-mce-style*="float: right"] {
+            float: right;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            max-width: 40%;
+            /* Giảm xuống để tránh tràn */
+            clear: both;
         }
 
         @media (max-width: 900px) {
@@ -65,10 +91,16 @@
             .inspiration-article-image img {
                 width: 100%;
                 height: auto;
-                /* Đảm bảo ảnh tỷ lệ đúng trên màn hình nhỏ */
             }
 
-            /* ...existing CSS... */
+            .inspiration-article-content img[align="left"],
+            .inspiration-article-content img[align="right"],
+            .inspiration-article-content img[data-mce-style*="float: left"],
+            .inspiration-article-content img[data-mce-style*="float: right"] {
+                float: none;
+                max-width: 100%;
+                margin: 0 auto 20px auto;
+            }
 
             .other-card,
             .product-card {
@@ -146,7 +178,7 @@
                             <img src="{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}"
                                 alt="{{ $product->name }}" style="width:100%;height:120px;object-fit:cover;">
                             <div style="font-weight:600;margin:10px 0 6px 0;">{{ $product->name }}</div>
-                            <div style="font-size:0.97rem;color:#666;">{{ number_format($product->price, 0, ',', '.') }} đ
+                            <div style="font-size:0.97rem;color:#666;">{{ number_format($product->regular_price, 0, ',', '.') }} đ
                             </div>
                         </a>
                     </div>

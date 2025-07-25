@@ -25,7 +25,7 @@ class User extends Authenticatable
     {
         return $this->account_status === 'banned';
     }
-    
+
     protected $fillable = [
         'full_name',
         'email',
@@ -35,6 +35,7 @@ class User extends Authenticatable
         'account_status',
         'role',
         'remember_token',
+        'google_id',
     ];
 
 
@@ -45,9 +46,9 @@ class User extends Authenticatable
 
 
     protected $casts = [
-        'email_verified_at' => 'datetime', 
+        'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'account_status' => 'string', 
+        'account_status' => 'string',
         'role' => 'string',
     ];
 

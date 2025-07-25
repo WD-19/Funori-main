@@ -40,8 +40,9 @@
                             </ul>
                             <ul class="flex flex-column">
                                 @foreach ($order->items as $item)
-                                    <li class="wg-product">
-                                        <div class="name">
+                                    <li class="wg-product"
+                                        style="display: flex; align-items: center; justify-content: space-between; gap: 24px;">
+                                        <div class="name" style="flex:2; min-width:200px;">
                                             <div class="image">
                                                 @php
                                                     $imageUrl = optional(optional($item->product)->images->first())
@@ -52,15 +53,16 @@
                                             </div>
                                             <div>
                                                 <div class="text-tiny">Tên sản phẩm</div>
-                                                <div class="title">
+                                                <div class="title"
+                                                    style="display:flex; align-items:center; gap:10px;">
                                                     <a href="#"
                                                         class="body-title-2">{{ $item->product->name ?? 'Không xác định' }}</a>
-                                                    <span class="body-text"
-                                                        style="margin-left: 10px;">({{ number_format($item->price ?? (optional($item->product)->regular_price ?? 0), 0, ',', '.') }}₫)</span>
+                                                    <span class="body-text tf-color-1">
+                                                        ({{ number_format($item->price ?? (optional($item->product)->regular_price ?? 0), 0, ',', '.') }}₫)
+                                                    </span>
                                                 </div>
                                                 {{-- Hiển thị biến thể nếu có --}}
                                                 @php
-                                                    // Nếu variant_attributes là json/text trong DB, cần decode
                                                     $variantAttrs = $item->variant_attributes;
                                                     if (is_string($variantAttrs)) {
                                                         $variantAttrs = json_decode($variantAttrs, true);
@@ -90,10 +92,14 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        <div>
+                                        <div style="flex:1; min-width:100px;">
                                             <div class="text-tiny">Số lượng</div>
-                                            <div class="title">
-                                                <div class="body-title-2">{{ $item->quantity }}</div>
+                                            <div class="body-title-2">{{ $item->quantity }}</div>
+                                        </div>
+                                        <div style="flex:1; min-width:120px; text-align:left; padding-left:13px;">
+                                            <div class="text-tiny">Thành tiền</div>
+                                            <div class="body-title-2 tf-color-1">
+                                                {{ number_format(($item->price ?? (optional($item->product)->regular_price ?? 0)) * $item->quantity, 0, ',', '.') }}₫
                                             </div>
                                         </div>
                                     </li>
@@ -101,7 +107,6 @@
                             </ul>
                         </div>
                     </div>
-
                     <div class="wg-box mb-20 gap10">
                         <div class="wg-table table-cart-totals">
                             <ul class="table-title flex mb-24">
@@ -112,7 +117,22 @@
                                     <div class="body-title">Giá</div>
                                 </li>
                             </ul>
+
+                            @php
+                                $productTotal = 0;
+                                foreach ($order->items as $item) {
+                                    $price = $item->price ?? (optional($item->product)->regular_price ?? 0);
+                                    $productTotal += $price * $item->quantity;
+                                }
+                            @endphp
+
                             <ul class="flex flex-column gap14">
+                                <li class="divider"></li>
+                                <li class="cart-totals-item">
+                                    <span class="body-text">Tổng tiền sản phẩm:</span>
+                                    <span
+                                        class="body-title-2 tf-color-1">{{ number_format($productTotal, 0, ',', '.') }}₫</span>
+                                </li>
                                 <li class="divider"></li>
                                 <li class="cart-totals-item">
                                     <span class="body-text">Phí vận chuyển:</span>
@@ -128,8 +148,6 @@
                                     </li>
                                 @endif
                                 <li class="divider"></li>
-
-                                <li class="divider"></li>
                                 <li class="cart-totals-item">
                                     <span class="body-title">Tổng cộng:</span>
                                     <span
@@ -138,7 +156,6 @@
                             </ul>
                         </div>
                     </div>
-
                     <div class="wg-box mb-20 gap10">
                         <div class="body-title">Phương thức thanh toán</div>
                         <div class="body-text">{{ $order->paymentMethod->name ?? ($order->payment_method ?? 'Không rõ') }}
@@ -206,20 +223,23 @@
                     <div class="wg-box mb-20 gap10">
                         <div class="body-title">Thông tin người đặt hàng</div>
                         <div class="body-text">
-                            <b>Họ tên:</b> {{ $order->buyer_name ?? '-' }}<br>
-                            <b>Email:</b> {{ $order->buyer_email ?? '-' }}<br>
-                            <b>SĐT:</b> {{ $order->buyer_phone ?? '-' }}<br>
+                            <b>Họ tên:</b> {{ $order->buyer_name ?? ($order->customer_name ?? '-') }}<br>
+                            <b>Email:</b> {{ $order->buyer_email ?? ($order->customer_email ?? '-') }}<br>
+                            <b>SĐT:</b> {{ $order->buyer_phone ?? ($order->customer_phone ?? '-') }}<br>
                             <b>Địa chỉ:</b> {{ $order->buyer_address ?? '-' }}
                         </div>
                     </div>
 
                     <div class="wg-box mb-20 gap10">
                         <div class="body-title">Địa chỉ giao hàng</div>
-                        <div class="body-text">{{ $order->shipping_address }}</div>
-                        <div class="body-text" style="margin-top:8px;">
-                            <b>Họ tên người nhận:</b> {{ $order->shipping_name ?? ($order->buyer_name ?? '-') }}<br>
-                            <b>SĐT người nhận:</b> {{ $order->shipping_phone ?? ($order->buyer_phone ?? '-') }}<br>
-                            <b>Email người nhận:</b> {{ $order->shipping_email ?? ($order->buyer_email ?? '-') }}
+                        <div class="body-text">
+                            <b>Họ tên người nhận:</b>
+                            {{ $order->shipping_name ?? ($order->buyer_name ?? ($order->customer_name ?? '-')) }}<br>
+                            <b>SĐT người nhận:</b>
+                            {{ $order->shipping_phone ?? ($order->buyer_phone ?? ($order->customer_phone ?? '-')) }}<br>
+                            <b>Email người nhận:</b>
+                            {{ $order->shipping_email ?? ($order->buyer_email ?? ($order->customer_email ?? '-')) }}<br>
+                            <b>Địa chỉ:</b> {{ $order->shipping_address ?? ($order->buyer_address ?? '-') }}
                         </div>
                     </div>
 

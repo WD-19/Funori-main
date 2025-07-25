@@ -1,4 +1,3 @@
-{{-- filepath: c:\laragon\www\Funori-main\resources\views\admin\categories\create.blade.php --}}
 @extends('admin.layout.admin')
 
 @section('content')
@@ -72,11 +71,13 @@
                                 </span>
                                 <span class="body-text">Kéo thả ảnh vào đây hoặc <span class="tf-color">nhấn để
                                         chọn</span></span>
-                                <img id="image_url-preview" src="#" alt="" style="display: none;">
                                 <input type="file" id="image_url" name="image_url"
                                     class="@error('image_url') is-invalid @enderror" accept="image/*">
                             </label>
                         </div>
+                        <img id="image_url-preview" src="" alt=""
+                            style="display: none; max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
                         @error('image_url')
                             <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
                         @enderror
@@ -111,6 +112,43 @@
         </div>
         <!-- /new-category -->
     </div>
+    <style>
+        .uploadfile {
+            border: 2px dashed #ced4da;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .uploadfile:hover, .uploadfile.dragover {
+            border-color: #6c757d;
+            background-color: #e9ecef;
+            transform: scale(1.02);
+        }
+        .uploadfile .icon {
+            font-size: 2.5rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        .uploadfile .body-text {
+            font-size: 1.1rem;
+            color: #495057;
+        }
+        .uploadfile .tf-color {
+            color: #007bff;
+            font-weight: 600;
+        }
+        .uploadfile input[type="file"] {
+            display: none;
+        }
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
     <script>
         // Tạo slug tự động khi nhập tên
         document.getElementById('name').addEventListener('input', function() {
@@ -122,6 +160,48 @@
             document.getElementById('slug').value = slug;
         });
 
-        // Hiển thị ảnh xem trước khi tải lên
+        // Xử lý kéo thả và chọn ảnh
+        const uploadLabel = document.querySelector('.uploadfile');
+        const uploadInput = document.getElementById('image_url');
+        const preview = document.getElementById('image_url-preview');
+
+        // Xử lý sự kiện kéo thả
+        uploadLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+
+        uploadLabel.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+
+        uploadLabel.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+        });
+
+        uploadLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                uploadInput.files = e.dataTransfer.files;
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        });
+
+        // Hiển thị ảnh xem trước khi chọn file
+        uploadInput.addEventListener('change', (e) => {
+            const [file] = e.target.files;
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        });
     </script>
 @endsection

@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Client\AboutController;
-use App\Http\Controllers\client\AddressController;
 //Client Controller
 use App\Http\Controllers\Client\Auth\LoginController;
 use App\Http\Controllers\Client\Auth\RegisterController;
@@ -26,12 +25,20 @@ use App\Http\Controllers\client\ProductController as ClientProductController;
 use App\Http\Controllers\client\ContactController as ClientContactCController;
 use App\Http\Controllers\client\ProfileController as ProfileController;
 use App\Http\Controllers\client\ShopController;
+use App\Http\Controllers\client\CheckoutController;
 use App\Http\Controllers\client\WishlistController;
 use App\Http\Middleware\CheckClientLogin;
+use App\Http\Controllers\client\Auth\ForgotPasswordController;
+use App\Http\Controllers\client\Auth\ResetPasswordController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
+use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
+
+use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -81,6 +88,8 @@ Route::prefix('admin')->name('admin.')
         Route::post('/payment-methods', [PaymentMethodController::class, 'store'])->name('payment_methods.store');
         Route::delete('/payment-methods/{id}', [PaymentMethodController::class, 'destroy'])->name('payment_methods.destroy');
         Route::put('/payment-methods/{id}/toggle', [PaymentMethodController::class, 'toggle'])->name('payment_methods.toggle');
+        Route::get('/payment-methods/{id}/edit', [PaymentMethodController::class, 'edit'])->name('payment_methods.edit');
+        Route::put('/payment-methods/{id}', [PaymentMethodController::class, 'update'])->name('payment_methods.update');
 
         // Shipping Methods
         Route::get('/shipping-methods', [ShippingMethodController::class, 'index'])->name('shipping_methods.index');
@@ -89,6 +98,8 @@ Route::prefix('admin')->name('admin.')
         Route::delete('/shipping-methods/{id}', [ShippingMethodController::class, 'destroy'])->name('shipping_methods.destroy');
         Route::patch('/shipping-methods/{id}/deactivate', [ShippingMethodController::class, 'deactivate'])->name('shipping_methods.deactivate');
         Route::patch('/shipping-methods/{id}/activate', [ShippingMethodController::class, 'activate'])->name('shipping_methods.activate');
+        Route::get('/shipping-methods/{id}/edit', [ShippingMethodController::class, 'edit'])->name('shipping_methods.edit');
+        Route::put('/shipping-methods/{id}', [ShippingMethodController::class, 'update'])->name('shipping_methods.update');
 
         // Quản lý user
         Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
@@ -153,44 +164,72 @@ Route::prefix('admin')->name('admin.')
 
 Route::get('/', [ClientController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
-// thêm vào yêu thích
 Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
-Route::middleware(['auth'])->group(function () {
-    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
-    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
-});
+
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
 
-    Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
+    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
+    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
+
+    Route::get('/register', [RegisterController::class, 'index'])->name('register.index')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+    // Điều hướng người dùng tới Google
+    Route::get('/auth/google', function () {
+        return Socialite::driver('google')->redirect();
+    })->name('auth.google')->middleware(RedirectIfAuthenticatedCustom::class);
+
+    // Callback từ Google
+    Route::get('/auth/google/callback', function () {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if ($user) {
+            // Chỉ update google_id nếu chưa có
+            if (!$user->google_id) {
+                $user->update([
+                    'google_id' => $googleUser->getId()
+                ]);
+            }
+        } else {
+            // Tạo mới nếu chưa có tài khoản
+            $user = User::create([
+                'email' => $googleUser->getEmail(),
+                'name' => $googleUser->getName(),
+                'full_name' => $googleUser->getName(),
+                'google_id' => $googleUser->getId(),
+                'password' => Hash::make(uniqid()),
+            ]);
+        }
+
+        Auth::login($user);
+        return redirect('/');
+    })->name('auth.google.callback')->middleware(RedirectIfAuthenticatedCustom::class);
+
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])->name('password.email');
+
+
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
+    Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('page.show');
+
     Route::get('/about', [AboutController::class, 'index'])->name('about');
 
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
     Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
-    Route::get('/search', [ClientProductController::class, 'search'])->name('search');
-
-
-    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
-    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
-    Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update.post');
-    Route::delete('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
-    Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove.post');
-    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
-    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear.post');
-
-
+    Route::get('/search/suggest', [ShopController::class, 'suggest'])->name('search');
     //nếu /client thì trả về view 404
     Route::get('/client', function () {
         return response()->view('client.errors.404', [], 404);
@@ -200,37 +239,45 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
-    // Cart routes - phải đặt trước route {slug}
+    // Route giỏ hàng (Cart)
+    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+    // Đảm bảo route này là POST, vì JS gọi POST /cart/remove
+    Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+    // JS gọi POST nên route phải là POST
+    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
+    // Checkout (One-Page)
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
-    // Profile routes
-    Route::prefix('profile')->name('profile.')->group(function () {
+    // Profile (gộp các route trùng lặp và thêm middleware)
+    Route::prefix('profile')->name('profile.')->middleware(CheckClientLogin::class)->group(function () {
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('order');
-        Route::get('/address', [ProfileController::class, 'address'])->name('address');
+
+        // Address Management
+        Route::prefix('address')->name('address.')->group(function () {
+            Route::get('/', [ProfileController::class, 'address'])->name('index');
+            Route::post('/', [ProfileController::class, 'storeAddress'])->name('store');
+            Route::get('/{address}/edit', [ProfileController::class, 'editAddress'])->name('edit');
+            Route::post('/{address}/update', [ProfileController::class, 'updateAddress'])->name('update');
+            Route::delete('/{address}', [ProfileController::class, 'destroyAddress'])->name('destroy');
+            Route::post('/{address}/set-default', [ProfileController::class, 'setDefaultAddress'])->name('setDefault');
+        });
+
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
+        Route::post('/account', [ProfileController::class, 'updateAccount'])->name('account.update');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
-	    Route::get('/password', [ProfileController::class, 'password'])->name('password');
-
-        // tài khoản
-        Route::post('/account/update', [ProfileController::class, 'updateAccount'])->name('account.update');
-
-        // Địa chỉ
-        Route::post('/address/store', [AddressController::class, 'store'])->name('address.store');
-        Route::delete('/address/{address}', [AddressController::class, 'destroy'])->name('address.destroy');
-        // THiết lập địa chỉ giao hàng mặc định
-        Route::post('/profile/address/{address}/set-default', [AddressController::class, 'setDefault'])->name('address.setDefault');
-        // Hiển thị form sửa (trả về JSON)
-        Route::get('/address/{address}/edit', [AddressController::class, 'edit'])->name('profile.address.edit');
-        Route::post('/address/{address}/update', [AddressController::class, 'update'])->name('profile.address.update');
     });
 
-    // Product route - phải đặt cuối cùng
+    // Route chi tiết sản phẩm (để cuối cùng để không bắt các route khác)
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
-
-
-    Route::fallback(function () {
-        return response()->view('client.errors.404', [], 404);
-    });
 });
 
+// Fallback cho các route không tồn tại
+Route::fallback(function () {
+    return response()->view('client.errors.404', [], 404);
+});

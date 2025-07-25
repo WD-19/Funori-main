@@ -33,7 +33,7 @@
                     <div class="body-text">Quản lý các thương hiệu của bạn tại đây. Bạn có thể chỉnh sửa, ẩn/hiện hoặc xóa
                         thương hiệu theo nhu cầu.</div>
                 </div>
-                <div class="flex items-center justify-between gap10 flex-wrap">
+                <div class="flex items-center justify-between gap10 flex-wrap" style="min-width: max-content;">
                     <div class="wg-filter flex-grow">
                         <form class="form-search flex gap10" method="GET" action="#">
                             <fieldset class="name">
@@ -48,33 +48,33 @@
                     <a class="tf-button style-1 w208" href="{{ route('admin.brands.create') }}"><i
                             class="icon-plus"></i>Thêm mới</a>
                 </div>
-                <div class="wg-table table-product-list">
-                    <ul class="table-title flex gap20 mb-14">
-                        <li style="width:7%">
+                <div class="wg-table table-product-list" style="overflow-x:auto; width:100%;">
+                    <ul class="table-title flex gap20 mb-14" style="min-width: max-content;">
+                        <li style="width:5%">
                             <div class="body-title">ID</div>
                         </li>
-                        <li style="width:18%">
+                        <li style="width:25%">
                             <div class="body-title">Tên</div>
                         </li>
-                        <li style="width:18%">
+                        <li style="width:25%">
                             <div class="body-title">Slug</div>
                         </li>
                         <li style="width:15%">
                             <div class="body-title">Logo</div>
                         </li>
-                        <li style="width:12%">
+                        <li style="width:10%">
                             <div class="body-title">Trạng thái</div>
                         </li>
-                        <li style="width:30%">
+                        <li style="width:20%">
                             <div class="body-title">Hành động</div>
                         </li>
                     </ul>
                     <ul class="flex flex-column">
                         @foreach ($brands as $brand)
                             <li class="wg-product item-row gap20" style="align-items:center;">
-                                <div class="body-text" style="width:7%">{{ $brand->id }}</div>
-                                <div class="body-text fw-7" style="width:18%">{{ $brand->name }}</div>
-                                <div class="body-text" style="width:18%">{{ $brand->slug }}</div>
+                                <div class="body-text" style="width:5%">{{ $brand->id }}</div>
+                                <div class="body-text fw-7" style="width:25%">{{ $brand->name }}</div>
+                                <div class="body-text" style="width:25%">{{ $brand->slug }}</div>
                                 <div class="body-text" style="width:15%">
                                     @if ($brand->logo_url)
                                         <img src="{{ Storage::url($brand->logo_url) }}" alt="Logo" width="60">
@@ -82,14 +82,14 @@
                                         <span class="text-muted">Không có</span>
                                     @endif
                                 </div>
-                                <div style="width:12%">
+                                <div style="width:10%">
                                     @if ($brand->is_active)
                                         <span class="block-available bg-1 fw-7">Hiện</span>
                                     @else
                                         <span class="block-stock bg-1 fw-7">Ẩn</span>
                                     @endif
                                 </div>
-                                <div class="list-icon-function" style="width: 30%; display: flex; gap: 16px; align-items: center;">
+                                <div class="list-icon-function" style="width: 20%; display: flex; gap: 16px; align-items: center;">
                                     <form action="{{ route('admin.brands.toggle', $brand) }}" method="POST"
                                         style="display:inline-block;">
                                         @csrf
