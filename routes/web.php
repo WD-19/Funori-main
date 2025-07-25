@@ -32,6 +32,8 @@ use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\VnPayController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
+use App\Http\Controllers\PayPalController;
+
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use App\Http\Middleware\RedirectIfAuthenticatedCustom;
@@ -43,6 +45,18 @@ use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
+
+
+
+
+Route::controller(PayPalController::class)->group(function () {
+    Route::post('/paypal/payment', 'createPayment')->name('paypal.payment');  
+    Route::get('/paypal/success', 'success')->name('paypal.success');
+    Route::get('/paypal/cancel', 'cancel')->name('paypal.cancel');
+});
+
+
+
 Route::get('/analytics-test', function () {
     $analyticsData = Analytics::fetchMostVisitedPages(Period::days(7));
 
@@ -166,6 +180,13 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
+
+
+
+
+
+
+
 Route::get('/', [ClientController::class, 'index'])->name('home');
 // checkout 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('client.checkout.index');
@@ -184,7 +205,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
-     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
+    Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
 
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index')->middleware(RedirectIfAuthenticatedCustom::class);
@@ -285,8 +306,7 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::post('/account', [ProfileController::class, 'updateAccount'])->name('account.update');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
     });
-        Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
-
+    Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });
 
 

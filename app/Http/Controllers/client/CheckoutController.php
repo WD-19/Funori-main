@@ -303,6 +303,26 @@ class CheckoutController
             return back()->with('error', 'Không thể chuyển hướng sang VNPAY!');
         }
 
+
+
+
+
+
+        $paymentMethod = PaymentMethod::find($request->payment_method_id);
+        if ($paymentMethod->code === 'paypal') {
+            // Đảm bảo order đã được tạo trước đó  
+            if (!isset($order) || !$order->id) {
+                return redirect()->route('client.checkout')
+                    ->with('error', 'Có lỗi xảy ra khi tạo đơn hàng');
+            }
+
+            // Chuyển hướng qua GET request với order_id
+            return redirect()->route('paypal.process', ['order_id' => $order->id]);
+        }
+
+
+
+
         // --- START: Xác thực lại giỏ hàng trước khi xử lý ---
         foreach ($cart['items'] as $key => $item) {
             // Lấy tên sản phẩm từ session một cách an toàn để hiển thị lỗi

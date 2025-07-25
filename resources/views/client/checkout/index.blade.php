@@ -558,6 +558,68 @@
                     }
                 });
             }
+
+            // Xử lý khi chọn phương thức thanh toán
+            const paymentInputs = document.querySelectorAll('input[name="payment_method_id"]');
+            const checkoutForm = document.querySelector('form.checkout-form');
+
+            checkoutForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const selectedPayment = document.querySelector('input[name="payment_method_id"]:checked');
+                const shippingMethod = document.querySelector('input[name="shipping_method_id"]:checked');
+                
+                if (!selectedPayment) {
+                    alert('Vui lòng chọn phương thức thanh toán');
+                    return;
+                }
+                
+                if (!shippingMethod) {
+                    alert('Vui lòng chọn phương thức vận chuyển');
+                    return;
+                }
+
+                // Nếu chọn PayPal
+                if (selectedPayment.dataset.method === 'paypal') {
+                    // Collect order data
+                    const orderData = {
+                        cart_data: {!! json_encode($cart['items']) !!},
+                        shipping_address: {
+                            name: document.getElementById('shipping_name').value,
+                            email: document.getElementById('shipping_email').value,
+                            phone: document.getElementById('shipping_phone').value,
+                            address: document.getElementById('shipping_address').value,
+                            district: document.getElementById('shipping_district').value,
+                            ward: document.getElementById('shipping_ward').value
+                        },
+                        total_amount: {{ $cart['total'] - ($cart['discount'] ?? 0) }},
+                        shipping_method: shippingMethod.value
+                    };
+
+                    try {
+                        const response = await fetch("{{ route('paypal.payment') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(orderData)
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data.url) {
+                            window.location.href = data.url;
+                        } else {
+                            alert('Có lỗi xảy ra, vui lòng thử lại.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Có lỗi xảy ra, vui lòng thử lại.');
+                    }
+                }
+            });
         });
 
         
