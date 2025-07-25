@@ -1,4 +1,7 @@
+{{-- filepath: resources/views/admin/pages/create.blade.php --}}
 @extends('admin.layout.admin')
+
+@section('title', 'Thêm trang mới')
 
 @section('content')
     <div class="main-content-wrap">
@@ -7,7 +10,7 @@
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
                     <a href="{{ route('admin.dashboard') }}">
-                        <div class="text-tiny">Dashboard</div>
+                        <div class="text-tiny">Bảng điều khiển</div>
                     </a>
                 </li>
                 <li>
@@ -28,31 +31,36 @@
         </div>
         <!-- new-page -->
         <div class="wg-box">
+            {{-- @if (session('success'))
+                <div class="alert alert-success mb-3" style="font-size:1.5rem; font-weight:bold; padding:15px;">
+                    {{ session('success') }}
+                </div>
+            @endif --}}
             <form action="{{ route('admin.pages.store') }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
                 <!-- Tiêu đề -->
-                <fieldset class="name">
+                <fieldset class="form-fieldset">
                     <div class="body-title">Tiêu đề trang <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('title') is-invalid @enderror" type="text"
                         placeholder="Tiêu đề trang" name="title" id="title" value="{{ old('title') }}">
                     @error('title')
-                        <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                    @enderror
+                        <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                    @endif
                 </fieldset>
                 <input type="hidden" name="slug" id="slug" value="{{ old('slug') }}">
                 <!-- Nội dung -->
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Nội dung <span class="tf-color-1">*</span></div>
                     <div class="ck-editor-container">
                         <textarea class="flex-grow @error('content') is-invalid @enderror" name="content" id="content" rows="6" cols="100"
                             placeholder="Nội dung trang">{{ old('content') }}</textarea>
                         @error('content')
-                            <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                        @enderror
+                            <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                        @endif
                     </div>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Tác giả <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="author_id" id="author_id" class="@error('author_id') is-invalid @enderror">
@@ -64,11 +72,11 @@
                             @endforeach
                         </select>
                         @error('author_id')
-                            <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                        @enderror
+                            <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                        @endif
                     </div>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Loại trang <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="page_type" id="page_type" class="@error('page_type') is-invalid @enderror">
@@ -77,11 +85,11 @@
                             <option value="page" {{ old('page_type') == 'page' ? 'selected' : '' }}>Page</option>
                         </select>
                         @error('page_type')
-                            <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                        @enderror
+                            <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                        @endif
                     </div>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Trạng thái <span class="tf-color-1">*</span></div>
                     <div class="select flex-grow">
                         <select name="status" id="status" class="@error('status') is-invalid @enderror">
@@ -90,12 +98,12 @@
                             </option>
                         </select>
                         @error('status')
-                            <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                        @enderror
+                            <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                        @endif
                     </div>
                 </fieldset>
                 <!-- Ảnh đại diện -->
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Ảnh đại diện <span class="tf-color-1">*</span></div>
                     <div class="upload-image flex-grow d-block">
                         <div class="item up-load">
@@ -112,33 +120,33 @@
                         <img id="featured_image_url-preview" src="" alt=""
                             style="display: none; max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         @error('featured_image_url')
-                            <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                        @enderror
+                            <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                        @endif
                     </div>
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Meta title <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('meta_title') is-invalid @enderror" type="text"
                         placeholder="Meta title" name="meta_title" id="meta_title" value="{{ old('meta_title') }}">
                     @error('meta_title')
-                        <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                    @enderror
+                        <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                    @endif
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Meta description <span class="tf-color-1">*</span></div>
                     <textarea class="flex-grow @error('meta_description') is-invalid @enderror" name="meta_description"
                         id="meta_description" rows="2" placeholder="Meta description">{{ old('meta_description') }}</textarea>
                     @error('meta_description')
-                        <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                    @enderror
+                        <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                    @endif
                 </fieldset>
-                <fieldset>
+                <fieldset class="form-fieldset">
                     <div class="body-title">Ngày xuất bản <span class="tf-color-1">*</span></div>
                     <input class="flex-grow form-control @error('published_at') is-invalid @enderror"
                         type="datetime-local" name="published_at" id="published_at" value="{{ old('published_at') }}">
                     @error('published_at')
-                        <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
-                    @enderror
+                        <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
+                    @endif
                 </fieldset>
                 <div class="row mt-5">
                     <div class="col-md-6">
@@ -215,6 +223,9 @@
             width: 100%;
             max-width: 100%;
             margin-bottom: 15px;
+        }
+        .form-fieldset {
+            margin-bottom: 30px; /* Tăng khoảng cách giữa các fieldset */
         }
     </style>
     <script>

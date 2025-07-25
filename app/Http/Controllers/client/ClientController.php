@@ -6,6 +6,7 @@ use App\Models\Banner;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Page;
 use Illuminate\Http\Request;
 
 class ClientController
@@ -32,6 +33,12 @@ class ClientController
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('client.home', compact('products', 'banners', 'topCategories', 'randomBrands'));
+        // hiển thị bài viết
+        $latestPages = Page::where('status', 'published')
+        ->orderByDesc('published_at')
+        ->take(2)
+        ->get();
+
+        return view('client.home', compact('products', 'banners', 'topCategories', 'randomBrands', 'latestPages'));
     }
 }

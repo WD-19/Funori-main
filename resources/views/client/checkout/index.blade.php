@@ -321,27 +321,28 @@
 
                             <div class="mt-4">
                                 <h5>Phương thức vận chuyển</h5>
-                                @foreach ($shippingMethods as $method)
-                                    <label class="shipping-method d-flex align-items-center">
-                                        <input type="radio" name="shipping_method_id" value="{{ $method->id }}"
-                                            data-cost="{{ $method->cost }}" required>
-                                        <span>{{ $method->name }} -
-                                            {{ number_format($method->cost, 0, ',', '.') }}đ</span>
-                                    </label>
-                                @endforeach
+                                <div class="form-group">
+                                    <select name="shipping_method_id" class="form-control" required>
+                                        <option value="">-- Chọn phương thức vận chuyển --</option>
+                                        @foreach ($shippingMethods as $method)
+                                            <option value="{{ $method->id }}" data-cost="{{ $method->cost }}">
+                                                {{ $method->name }} - {{ number_format($method->cost, 0, ',', '.') }}đ
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="mt-4">
                                 <h5>Phương thức thanh toán</h5>
-                                @foreach ($paymentMethods as $method)
-                                    <label class="payment-method d-flex align-items-center">
-                                        <input type="radio" name="payment_method_id" value="{{ $method->id }}"
-                                            required {{ old('payment_method_id') == $method->id ? 'checked' : '' }}
-                                            data-method="{{ strtolower($method->name) }}">
-                                        <span>{{ $method->name }}</span>
-                                    </label>
-                                @endforeach
-
+                                <div class="form-group">
+                                    <select name="payment_method_id" class="form-control" required>
+                                        <option value="">-- Chọn phương thức thanh toán --</option>
+                                        @foreach ($paymentMethods as $method)
+                                            <option value="{{ $method->id }}">{{ $method->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="totals-row mt-4">
@@ -378,6 +379,7 @@
         </div>
     </section>
 
+    <!-- JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -489,18 +491,15 @@
             });
 
             // Shipping fee calculation
-            const shippingRadios = document.querySelectorAll('input[name="shipping_method_id"]');
+            const shippingSelect = document.querySelector('select[name="shipping_method_id"]');
             const shippingFeeDisplay = document.getElementById('shipping-fee-display');
             const grandTotalDisplay = document.getElementById('grand-total-display');
             const subtotal = {{ $cart['total'] }};
-            const discount = {{ $cart['discount'] ?? 0 }};
-            shippingRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const cost = parseFloat(this.dataset.cost);
-                    shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
-                    grandTotalDisplay.textContent = (subtotal - discount + cost).toLocaleString(
-                        'vi-VN') + 'đ';
-                });
+            shippingSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const cost = parseFloat(selectedOption.dataset.cost) || 0;
+                shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
+                grandTotalDisplay.textContent = (subtotal + cost).toLocaleString('vi-VN') + 'đ';
             });
 
             // Handle saved address selection

@@ -2,13 +2,12 @@
 
 @section('content')
     <div class="main-content-wrap">
-
         <div class="flex items-center flex-wrap justify-between gap20 mb-30">
             <h3>Thêm danh mục</h3>
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                 <li>
                     <a href="{{ route('admin.dashboard') }}">
-                        <div class="text-tiny">Dashboard</div>
+                        <div class="text-tiny">Bang điều khiển</div>
                     </a>
                 </li>
                 <li>
@@ -29,6 +28,11 @@
         </div>
         <!-- new-category -->
         <div class="wg-box">
+            {{-- @if (session('success'))
+                <div class="alert alert-success" style="font-size:1.5rem; font-weight:bold; padding:15px;">
+                    {{ session('success') }}
+                </div>
+            @endif --}}
             <form class="form-new-product form-style-1" action="{{ route('admin.categories.store') }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
@@ -37,7 +41,7 @@
                     <input class="flex-grow form-control @error('name') is-invalid @enderror" type="text"
                         placeholder="Tên danh mục" name="name" id="name" value="{{ old('name') }}">
                     @error('name')
-                        <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
+                        <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
                 </fieldset>
                 <input type="hidden" name="slug" id="slug" value="{{ old('slug') }}">
@@ -53,7 +57,7 @@
                             @endforeach
                         </select>
                         @error('parent_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                         @enderror
                     </div>
                 </fieldset>
@@ -77,9 +81,8 @@
                         </div>
                         <img id="image_url-preview" src="" alt=""
                             style="display: none; max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px; border: 2px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-
                         @error('image_url')
-                            <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
+                            <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                         @enderror
                     </div>
                 </fieldset>
@@ -92,7 +95,7 @@
                             <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Không kích hoạt</option>
                         </select>
                         @error('is_active')
-                            <div class="invalid-feedback fw-bold fs-5" style="display:block;">{{ $message }}</div>
+                            <div class="invalid-feedback fw-bold fs-5" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                         @enderror
                     </div>
                 </fieldset>
@@ -145,8 +148,10 @@
         }
         .invalid-feedback {
             color: #dc3545;
-            font-size: 0.9rem;
+            font-size: 1.25rem;
             margin-top: 5px;
+            padding: 8px;
+            display: block;
         }
     </style>
     <script>

@@ -6,7 +6,7 @@
     <div class="main-content-inner">
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
-            <div class="w-100">
+            {{-- <div class="w-100">
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show mt-2 mb-3" role="alert"
                         style="max-width: 600px; margin: 0 auto;">
@@ -23,13 +23,13 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
                     </div>
                 @endif
-            </div>
+            </div> --}}
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
                 <h3>Tất cả danh mục</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="#">
-                            <div class="text-tiny">Dashboard</div>
+                            <div class="text-tiny">Bảng điều khiển</div>
                         </a>
                     </li>
                     <li>

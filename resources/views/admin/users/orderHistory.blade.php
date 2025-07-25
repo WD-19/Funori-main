@@ -1,41 +1,40 @@
 @extends('admin.layout.admin')
 
-@section('title', 'lịch sủ mua hàng user')
+@section('title', 'Lịch sử mua hàng người dùng')
 
 @section('content')
-
     <div class="main-content-inner">
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
-                <h3>Order </h3>
+                <h3>Đơn hàng</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
-                        <a href="index.html">
-                            <div class="text-tiny">Dashboard</div>
+                        <a href="{{ route('admin.dashboard') }}">
+                            <div class="text-tiny">Bảng điều khiển</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <a href="#">
-                            <div class="text-tiny">Order</div>
+                        <a href="{{ route('admin.users.index') }}">
+                            <div class="text-tiny">Người dùng</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <a href="#">
-                            <div class="text-tiny">Order detail</div>
+                        <a href="{{ route('admin.users.show', $user->id) }}">
+                            <div class="text-tiny">Chi tiết người dùng</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Order </div>
+                        <div class="text-tiny">Lịch sử đơn hàng</div>
                     </li>
                 </ul>
             </div>
@@ -44,10 +43,10 @@
                 <div class="left flex-grow">
                     <div class="wg-box mb-20">
                         <div class="wg-table table-user-info">
-                            <div class="body-title mb-16">User Information</div>
+                            <div class="body-title mb-16">Thông tin người dùng</div>
 
                             <div class="summary-item mb-12">
-                                <div class="body-text">Full Name</div>
+                                <div class="body-text">Họ và tên</div>
                                 <div class="body-title-2">{{ $user->full_name }}</div>
                             </div>
 
@@ -57,7 +56,7 @@
                             </div>
 
                             <div class="summary-item mb-0">
-                                <div class="body-text">Phone</div>
+                                <div class="body-text">Số điện thoại</div>
                                 <div class="body-title-2">{{ $user->phone_number }}</div>
                             </div>
                         </div>
@@ -67,7 +66,7 @@
                             <div class="wg-filter flex-grow">
                                 <form class="form-search">
                                     <fieldset class="name">
-                                        <input type="text" placeholder="Search here..." class="" name="name"
+                                        <input type="text" placeholder="Tìm kiếm tại đây..." class="" name="name"
                                             tabindex="2" value="" aria-required="true" required="">
                                     </fieldset>
                                     <div class="button-submit">
@@ -80,19 +79,19 @@
                             style="max-height: 400px; min-width: 100%; overflow: auto;">
                             <ul class="table-title flex mb-14" style="min-width: 700px;">
                                 <li style="width: 25%">
-                                    <div class="body-title">Order code</div>
+                                    <div class="body-title">Mã đơn hàng</div>
                                 </li>
                                 <li style="width: 20%">
-                                    <div class="body-title">Date booked</div>
+                                    <div class="body-title">Ngày đặt hàng</div>
                                 </li>
                                 <li style="width: 20%">
-                                    <div class="body-title">Order Status</div>
+                                    <div class="body-title">Trạng thái đơn hàng</div>
                                 </li>
                                 <li style="width: 35%">
-                                    <div class="body-title">Payment Status</div>
+                                    <div class="body-title">Trạng thái thanh toán</div>
                                 </li>
                                 <li style="width: 20%">
-                                    <div class="body-title">Total amount</div>
+                                    <div class="body-title">Tổng số tiền</div>
                                 </li>
                             </ul>
                             <ul class="flex flex-column" style="min-width: 700px;">
@@ -112,7 +111,6 @@
 
                             </ul>
                         </div>
-                      
                     </div>
 
                 </div>

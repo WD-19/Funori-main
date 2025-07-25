@@ -184,6 +184,10 @@ Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
+Route::get('/payos/create', [PayOSController::class, 'createPayment'])->name('payos.create');
+Route::get('/payos/return', [PayOSController::class, 'return'])->name('payos.return');
+Route::get('/payos/cancel', [PayOSController::class, 'cancel'])->name('payos.cancel');
+
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
