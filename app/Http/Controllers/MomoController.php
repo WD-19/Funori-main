@@ -25,13 +25,9 @@ class MomoController
      */
     public function pay(Request $request)
     {
-        $orderData = Session::get('order_data');
-        if (!$orderData) {
-            return redirect()->route('client.cart.checkout')->with('error', 'Không tìm thấy thông tin đơn hàng');
-        }
-
-        $orderId = $orderData['order_code'] ?? (time() . '_' . ($orderData['user_id'] ?? 'guest'));
-        $amount = (int) $orderData['total'];
+        $orderCode = $request->input('order_code');
+        $amount = (int) $request->input('total_momo');
+        $orderId = $orderCode ?? (time() . '_' . ($request->user_id ?? 'guest'));
         $orderInfo = 'Thanh toán đơn hàng Funori #' . $orderId;
         $redirectUrl = route('momo.return');
         $ipnUrl = route('momo.notify');
@@ -78,7 +74,7 @@ class MomoController
             if (isset($jsonResult['message'])) {
                 $errorMessage .= ': ' . $jsonResult['message'];
             }
-            return redirect()->route('client.cart.checkout')->with('error', $errorMessage);
+            return redirect()->route('client.view-cart')->with('error', $errorMessage);
         }
     }
 

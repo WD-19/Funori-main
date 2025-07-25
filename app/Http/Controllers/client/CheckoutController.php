@@ -303,6 +303,30 @@ class CheckoutController
             return back()->with('error', 'Không thể chuyển hướng sang VNPAY!');
         }
 
+        if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'MOMO') {
+            // Gọi phương thức pay của MomoController
+            $momoController = new \App\Http\Controllers\MomoController();
+            $momoRequest = new Request();
+            $momoRequest->replace([
+                'total_momo' => $totalAmount,
+                'order_code' => $order->order_code, // truyền đúng mã đơn hàng
+            ]);
+            $momoResponse = $momoController->pay($momoRequest);
+            if ($momoResponse instanceof \Illuminate\Http\RedirectResponse) {
+                return $momoResponse;
+            }
+            if (is_object($momoResponse) && method_exists($momoResponse, 'getData')) {
+                $data = $momoResponse->getData(true);
+                if (!empty($data['payUrl'])) {
+                    return redirect()->away($data['payUrl']);
+                }
+            }
+            if (is_string($momoResponse)) {
+                return redirect()->away($momoResponse);
+            }
+            return back()->with('error', 'Không thể chuyển hướng sang MoMo!');
+        }
+        
         // --- START: Xác thực lại giỏ hàng trước khi xử lý ---
         foreach ($cart['items'] as $key => $item) {
             // Lấy tên sản phẩm từ session một cách an toàn để hiển thị lỗi
