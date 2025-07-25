@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\client;
 
-
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Banner;
+use App\Models\Attribute;
+use App\Models\ProductVariantAttributeValue;
+use App\Models\AttributeValue;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ShopController
 {
@@ -15,6 +18,15 @@ class ShopController
     {
         $categories = Category::withCount('products')->get();
         $brands = Brand::where('is_active', 1)->get();
+        $materials = AttributeValue::where('attribute_id', 1)->get();
+        foreach ($materials as $material) {
+            $material->products_count = DB::table('product_variant_attribute_values')
+                ->join('product_variants', 'product_variant_attribute_values.product_variant_id', '=', 'product_variants.id')
+                ->where('product_variant_attribute_values.attribute_value_id', $material->id)
+                ->distinct('product_variants.product_id')
+                ->count('product_variants.product_id');
+        }
+
 
         $query = Product::with(['images', 'brand', 'category', 'reviews']);
 
@@ -24,7 +36,11 @@ class ShopController
         if ($request->filled('brand_id')) {
             $query->where('brand_id', $request->brand_id);
         }
-
+        if ($request->filled('material')) {
+            $query->whereHas('variants.attributeValues', function ($q) use ($request) {
+                $q->where('attribute_value_id', $request->material);
+            });
+        }
         switch ($request->sort) {
             case 'popularity':
                 $query->withCount('reviews')->orderByDesc('reviews_count');
@@ -58,14 +74,14 @@ class ShopController
 
         // Lấy 4 danh mục cha ngẫu nhiên
         $randomParentCategories = Category::whereNull('parent_id')->inRandomOrder()->take(4)->get();
-
         return view('client.shop.shop', compact(
             'products',
             'categories',
             'brands',
             'featuredProducts',
             'mainBanner',
-            'randomParentCategories'
+            'randomParentCategories',
+            'materials'
         ));
     }
     public function suggest(Request $request)

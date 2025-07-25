@@ -79,6 +79,23 @@
                     @endforeach
                 </div>
             </div>
+            <div class="first-sidebar" style="margin-bottom: 20px;">
+                <div class="title-sidebar">
+                    Chất liệu
+                </div>
+                @foreach ($materials as $material)
+                    <div class="in-sidebar">
+                        <a href="{{ route('shop', array_merge(request()->except('page'), ['material' => $material->id])) }}"
+                            style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit;">
+                            <div class="name"
+                                @if (request('material') == $material->id) style="font-weight:bold;color:#fcad02;" @endif>
+                                {{ $material->value }}
+                            </div>
+
+                        </a>
+                    </div>
+                @endforeach
+            </div>
             <div class="box-feature-product">
                 <div class="text-feature-product">Feature Product</div>
                 <div>
@@ -238,6 +255,7 @@
             </div>
         </div>
     </div>
+
     <script>
         // thêm vào yêu thích
         document.addEventListener("DOMContentLoaded", function() {

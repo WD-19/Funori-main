@@ -45,64 +45,53 @@
         </div>
     </div>
 
+    {{-- <div class="all-box-banner">
+        @foreach ($latestPages as $page)
+            <div class="box-first-banner">
+                <div class="box-img-banner">
+                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">
+                        <img src="{{ asset('storage/' . $page->featured_image_url) }}" alt="{{ $page->title }}" />
+                    </a>
+                </div>
+                <div class="title-in-banner">
+                    <h3>{{ $page->title }}</h3>
+                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">Xem Bài Viết</a>
+                </div>
+            </div>
+        @endforeach
+    </div> --}}
+    <style>
+        .title-Living-room {
+            position: absolute;
+            left: 45%;
+
+        }
+    </style>
     <div class="box-room">
-        <a href="">
-            <div class="living-room">
-                <img src="{{ asset('client/picture/Living-room.jpg') }}" alt="" />
-                <div class="title-Living-room">Phòng khách</div>
-                <div class="Shop-col">Xem bộ sưu tập</div>
-            </div>
-        </a>
-        <a href="">
-            <div class="bed-room">
-                <img src="{{ asset('client/picture/bedroom.jpg') }}" alt="" />
-                <div class="title-bed-room">Phòng ngủ</div>
-                <div class="Shop-col">Xem bộ sưu tập</div>
-            </div>
-        </a>
-        <a href="">
-            <div class="ketchen-room">
-                <img src="{{ asset('client/picture/ketchen-room.jpg') }}" alt="" />
-                <div class="title-kitchen-room">Phòng bếp</div>
-                <div class="Shop-col">Xem bộ sưu tập</div>
-            </div>
-        </a>
+        @foreach ($banners->where('position', 'banner_category') as $banner)
+            <a href="{{ $banner->link_url }}">
+                <div class="living-room">
+                    <img src="{{ asset('storage/' . $banner->image_url) }}" alt="{{ $banner->title ?? '' }}" />
+                    <div style="text-align:center;display:flex;justify-content:center;align-items:center;"
+                        class="title-Living-room">{{ $banner->title ?? '' }}</div>
+                    <div class="Shop-col"> Bộ Sưu Tập</div>
+                </div>
+            </a>
+        @endforeach
     </div>
     <div class="setion-shop">
         <div class="box-title">
             <div class="title-shop">Chọn nội thất theo nhu cầu</div>
         </div>
         <div class="all-box-product">
-            <div class="box-product">
-                <a href="">
-                    <img src="{{ asset('client/picture/categories-9.jpg') }}" alt="" />
-                    <div class="title-product">Ghế bành</div>
-                </a>
-            </div>
-            <div class="box-product">
-                <a href="#1">
-                    <img src="{{ asset('client/picture/categories-7.jpg') }}" alt="" />
-                    <div class="title-product">Ghế ăn</div>
-                </a>
-            </div>
-            <div class="box-product">
-                <a href="#2">
-                    <img src="{{ asset('client/picture/categories-6.jpg') }}" alt="" />
-                    <div class="title-product">Sofa</div>
-                </a>
-            </div>
-            <div class="box-product">
-                <a href="#3">
-                    <img src="{{ asset('client/picture/categories-11.jpg') }}" alt="" />
-                    <div class="title-product">Đèn chiếu sáng</div>
-                </a>
-            </div>
-            <div class="box-product">
-                <a href="#4">
-                    <img src="{{ asset('client/picture/categories-10.jpg') }}" alt="" />
-                    <div class="title-product">Tủ kệ</div>
-                </a>
-            </div>
+            @foreach ($topCategories as $cat)
+                <div class="box-product">
+                    <a href="{{ route('shop', ['category_id' => $cat]) }}">
+                        <img src="{{ asset($cat->image_url ?? 'client/picture/default-category.jpg') }}" alt="" />
+                        <div class="title-product">{{ $cat->name }}</div>
+                    </a>
+                </div>
+            @endforeach
         </div>
     </div>
     <div class="box-product-sell">
@@ -137,7 +126,10 @@
                                     <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
                                         class="fa-solid fa-heart" id="heart-Product"></i>
                                 </button>
-                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}"
+                                    style="color:inherit;">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </a>
                             </div>
                         </div>
                         <div class="contents-new-product">
@@ -152,109 +144,22 @@
                         </div>
 
 
-                        <div class="box-name-product">
+                        <div class="box-name-product" data-product-id="{{ $product->id }}">
                             <div class="name-product">{{ $product->name }}</div>
-                            <div id="Prict-prod" class="price-product">
-                                <span>{{ number_format($product->regular_price) }} đ</span>
+                            <div id="Prict-prod">
+                                <span>{{ number_format($product->regular_price, decimals: 2) }} đ</span>
                             </div>
-                            <div class="buttom-1">
-                                <button type="submit">
-                                    <i class="fa-solid fa-cart-plus"></i>
-                                    <span>Thêm vào giỏ</span>
-                                </button>
-                            </div>
+                            {{-- <div class="buttom-1">
+                                    <button type="submit">
+                                        <i class="fa-solid fa-cart-plus"></i>
+                                        <span>Thêm vào giỏ</span>
+                                    </button>
+                                </div> --}}
 
                         </div>
                     </div>
             </div>
             @endforeach
-
-            {{-- <div class="new-product">
-                    <div class="all-product">
-                        <a href="" style="text-decoration: none">
-                            <div class="new-img-product">
-                                <img id="Pic-2" src="{{ asset('client/picture/img-15-9-600x600.jpg') }}"
-                                    alt="" />
-                                <div class="note-notif">
-                                    <!-- <div class="box-sell">
-                                                    -33%
-                                                </div> -->
-                                    <div class="title-hot">Hot</div>
-                                </div>
-                                <div class="all-box-icon">
-                                    <i class="fa-regular fa-heart"></i>
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </div>
-                            </div>
-                            <div class="contents-new-product">
-                                <div class="star">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                </div>
-                                <div class="view-product">(4 review)</div>
-                            </div>
-                        </a>
-                        <div class="box-name-product">
-                            <div class="name-product">Zunkel Schawarz</div>
-                            <div class="price-product">
-                                <!-- <del>$ 150.00</del> -->
-                                <span>$ 100.00</span>
-                            </div>
-                            <div class="buttom-1">
-                                <button type="submit">
-                                    <i class="fa-solid fa-cart-plus"></i>
-                                    <span>Thêm vào giỏ</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="new-product">
-                    <div class="all-product">
-                        <a href="" style="text-decoration: none">
-                            <div class="new-img-product">
-                                <img id="Pic-3" src="{{ asset('client/picture/products-1-600x600.jpg') }}"
-                                    alt="" />
-                                <div class="note-notif">
-                                    <div class="box-sell">-33%</div>
-                                    <div class="title-hot">Hot</div>
-                                </div>
-                                <div class="all-box-icon">
-                                    <i class="fa-regular fa-heart"></i>
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </div>
-                            </div>
-                            <div class="contents-new-product">
-                                <div class="star">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                </div>
-                                <div class="view-product">(4 review)</div>
-                            </div>
-                        </a>
-                        <div class="box-name-product">
-                            <div class="name-product">
-                                Drop Dining Chair
-                            </div>
-                            <div class="price-product">
-                                <del>$ 200.00</del>
-                                <span>$ 180.00</span>
-                            </div>
-                            <div class="buttom-1">
-                                <button type="submit">
-                                    <i class="fa-solid fa-cart-plus"></i>
-                                    <span>Thêm vào giỏ</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
         </div>
     </div>
     </div>
@@ -295,13 +200,15 @@
 
             </div>
             <div class="box-button">
-                <button
-                    style="background: #ff9b42; color: #fff; border: none; padding: 10px 23px; border-radius: 6px; font-weight: bold;">Khám
-                    phá</button>
+                <a href="{{ route('shop') }}" style="text-decoration: none; display: inline-block; margin-top: 20px;">
+                    <button
+                        style="background: #ff9b42; color: #fff; border: none; padding: 10px 23px; border-radius: 6px; font-weight: bold;">Khám
+                        phá</button>
+                </a>
             </div>
         </div>
     </div>
-    <div class="all-box-banner">
+    {{-- <div class="all-box-banner">
         <div class="box-first-banner">
             <div class="box-img-banner">
                 <a href="">
@@ -326,24 +233,29 @@
             </div>
 
         </div>
+    </div> --}}
+    <div class="all-box-banner">
+        @foreach ($latestPages as $page)
+            <div class="box-first-banner">
+                <div class="box-img-banner">
+                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">
+                        <img src="{{ asset('storage/' . $page->featured_image_url) }}" alt="{{ $page->title }}" />
+                    </a>
+                </div>
+                <div class="title-in-banner">
+                    <h3>{{ $page->title }}</h3>
+                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">Xem Bài Viết</a>
+                </div>
+            </div>
+        @endforeach
     </div>
     <div class="box-brand">
         <div class="in-brand">
-            <a href="">
-                <img src="{{ asset('client/picture/brand-1-1.jpg') }}" alt="" />
-            </a>
-            <a href="">
-                <img src="{{ asset('client/picture/brand-2-1.jpg') }}" alt="" />
-            </a>
-            <a href="">
-                <img src="{{ asset('client/picture/brand-3-1.jpg') }}" alt="" />
-            </a>
-            <a href="">
-                <img src="{{ asset('client/picture/brand-4-1.jpg') }}" alt="" />
-            </a>
-            <a href="">
-                <img src="{{ asset('client/picture/brand-5-1.jpg') }}" alt="" />
-            </a>
+            @foreach ($randomBrands as $brand)
+                <a href="{{ route('shop', ['brand_id' => $brand->id]) }}">
+                    <img src="{{ asset('storage/' . $brand->logo_url) }}" alt="{{ $brand->name }}" />
+                </a>
+            @endforeach
         </div>
     </div>
     <script>
@@ -373,7 +285,7 @@
                     var productId = this.getAttribute('data-product-id');
                     var icon = this.querySelector('i');
                     var isActive = icon.classList.contains('fa-solid') && icon.style.color ===
-                    'red';
+                        'red';
                     var url = isActive ? "{{ route('client.wishlist.remove') }}" :
                         "{{ route('client.wishlist.add') }}";
                     var method = 'POST';
@@ -428,7 +340,7 @@
                                 }
                                 setTimeout(function() {
                                     var toast = document.querySelector(
-                                    '.toast-success');
+                                        '.toast-success');
                                     if (toast) {
                                         toast.style.backgroundColor = '#e53935';
                                         toast.style.color = '#fff';
@@ -465,4 +377,5 @@
         });
         //
     </script>
+
 @endsection

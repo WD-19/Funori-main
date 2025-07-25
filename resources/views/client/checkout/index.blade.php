@@ -302,7 +302,7 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <div class="order-summary sticky-top">
+                        <div class="order-summary">
                             <h4>Tóm tắt đơn hàng</h4>
                             @foreach ($cart['items'] as $item)
                                 <div class="summary-item">
@@ -321,38 +321,51 @@
 
                             <div class="mt-4">
                                 <h5>Phương thức vận chuyển</h5>
-                                @foreach ($shippingMethods as $method)
-                                    <label class="shipping-method d-flex align-items-center">
-                                        <input type="radio" name="shipping_method_id" value="{{ $method->id }}"
-                                            data-cost="{{ $method->cost }}" required>
-                                        <span>{{ $method->name }} -
-                                            {{ number_format($method->cost, 0, ',', '.') }}đ</span>
-                                    </label>
-                                @endforeach
+                                <div class="form-group">
+                                    <select name="shipping_method_id" class="form-control" required>
+                                        <option value="">-- Chọn phương thức vận chuyển --</option>
+                                        @foreach ($shippingMethods as $method)
+                                            <option value="{{ $method->id }}" data-cost="{{ $method->cost }}">
+                                                {{ $method->name }} - {{ number_format($method->cost, 0, ',', '.') }}đ
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="mt-4">
                                 <h5>Phương thức thanh toán</h5>
-                                @foreach ($paymentMethods as $method)
-                                    <label class="payment-method d-flex align-items-center">
-                                        <input type="radio" name="payment_method_id" value="{{ $method->id }}"
-                                            required>
-                                        <span>{{ $method->name }}</span>
-                                    </label>
-                                @endforeach
+                                <div class="form-group">
+                                    <select name="payment_method_id" class="form-control" required>
+                                        <option value="">-- Chọn phương thức thanh toán --</option>
+                                        @foreach ($paymentMethods as $method)
+                                            <option value="{{ $method->id }}">{{ $method->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
 
                             <div class="totals-row mt-4">
                                 <span>Tạm tính</span>
                                 <span>{{ number_format($cart['total'], 0, ',', '.') }}đ</span>
                             </div>
+                            @if (($cart['discount'] ?? 0) > 0)
+                                <div class="totals-row">
+                                    <span>Giảm
+                                        giá{{ $cart['discount_code'] ? ' (' . $cart['discount_code'] . ')' : '' }}</span>
+                                    <span
+                                        style="color:#ff3029;">-{{ number_format($cart['discount'], 0, ',', '.') }}đ</span>
+                                </div>
+                            @endif
                             <div class="totals-row">
                                 <span>Phí vận chuyển</span>
                                 <span id="shipping-fee-display">0đ</span>
                             </div>
                             <div class="totals-row grand-total">
                                 <span>Tổng cộng</span>
-                                <span id="grand-total-display">{{ number_format($cart['total'], 0, ',', '.') }}đ</span>
+                                <span id="grand-total-display">
+                                    {{ number_format($cart['total'] - ($cart['discount'] ?? 0), 0, ',', '.') }}đ
+                                </span>
                             </div>
 
                             <button type="submit"
@@ -366,6 +379,7 @@
         </div>
     </section>
 
+    <!-- JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -477,16 +491,15 @@
             });
 
             // Shipping fee calculation
-            const shippingRadios = document.querySelectorAll('input[name="shipping_method_id"]');
+            const shippingSelect = document.querySelector('select[name="shipping_method_id"]');
             const shippingFeeDisplay = document.getElementById('shipping-fee-display');
             const grandTotalDisplay = document.getElementById('grand-total-display');
             const subtotal = {{ $cart['total'] }};
-            shippingRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const cost = parseFloat(this.dataset.cost);
-                    shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
-                    grandTotalDisplay.textContent = (subtotal + cost).toLocaleString('vi-VN') + 'đ';
-                });
+            shippingSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const cost = parseFloat(selectedOption.dataset.cost) || 0;
+                shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
+                grandTotalDisplay.textContent = (subtotal + cost).toLocaleString('vi-VN') + 'đ';
             });
 
             // Handle saved address selection
@@ -510,7 +523,7 @@
                         buyerPhoneInput.value =
                             '{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}';
                         buyerEmailInput.value =
-                        '{{ old('buyer_email', auth()->user()->email ?? '') }}';
+                            '{{ old('buyer_email', auth()->user()->email ?? '') }}';
                         buyerAddressInput.value =
                             '{{ old('buyer_address', auth()->user()->address ?? '') }}';
                         // Gọi lại hàm khởi tạo để chọn lại địa chỉ mặc định của user nếu có

@@ -1,7 +1,10 @@
 @extends('client.profile.index')
+@php $pageTitle = 'Thông tin tài khoản'; @endphp
 
 @section('title', 'Thông tin tài khoản')
-@section('page_title', 'Thông tin tài khoản')
+
+@section('page_title', 'Tài Khoản')
+
 
 @section('content_profile')
     <div class="my-account-content">
