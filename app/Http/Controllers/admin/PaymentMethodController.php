@@ -1,14 +1,27 @@
-<?php 
+<?php
+
 namespace App\Http\Controllers\Admin;
+
 use Illuminate\Http\Request;
 use App\Models\PaymentMethod;
+
 class PaymentMethodController
 {
-    public function index()
+    public function index(Request $request)
     {
-        $methods = PaymentMethod::all();
+        $query = PaymentMethod::query();
+
+        // Lọc theo tên nếu có nhập từ khóa
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->input('name') . '%');
+        }
+
+
+        $methods = $query->orderBy('id', 'desc')->paginate(10);
+
         return view('admin.payment_method.index', compact('methods'));
     }
+
     public function create()
     {
         return view('admin.payment_method.create');
@@ -16,15 +29,60 @@ class PaymentMethodController
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:100|unique:payment_methods,name',
             'code' => 'required|string|max:50|unique:payment_methods,code',
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
+        ], [
+            'name.unique' => 'Tên phương thức này đã tồn tại.',
+            'name.required' => 'Vui lòng nhập tên phương thức.',
+            'name.string' => 'Tên phương thức phải là chuỗi.',
+            'name.max' => 'Tên phương thức không được vượt quá 100 ký tự.',
+
+            'code.required' => 'Vui lòng nhập mã phương thức.',
+            'code.string' => 'Mã phương thức phải là chuỗi.',
+            'code.max' => 'Mã phương thức không được vượt quá 50 ký tự.',
+            'code.unique' => 'Mã phương thức này đã tồn tại.',
+
+            'description.string' => 'Mô tả phải là chuỗi.',
+            'instructions.string' => 'Hướng dẫn phải là chuỗi.',
         ]);
 
         PaymentMethod::create($request->all());
 
-        return redirect()->back()->with('success', 'Đã thêm phương thức thanh toán!');
+         return redirect()->route('admin.payment_methods.index')
+        ->with('success', 'Đã thêm phương thức thanh toán!');
+    }
+
+    public function edit($id)
+    {
+        $method = PaymentMethod::findOrFail($id);
+        return view('admin.payment_method.edit', compact('method'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $method = PaymentMethod::findOrFail($id);
+        $request->validate([
+            'name' => 'required|string|max:100|unique:payment_methods,name,' . $id,
+            'code' => 'required|string|max:50|unique:payment_methods,code,' . $id,
+            'description' => 'nullable|string',
+            'instructions' => 'nullable|string',
+        ], [
+            'name.unique' => 'Tên phương thức này đã tồn tại.',
+            'name.required' => 'Vui lòng nhập tên phương thức.',
+            'name.string' => 'Tên phương thức phải là chuỗi.',
+            'name.max' => 'Tên phương thức không được vượt quá 100 ký tự.',
+            'code.required' => 'Vui lòng nhập mã phương thức.',
+            'code.string' => 'Mã phương thức phải là chuỗi.',
+            'code.max' => 'Mã phương thức không được vượt quá 50 ký tự.',
+            'code.unique' => 'Mã phương thức này đã tồn tại.',
+            'description.string' => 'Mô tả phải là chuỗi.',
+            'instructions.string' => 'Hướng dẫn phải là chuỗi.',
+        ]);
+        $method->update($request->all());
+        return redirect()->route('admin.payment_methods.index')
+            ->with('success', 'Cập nhật phương thức thanh toán thành công!');
     }
 
     public function destroy($id)

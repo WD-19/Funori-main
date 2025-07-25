@@ -92,6 +92,8 @@ Route::prefix('admin')->name('admin.')
         Route::post('/payment-methods', [PaymentMethodController::class, 'store'])->name('payment_methods.store');
         Route::delete('/payment-methods/{id}', [PaymentMethodController::class, 'destroy'])->name('payment_methods.destroy');
         Route::put('/payment-methods/{id}/toggle', [PaymentMethodController::class, 'toggle'])->name('payment_methods.toggle');
+        Route::get('/payment-methods/{id}/edit', [PaymentMethodController::class, 'edit'])->name('payment_methods.edit');
+        Route::put('/payment-methods/{id}', [PaymentMethodController::class, 'update'])->name('payment_methods.update');
 
         // Shipping Methods
         Route::get('/shipping-methods', [ShippingMethodController::class, 'index'])->name('shipping_methods.index');
@@ -100,6 +102,8 @@ Route::prefix('admin')->name('admin.')
         Route::delete('/shipping-methods/{id}', [ShippingMethodController::class, 'destroy'])->name('shipping_methods.destroy');
         Route::patch('/shipping-methods/{id}/deactivate', [ShippingMethodController::class, 'deactivate'])->name('shipping_methods.deactivate');
         Route::patch('/shipping-methods/{id}/activate', [ShippingMethodController::class, 'activate'])->name('shipping_methods.activate');
+        Route::get('/shipping-methods/{id}/edit', [ShippingMethodController::class, 'edit'])->name('shipping_methods.edit');
+        Route::put('/shipping-methods/{id}', [ShippingMethodController::class, 'update'])->name('shipping_methods.update');
 
         // Quản lý user
         Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');

@@ -55,11 +55,18 @@ class OrderController
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
-
+        // Lọc theo khoảng thời gian đã giao hàng
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', Carbon::parse($request->start_date));
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', Carbon::parse($request->end_date));
+        }
+        //
         // Lấy danh sách đơn hàng, sắp xếp mới nhất lên đầu, phân trang 20 bản ghi/trang
         $orders = $query->orderByDesc('created_at')
-                        ->paginate(20)
-                        ->appends($request->all());
+            ->paginate(20)
+            ->appends($request->all());
 
         return view('admin.orders.index', compact('orders'));
     }
@@ -111,7 +118,7 @@ class OrderController
         ];
 
         // Callback để ghi dữ liệu ra file CSV
-        $callback = function() use ($orders, $columns) {
+        $callback = function () use ($orders, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
@@ -405,7 +412,7 @@ class OrderController
     {
         // Lấy đơn hàng kèm các quan hệ liên quan
         $order = Order::with(['items.product', 'paymentMethod', 'shippingMethod', 'user'])
-                      ->findOrFail($id);
+            ->findOrFail($id);
         // Trả về view hóa đơn
         return view('admin.orders.print_invoice', compact('order'));
     }
@@ -415,13 +422,13 @@ class OrderController
     {
         // Lấy đơn hàng kèm các quan hệ liên quan
         $order = Order::with(['items.product', 'paymentMethod', 'shippingMethod', 'user'])
-                      ->findOrFail($id);
+            ->findOrFail($id);
         // Trả về view phiếu giao hàng
         return view('admin.orders.print_shipping', compact('order'));
     }
 
     // (10) stats: thống kê đơn hàng
-public function stats(Request $request)
+    public function stats(Request $request)
     {
         $now = Carbon::now('Asia/Ho_Chi_Minh');
         // Thời gian
@@ -434,38 +441,38 @@ public function stats(Request $request)
 
         // Tổng số đơn & theo trạng thái
         $totalOrders      = Order::count();
-        $deliveredOrders  = Order::where('order_status','delivered')->count();
-        $cancelledOrders  = Order::where('order_status','cancelled')->count();
-        $processingOrders = Order::where('order_status','processing')->count();
-        $pendingOrders    = Order::where('order_status','pending_confirmation')->count();
-        $returnedOrders   = Order::where('order_status','returned')->count();
+        $deliveredOrders  = Order::where('order_status', 'delivered')->count();
+        $cancelledOrders  = Order::where('order_status', 'cancelled')->count();
+        $processingOrders = Order::where('order_status', 'processing')->count();
+        $pendingOrders    = Order::where('order_status', 'pending_confirmation')->count();
+        $returnedOrders   = Order::where('order_status', 'returned')->count();
 
         // Doanh thu & số đơn delivered tháng này
-        $totalRevenueThisMonth = Order::where('order_status','delivered')
-            ->whereBetween('delivered_at',[$startOfThisMonth,$endOfThisMonth])
+        $totalRevenueThisMonth = Order::where('order_status', 'delivered')
+            ->whereBetween('delivered_at', [$startOfThisMonth, $endOfThisMonth])
             ->sum('total_amount');
-        $deliveredThisMonth = Order::where('order_status','delivered')
-            ->whereBetween('delivered_at',[$startOfThisMonth,$endOfThisMonth])
+        $deliveredThisMonth = Order::where('order_status', 'delivered')
+            ->whereBetween('delivered_at', [$startOfThisMonth, $endOfThisMonth])
             ->count();
 
         // So sánh
-        $totalRevenueLastMonth       = Order::where('order_status','delivered')
-            ->whereBetween('delivered_at',[$startOfLastMonth,$endOfLastMonth])
+        $totalRevenueLastMonth       = Order::where('order_status', 'delivered')
+            ->whereBetween('delivered_at', [$startOfLastMonth, $endOfLastMonth])
             ->sum('total_amount');
-        $totalRevenueThisMonthLastYear = Order::where('order_status','delivered')
-            ->whereBetween('delivered_at',[$startOfLastYearMo,$endOfLastYearMo])
+        $totalRevenueThisMonthLastYear = Order::where('order_status', 'delivered')
+            ->whereBetween('delivered_at', [$startOfLastYearMo, $endOfLastYearMo])
             ->sum('total_amount');
 
         // KPI
         $completed = $deliveredOrders + $cancelledOrders;
-        $successRate        = $completed ? round($deliveredOrders/$completed*100,1) : 0;
-        $cancellationRate   = $completed ? round($cancelledOrders/$completed*100,1) : 0;
-        $averageOrderValue  = $deliveredThisMonth ? round($totalRevenueThisMonth/$deliveredThisMonth) : 0;
+        $successRate        = $completed ? round($deliveredOrders / $completed * 100, 1) : 0;
+        $cancellationRate   = $completed ? round($cancelledOrders / $completed * 100, 1) : 0;
+        $averageOrderValue  = $deliveredThisMonth ? round($totalRevenueThisMonth / $deliveredThisMonth) : 0;
         $momRevenueGrowth   = $totalRevenueLastMonth
-            ? round(($totalRevenueThisMonth - $totalRevenueLastMonth)/$totalRevenueLastMonth*100,1)
+            ? round(($totalRevenueThisMonth - $totalRevenueLastMonth) / $totalRevenueLastMonth * 100, 1)
             : ($totalRevenueThisMonth ? 100 : 0);
         $yoyRevenueGrowth   = $totalRevenueThisMonthLastYear
-            ? round(($totalRevenueThisMonth - $totalRevenueThisMonthLastYear)/$totalRevenueThisMonthLastYear*100,1)
+            ? round(($totalRevenueThisMonth - $totalRevenueThisMonthLastYear) / $totalRevenueThisMonthLastYear * 100, 1)
             : ($totalRevenueThisMonth ? 100 : 0);
 
         // Sparkline: 6 tháng gần nhất
@@ -473,37 +480,47 @@ public function stats(Request $request)
         for ($i = 5; $i >= 0; $i--) {
             $m = $now->copy()->subMonths($i);
             $sparklineLabels[] = $m->format('M Y');
-            $sparklineData[]   = Order::where('order_status','delivered')
-                ->whereMonth('delivered_at',$m->month)
-                ->whereYear('delivered_at',$m->year)
+            $sparklineData[]   = Order::where('order_status', 'delivered')
+                ->whereMonth('delivered_at', $m->month)
+                ->whereYear('delivered_at', $m->year)
                 ->sum('total_amount');
         }
 
         // Bar/line chart: 12 tháng năm nay
         $chartLabels = $chartCounts = $chartAmounts = [];
         for ($m = 1; $m <= 12; $m++) {
-            $chartLabels[]  = sprintf('%02d/%d',$m,$now->year);
-            $chartCounts[]  = Order::whereMonth('created_at',$m)
-                ->whereYear('created_at',$now->year)->count();
-            $chartAmounts[] = Order::where('order_status','delivered')
-                ->whereMonth('delivered_at',$m)
-                ->whereYear('delivered_at',$now->year)
+            $chartLabels[]  = sprintf('%02d/%d', $m, $now->year);
+            $chartCounts[]  = Order::whereMonth('created_at', $m)
+                ->whereYear('created_at', $now->year)->count();
+            $chartAmounts[] = Order::where('order_status', 'delivered')
+                ->whereMonth('delivered_at', $m)
+                ->whereYear('delivered_at', $now->year)
                 ->sum('total_amount');
         }
 
         // Đơn mới nhất
         $latestOrder = Order::orderByDesc('created_at')
-            ->first(['order_code','customer_name','total_amount','created_at']);
+            ->first(['order_code', 'customer_name', 'total_amount', 'created_at']);
 
         return view('admin.orders.stats', compact(
-            'totalOrders','deliveredOrders','cancelledOrders','processingOrders',
-            'pendingOrders','returnedOrders',
-            'totalRevenueThisMonth','averageOrderValue',
-            'successRate','cancellationRate','momRevenueGrowth','yoyRevenueGrowth',
-            'sparklineLabels','sparklineData',
-            'chartLabels','chartCounts','chartAmounts',
+            'totalOrders',
+            'deliveredOrders',
+            'cancelledOrders',
+            'processingOrders',
+            'pendingOrders',
+            'returnedOrders',
+            'totalRevenueThisMonth',
+            'averageOrderValue',
+            'successRate',
+            'cancellationRate',
+            'momRevenueGrowth',
+            'yoyRevenueGrowth',
+            'sparklineLabels',
+            'sparklineData',
+            'chartLabels',
+            'chartCounts',
+            'chartAmounts',
             'latestOrder'
         ));
     }
-
 }

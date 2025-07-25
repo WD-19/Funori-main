@@ -3,11 +3,6 @@
 @section('title', 'Quản lý phương thức giao hàng')
 
 @section('content')
-    @if (session('success'))
-        <div class="alert alert-success mb-3" style="font-size:1.25rem; font-weight:bold;">
-            {{ session('success') }}
-        </div>
-    @endif
     <div class="main-content-inner">
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
@@ -15,7 +10,7 @@
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="{{ route('admin.dashboard') }}">
-                            <div class="text-tiny">dashboard</div>
+                            <div class="text-tiny">bảng điều khiển</div>
                         </a>
                     </li>
                     <li>
@@ -58,7 +53,7 @@
                 <div class="wg-table table-product-list">
                     <ul class="table-title flex gap20 mb-14">
                         <li style="width:7%">
-                            <div class="body-title">ID</div>
+                            <div class="body-title">STT</div>
                         </li>
                         <li style="width:20%">
                             <div class="body-title">Tên</div>
@@ -79,7 +74,9 @@
                     <ul class="flex flex-column">
                         @foreach ($methods as $method)
                             <li class="wg-product item-row gap20" style="align-items:center;">
-                                <div class="body-text" style="width:7%">{{ $method->id }}</div>
+                                <div class="body-text" style="width:7%">
+                                    {{ ($methods->currentPage() - 1) * $methods->perPage() + $loop->iteration }}
+                                </div>
                                 <div class="body-text fw-7" style="width:20%">{{ $method->name }}</div>
                                 <div class="body-text" style="width:30%">{{ $method->description }}</div>
                                 <div class="body-text" style="width:15%">{{ number_format($method->cost, 2) }} đ</div>
@@ -92,26 +89,14 @@
                                 </div>
                                 <div class="list-icon-function"
                                     style="width:13%; display:flex; gap:8px; align-items:center;">
-                                    @if ($method->is_active)
-                                        <form method="POST"
-                                            action="{{ route('admin.shipping_methods.deactivate', $method->id) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="icon-button" title="Tắt phương thức">
-                                                <i class="icon-eye-off"></i>
-                                            </button>
-                                        </form>
-                                    @else
-                                        <form method="POST"
-                                            action="{{ route('admin.shipping_methods.activate', $method->id) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="icon-button" title="Bật phương thức">
-                                                <i class="icon-eye"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-
+                                    <form method="POST"
+                                        action="{{ $method->is_active ? route('admin.shipping_methods.deactivate', $method->id) : route('admin.shipping_methods.activate', $method->id) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="icon-button" title="{{ $method->is_active ? 'Tắt phương thức' : 'Bật phương thức' }}">
+                                            <i class="{{ $method->is_active ? 'icon-eye-off' : 'icon-eye' }}" style="color:#f59e0b;font-size:20px;"></i>
+                                        </button>
+                                    </form>
                                     <form method="POST"
                                         action="{{ route('admin.shipping_methods.destroy', $method->id) }}"
                                         onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
@@ -121,6 +106,10 @@
                                             <i class="icon-trash-2"></i>
                                         </button>
                                     </form>
+                                    <a href="{{ route('admin.shipping_methods.edit', $method->id) }}" class="item edit"
+                                        style="background:none; border:none; padding:0; margin:0; cursor:pointer;">
+                                        <i class="icon-edit-3" style="color:#22c55e;font-size:20px;"></i>
+                                    </a>
                                 </div>
                             </li>
                         @endforeach
