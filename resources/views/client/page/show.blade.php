@@ -207,8 +207,8 @@
 
         .related-card-price {
             font-size: 1.1rem;
-            color: #ff0000; /* Đổi màu giá tiền thành đỏ */
-            font-weight: 700;
+            color: red; /* Đổi màu giá tiền thành đỏ */
+            font-weight: 500;
             margin-top: 8px;
         }
 

@@ -5,5 +5,5 @@
 /storage/framework/*
 /storage/logs/*
 /storage/views/*
-/storage/public
+# /storage/public
 /storage/sessions/*

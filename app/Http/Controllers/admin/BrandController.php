@@ -1,15 +1,25 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class BrandController 
+class BrandController
 {
-    public function index()
+    public function index(Request $request)
     {
-       $brands = Brand::orderBy('created_at', 'desc')->get();
+        $query = Brand::query();
+
+        // Kiểm tra nếu có tham số 'name' trong request
+        if ($request->has('name') && $request->input('name') !== '') {
+            $query->where('name', 'LIKE', '%' . $request->input('name') . '%');
+        }
+
+        // Lấy danh sách thương hiệu, sắp xếp theo created_at giảm dần
+        $brands = $query->orderBy('created_at', 'desc')->get();
+
         return view('admin.brands.index', compact('brands'));
     }
 
@@ -40,7 +50,7 @@ class BrandController
         // Xử lý logo nếu có
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('logos', 'public');
-            $validated['logo_url'] = $path; 
+            $validated['logo_url'] = $path;
         }
 
         Brand::create($validated);

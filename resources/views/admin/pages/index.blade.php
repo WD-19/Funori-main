@@ -83,8 +83,8 @@
                             </div>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="{{ route('admin.pages.create') }}"><i
-                            class="icon-plus"></i>Thêm mới
+                    <a class="tf-button style-1 w208" href="{{ route('admin.pages.create') }}"><i class="icon-plus"></i>Thêm
+                        mới
                     </a>
                 </div>
                 <div class="wg-table table-all-attribute">
@@ -140,7 +140,7 @@
                                         @endif
                                     </div>
                                     <div class="body-text">
-                                        {{ $page->published_at ? $page->published_at->format('d/m/Y H:i') : '-' }}
+                                        {{ $page->published_at ? $page->published_at->format('d/m/Y') : '-' }}
                                     </div>
                                     <div class="list-icon-function">
                                         <div class="item eye" data-bs-toggle="modal"
@@ -160,9 +160,12 @@
                                                         <button type="button" class="btn-close btn-close-white"
                                                             data-bs-dismiss="modal" aria-label="Đóng"></button>
                                                     </div>
-                                                    <div class="modal-body px-5 py-4" style="max-height: 80vh; overflow-y: auto;">
-                                                        <div class="inspiration-article-bg" style="background: #f5f6fa; padding: 40px;">
-                                                            <div class="inspiration-article-container" style="width: 100%; max-width: 1300px; margin: 0 auto;">
+                                                    <div class="modal-body px-5 py-4"
+                                                        style="max-height: 80vh; overflow-y: auto;">
+                                                        <div class="inspiration-article-bg"
+                                                            style="background: #f5f6fa; padding: 40px;">
+                                                            <div class="inspiration-article-container"
+                                                                style="width: 100%; max-width: 1300px; margin: 0 auto;">
                                                                 @if ($page->featured_image_url)
                                                                     <div class="inspiration-article-image">
                                                                         <img src="{{ asset('storage/' . $page->featured_image_url) }}"
@@ -170,10 +173,12 @@
                                                                             style="width: 100%; max-width: 100%; height: auto; object-fit: contain; background: #eee; display: block; margin: 0 auto;">
                                                                     </div>
                                                                 @endif
-                                                                <h1 class="inspiration-article-title" style="font-size: 2.4rem; font-weight: 800; text-align: center; margin-bottom: 18px; color: #222; line-height: 1.2;">
+                                                                <h1 class="inspiration-article-title"
+                                                                    style="font-size: 2.4rem; font-weight: 800; text-align: center; margin-bottom: 18px; color: #222; line-height: 1.2;">
                                                                     {{ $page->title }}
                                                                 </h1>
-                                                                <div class="inspiration-article-content" style="font-size: 1.15rem; color: #333; line-height: 1.8; text-align: justify; margin-bottom: 0; overflow: hidden;">
+                                                                <div class="inspiration-article-content"
+                                                                    style="font-size: 1.15rem; color: #333; line-height: 1.8; text-align: justify; margin-bottom: 0; overflow: hidden;">
                                                                     {!! str_replace('/admin/storage', '/storage', $page->content) !!}
                                                                 </div>
                                                             </div>
@@ -207,18 +212,23 @@
                         Showing {{ $pages->firstItem() }} to {{ $pages->lastItem() }} of {{ $pages->total() }} entries
                     </div>
                     <ul class="wg-pagination">
+                        <!-- Previous Page -->
                         <li>
-                            <a href="{{ $pages->previousPageUrl() ?? '#' }}" {!! $pages->onFirstPage() ? 'class=disabled' : '' !!}>
+                            <a href="{{ $pages->previousPageUrl() ?? '#' }}"
+                                {{ $pages->onFirstPage() ? 'class=disabled' : '' }}>
                                 <i class="icon-chevron-left"></i>
                             </a>
                         </li>
+                        <!-- Page Numbers -->
                         @for ($i = 1; $i <= $pages->lastPage(); $i++)
-                            <li class="{{ $pages->currentPage() == $i ? 'active' : '' }}>
+                            <li class="{{ $pages->currentPage() == $i ? 'active' : '' }}">
                                 <a href="{{ $pages->url($i) }}">{{ $i }}</a>
                             </li>
                         @endfor
+                        <!-- Next Page -->
                         <li>
-                            <a href="{{ $pages->nextPageUrl() ?? '#' }}" {!! $pages->currentPage() == $pages->lastPage() ? 'class=disabled' : '' !!}>
+                            <a href="{{ $pages->nextPageUrl() ?? '#' }}"
+                                {{ $pages->currentPage() == $pages->lastPage() ? 'class=disabled' : '' }}>
                                 <i class="icon-chevron-right"></i>
                             </a>
                         </li>
@@ -324,6 +334,51 @@
                 max-width: 100%;
                 margin: 0 auto 20px auto;
             }
+        }
+
+        /* Phân trang */
+        .wg-pagination {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .wg-pagination li {
+            list-style: none;
+        }
+
+        .wg-pagination li a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            /* Màu xám cho các nút không active */
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .wg-pagination li a:hover {
+            background-color: #F28C38;
+            /* Màu cam khi hover */
+            color: #fff;
+        }
+
+        .wg-pagination li.active a {
+            background-color: #F28C38;
+            /* Màu cam cho nút active */
+            color: #fff;
+        }
+
+        .wg-pagination li a.disabled {
+            background-color: #E5E7EB;
+            /* Màu xám nhạt cho nút disabled */
+            color: #9CA3AF;
+            cursor: not-allowed;
         }
     </style>
 @endsection

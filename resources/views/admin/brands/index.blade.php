@@ -38,7 +38,7 @@
                 </div>
                 <div class="flex items-center justify-between gap10 flex-wrap" style="min-width: max-content;">
                     <div class="wg-filter flex-grow">
-                        <form class="form-search flex gap10" method="GET" action="#">
+                        <form class="form-search flex gap10" method="GET" action="{{ route('admin.brands.index') }}">
                             <fieldset class="name">
                                 <input type="text" placeholder="Tìm kiếm tên thương hiệu..." name="name"
                                     value="{{ request('name') }}">
@@ -92,7 +92,8 @@
                                         <span class="block-stock bg-1 fw-7">Ẩn</span>
                                     @endif
                                 </div>
-                                <div class="list-icon-function" style="width: 20%; display: flex; gap: 16px; align-items: center;">
+                                <div class="list-icon-function"
+                                    style="width: 20%; display: flex; gap: 16px; align-items: center;">
                                     <form action="{{ route('admin.brands.toggle', $brand) }}" method="POST"
                                         style="display:inline-block;">
                                         @csrf

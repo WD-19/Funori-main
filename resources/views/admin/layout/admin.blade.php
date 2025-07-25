@@ -22,36 +22,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-    <!-- Toastr JS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     @stack('head')
+
     <style>
-        /* Tăng cỡ chữ cho toastr */
-        #toast-container>.toast {
-            font-size: 18px;
-            min-width: 400px;
-            max-width: 500px;
-            padding: 18px 24px;
-            padding-left: 50px;
+        /* Loader full screen */
+        #preload {
+            position: fixed;
+            z-index: 9999;
+            inset: 0;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
-        /* Tùy chỉnh màu nền/toast nếu muốn */
-        #toast-container>.toast-success {
-            background-color: #43d477;
+        #preload.fade-out {
+            opacity: 0;
+            visibility: hidden;
         }
 
-        #toast-container>.toast-error {
-            background-color: #ff4d4f;
+        .preloading i {
+            font-size: 5rem;
+            color: #333;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 
 <body>
+    <!-- Loader -->
+    <div id="preload">
+        <div class="preloading">
+            <i class="fas fa-spinner"></i>
+        </div>
+    </div>
+
     <div id="wrapper">
         <div id="page">
             <div class="layout-wrap">
-
                 @include('admin.partials.sidebar')
                 <div class="section-content-right">
                     @include('admin.partials.header')
@@ -60,7 +75,7 @@
                         <div class="main-content-inner">
                             <!-- main-content-wrap -->
                             <div class="main-content-wrap">
-                                {{-- @if (session('success'))
+                                @if (session('success'))
                                     <x-alert type="success">
                                         {{ session('success') }}
                                     </x-alert>
@@ -70,7 +85,7 @@
                                     <x-alert type="danger">
                                         {{ session('error') }}
                                     </x-alert>
-                                @endif --}}
+                                @endif
                                 @yield('content')
 
                                 @include('admin.partials.footer')
@@ -81,6 +96,14 @@
             </div>
         </div>
     </div>
+    <!-- Fade-out effect on load -->
+    <script>
+        window.addEventListener('load', function() {
+            const preload = document.getElementById('preload');
+            preload.classList.add('fade-out');
+        });
+    </script>
+
     <!-- JS -->
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
@@ -104,29 +127,6 @@
     <script src="{{ asset('js/switcher.js') }}"></script>
     <script defer src="{{ asset('js/theme-settings.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-
-
-    <!-- Toastr JS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    {{-- Thông báo --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            toastr.options = {
-                "positionClass": "toast-bottom-right",
-                "timeOut": "3000",
-                "closeButton": true,
-                "progressBar": true
-            };
-            @if (session('success'))
-                toastr.success("{{ session('success') }}");
-            @endif
-
-            @if (session('error'))
-                toastr.error("{{ session('error') }}");
-            @endif
-        });
-    </script>
     @stack('scripts')
 </body>
 

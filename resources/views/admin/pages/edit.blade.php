@@ -30,11 +30,11 @@
             </ul>
         </div>
         <div class="wg-box">
-            @if (session('success'))
+            {{-- @if (session('success'))
                 <div class="alert alert-success mb-3" style="font-size:1.5rem; font-weight:bold; padding:15px;">
                     {{ session('success') }}
                 </div>
-            @endif
+            @endif --}}
             <form action="{{ route('admin.pages.update', $page->id) }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf

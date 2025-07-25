@@ -282,7 +282,6 @@
                     </div>
                 @endforelse
             </div>
-            
             <div class="pagination-wrapper">
                 {{ $posts->links('pagination::bootstrap-4') }}
             </div>
