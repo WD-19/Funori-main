@@ -10476,7 +10476,7 @@ header.header-bg {
     gap: 12px;
 }
 .tf-sticky-btn-atc .tf-btn {
-    min-width: 190px;
+    min-width: 100px;
 }
 
 @keyframes showProduct {
@@ -16603,7 +16603,7 @@ blockquote .text {
 
     .tf-dropdown-sort {
         padding: 10px 18px;
-        min-width: 190px;
+        min-width: 100px;
     }
 
     .tf-row-flex .tf-shop-sidebar {
