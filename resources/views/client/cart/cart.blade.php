@@ -384,68 +384,7 @@
     </section>
 
 
-    <!-- product -->
-    <div class="all-box-new-product" style="display: flex; flex-wrap: wrap; gap: 37px; padding: 0px 15px">
-        @php
-            $wishlistProductIds = [];
-            if (Auth::check() && Auth::user()->wishlist) {
-                $wishlistProductIds = Auth::user()->wishlist->items->pluck('product_id')->toArray();
-            }
-        @endphp
-        @foreach ($newestProducts as $product)
-            <div class="new-product-1">
-                <div class="pic-product-1">
-                    <a href="{{ route('client.product.show', $product->slug) }}">
-                        <img src="{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}"
-                            alt="{{ $product->name }}"
-                            onmouseover="this.src='{{ $product->images->get(1) ? asset($product->images->get(1)->image_url) : asset($product->images->first() ? $product->images->first()->image_url : 'images/no-image.png') }}'"
-                            onmouseout="this.src='{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}'">
-                    </a>
-                    <div class="box-icon-new-product">
-                        <a href="{{ route('client.product.show', $product->slug) }}"><i style="font-size: 19px;"
-                                id="search-Product" class="fa-solid fa-magnifying-glass"></i></a>
-                        <button class="wishlist-btn" data-product-id="{{ $product->id }}"
-                            style="background:none;border:none;padding:0;cursor:pointer;">
-                            <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
-                                class="fa-solid fa-heart" id="heart-Product"></i>
-                        </button>
-                        <i style="font-size: 18px;" id="cart-Product" class="fa-solid fa-cart-shopping"></i>
-                    </div>
-                </div>
-                <div class="box-star" style="width: 100%; height: 23px;">
-                    @php
-                        $avg = round($product->reviews->avg('rating'), 1);
-                        $count = $product->reviews->count();
-                    @endphp
-                    @for ($i = 1; $i <= 5; $i++)
-                        @if ($i <= floor($avg))
-                            <i style="color: #fcad02; margin-left: 0;" class="fa-solid fa-star"></i>
-                        @elseif($i - $avg < 1 && $avg - floor($avg) >= 0.5)
-                            <i style="color: #fcad02; margin-left: 0;" class="fa-solid fa-star-half-stroke"></i>
-                        @else
-                            <i style="color: #ccc; margin-left: 0;" class="fa-solid fa-star"></i>
-                        @endif
-                    @endfor
-                    <span style="margin-left: 5px; color: rgb(201, 201, 201); font-size: 12px;">
-                        ({{ $count }} review{{ $count != 1 ? 's' : '' }})
-                    </span>
-                </div>
-                <div class="title-new-product">
-                    <a href="{{ route('client.product.show', $product->slug) }}">{{ $product->name }}</a>
-                </div>
-                @php
-                    $totalStock = $product->variants->sum('stock_quantity');
-                @endphp
-                <div style="font-size: 16px; color: rgb(170, 167, 167);">
-                    @if ($product->variants->count() > 0 && $totalStock <= 0)
-                        <span style="color:red;font-weight:bold;">Hết hàng</span>
-                    @else
-                        {{ number_format($product->regular_price, 0, ',', '.') }} đ
-                    @endif
-                </div>
-            </div>
-        @endforeach
-    </div>
+
 
 @endsection
 

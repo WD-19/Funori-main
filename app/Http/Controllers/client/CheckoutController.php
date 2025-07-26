@@ -279,20 +279,8 @@ class CheckoutController
             // --- END: Cập nhật kho hàng an toàn ---
         }
 
-
-
-        $paymentMethod = PaymentMethod::find($request->payment_method_id);
-
-        if ($paymentMethod->code === 'paypal') {
-            if (!isset($order) || !$order->id) {
-                return redirect()->route('client.checkout.index')
-                    ->with('error', 'Có lỗi xảy ra khi tạo đơn hàng');
-            }
-
-            return redirect()->route('paypal.process', ['order_id' => $order->id]);
-        }
-
-        if ($paymentMethod->code === 'vnpay') {
+        if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'VNPAY') {
+            // Gọi phương thức pay của VnPayController
             $vnpayController = new \App\Http\Controllers\VnPayController();
             $vnpayRequest = new Request();
             $vnpayRequest->replace([
@@ -314,27 +302,6 @@ class CheckoutController
             }
             return back()->with('error', 'Không thể chuyển hướng sang VNPAY!');
         }
-
-
-
-
-
-
-
-        $paymentMethod = PaymentMethod::find($request->payment_method_id);
-        if ($paymentMethod->code === 'paypal') {
-            // Đảm bảo order đã được tạo trước đó  
-            if (!isset($order) || !$order->id) {
-                return redirect()->route('client.checkout')
-                    ->with('error', 'Có lỗi xảy ra khi tạo đơn hàng');
-            }
-
-            // Chuyển hướng qua GET request với order_id
-            return redirect()->route('paypal.process', ['order_id' => $order->id]);
-        }
-
-
-
 
         if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'MOMO') {
             // Gọi phương thức pay của MomoController

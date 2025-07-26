@@ -114,8 +114,6 @@
                                     <div class="swiper-button-next button-style-arrow thumbs-next"></div>
                                     <div class="swiper-button-prev button-style-arrow thumbs-prev"></div>
                                 </div>
-
-
                                 <script>
                                     document.addEventListener('DOMContentLoaded', function() {
                                         var thumbsSwiper = new Swiper('#thumbs-swiper', {
@@ -478,7 +476,6 @@
                                             </button>
                                             <i class="icon-delete"></i>
                                         </div>
-                                    </form>
                                         <style>
                                             .wishlist-btn i {
                                                 font-size: 18px !important;
@@ -1213,71 +1210,8 @@
     <!-- Toastr hiển thị thông báo session -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    {{-- <script>
-        // Đặt ngoài DOMContentLoaded để luôn hoạt động kể cả khi toastr chưa hiện
-        const addToCartBtn = document.querySelector('.btn-add-to-cart');
-        if (addToCartBtn) {
-            addToCartBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                let productId = {{ $product->id }};
-                let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
-                let variantInput = document.querySelector('input[name="variant_id"]:checked');
-                let productVariantId = variantInput ? variantInput.value : null;
-                let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
-                if (hasVariants && !productVariantId) {
-                    toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
-                    return;
-                }
-                fetch('{{ route('client.cart.add') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            product_id: productId,
-                            quantity: quantity,
-                            product_variant_id: productVariantId
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            toastr.success('Đã thêm vào giỏ hàng!');
-                        } else {
-                            toastr.error(data.message || 'Có lỗi xảy ra!');
-                        }
-                    })
-                    .catch(error => {
-                        toastr.error('Có lỗi xảy ra!');
-                        console.error(error);
-                    });
-            });
-        } --}}
-    <script>
-        // Fallback functions nếu header chưa load
-        if (typeof updateCartCountBadge !== 'function') {
-            window.updateCartCountBadge = function(newCount) {
-                const cartBadge = document.getElementById('cart-count-badge');
-                if (cartBadge) {
-                    cartBadge.textContent = newCount;
-                    // Hiển thị/ẩn badge dựa trên số lượng
-                    if (newCount > 0) {
-                        cartBadge.style.display = 'flex';
-                    } else {
-                        cartBadge.style.display = 'none';
-                    }
-                }
-            };
-        }
-        
-        if (typeof updateMiniCartContent !== 'function') {
-            window.updateMiniCartContent = function() {
-                // Fallback - có thể reload trang hoặc không làm gì
-                console.log('Mini cart update function not available');
-            };
-        }
 
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('shoppingCart');
             if (!modal) return;
@@ -1315,38 +1249,6 @@
                         .then(data => {
                             if (data.success) {
                                 toastr.success('Đã thêm vào giỏ hàng!');
-                                // Cập nhật cart count badge
-                                if (data.cart_count !== undefined && typeof updateCartCountBadge === 'function') {
-                                    console.log('Updating cart count badge to:', data.cart_count);
-                                    // Thêm delay nhỏ để đảm bảo DOM đã load
-                                    setTimeout(() => {
-                                        updateCartCountBadge(data.cart_count);
-                                    }, 100);
-                                } else {
-                                    console.log('Cannot update cart count badge:', {
-                                        cart_count: data.cart_count,
-                                        function_exists: typeof updateCartCountBadge === 'function'
-                                    });
-                                }
-                                // Cập nhật mini cart content
-                                if (typeof updateMiniCartContent === 'function') {
-                                    updateMiniCartContent();
-                                }
-                                // Đóng modal
-                                const modal = bootstrap.Modal.getInstance(document.getElementById('shoppingCart'));
-                                if (modal) {
-                                    modal.hide();
-                                }
-                                // Reset số lượng về 1
-                                const quantityInput = document.getElementById('quantity-product');
-                                if (quantityInput) {
-                                    quantityInput.value = '1';
-                                }
-                                // Bỏ chọn biến thể
-                                document.querySelectorAll('.tf-mini-cart-item.selected').forEach(function(item) {
-                                    item.classList.remove('selected');
-                                });
-                                window.selectedVariantId = null;
                             } else {
                                 toastr.error(data.message || 'Có lỗi xảy ra!');
                             }
@@ -1402,7 +1304,6 @@
                 });
             }
         });
-        // thêm vào yêu thích
 
         document.addEventListener("DOMContentLoaded", function() {
             toastr.options = {
@@ -1525,5 +1426,4 @@
             });
         });
     </script>
-
 @endsection

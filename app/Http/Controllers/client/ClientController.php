@@ -24,7 +24,7 @@ class ClientController
             ->limit(3)
             ->get();
         $topCategories = Category::withCount('products')
-            ->orderByDesc('products_count')
+            ->whereNull('parent_id')
             ->take(5)
             ->get();
         $randomBrands = Brand::inRandomOrder()->take(5)->get();
@@ -35,9 +35,9 @@ class ClientController
 
         // hiển thị bài viết
         $latestPages = Page::where('status', 'published')
-        ->orderByDesc('published_at')
-        ->take(2)
-        ->get();
+            ->orderByDesc('published_at')
+            ->take(2)
+            ->get();
 
         return view('client.home', compact('products', 'banners', 'topCategories', 'randomBrands', 'latestPages'));
     }
