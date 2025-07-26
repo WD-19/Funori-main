@@ -46,29 +46,26 @@
     </div>
 
     {{-- <div class="all-box-banner">
-        @foreach ($banners->where('position', 'banner_category') as $banner)
-        <div class="box-first-banner">
-            <div class="box-img-banner">
-                <a href="{{ $banner->link_url }}">
-                    <img src="{{ asset('storage/' . $banner->image_url) }}" alt="{{ $banner->title ?? '' }}" />
-                </a>
+        @foreach ($latestPages as $page)
+            <div class="box-first-banner">
+                <div class="box-img-banner">
+                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">
+                        <img src="{{ asset('storage/' . $page->featured_image_url) }}" alt="{{ $page->title }}" />
+                    </a>
+                </div>
+                <div class="title-in-banner">
+                    <h3>{{ $page->title }}</h3>
+                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">Xem Bài Viết</a>
+                </div>
             </div>
-            <div class="title-in-banner">
-                <h3>{{ $banner->title ?? '' }}</h3>
-                <a href="{{ $banner->link_url }}">Xem Bộ Sưu Tập</a>
-            </div>
-        </div>
         @endforeach
     </div> --}}
     <style>
-
         .title-Living-room {
             position: absolute;
             left: 45%;
- 
+
         }
-
-
     </style>
     <div class="box-room">
         @foreach ($banners->where('position', 'banner_category') as $banner)
@@ -110,58 +107,59 @@
             </div>
             <div class="all-new-product">
                 @foreach ($products as $product)
-                        <div class="new-product">
-                            <div class="all-product">
+                    <div class="new-product">
+                        <div class="all-product">
+                            <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}"
+                                style="text-decoration: none">
+                                <div class="new-img-product">
+                                    <img src="{{ asset($product->thumbnail->image_url ?? 'default.jpg') }}"
+                                        alt="{{ $product->thumbnail->alt_text ?? $product->name }}">
+                                    <div class="note-notif">
+                                        @if ($product->is_featured)
+                                            <div class="title-hot">Hot</div>
+                                        @endif
+                                    </div>
+                            </a>
+                            <div class="all-box-icon">
+                                <button class="wishlist-btn" data-product-id="{{ $product->id }}"
+                                    style="background:none;border:none;padding:0;cursor:pointer;">
+                                    <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
+                                        class="fa-solid fa-heart" id="heart-Product"></i>
+                                </button>
                                 <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}"
-                                    style="text-decoration: none">
-                                    <div class="new-img-product">
-                                        <img src="{{ asset($product->thumbnail->image_url ?? 'default.jpg') }}"
-                                            alt="{{ $product->thumbnail->alt_text ?? $product->name }}">
-                                        <div class="note-notif">
-                                            @if ($product->is_featured)
-                                                <div class="title-hot">Hot</div>
-                                            @endif
-                                        </div>
+                                    style="color:inherit;">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
                                 </a>
-                                <div class="all-box-icon">
-                                    <button class="wishlist-btn" data-product-id="{{ $product->id }}"
-                                        style="background:none;border:none;padding:0;cursor:pointer;">
-                                        <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
-                                            class="fa-solid fa-heart" id="heart-Product"></i>
-                                    </button>
-                                    <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}" style="color:inherit;">
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-                                    </a>
-                                </div>
                             </div>
-                            <div class="contents-new-product">
-                                <div class="star">
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        <i class="fa-solid fa-star"></i>
-                                    @endfor
-                                </div>
-                                <div class="view-product">
-                                    ({{ $product->reviews->count() }} đánh giá)
-                                </div>
+                        </div>
+                        <div class="contents-new-product">
+                            <div class="star">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <i class="fa-solid fa-star"></i>
+                                @endfor
                             </div>
+                            <div class="view-product">
+                                ({{ $product->reviews->count() }} đánh giá)
+                            </div>
+                        </div>
 
 
-                            <div class="box-name-product" data-product-id="{{ $product->id }}">
-                                <div class="name-product">{{ $product->name }}</div>
-                                <div id="Prict-prod">
-                                    <span>{{ number_format($product->regular_price, decimals: 2) }} đ</span>
-                                </div>
-                                {{-- <div class="buttom-1">
+                        <div class="box-name-product" data-product-id="{{ $product->id }}">
+                            <div class="name-product">{{ $product->name }}</div>
+                            <div id="Prict-prod">
+                                <span>{{ number_format($product->regular_price, decimals: 2) }} đ</span>
+                            </div>
+                            {{-- <div class="buttom-1">
                                     <button type="submit">
                                         <i class="fa-solid fa-cart-plus"></i>
                                         <span>Thêm vào giỏ</span>
                                     </button>
                                 </div> --}}
 
-                            </div>
                         </div>
                     </div>
-                @endforeach
+            </div>
+            @endforeach
         </div>
     </div>
     </div>
@@ -210,7 +208,7 @@
             </div>
         </div>
     </div>
-    <div class="all-box-banner">
+    {{-- <div class="all-box-banner">
         <div class="box-first-banner">
             <div class="box-img-banner">
                 <a href="">
@@ -235,6 +233,21 @@
             </div>
 
         </div>
+    </div> --}}
+    <div class="all-box-banner">
+        @foreach ($latestPages as $page)
+            <div class="box-first-banner">
+                <div class="box-img-banner">
+                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">
+                        <img src="{{ asset('storage/' . $page->featured_image_url) }}" alt="{{ $page->title }}" />
+                    </a>
+                </div>
+                <div class="title-in-banner">
+                    <h3>{{ $page->title }}</h3>
+                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">Xem Bài Viết</a>
+                </div>
+            </div>
+        @endforeach
     </div>
     <div class="box-brand">
         <div class="in-brand">
@@ -247,7 +260,7 @@
     </div>
     <script>
         // thêm vào yêu thích
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             toastr.options = {
                 "positionClass": "toast-top-right",
                 "timeOut": "1000",
@@ -255,8 +268,8 @@
                 "progressBar": true
             };
             let wishlistProcessing = false;
-            document.querySelectorAll('.wishlist-btn').forEach(function (btn) {
-                btn.addEventListener('click', function (e) {
+            document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     if (wishlistProcessing) {
                         toastr.warning('Bạn thao tác quá nhanh, vui lòng chờ!');
@@ -271,19 +284,24 @@
                     }
                     var productId = this.getAttribute('data-product-id');
                     var icon = this.querySelector('i');
-                    var isActive = icon.classList.contains('fa-solid') && icon.style.color === 'red';
-                    var url = isActive ? "{{ route('client.wishlist.remove') }}" : "{{ route('client.wishlist.add') }}";
+                    var isActive = icon.classList.contains('fa-solid') && icon.style.color ===
+                        'red';
+                    var url = isActive ? "{{ route('client.wishlist.remove') }}" :
+                        "{{ route('client.wishlist.add') }}";
                     var method = 'POST';
-                    var body = JSON.stringify({ product_id: productId });
+                    var body = JSON.stringify({
+                        product_id: productId
+                    });
                     fetch(url, {
-                        method: method,
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
-                        },
-                        body: body
-                    })
+                            method: method,
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')
+                                    .getAttribute('content')
+                            },
+                            body: body
+                        })
                         .then(response => response.json())
                         .then(data => {
                             if (!isActive && data.success !== false) {
@@ -297,11 +315,13 @@
                                     let count = parseInt(badge.textContent) || 0;
                                     badge.textContent = count + 1;
                                 } else {
-                                    var heartIcon = document.querySelector('#wishlist-header-btn .fa-heart');
+                                    var heartIcon = document.querySelector(
+                                        '#wishlist-header-btn .fa-heart');
                                     if (heartIcon) {
                                         var span = document.createElement('span');
                                         span.className = 'wishlist-badge';
-                                        span.style = 'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
+                                        span.style =
+                                            'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
                                         span.textContent = '1';
                                         heartIcon.parentNode.appendChild(span);
                                     }
@@ -318,8 +338,9 @@
                                     badge.textContent = Math.max(count - 1, 0);
                                     if (badge.textContent == '0') badge.remove();
                                 }
-                                setTimeout(function () {
-                                    var toast = document.querySelector('.toast-success');
+                                setTimeout(function() {
+                                    var toast = document.querySelector(
+                                        '.toast-success');
                                     if (toast) {
                                         toast.style.backgroundColor = '#e53935';
                                         toast.style.color = '#fff';
@@ -329,14 +350,16 @@
                                 if (data.message && data.message.includes('đăng nhập')) {
                                     toastr.error(data.message);
                                 } else {
-                                    toastr.info(data.message || 'Sản phẩm đã có trong yêu thích!');
+                                    toastr.info(data.message ||
+                                        'Sản phẩm đã có trong yêu thích!');
                                 }
                             }
                             // Cập nhật mini-wishlist
-                            fetch('{{ route("wishlist.miniList") }}')
+                            fetch('{{ route('wishlist.miniList') }}')
                                 .then(res => res.text())
                                 .then(html => {
-                                    var miniWishlist = document.querySelector('#mini-wishlist-content');
+                                    var miniWishlist = document.querySelector(
+                                        '#mini-wishlist-content');
                                     if (miniWishlist) miniWishlist.innerHTML = html;
                                 });
                         })
@@ -345,7 +368,9 @@
                             console.error(error);
                         })
                         .finally(() => {
-                            setTimeout(function () { wishlistProcessing = false; }, 600);
+                            setTimeout(function() {
+                                wishlistProcessing = false;
+                            }, 600);
                         });
                 });
             });

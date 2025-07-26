@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use App\Models\Address;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Order; // Add this at the top if not already imported
+use App\Models\Promotion;
 
 class ProfileController
 {
@@ -18,11 +20,40 @@ class ProfileController
         ]);
     }
 
-    public function order()
+    public function order(Request $request)
     {
+        $user = Auth::user();
+        $orders = $user->orders()->latest();
+
+        $status = $request->query('order_status', 'all');
+        if ($status !== 'all') {
+            $orders = $orders->where('order_status', $status);
+        }
+
+        $orders = $orders->get();
+
+        // Nếu vẫn muốn groupBy để dùng lại view cũ:
+        $ordersByStatus = $status === 'all'
+            ? $orders->groupBy('order_status')
+            : collect([$status => $orders]);
+
         return view('client.profile.order', [
-            'pageTitle' => 'My Orders'
+            'pageTitle' => 'My Orders',
+            'ordersByStatus' => $ordersByStatus
         ]);
+    }
+
+    public function detailOrder($orderId)
+    {
+        $user = Auth::user();
+        $order = Order::with([
+            'items.product',
+            'items.productVariant.image',
+            'items.productVariant.attributeValues.attribute',
+            'items.product.thumbnail'
+        ])->find($orderId);
+
+        return view('client.profile.orderDetail', ['order' => $order]);
     }
 
     public function address()
@@ -53,6 +84,7 @@ class ProfileController
             'phone_number' => ['required', 'string', 'max:15', Rule::unique('users', 'phone_number')->ignore($user->id, 'id')],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:8|confirmed',
+            'avatar_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // validate ảnh
         ]);
 
         // Cập nhật thông tin chính
@@ -62,6 +94,16 @@ class ProfileController
         // Cập nhật mật khẩu nếu có
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
+        }
+
+        if ($request->hasFile('avatar_url')) {
+            // Xóa ảnh cũ nếu có
+            if ($user->avatar_url) {
+                Storage::disk('public')->delete($user->avatar_url);
+            }
+            // Lưu ảnh mới
+            $path = $request->file('avatar_url')->store('images/avatar', 'public');
+            $user->avatar_url = $path;
         }
 
         $user->save();
@@ -197,5 +239,186 @@ class ProfileController
             $wishlistItems = collect();
         }
         return view('client.profile.wishlist', compact('wishlistItems'));
+    }
+
+    public function editPassword()
+    {
+        return view('client.profile.password');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'current_password' => ['required'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
+            'new_password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'new_password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'new_password.confirmed' => 'Xác nhận mật khẩu mới không khớp.',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không đúng.']);
+        }
+
+        if (Hash::check($request->new_password, $user->password)) {
+            return back()->withErrors(['new_password' => 'Mật khẩu mới không được trùng với mật khẩu hiện tại.']);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', 'Đổi mật khẩu thành công!');
+    }
+
+    /**
+     * User request to cancel an order (chuyển trạng thái sang pending_cancellation)
+     */
+    public function cancelOrder(Request $request, Order $order)
+    {
+        // Nếu là request JSON (AJAX), merge dữ liệu vào $request
+        if ($request->isJson()) {
+            $request->merge($request->json()->all());
+        }
+
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:255',
+            'cancel_reason_other' => 'nullable|string|max:255',
+        ]);
+
+        // Kiểm tra quyền và trạng thái đơn hàng
+        if ($order->user_id !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'Không có quyền hủy đơn hàng này!'], 403);
+        }
+
+        if (!in_array($order->order_status, ['pending_confirmation', 'processing'])) {
+            return response()->json(['success' => false, 'message' => 'Đơn hàng không thể hủy ở trạng thái hiện tại!'], 400);
+        }
+
+        $reason = $request->cancellation_reason === 'other'
+            ? $request->cancel_reason_other
+            : $request->cancellation_reason;
+
+        $order->order_status = 'cancelled';
+        $order->cancelled_at = now();
+        $order->cancellation_reason = $reason;
+        $order->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function repeatOrder($id)
+    {
+        $order = Order::with('items')->findOrFail($id);
+
+        // Lấy giỏ hàng hiện tại (theo user hoặc session)
+        $cart = auth()->check()
+            ? \App\Models\Cart::firstOrCreate(['user_id' => auth()->id()])
+            : session()->get('cart', []);
+
+        $repeatIds = [];
+
+        foreach ($order->items as $item) {
+            $key = $item->product_id . '_' . ($item->product_variant_id ?? 'null');
+            $repeatIds[] = $key;
+
+            // Tính đơn giá tại thời điểm đặt hàng
+            $unitPrice = $item->quantity > 0 ? ($item->subtotal / $item->quantity) : 0;
+
+            if (auth()->check()) {
+                $cartItem = $cart->items()->where([
+                    'product_id' => $item->product_id,
+                    'product_variant_id' => $item->product_variant_id
+                ])->first();
+
+                if ($cartItem) {
+                    $cartItem->quantity += $item->quantity;
+                    $cartItem->save();
+                } else {
+                    $cart->items()->create([
+                        'product_id' => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'quantity' => $item->quantity,
+                        'price_at_addition' => $unitPrice // <-- Lưu đơn giá vào cart
+                    ]);
+                }
+            } else {
+                $cartArr = session()->get('cart', []);
+                if (isset($cartArr[$key])) {
+                    $cartArr[$key]['quantity'] += $item->quantity;
+                } else {
+                    $cartArr[$key] = [
+                        'product_id' => $item->product_id,
+                        'product_variant_id' => $item->product_variant_id,
+                        'quantity' => $item->quantity,
+                        'price_at_addition' => $unitPrice // <-- Lưu đơn giá vào session
+                    ];
+                }
+                session()->put('cart', $cartArr);
+            }
+        }
+
+        // Chuyển hướng sang trang giỏ hàng, tick các sản phẩm vừa thêm
+        return redirect()->route('client.view-cart')->with('repeat_ids', implode(',', $repeatIds));
+    }
+
+    public function vouchers()
+    {
+        $user = Auth::user();
+        // Lấy các promotion còn hiệu lực, có thể lọc theo user nếu cần
+        $vouchers = Promotion::where('is_active', 1)
+            ->where(function($q){
+                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+            })
+            ->get();
+        return view('client.profile.voucher', compact('vouchers'));
+    }
+
+   
+
+    public function ajaxOrderList(Request $request)
+    {
+        $user = Auth::user();
+        $orders = $user->orders()->latest();
+
+        $status = $request->query('order_status', 'all');
+        if ($status !== 'all') {
+            $orders = $orders->where('order_status', $status);
+        }
+        $orders = $orders->get();
+
+        $ordersByStatus = $status === 'all'
+            ? $orders->groupBy('order_status')
+            : collect([$status => $orders]);
+
+        // Trả về view partial chỉ chứa danh sách đơn hàng
+        return view('client.profile.order_list', [
+            'ordersByStatus' => $ordersByStatus
+        ])->render();
+    }
+
+    public function markDelivered($orderId)
+    {
+        $user = Auth::user();
+        $order = Order::where('id', $orderId)->where('user_id', $user->id)->firstOrFail();
+
+        // Chấp nhận nhiều giá trị trạng thái giao hàng
+        $shippingStatuses = ['shipped', 'shipping', 'dang_giao', 'Đang giao'];
+        if (in_array($order->order_status, $shippingStatuses)) {
+            $order->order_status = 'delivered';
+            $order->delivered_at = now();
+            $order->save();
+
+            $order->status_histories()->create([
+                'status' => 'delivered',
+                'note' => 'Khách hàng xác nhận đã nhận hàng',
+                'created_at' => now(),
+            ]);
+        }
+        // Redirect về trang đơn hàng (hoặc trang trước đó)
+        return redirect()->back();
     }
 }

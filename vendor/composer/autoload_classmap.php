@@ -29,6 +29,7 @@ return array(
     'App\\Http\\Controllers\\Admin\\ShippingMethodController' => $baseDir . '/app/Http/Controllers/Admin/ShippingMethodController.php',
     'App\\Http\\Controllers\\Admin\\UserController' => $baseDir . '/app/Http/Controllers/Admin/UserController.php',
     'App\\Http\\Controllers\\PayPalController' => $baseDir . '/app/Http/Controllers/PayPalController.php',
+    'App\\Http\\Controllers\\PayOSController' => $baseDir . '/app/Http/Controllers/PayOSController.php',
     'App\\Http\\Controllers\\VnPayController' => $baseDir . '/app/Http/Controllers/VnPayController.php',
     'App\\Http\\Controllers\\client\\AboutController' => $baseDir . '/app/Http/Controllers/client/AboutController.php',
     'App\\Http\\Controllers\\client\\AddressController' => $baseDir . '/app/Http/Controllers/client/AddressController.php',
@@ -8190,5 +8191,5 @@ return array(
     'staabm\\SideEffectsDetector\\SideEffect' => $vendorDir . '/staabm/side-effects-detector/lib/SideEffect.php',
     'staabm\\SideEffectsDetector\\SideEffectsDetector' => $vendorDir . '/staabm/side-effects-detector/lib/SideEffectsDetector.php',
     'voku\\helper\\ASCII' => $vendorDir . '/voku/portable-ascii/src/voku/helper/ASCII.php',
-    '©' => $vendorDir . '/symfony/cache/Traits/ValueWrapper.php',
+    'ï¿½' => $vendorDir . '/symfony/cache/Traits/ValueWrapper.php',
 );

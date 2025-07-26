@@ -11,11 +11,17 @@
                             <div class="text-tiny">Bảng điều khiển</div>
                         </a>
                     </li>
-                    <li><i class="icon-chevron-right"></i></li>
                     <li>
-                        <div class="text-tiny">Banner</div>
+                        <i class="icon-chevron-right"></i>
                     </li>
-                    <li><i class="icon-chevron-right"></i></li>
+                    <li>
+                        <a href="{{ route('admin.banners.index') }}">
+                            <div class="text-tiny">Banner</div>
+                        </a>
+                    </li>
+                    <li>
+                        <i class="icon-chevron-right"></i>
+                    </li>
                     <li>
                         <div class="text-tiny">Danh sách banner</div>
                     </li>

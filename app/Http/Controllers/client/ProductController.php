@@ -94,5 +94,4 @@ class ProductController
 
         return back()->with('success', 'Gửi đánh giá thành công! Đánh giá của bạn sẽ được duyệt sớm.');
     }
-    
 }

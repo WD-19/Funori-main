@@ -65,6 +65,34 @@ class PageController
             'meta_description' => 'required|string|max:500',
             'published_at' => 'required|date|before_or_equal:now',
         ], [
+            'title.required' => 'Tiêu đề trang là bắt buộc.',
+            'title.string' => 'Tiêu đề trang phải là chuỗi ký tự.',
+            'title.max' => 'Tiêu đề trang không được vượt quá 255 ký tự.',
+            'slug.required' => 'Slug là bắt buộc.',
+            'slug.string' => 'Slug phải là chuỗi ký tự.',
+            'slug.max' => 'Slug không được vượt quá 255 ký tự.',
+            'slug.unique' => 'Slug đã tồn tại, vui lòng chọn slug khác.',
+            'content.required' => 'Nội dung là bắt buộc.',
+            'content.string' => 'Nội dung phải là chuỗi ký tự.',
+            'author_id.required' => 'Tác giả là bắt buộc.',
+            'author_id.exists' => 'Tác giả không tồn tại.',
+            'page_type.required' => 'Loại trang là bắt buộc.',
+            'page_type.string' => 'Loại trang phải là chuỗi ký tự.',
+            'page_type.max' => 'Loại trang không được vượt quá 100 ký tự.',
+            'status.required' => 'Trạng thái là bắt buộc.',
+            'status.in' => 'Trạng thái không hợp lệ.',
+            'featured_image_url.required' => 'Ảnh đại diện là bắt buộc.',
+            'featured_image_url.image' => 'Tệp phải là hình ảnh.',
+            'featured_image_url.mimes' => 'Hình ảnh phải có định dạng: jpg, jpeg, png.',
+            'featured_image_url.max' => 'Kích thước hình ảnh không được vượt quá 2MB.',
+            'meta_title.required' => 'Meta title là bắt buộc.',
+            'meta_title.string' => 'Meta title phải là chuỗi ký tự.',
+            'meta_title.max' => 'Meta title không được vượt quá 255 ký tự.',
+            'meta_description.required' => 'Meta description là bắt buộc.',
+            'meta_description.string' => 'Meta description phải là chuỗi ký tự.',
+            'meta_description.max' => 'Meta description không được vượt quá 500 ký tự.',
+            'published_at.required' => 'Ngày xuất bản là bắt buộc.',
+            'published_at.date' => 'Ngày xuất bản phải là ngày hợp lệ.',
             'published_at.before_or_equal' => 'Ngày xuất bản không được vượt quá thời điểm hiện tại.',
         ]);
 
@@ -128,6 +156,33 @@ class PageController
             'meta_description' => 'required|string|max:500',
             'published_at' => 'required|date|before_or_equal:now',
         ], [
+            'title.required' => 'Tiêu đề trang là bắt buộc.',
+            'title.string' => 'Tiêu đề trang phải là chuỗi ký tự.',
+            'title.max' => 'Tiêu đề trang không được vượt quá 255 ký tự.',
+            'slug.required' => 'Slug là bắt buộc.',
+            'slug.string' => 'Slug phải là chuỗi ký tự.',
+            'slug.max' => 'Slug không được vượt quá 255 ký tự.',
+            'slug.unique' => 'Slug đã tồn tại, vui lòng chọn slug khác.',
+            'content.required' => 'Nội dung là bắt buộc.',
+            'content.string' => 'Nội dung phải là chuỗi ký tự.',
+            'author_id.required' => 'Tác giả là bắt buộc.',
+            'author_id.exists' => 'Tác giả không tồn tại.',
+            'page_type.required' => 'Loại trang là bắt buộc.',
+            'page_type.string' => 'Loại trang phải là chuỗi ký tự.',
+            'page_type.max' => 'Loại trang không được vượt quá 100 ký tự.',
+            'status.required' => 'Trạng thái là bắt buộc.',
+            'status.in' => 'Trạng thái không hợp lệ.',
+            'featured_image_url.image' => 'Tệp phải là hình ảnh.',
+            'featured_image_url.mimes' => 'Hình ảnh phải có định dạng: jpg, jpeg, png.',
+            'featured_image_url.max' => 'Kích thước hình ảnh không được vượt quá 2MB.',
+            'meta_title.required' => 'Meta title là bắt buộc.',
+            'meta_title.string' => 'Meta title phải là chuỗi ký tự.',
+            'meta_title.max' => 'Meta title không được vượt quá 255 ký tự.',
+            'meta_description.required' => 'Meta description là bắt buộc.',
+            'meta_description.string' => 'Meta description phải là chuỗi ký tự.',
+            'meta_description.max' => 'Meta description không được vượt quá 500 ký tự.',
+            'published_at.required' => 'Ngày xuất bản là bắt buộc.',
+            'published_at.date' => 'Ngày xuất bản phải là ngày hợp lệ.',
             'published_at.before_or_equal' => 'Ngày xuất bản không được vượt quá thời điểm hiện tại.',
         ]);
 
@@ -173,25 +228,30 @@ class PageController
      * Upload image for the editor.
      */
     public function uploadImage(Request $request)
-{
-    try {
-        $request->validate([
-            'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
-        ]);
+    {
+        try {
+            $request->validate([
+                'file' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
+            ], [
+                'file.required' => 'Tệp ảnh là bắt buộc.',
+                'file.image' => 'Tệp phải là hình ảnh.',
+                'file.mimes' => 'Hình ảnh phải có định dạng: jpg, jpeg, png, gif.',
+                'file.max' => 'Kích thước hình ảnh không được vượt quá 2MB.',
+            ]);
 
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $path = $file->store('uploads/pages', 'public');
-            $url = asset('storage/' . $path);
-            // Kiểm tra file tồn tại
-            if (Storage::disk('public')->exists($path)) {
-                return response()->json(['location' => $url]);
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $path = $file->store('uploads/pages', 'public');
+                $url = asset('storage/' . $path);
+                // Kiểm tra file tồn tại
+                if (Storage::disk('public')->exists($path)) {
+                    return response()->json(['location' => $url]);
+                }
+                return response()->json(['error' => 'Không thể lưu file'], 500);
             }
-            return response()->json(['error' => 'Không thể lưu file'], 500);
+            return response()->json(['error' => 'Không có file được tải lên'], 400);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Tải file thất bại: ' . $e->getMessage()], 500);
         }
-        return response()->json(['error' => 'Không có file được tải lên'], 400);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Tải file thất bại: ' . $e->getMessage()], 500);
     }
-}
 }

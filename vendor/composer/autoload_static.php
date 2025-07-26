@@ -769,6 +769,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'App\\Http\\Controllers\\Admin\\ShippingMethodController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/ShippingMethodController.php',
         'App\\Http\\Controllers\\Admin\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/UserController.php',
         'App\\Http\\Controllers\\PayPalController' => __DIR__ . '/../..' . '/app/Http/Controllers/PayPalController.php',
+        'App\\Http\\Controllers\\PayOSController' => __DIR__ . '/../..' . '/app/Http/Controllers/PayOSController.php',
         'App\\Http\\Controllers\\VnPayController' => __DIR__ . '/../..' . '/app/Http/Controllers/VnPayController.php',
         'App\\Http\\Controllers\\client\\AboutController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/AboutController.php',
         'App\\Http\\Controllers\\client\\AddressController' => __DIR__ . '/../..' . '/app/Http/Controllers/client/AddressController.php',
@@ -8930,7 +8931,7 @@ class ComposerStaticInit88970a0117c062eed55fa8728fc43833
         'staabm\\SideEffectsDetector\\SideEffect' => __DIR__ . '/..' . '/staabm/side-effects-detector/lib/SideEffect.php',
         'staabm\\SideEffectsDetector\\SideEffectsDetector' => __DIR__ . '/..' . '/staabm/side-effects-detector/lib/SideEffectsDetector.php',
         'voku\\helper\\ASCII' => __DIR__ . '/..' . '/voku/portable-ascii/src/voku/helper/ASCII.php',
-        '©' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
+        'ï¿½' => __DIR__ . '/..' . '/symfony/cache/Traits/ValueWrapper.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

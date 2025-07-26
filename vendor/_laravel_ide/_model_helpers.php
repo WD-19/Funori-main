@@ -646,6 +646,8 @@ namespace App\Models {
      * @property-read \App\Models\Attribute $attribute
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductVariantAttributeValue> $productVariantAttributeValues
      * @property-read int|null $productVariantAttributeValues_count
+     * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
+     * @property-read int|null $products_count
      * @method static \Illuminate\Database\Eloquent\Builder<AttributeValue>|AttributeValue whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<AttributeValue>|AttributeValue whereAttributeId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<AttributeValue>|AttributeValue whereValue($value)
@@ -2879,10 +2881,12 @@ namespace App\Models {
      * @property string|null $customer_note
      * @property string $order_status
      * @property int $shipping_method_id
+     * @property array|null $payment_details
      * @property string $payment_status
      * @property int $payment_method_id
      * @property decimal:2 $total_amount
      * @property decimal:2 $tax_amount
+     * @property string|null $discount_code
      * @property decimal:2 $discount_amount
      * @property decimal:2 $shipping_fee
      * @property decimal:2 $subtotal_amount
@@ -2920,10 +2924,12 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereSubtotalAmount($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippingFee($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereDiscountAmount($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereDiscountCode($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereTaxAmount($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereTotalAmount($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order wherePaymentMethodId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order wherePaymentStatus($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order wherePaymentDetails($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereShippingMethodId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereOrderStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Order>|Order whereCustomerNote($value)
@@ -4860,6 +4866,8 @@ namespace App\Models {
      * @property-read int|null $wishlistItems_count
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Promotion> $promotions
      * @property-read int|null $promotions_count
+     * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AttributeValue> $materialAttributeValues
+     * @property-read int|null $materialAttributeValues_count
      * @method static \Illuminate\Database\Eloquent\Builder<Product>|Product whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Product>|Product whereName($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Product>|Product whereSlug($value)

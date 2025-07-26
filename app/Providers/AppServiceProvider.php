@@ -27,38 +27,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('*', function ($view) {
-            $globalCartItems = [];
-            $cartCount = 0;
-
+        View::composer('client.partials.header', function ($view) {
             if (Auth::check()) {
                 $cart = Cart::where('user_id', Auth::id())->first();
-
-                if ($cart) {
-                    $globalCartItems = $cart->items()
-                        ->with([
-                            'product.images',
-                            'productVariant.image',
-                            'productVariant.attributeValues.attribute'
-                        ])
-                        ->get()
-                        ->map(function ($item) {
-                            return [
-                                'id' => $item->id,
-                                'product' => $item->product ? $item->product->toArray() : null,
-                                'variant' => $item->productVariant ? $item->productVariant->toArray() : null,
-                                'variant_attributes' => $item->productVariant?->attributeValues->map(function ($attrVal) {
-                                    return $attrVal->attribute->name . ': ' . $attrVal->value;
-                                })->all() ?? [],
-                                'quantity' => $item->quantity,
-                                'price_at_addition' => $item->price_at_addition,
-                                'image_url' => $item->productVariant->image->image_url ?? ($item->product->images[0]->image_url ?? null),
-                            ];
-                        })
-                        ->all();
-
-                    $cartCount = count($globalCartItems);
-                }
+                $cartCount = $cart ? $cart->items()->count() : 0;
             } else {
                 $cart = session('cart', []);
                 $globalCartItems = collect($cart)->map(function ($item) {
@@ -80,16 +52,14 @@ class AppServiceProvider extends ServiceProvider
                             return $attrVal->attribute->name . ': ' . $attrVal->value;
                         })->all() ?? [],
                         'quantity' => $item['quantity'],
-                        'price_at_addition' => $item['price'] ?? $item['price_at_addition'] ?? 0,
+                        'price_at_addition' => $item['price'] ?? null,
                         'image_url' => $variant->image->image_url ?? ($product->images[0]->image_url ?? null),
                     ];
                 })->filter()->values()->all();
 
                 $cartCount = count($globalCartItems);
             }
-
-            $view->with('globalCartItems', $globalCartItems)
-                ->with('cartCount', $cartCount);
+            $view->with('cartCount', $cartCount);
         });
 
 

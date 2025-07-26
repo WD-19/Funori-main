@@ -6,7 +6,7 @@
 @section('content')
     <div class="main-content-inner">
         <div class="main-content-wrap">
-            <div class="w-100">
+            {{-- <div class="w-100">
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show mt-2 mb-3" role="alert"
                         style="max-width: 600px; margin: 0 auto;">
@@ -23,20 +23,22 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
                     </div>
                 @endif
-            </div>
+            </div> --}}
             <div class="flex items-center flex-wrap justify-between gap20 mb-30">
                 <h3>Tất cả trang</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="{{ route('admin.dashboard') }}">
-                            <div class="text-tiny">Dashboard</div>
+                            <div class="text-tiny">Bảng điều khiển</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Trang</div>
+                        <a href="{{ route('admin.pages.index') }}">
+                            <div class="text-tiny">Trang</div>
+                        </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
@@ -81,8 +83,8 @@
                             </div>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="{{ route('admin.pages.create') }}"><i
-                            class="icon-plus"></i>Thêm mới
+                    <a class="tf-button style-1 w208" href="{{ route('admin.pages.create') }}"><i class="icon-plus"></i>Thêm
+                        mới
                     </a>
                 </div>
                 <div class="wg-table table-all-attribute">
@@ -94,7 +96,6 @@
                             <li>
                                 <div class="body-title">Tiêu đề</div>
                             </li>
-                            {{-- <li><div class="body-title">Slug</div></li> --}}
                             <li>
                                 <div class="body-title">Tác giả</div>
                             </li>
@@ -121,7 +122,6 @@
                                 <li class="attribute-item item-row flex items-center justify-between gap20">
                                     <div class="body-text">{{ $pages->firstItem() + $loop->index }}</div>
                                     <div class="body-text">{{ $page->title }}</div>
-                                    {{-- <div class="body-text">{{ $page->slug }}</div> --}}
                                     <div class="body-text">{{ $page->author ? $page->author->full_name : 'N/A' }}</div>
                                     <div class="body-text">{{ $page->page_type }}</div>
                                     <div class="body-text">
@@ -140,101 +140,53 @@
                                         @endif
                                     </div>
                                     <div class="body-text">
-                                        {{ $page->published_at ? $page->published_at->format('d/m/Y H:i') : '-' }}
+                                        {{ $page->published_at ? $page->published_at->format('d/m/Y') : '-' }}
                                     </div>
-
                                     <div class="list-icon-function">
-                                        {{-- <div class="item eye" data-bs-toggle="modal"
+                                        <div class="item eye" data-bs-toggle="modal"
                                             data-bs-target="#quickViewModalPage{{ $page->id }}">
                                             <i class="icon-eye"></i>
                                         </div>
                                         <!-- Modal quick view -->
                                         <div class="modal fade" id="quickViewModalPage{{ $page->id }}" tabindex="-1"
                                             aria-labelledby="quickViewLabelPage{{ $page->id }}" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                <div class="modal-content shadow-lg rounded-4 border-0"
-                                                    style="font-size: 16px;">
+                                            <div class="modal-dialog modal-dialog-centered modal-xl">
+                                                <div class="modal-content shadow-lg rounded-4 border-0">
                                                     <div class="modal-header bg-primary text-white">
                                                         <h3 class="modal-title fw-bold mb-0 text-light"
                                                             id="quickViewLabelPage{{ $page->id }}">
-                                                            <i class="bi bi-info-circle me-2"></i>Chi tiết trang
+                                                            <i class="bi bi-info-circle me-2"></i>Xem trước trang
                                                         </h3>
                                                         <button type="button" class="btn-close btn-close-white"
                                                             data-bs-dismiss="modal" aria-label="Đóng"></button>
                                                     </div>
-                                                    <div class="modal-body px-5 py-4">
-                                                        <div class="row gy-3">
-                                                            <div class="col-sm-6">
-                                                                <strong>Tiêu đề:</strong>
-                                                                <div class="text-muted">{{ $page->title }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Slug:</strong>
-                                                                <div class="text-muted">{{ $page->slug }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Tác giả:</strong>
-                                                                <div class="text-muted">
-                                                                    {{ $page->author ? $page->author->full_name : 'N/A' }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Loại trang:</strong>
-                                                                <div class="text-muted">{{ $page->page_type }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Trạng thái:</strong>
-                                                                @if ($page->status == 'published')
-                                                                    <span class="badge bg-success">Đã xuất bản</span>
-                                                                @else
-                                                                    <span class="badge bg-secondary">Nháp</span>
+                                                    <div class="modal-body px-5 py-4"
+                                                        style="max-height: 80vh; overflow-y: auto;">
+                                                        <div class="inspiration-article-bg"
+                                                            style="background: #f5f6fa; padding: 40px;">
+                                                            <div class="inspiration-article-container"
+                                                                style="width: 100%; max-width: 1300px; margin: 0 auto;">
+                                                                @if ($page->featured_image_url)
+                                                                    <div class="inspiration-article-image">
+                                                                        <img src="{{ asset('storage/' . $page->featured_image_url) }}"
+                                                                            alt="{{ $page->title }}"
+                                                                            style="width: 100%; max-width: 100%; height: auto; object-fit: contain; background: #eee; display: block; margin: 0 auto;">
+                                                                    </div>
                                                                 @endif
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Ngày xuất bản:</strong>
-                                                                <div class="text-muted">
-                                                                    {{ $page->published_at ? $page->published_at->format('d/m/Y H:i') : '-' }}
+                                                                <h1 class="inspiration-article-title"
+                                                                    style="font-size: 2.4rem; font-weight: 800; text-align: center; margin-bottom: 18px; color: #222; line-height: 1.2;">
+                                                                    {{ $page->title }}
+                                                                </h1>
+                                                                <div class="inspiration-article-content"
+                                                                    style="font-size: 1.15rem; color: #333; line-height: 1.8; text-align: justify; margin-bottom: 0; overflow: hidden;">
+                                                                    {!! str_replace('/admin/storage', '/storage', $page->content) !!}
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <strong>Nội dung:</strong>
-                                                                <div class="text-muted"
-                                                                    style="white-space:pre-line;max-height:200px;overflow:auto;">
-                                                                    {!! $page->content !!}
-                                                                </div>
-                                                            </div>
-                                                            @if (!empty($page->featured_image_url))
-                                                                <div class="col-12">
-                                                                    <strong>Ảnh đại diện:</strong><br>
-                                                                    <img src="{{ asset('storage/' . $page->featured_image_url) }}"
-                                                                        alt="Ảnh đại diện"
-                                                                        style="max-width:120px;max-height:120px;">
-                                                                </div>
-                                                            @endif
-                                                            <div class="col-12">
-                                                                <strong>Meta title:</strong>
-                                                                <div class="text-muted">{{ $page->meta_title ?? '-' }}
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-12">
-                                                                <strong>Meta description:</strong>
-                                                                <div class="text-muted">
-                                                                    {{ $page->meta_description ?? '-' }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Ngày tạo:</strong>
-                                                                <div class="text-muted">{{ $page->created_at }}</div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <strong>Ngày cập nhật:</strong>
-                                                                <div class="text-muted">{{ $page->updated_at }}</div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div> --}}
-
+                                        </div>
                                         <div class="item edit">
                                             <a href="{{ route('admin.pages.edit', $page->id) }}" class="item edit"><i
                                                     class="icon-edit-3"></i></a>
@@ -260,18 +212,23 @@
                         Showing {{ $pages->firstItem() }} to {{ $pages->lastItem() }} of {{ $pages->total() }} entries
                     </div>
                     <ul class="wg-pagination">
+                        <!-- Previous Page -->
                         <li>
-                            <a href="{{ $pages->previousPageUrl() ?? '#' }}" {!! $pages->onFirstPage() ? 'class=disabled' : '' !!}>
+                            <a href="{{ $pages->previousPageUrl() ?? '#' }}"
+                                {{ $pages->onFirstPage() ? 'class=disabled' : '' }}>
                                 <i class="icon-chevron-left"></i>
                             </a>
                         </li>
+                        <!-- Page Numbers -->
                         @for ($i = 1; $i <= $pages->lastPage(); $i++)
                             <li class="{{ $pages->currentPage() == $i ? 'active' : '' }}">
                                 <a href="{{ $pages->url($i) }}">{{ $i }}</a>
                             </li>
                         @endfor
+                        <!-- Next Page -->
                         <li>
-                            <a href="{{ $pages->nextPageUrl() ?? '#' }}" {!! $pages->currentPage() == $pages->lastPage() ? 'class=disabled' : '' !!}>
+                            <a href="{{ $pages->nextPageUrl() ?? '#' }}"
+                                {{ $pages->currentPage() == $pages->lastPage() ? 'class=disabled' : '' }}>
                                 <i class="icon-chevron-right"></i>
                             </a>
                         </li>
@@ -282,4 +239,146 @@
         </div>
         <!-- /main-content-wrap -->
     </div>
+
+    <style>
+        .inspiration-article-bg {
+            background: #f5f6fa;
+            min-height: 100%;
+            padding: 40px 0;
+        }
+
+        .inspiration-article-container {
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .inspiration-article-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 18px;
+            color: #222;
+            line-height: 1.2;
+        }
+
+        .inspiration-article-image {
+            margin-bottom: 32px;
+            width: 100%;
+        }
+
+        .inspiration-article-image img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            box-shadow: none;
+            object-fit: contain;
+            background: #eee;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .inspiration-article-content {
+            font-size: 1.15rem;
+            color: #333;
+            line-height: 1.8;
+            text-align: justify;
+            margin-bottom: 0;
+            overflow: hidden;
+        }
+
+        .inspiration-article-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px auto;
+        }
+
+        .inspiration-article-content img[align="left"],
+        .inspiration-article-content img[data-mce-style*="float: left"] {
+            float: left;
+            margin-right: 20px;
+            margin-bottom: 10px;
+            max-width: 40%;
+            clear: both;
+        }
+
+        .inspiration-article-content img[align="right"],
+        .inspiration-article-content img[data-mce-style*="float: right"] {
+            float: right;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            max-width: 40%;
+            clear: both;
+        }
+
+        @media (max-width: 900px) {
+            .inspiration-article-container {
+                width: 98%;
+            }
+
+            .inspiration-article-title {
+                font-size: 1.4rem;
+            }
+
+            .inspiration-article-image img {
+                width: 100%;
+                height: auto;
+            }
+
+            .inspiration-article-content img[align="left"],
+            .inspiration-article-content img[align="right"],
+            .inspiration-article-content img[data-mce-style*="float: left"],
+            .inspiration-article-content img[data-mce-style*="float: right"] {
+                float: none;
+                max-width: 100%;
+                margin: 0 auto 20px auto;
+            }
+        }
+
+        /* Phân trang */
+        .wg-pagination {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .wg-pagination li {
+            list-style: none;
+        }
+
+        .wg-pagination li a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            /* Màu xám cho các nút không active */
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .wg-pagination li a:hover {
+            background-color: #F28C38;
+            /* Màu cam khi hover */
+            color: #fff;
+        }
+
+        .wg-pagination li.active a {
+            background-color: #F28C38;
+            /* Màu cam cho nút active */
+            color: #fff;
+        }
+
+        .wg-pagination li a.disabled {
+            background-color: #E5E7EB;
+            /* Màu xám nhạt cho nút disabled */
+            color: #9CA3AF;
+            cursor: not-allowed;
+        }
+    </style>
 @endsection

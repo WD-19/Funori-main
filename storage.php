@@ -47,14 +47,5 @@ Bạn sẽ được cấp 1 mã 16 ký tự: abcd efgh ijkl mnop
 
 → Đây là mật khẩu bạn dán vào .env
 
-VD:
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=phamdat7905@gmail.com
-MAIL_PASSWORD="vcfh vwjl xrhp hshm"
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=phamdat7905@gmail.com
-MAIL_FROM_NAME="funori-reset-password"
-
 =====================================================================================
+
