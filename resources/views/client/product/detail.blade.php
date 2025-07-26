@@ -492,9 +492,9 @@
                                                 color: red !important;
                                             }
                                         </style>
-                                        <div class="w-100">
+                                        {{-- <div class="w-100">
                                             <a href="#" class="btns-full fw-6 fs-16">Mua với</a>
-                                        </div>
+                                        </div> --}}
                                 </div>
                                 <div class="tf-product-info-extra-link">
                                     <a href="#delivery_return" data-bs-toggle="modal" class="tf-product-extra-icon">
