@@ -27,6 +27,16 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title')</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YRJ52MEC41"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-YRJ52MEC41');
+    </script>
+</head>
 
     <style>
         /* Loader full screen */
@@ -119,4 +129,38 @@
         @stack('scripts')
 
 </body>
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+    (function () {
+        var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/687856501786aa1911e6b66b/1j0b12bap';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+    })();
+</script>
+
+<!--End of Tawk.to Script-->
+<script src="https://kit.fontawesome.com/eda05fcf5c.js" crossorigin="anonymous"></script>
+<script src="{{ asset('client/js/main.js') }}"></script>
+
+<script src="{{ asset('client/ecomus/js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/jquery.min.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/swiper-bundle.min.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/carousel.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/bootstrap-select.min.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/lazysize.min.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/bootstrap-select.min.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/count-down.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/wow.min.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/multiple-modal.js') }}"></script>
+<script src="{{ asset('client/ecomus/js/main.js') }}"></script>
+<script type="text/javascript" src="js/rangle-slider.js"></script>
+
+<!-- Toastr JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 </html>

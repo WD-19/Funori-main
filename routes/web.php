@@ -1,18 +1,19 @@
 <?php
 //Admin Controller
-use App\Http\Controllers\admin\PaymentMethodController;
-use App\Http\Controllers\admin\AttributeController;
-use App\Http\Controllers\admin\BrandController;
-use App\Http\Controllers\admin\BannerController;
-use App\Http\Controllers\admin\PromotionController;
-use App\Http\Controllers\admin\CategoryController;
-use App\Http\Controllers\admin\OrderController;
-use App\Http\Controllers\admin\ProductController;
-use App\Http\Controllers\admin\UserController;
-use App\Http\Controllers\admin\ContactController;
-use App\Http\Controllers\admin\PageController;
-use App\Http\Controllers\admin\ReviewController;
-use App\Http\Controllers\admin\ShippingMethodController;
+use App\Http\Controllers\Admin\PaymentMethodController;
+use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\PromotionController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\client\AboutController;
 //client Controller
@@ -31,6 +32,8 @@ use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\VnPayController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
+use App\Http\Controllers\PayPalController;
+
 use App\Http\Controllers\MomoController;
 use App\Http\Controllers\OnePayController;
 use App\Http\Controllers\PayOSController;
@@ -43,7 +46,25 @@ use Illuminate\Support\Facades\Hash;
 
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use Spatie\Analytics\Facades\Analytics;
+use Spatie\Analytics\Period;
 
+
+
+
+Route::controller(PayPalController::class)->group(function () {
+    Route::post('/paypal/payment', 'createPayment')->name('paypal.payment');  
+    Route::get('/paypal/success', 'success')->name('paypal.success');
+    Route::get('/paypal/cancel', 'cancel')->name('paypal.cancel');
+});
+
+
+
+Route::get('/analytics-test', function () {
+    $analyticsData = Analytics::fetchMostVisitedPages(Period::days(7));
+
+    return $analyticsData;
+});
 Route::get('/', function () {
     if (Auth::check()) {
         $user = Auth::user();
@@ -61,11 +82,11 @@ Route::get('/', function () {
 Route::prefix('admin')->name('admin.')
     ->middleware([CheckLogin::class])
     ->group(function () {
-        Route::get('/', function () {
-            return view('admin.index');
-        })
+        Route::get('/', [DashboardController::class, 'index'])
             ->middleware(CheckLogin::class)
             ->name('dashboard');
+
+        Route::get('dashboard/data', [DashboardController::class, 'fetchData'])->name('dashboard.data');
 
         // Quản lý thương hiệu
         Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');

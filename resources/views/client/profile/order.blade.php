@@ -115,12 +115,12 @@
                                                         $statusInfo =
                                                             $paymentStatusMap[$status] ?? $paymentStatusMap['pending'];
                                                     @endphp
-                                                    <div class="order-payment-status">
+                                                    {{-- <div class="order-payment-status">
                                                         Thanh toán:
                                                         <span class="payment-status {{ $statusInfo['class'] }}">
                                                             {{ $statusInfo['label'] }}
                                                         </span>
-                                                    </div>
+                                                    </div> --}}
                                                     <div class="order-payment-method">
                                                         Phương thức thanh toán:
                                                         <span>{{ $order->paymentMethod->name ?? '---' }}</span>

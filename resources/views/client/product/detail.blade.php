@@ -492,9 +492,9 @@
                                                 color: red !important;
                                             }
                                         </style>
-                                        <div class="w-100">
+                                        {{-- <div class="w-100">
                                             <a href="#" class="btns-full fw-6 fs-16">Mua với</a>
-                                        </div>
+                                        </div> --}}
                                 </div>
                                 <div class="tf-product-info-extra-link">
                                     <a href="#delivery_return" data-bs-toggle="modal" class="tf-product-extra-icon">
@@ -587,18 +587,18 @@
 
             quantityInput.addEventListener('input', updatePrice);
 
-            // Tăng giảm số lượng
-            document.querySelectorAll('.btn-quantity').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    let val = parseInt(quantityInput.value) || 1;
-                    if (this.classList.contains('btn-increase')) {
-                        quantityInput.value = val + 1;
-                    } else if (this.classList.contains('btn-decrease') && val > 1) {
-                        quantityInput.value = val - 1;
-                    }
-                    updatePrice();
-                });
-            });
+            // // Tăng giảm số lượng
+            // document.querySelectorAll('.btn-quantity').forEach(btn => {
+            //     btn.addEventListener('click', function() {
+            //         let val = parseInt(quantityInput.value) || 1;
+            //         if (this.classList.contains('btn-increase')) {
+            //             quantityInput.value = val + 1;
+            //         } else if (this.classList.contains('btn-decrease') && val > 1) {
+            //             quantityInput.value = val - 1;
+            //         }
+            //         updatePrice();
+            //     });
+            // });
 
             // Cập nhật tiêu đề sản phẩm
             function updateProductTitle() {
@@ -1212,29 +1212,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <script>
-        // Fallback functions nếu header chưa load
-        if (typeof updateCartCountBadge !== 'function') {
-            window.updateCartCountBadge = function(newCount) {
-                const cartBadge = document.getElementById('cart-count-badge');
-                if (cartBadge) {
-                    cartBadge.textContent = newCount;
-                    // Hiển thị/ẩn badge dựa trên số lượng
-                    if (newCount > 0) {
-                        cartBadge.style.display = 'flex';
-                    } else {
-                        cartBadge.style.display = 'none';
-                    }
-                }
-            };
-        }
-        
-        if (typeof updateMiniCartContent !== 'function') {
-            window.updateMiniCartContent = function() {
-                // Fallback - có thể reload trang hoặc không làm gì
-                console.log('Mini cart update function not available');
-            };
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('shoppingCart');
             if (!modal) return;
@@ -1272,38 +1249,6 @@
                         .then(data => {
                             if (data.success) {
                                 toastr.success('Đã thêm vào giỏ hàng!');
-                                // Cập nhật cart count badge
-                                if (data.cart_count !== undefined && typeof updateCartCountBadge === 'function') {
-                                    console.log('Updating cart count badge to:', data.cart_count);
-                                    // Thêm delay nhỏ để đảm bảo DOM đã load
-                                    setTimeout(() => {
-                                        updateCartCountBadge(data.cart_count);
-                                    }, 100);
-                                } else {
-                                    console.log('Cannot update cart count badge:', {
-                                        cart_count: data.cart_count,
-                                        function_exists: typeof updateCartCountBadge === 'function'
-                                    });
-                                }
-                                // Cập nhật mini cart content
-                                if (typeof updateMiniCartContent === 'function') {
-                                    updateMiniCartContent();
-                                }
-                                // Đóng modal
-                                const modal = bootstrap.Modal.getInstance(document.getElementById('shoppingCart'));
-                                if (modal) {
-                                    modal.hide();
-                                }
-                                // Reset số lượng về 1
-                                const quantityInput = document.getElementById('quantity-product');
-                                if (quantityInput) {
-                                    quantityInput.value = '1';
-                                }
-                                // Bỏ chọn biến thể
-                                document.querySelectorAll('.tf-mini-cart-item.selected').forEach(function(item) {
-                                    item.classList.remove('selected');
-                                });
-                                window.selectedVariantId = null;
                             } else {
                                 toastr.error(data.message || 'Có lỗi xảy ra!');
                             }
@@ -1481,5 +1426,4 @@
             });
         });
     </script>
-
 @endsection

@@ -46,7 +46,7 @@
                         <li style="width: 15%">
                             <div class="body-title">Tên</div>
                         </li>
-                        <li style="width: 15%">
+                        <li style="width: 15%" style="margin-right: 0px;">
                             <div class="body-title">Mã</div>
                         </li>
                         <li style="width: 10%">
@@ -71,9 +71,9 @@
                             <div class="body-title">Hành động</div>
                         </li>
                     </ul>
-                    <ul class="flex flex-column">
+                    <ul class="flex flex-column" >
                         @forelse($promotions as $promotion)
-                            <li class="wg-product item-row gap20">
+                            <li class="wg-product item-row gap8">
                                 <div  style="width: 15%" class="body-text">{{ $promotion->name }}</div>
                                 <div  style="width: 15%" class="body-text">{{ $promotion->code }}</div>
                                 <div  style="width: 10%">
@@ -104,11 +104,11 @@
                                         <span class="badge bg-warning text-dark">Danh mục</span>
                                     @endif
                                 </div>
-                                <div  style="width: 15%" class="body-text">
+                                <div  style="width: 18%;" class="body-text">
                                     {{ $promotion->created_at ? $promotion->created_at->format('d/m/Y') : '-' }}
                                 </div>
 
-                                <div  style="width: 10%" class="list-icon-function">
+                                <div  style="width: 7%" class="list-icon-function">
                                     <div class="item edit">
                                         <a href="{{ route('admin.promotions.edit', $promotion->id) }}" class="item edit"><i
                                                 class="icon-edit-3"></i></a>

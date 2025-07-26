@@ -614,6 +614,23 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý nút đánh giá - smooth scroll đến phần đánh giá
+    document.querySelectorAll('a[href*="#product-reviews"]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            // Lưu thông tin để chuyển đến trang chi tiết sản phẩm
+            const href = this.getAttribute('href');
+            const url = href.split('#')[0]; // Lấy URL không có anchor
+            const anchor = href.split('#')[1]; // Lấy anchor
+            
+            // Lưu anchor vào sessionStorage để sử dụng ở trang chi tiết sản phẩm
+            sessionStorage.setItem('scrollToReviews', anchor);
+            
+            // Chuyển đến trang chi tiết sản phẩm
+            window.location.href = url;
+        });
+    });
+
+    // Xử lý nút mua lại
     document.querySelectorAll('.btn-repeat-order').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.preventDefault();

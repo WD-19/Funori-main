@@ -5,6 +5,7 @@ use App\Http\Controllers\API\admin\ReviewController;
 use App\Http\Controllers\API\client\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\client\ProductController;
 use App\Http\Controllers\API\client\RegisterController;
 use App\Http\Middleware\CheckApiLogin;
 
