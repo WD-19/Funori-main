@@ -752,7 +752,7 @@
                                     $rateCounts[$i] = $approvedReviews->where('rating', $i)->count();
                                 }
                             @endphp
-                            <div class="widget-content-inner">
+                            <div class="widget-content-inner" id="product-reviews">
                                 <div class="tab-reviews write-cancel-review-wrap">
                                     <div class="tab-reviews-heading">
                                         <div class="top">
@@ -1212,6 +1212,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <script>
+        // Fallback functions nếu header chưa load
+        if (typeof updateCartCountBadge !== 'function') {
+            window.updateCartCountBadge = function(newCount) {
+                const cartBadge = document.getElementById('cart-count-badge');
+                if (cartBadge) {
+                    cartBadge.textContent = newCount;
+                    // Hiển thị/ẩn badge dựa trên số lượng
+                    if (newCount > 0) {
+                        cartBadge.style.display = 'flex';
+                    } else {
+                        cartBadge.style.display = 'none';
+                    }
+                }
+            };
+        }
+        
+        if (typeof updateMiniCartContent !== 'function') {
+            window.updateMiniCartContent = function() {
+                // Fallback - có thể reload trang hoặc không làm gì
+                console.log('Mini cart update function not available');
+            };
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('shoppingCart');
             if (!modal) return;
@@ -1249,6 +1272,38 @@
                         .then(data => {
                             if (data.success) {
                                 toastr.success('Đã thêm vào giỏ hàng!');
+                                // Cập nhật cart count badge
+                                if (data.cart_count !== undefined && typeof updateCartCountBadge === 'function') {
+                                    console.log('Updating cart count badge to:', data.cart_count);
+                                    // Thêm delay nhỏ để đảm bảo DOM đã load
+                                    setTimeout(() => {
+                                        updateCartCountBadge(data.cart_count);
+                                    }, 100);
+                                } else {
+                                    console.log('Cannot update cart count badge:', {
+                                        cart_count: data.cart_count,
+                                        function_exists: typeof updateCartCountBadge === 'function'
+                                    });
+                                }
+                                // Cập nhật mini cart content
+                                if (typeof updateMiniCartContent === 'function') {
+                                    updateMiniCartContent();
+                                }
+                                // Đóng modal
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('shoppingCart'));
+                                if (modal) {
+                                    modal.hide();
+                                }
+                                // Reset số lượng về 1
+                                const quantityInput = document.getElementById('quantity-product');
+                                if (quantityInput) {
+                                    quantityInput.value = '1';
+                                }
+                                // Bỏ chọn biến thể
+                                document.querySelectorAll('.tf-mini-cart-item.selected').forEach(function(item) {
+                                    item.classList.remove('selected');
+                                });
+                                window.selectedVariantId = null;
                             } else {
                                 toastr.error(data.message || 'Có lỗi xảy ra!');
                             }
@@ -1426,4 +1481,58 @@
             });
         });
     </script>
+
+    <script>
+        // Xử lý scroll đến phần đánh giá khi từ trang order detail chuyển sang
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollToReviews = sessionStorage.getItem('scrollToReviews');
+            if (scrollToReviews === 'product-reviews') {
+                // Xóa sessionStorage để tránh scroll lại khi refresh
+                sessionStorage.removeItem('scrollToReviews');
+                
+                // Tự động mở tab đánh giá
+                const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
+                const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
+                
+                // Tìm tab đánh giá (tab thứ 2 - index 1)
+                if (tabTitles.length >= 2) {
+                    // Bỏ active tất cả tabs
+                    tabTitles.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Active tab đánh giá
+                    tabTitles[1].classList.add('active');
+                    tabContents[1].classList.add('active');
+                }
+                
+                // Tìm phần đánh giá
+                const reviewsSection = document.getElementById('product-reviews');
+                if (reviewsSection) {
+                    // Smooth scroll đến phần đánh giá
+                    setTimeout(function() {
+                        reviewsSection.scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        // Highlight phần đánh giá
+                        reviewsSection.style.backgroundColor = '#fff3cd';
+                        reviewsSection.style.border = '2px solid #ffc107';
+                        reviewsSection.style.borderRadius = '8px';
+                        reviewsSection.style.padding = '15px';
+                        reviewsSection.style.transition = 'all 0.3s ease';
+                        
+                        // Xóa highlight sau 3 giây
+                        setTimeout(function() {
+                            reviewsSection.style.backgroundColor = '';
+                            reviewsSection.style.border = '';
+                            reviewsSection.style.borderRadius = '';
+                            reviewsSection.style.padding = '';
+                        }, 3000);
+                    }, 800); // Tăng delay để đảm bảo tab đã chuyển xong
+                }
+            }
+        });
+    </script>
+
 @endsection
