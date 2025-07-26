@@ -938,7 +938,7 @@
   // Dom Ready
   $(function () {
     selectImages();
-    btnQuantity();
+    // btnQuantity();
     deleteFile();
     goTop();
     closeAnnouncement();

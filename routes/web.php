@@ -1,25 +1,25 @@
 <?php
 //Admin Controller
-use App\Http\Controllers\Admin\PaymentMethodController;
-use App\Http\Controllers\Admin\AttributeController;
-use App\Http\Controllers\Admin\BrandController;
-use App\Http\Controllers\Admin\BannerController;
-use App\Http\Controllers\Admin\PromotionController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\ContactController;
-use App\Http\Controllers\Admin\PageController;
-use App\Http\Controllers\Admin\ReviewController;
-use App\Http\Controllers\Admin\ShippingMethodController;
+use App\Http\Controllers\admin\PaymentMethodController;
+use App\Http\Controllers\admin\AttributeController;
+use App\Http\Controllers\admin\BrandController;
+use App\Http\Controllers\admin\BannerController;
+use App\Http\Controllers\admin\PromotionController;
+use App\Http\Controllers\admin\CategoryController;
+use App\Http\Controllers\admin\OrderController;
+use App\Http\Controllers\admin\ProductController;
+use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\admin\ContactController;
+use App\Http\Controllers\admin\PageController;
+use App\Http\Controllers\admin\ReviewController;
+use App\Http\Controllers\admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Client\AboutController;
-//Client Controller
-use App\Http\Controllers\Client\Auth\LoginController;
-use App\Http\Controllers\Client\Auth\RegisterController;
+use App\Http\Controllers\client\AboutController;
+//client Controller
+use App\Http\Controllers\client\Auth\LoginController;
+use App\Http\Controllers\client\Auth\RegisterController;
 use App\Http\Controllers\client\CartController;
-use App\Http\Controllers\Client\ClientController;
+use App\Http\Controllers\client\clientController;
 use App\Http\Controllers\client\PageController as ClientPageController;
 use App\Http\Controllers\client\ProductController as ClientProductController;
 use App\Http\Controllers\client\ContactController as ClientContactCController;
@@ -272,7 +272,12 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
+    Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+    Route::get('/cart/mini-list', [CartController::class, 'miniCart'])->name('cart.miniList');
+
+
     Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+
 
     // Thêm lại route mã giảm giá:
     Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.applyDiscount');
@@ -285,7 +290,15 @@ Route::prefix('/')->name('client.')->group(function () {
     // Profile (gộp các route trùng lặp và thêm middleware)
     Route::prefix('profile')->name('profile.')->middleware(CheckClientLogin::class)->group(function () {
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
-        Route::get('/order', [ProfileController::class, 'order'])->name('order');
+        Route::get('/order', [ProfileController::class, 'order'])->name('my_account.order');
+        Route::get('/order/detail/{id}', [ProfileController::class, 'detailOrder'])->name('my_account.orderdetail');
+        Route::post('/order/{order}/cancel', [ProfileController::class, 'cancelOrder'])->name('my_account.order.cancel');
+      
+        Route::post('/order/{id}/repeat', [ProfileController::class, 'repeatOrder'])->name('order.repeat');
+        Route::get('/voucher', [ProfileController::class, 'vouchers'])->name('voucher');
+        Route::post('/order/{id}/mark-delivered', [ProfileController::class, 'markDelivered'])->name('order.markDelivered');
+
+
 
         // Address Management
         Route::prefix('address')->name('address.')->group(function () {
@@ -300,6 +313,9 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/account', [ProfileController::class, 'account'])->name('account');
         Route::post('/account', [ProfileController::class, 'updateAccount'])->name('account.update');
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
+        Route::get('/password/edit', [ProfileController::class, 'editPassword'])->name('password.edit');
+        Route::post('/password/edit', [ProfileController::class, 'updatePassword'])->name('password.update');
+
     });
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });

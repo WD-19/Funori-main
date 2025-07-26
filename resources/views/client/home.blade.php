@@ -15,7 +15,7 @@
                 @foreach ($banners as $banner)
                     "{{ asset('storage/' . $banner->image_url) }}",
                 @endforeach
-            ];
+                    ];
         </script>
         <img id="pic" src="{{ count($banners) ? asset('storage/' . $banners[0]->image_url) : '' }}" alt="" />
 

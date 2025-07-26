@@ -89,7 +89,7 @@
     <script src="{{ asset('client/ecomus/js/wow.min.js') }}"></script>
     <script src="{{ asset('client/ecomus/js/multiple-modal.js') }}"></script>
     <script src="{{ asset('client/ecomus/js/main.js') }}"></script>
-    <script src="js/rangle-slider.js"></script>
+    <script src="{{ asset('client/ecomus/js/rangle-slider.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <!-- Fade-out effect on load -->
@@ -110,8 +110,13 @@
             s1.src = 'https://embed.tawk.to/687856501786aa1911e6b66b/1j0b12bap';
             s1.charset = 'UTF-8';
             s1.setAttribute('crossorigin', '*');
+            s1.onerror = function() {
+                console.log('Tawk.to chat widget failed to load');
+            };
             s0.parentNode.insertBefore(s1, s0);
         })();
     </script>
+        @stack('scripts')
+
 </body>
 </html>

@@ -431,37 +431,7 @@ class CheckoutController
             if (Auth::check()) {
                 $orderData['user_id'] = Auth::id();
             }
-            $order = Order::create($orderData);
-
-            foreach ($cart['items'] as $item) {
-                OrderItem::create([
-                    'order_id'           => $order->id,
-                    'product_id'         => $item['product_id'],
-                    'product_variant_id' => $item['product_variant_id'],
-                    'quantity'           => $item['quantity'],
-                    'price'              => $item['price_at_addition'],
-                    'subtotal'           => $item['price_at_addition'] * $item['quantity'], // Thêm subtotal
-                    'product_name'       => $item['product']['name'],
-                ]);
-
-                // --- START: Cập nhật kho hàng an toàn (chống race condition) ---
-                if ($item['product_variant_id']) {
-                    $updated = ProductVariant::where('id', $item['product_variant_id'])
-                        ->where('stock_quantity', '>=', $item['quantity'])
-                        ->decrement('stock_quantity', $item['quantity']);
-                    if (!$updated) {
-                        throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
-                    }
-                } else {
-                    $updated = Product::where('id', $item['product_id'])
-                        ->where('stock_quantity', '>=', $item['quantity'])
-                        ->decrement('stock_quantity', $item['quantity']);
-                    if (!$updated) {
-                        throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
-                    }
-                }
-                // --- END: Cập nhật kho hàng an toàn ---
-            }
+          
 
             Session::forget('cart');
             DB::commit();
