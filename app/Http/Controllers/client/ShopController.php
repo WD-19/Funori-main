@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\client;
 
-
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;

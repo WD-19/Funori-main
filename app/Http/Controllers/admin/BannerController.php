@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Banner;
 
-
 class BannerController
 {
     // Trang danh sách banner
@@ -51,6 +50,21 @@ class BannerController
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'link_url' => 'nullable|string|max:255',
             'order' => 'nullable|integer',
+        ], [
+            'title.required' => 'Tiêu đề là bắt buộc.',
+            'title.string' => 'Tiêu đề phải là chuỗi ký tự.',
+            'title.max' => 'Tiêu đề không được vượt quá 255 ký tự.',
+            'image.required' => 'Ảnh banner là bắt buộc.',
+            'image.image' => 'Tệp phải là hình ảnh.',
+            'position.required' => 'Vị trí là bắt buộc.',
+            'position.string' => 'Vị trí phải là chuỗi ký tự.',
+            'position.max' => 'Vị trí không được vượt quá 50 ký tự.',
+            'start_at.date' => 'Thời gian bắt đầu phải là ngày hợp lệ.',
+            'end_at.date' => 'Thời gian kết thúc phải là ngày hợp lệ.',
+            'end_at.after_or_equal' => 'Thời gian kết thúc phải sau hoặc bằng thời gian bắt đầu.',
+            'link.string' => 'Link phải là chuỗi ký tự.',
+            'link.max' => 'Link không được vượt quá 255 ký tự.',
+            'order.integer' => 'Thứ tự phải là số nguyên.',
         ]);
 
         // Lưu ảnh vào thư mục public/storage/banners
@@ -97,6 +111,20 @@ class BannerController
             'link_url' => 'nullable|string|max:255',
             'order' => 'nullable|integer',
             'cropped_image' => 'nullable|string',
+        ], [
+            'title.required' => 'Tiêu đề là bắt buộc.',
+            'title.string' => 'Tiêu đề phải là chuỗi ký tự.',
+            'title.max' => 'Tiêu đề không được vượt quá 255 ký tự.',
+            'image.image' => 'Tệp phải là hình ảnh.',
+            'position.required' => 'Vị trí là bắt buộc.',
+            'position.string' => 'Vị trí phải là chuỗi ký tự.',
+            'position.max' => 'Vị trí không được vượt quá 50 ký tự.',
+            'start_at.date' => 'Thời gian bắt đầu phải là ngày hợp lệ.',
+            'end_at.date' => 'Thời gian kết thúc phải là ngày hợp lệ.',
+            'end_at.after_or_equal' => 'Thời gian kết thúc phải sau hoặc bằng thời gian bắt đầu.',
+            'link.string' => 'Link phải là chuỗi ký tự.',
+            'link.max' => 'Link không được vượt quá 255 ký tự.',
+            'order.integer' => 'Thứ tự phải là số nguyên.',
         ]);
 
         if ($request->filled('cropped_image')) {

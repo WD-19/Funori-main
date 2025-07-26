@@ -1,6 +1,6 @@
 @extends('admin.layout.admin')
 
-@section('title', 'Danh sách user')
+@section('title', 'Danh sách người dùng')
 
 @section('content')
     <div class="main-content-inner">
@@ -12,15 +12,15 @@
                 </a>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
-                        <a href="index.html">
-                            <div class="text-tiny">Dashboard</div>
+                        <a href="{{ route('admin.dashboard') }}">
+                            <div class="text-tiny">Bảng điều khiển</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('admin.users.index') }}">
                             <div class="text-tiny">Người dùng</div>
                         </a>
                     </li>

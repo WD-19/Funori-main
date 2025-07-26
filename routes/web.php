@@ -31,6 +31,9 @@ use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\VnPayController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
+use App\Http\Controllers\MomoController;
+use App\Http\Controllers\OnePayController;
+use App\Http\Controllers\PayOSController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use App\Http\Middleware\RedirectIfAuthenticatedCustom;
@@ -89,6 +92,8 @@ Route::prefix('admin')->name('admin.')
         Route::post('/payment-methods', [PaymentMethodController::class, 'store'])->name('payment_methods.store');
         Route::delete('/payment-methods/{id}', [PaymentMethodController::class, 'destroy'])->name('payment_methods.destroy');
         Route::put('/payment-methods/{id}/toggle', [PaymentMethodController::class, 'toggle'])->name('payment_methods.toggle');
+        Route::get('/payment-methods/{id}/edit', [PaymentMethodController::class, 'edit'])->name('payment_methods.edit');
+        Route::put('/payment-methods/{id}', [PaymentMethodController::class, 'update'])->name('payment_methods.update');
 
         // Shipping Methods
         Route::get('/shipping-methods', [ShippingMethodController::class, 'index'])->name('shipping_methods.index');
@@ -97,6 +102,8 @@ Route::prefix('admin')->name('admin.')
         Route::delete('/shipping-methods/{id}', [ShippingMethodController::class, 'destroy'])->name('shipping_methods.destroy');
         Route::patch('/shipping-methods/{id}/deactivate', [ShippingMethodController::class, 'deactivate'])->name('shipping_methods.deactivate');
         Route::patch('/shipping-methods/{id}/activate', [ShippingMethodController::class, 'activate'])->name('shipping_methods.activate');
+        Route::get('/shipping-methods/{id}/edit', [ShippingMethodController::class, 'edit'])->name('shipping_methods.edit');
+        Route::put('/shipping-methods/{id}', [ShippingMethodController::class, 'update'])->name('shipping_methods.update');
 
         // Quản lý user
         Route::get('admin/users/{user}', [UserController::class, 'show'])->name('admin.users.show');
@@ -159,40 +166,52 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
+// Client Routes home
 Route::get('/', [ClientController::class, 'index'])->name('home');
-// checkout 
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('client.checkout.index');
-Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('client.checkout.process');
-Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('client.checkout.prepare');
+
+// checkout vnpay
 Route::post('/vnpay-pay', [VnPayController::class, 'pay'])->name('vnpay.payment');
 Route::get('/vnpay-return', [VnPayController::class, 'vnpayReturn'])->name('vnpay.return');
-Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('client.checkout.success');
+
+// checkout momo
+Route::post('/momo/payment', [MomoController::class, 'pay'])->name('momo.payment');
+Route::get('/momo/return', [MomoController::class, 'return'])->name('momo.return');
+Route::post('/momo/notify', [MomoController::class, 'notify'])->name('momo.notify');
+
+//trang cửa hàng
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+
+// danh sách yêu thích mini (wishlist)
 Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name('wishlist.miniList');
 
+// trang reset password
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+Route::get('/payos/create', [PayOSController::class, 'createPayment'])->name('payos.create');
+Route::get('/payos/return', [PayOSController::class, 'return'])->name('payos.return');
+Route::get('/payos/cancel', [PayOSController::class, 'cancel'])->name('payos.cancel');
 
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
     })->name('dashboard');
+
+    // thêm và xóa sản phẩm trong danh sách yêu thích (wishlist)
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
 
+    // đăng ký, đăng nhập và đăng xuất
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
-
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // Điều hướng người dùng tới Google
+    // đăng nhập bằng Google
     Route::get('/auth/google', function () {
         return Socialite::driver('google')->redirect();
     })->name('auth.google')->middleware(RedirectIfAuthenticatedCustom::class);
-
-    // Callback từ Google
     Route::get('/auth/google/callback', function () {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
@@ -220,15 +239,20 @@ Route::prefix('/')->name('client.')->group(function () {
         return redirect('/');
     })->name('auth.google.callback')->middleware(RedirectIfAuthenticatedCustom::class);
 
+    // checkout vnpay & momo
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+    Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('checkout.prepare');
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    //trang quên mật khẩu
     Route::get('/forgot-password', [ForgotPasswordController::class, 'show'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'send'])->name('password.email');
 
-
+    // tin tức, giới thiệu, liên hệ
     Route::get('/page', [ClientPageController::class, 'index'])->name('page');
     Route::get('/page/{slug}', [ClientPageController::class, 'show'])->name('page.show');
-
     Route::get('/about', [AboutController::class, 'index'])->name('about');
-
     Route::get('/contact', [ClientContactCController::class, 'index'])->name('contact');
     Route::post('/contactForm', [ClientContactCController::class, 'store'])->name('contact.store');
 
@@ -243,7 +267,7 @@ Route::prefix('/')->name('client.')->group(function () {
         ->middleware(CheckClientLogin::class)
         ->name('reviews.store');
 
-    // Route giỏ hàng (Cart)
+    // giỏ hàng (Cart)
     Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
@@ -254,6 +278,8 @@ Route::prefix('/')->name('client.')->group(function () {
 
     Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
+
+    // Thêm lại route mã giảm giá:
     Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.applyDiscount');
 
     // Checkout (One-Page)
@@ -266,8 +292,7 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/order', [ProfileController::class, 'order'])->name('my_account.order');
         Route::get('/order/detail/{id}', [ProfileController::class, 'detailOrder'])->name('my_account.orderdetail');
-        Route::post('/order/{order}/cancel', [ProfileController::class, 'cancelOrder'])
-        ->name('my_account.order.cancel');
+        Route::post('/order/{order}/cancel', [ProfileController::class, 'cancelOrder'])->name('my_account.order.cancel');
       
         Route::post('/order/{id}/repeat', [ProfileController::class, 'repeatOrder'])->name('order.repeat');
         Route::get('/voucher', [ProfileController::class, 'vouchers'])->name('voucher');
@@ -292,15 +317,10 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::post('/password/edit', [ProfileController::class, 'updatePassword'])->name('password.update');
 
     });
-        Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
-
-
-    // Route chi tiết sản phẩm (để cuối cùng để không bắt các route khác)
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });
 
 
-// Fallback cho các route không tồn tại
 Route::fallback(function () {
     return response()->view('client.errors.404', [], 404);
 });

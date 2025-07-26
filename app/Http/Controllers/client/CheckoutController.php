@@ -249,39 +249,37 @@ class CheckoutController
         if (Auth::check()) {
             $orderData['user_id'] = Auth::id();
         }
-
-        $paymentMethod = PaymentMethod::find($validatedData['payment_method_id']);
-        if ($paymentMethod && $paymentMethod->name === 'VNPAY') {
-            // Tạo đơn hàng 1 lần duy nhất trước khi redirect sang VNPAY
-            $order = Order::create($orderData);
-            foreach ($cart['items'] as $item) {
-                OrderItem::create([
-                    'order_id'           => $order->id,
-                    'product_id'         => $item['product_id'],
-                    'product_variant_id' => $item['product_variant_id'],
-                    'quantity'           => $item['quantity'],
-                    'price'              => $item['price_at_addition'],
-                    'subtotal'           => $item['price_at_addition'] * $item['quantity'],
-                    'product_name'       => $item['product']['name'],
-                ]);
-                // --- START: Cập nhật kho hàng an toàn (chống race condition) ---
-                if ($item['product_variant_id']) {
-                    $updated = ProductVariant::where('id', $item['product_variant_id'])
-                        ->where('stock_quantity', '>=', $item['quantity'])
-                        ->decrement('stock_quantity', $item['quantity']);
-                    if (!$updated) {
-                        throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
-                    }
-                } else {
-                    $updated = Product::where('id', $item['product_id'])
-                        ->where('stock_quantity', '>=', $item['quantity'])
-                        ->decrement('stock_quantity', $item['quantity']);
-                    if (!$updated) {
-                        throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
-                    }
+        $order = Order::create($orderData);
+        foreach ($cart['items'] as $item) {
+            OrderItem::create([
+                'order_id'           => $order->id,
+                'product_id'         => $item['product_id'],
+                'product_variant_id' => $item['product_variant_id'],
+                'quantity'           => $item['quantity'],
+                'price'              => $item['price_at_addition'],
+                'subtotal'           => $item['price_at_addition'] * $item['quantity'],
+                'product_name'       => $item['product']['name'],
+            ]);
+            // --- START: Cập nhật kho hàng an toàn (chống race condition) ---
+            if ($item['product_variant_id']) {
+                $updated = ProductVariant::where('id', $item['product_variant_id'])
+                    ->where('stock_quantity', '>=', $item['quantity'])
+                    ->decrement('stock_quantity', $item['quantity']);
+                if (!$updated) {
+                    throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
                 }
-                // --- END: Cập nhật kho hàng an toàn ---
+            } else {
+                $updated = Product::where('id', $item['product_id'])
+                    ->where('stock_quantity', '>=', $item['quantity'])
+                    ->decrement('stock_quantity', $item['quantity']);
+                if (!$updated) {
+                    throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
+                }
             }
+            // --- END: Cập nhật kho hàng an toàn ---
+        }
+
+        if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'VNPAY') {
             // Gọi phương thức pay của VnPayController
             $vnpayController = new \App\Http\Controllers\VnPayController();
             $vnpayRequest = new Request();
@@ -305,6 +303,30 @@ class CheckoutController
             return back()->with('error', 'Không thể chuyển hướng sang VNPAY!');
         }
 
+        if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'MOMO') {
+            // Gọi phương thức pay của MomoController
+            $momoController = new \App\Http\Controllers\MomoController();
+            $momoRequest = new Request();
+            $momoRequest->replace([
+                'total_momo' => $totalAmount,
+                'order_code' => $order->order_code, // truyền đúng mã đơn hàng
+            ]);
+            $momoResponse = $momoController->pay($momoRequest);
+            if ($momoResponse instanceof \Illuminate\Http\RedirectResponse) {
+                return $momoResponse;
+            }
+            if (is_object($momoResponse) && method_exists($momoResponse, 'getData')) {
+                $data = $momoResponse->getData(true);
+                if (!empty($data['payUrl'])) {
+                    return redirect()->away($data['payUrl']);
+                }
+            }
+            if (is_string($momoResponse)) {
+                return redirect()->away($momoResponse);
+            }
+            return back()->with('error', 'Không thể chuyển hướng sang MoMo!');
+        }
+        
         // --- START: Xác thực lại giỏ hàng trước khi xử lý ---
         foreach ($cart['items'] as $key => $item) {
             // Lấy tên sản phẩm từ session một cách an toàn để hiển thị lỗi
@@ -409,37 +431,7 @@ class CheckoutController
             if (Auth::check()) {
                 $orderData['user_id'] = Auth::id();
             }
-            $order = Order::create($orderData);
-
-            foreach ($cart['items'] as $item) {
-                OrderItem::create([
-                    'order_id'           => $order->id,
-                    'product_id'         => $item['product_id'],
-                    'product_variant_id' => $item['product_variant_id'],
-                    'quantity'           => $item['quantity'],
-                    'price'              => $item['price_at_addition'],
-                    'subtotal'           => $item['price_at_addition'] * $item['quantity'], // Thêm subtotal
-                    'product_name'       => $item['product']['name'],
-                ]);
-
-                // --- START: Cập nhật kho hàng an toàn (chống race condition) ---
-                if ($item['product_variant_id']) {
-                    $updated = ProductVariant::where('id', $item['product_variant_id'])
-                        ->where('stock_quantity', '>=', $item['quantity'])
-                        ->decrement('stock_quantity', $item['quantity']);
-                    if (!$updated) {
-                        throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
-                    }
-                } else {
-                    $updated = Product::where('id', $item['product_id'])
-                        ->where('stock_quantity', '>=', $item['quantity'])
-                        ->decrement('stock_quantity', $item['quantity']);
-                    if (!$updated) {
-                        throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
-                    }
-                }
-                // --- END: Cập nhật kho hàng an toàn ---
-            }
+          
 
             Session::forget('cart');
             DB::commit();

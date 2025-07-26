@@ -9,8 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
- 
-class VnPayController 
+
+class VnPayController
 {
     /**
      * Xử lý thanh toán VNPAY (redirect sang VNPAY).
@@ -45,7 +45,7 @@ class VnPayController
         ];
         foreach ($required as $k => $v) {
             if (empty($v)) {
-                \Log::error('VNPAY thiếu trường bắt buộc: ' . $k);
+                Log::error('VNPAY thiếu trường bắt buộc: ' . $k);
                 return response('Thiếu trường bắt buộc: ' . $k, 400);
             }
         }
@@ -106,14 +106,12 @@ class VnPayController
 
         $inputData = $request->all();
         $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
-        
         // Loại bỏ vnp_SecureHash và vnp_SecureHashType ra khỏi dữ liệu để kiểm tra chữ ký
         unset($inputData['vnp_SecureHash']);
         unset($inputData['vnp_SecureHashType']);
 
         // Sắp xếp dữ liệu theo thứ tự alphabet
         ksort($inputData);
-        
         // Tạo chuỗi hash
         $i = 0;
         $hashdata = "";
@@ -175,8 +173,7 @@ class VnPayController
 
                 // Chuyển hướng đến trang đặt hàng thành công
                 return redirect()->route('client.checkout.success', ['order' => $order->id])
-                               ->with('success', 'Thanh toán và đặt hàng thành công!');
-
+                    ->with('success', 'Thanh toán và đặt hàng thành công!');
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('VNPAY Return Success - DB Error: ' . $e->getMessage(), ['order_code' => $orderCode]);
@@ -209,7 +206,6 @@ class VnPayController
 
                 // Chuyển hướng về giỏ hàng với thông báo lỗi
                 return redirect()->route('client.view-cart')->with('error', 'Thanh toán thất bại: ' . $errorMessage);
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('VNPAY Return Failed - DB Error: ' . $e->getMessage(), ['order_code' => $orderCode]);

@@ -40,24 +40,71 @@
                         <div class="tf-product-media-wrap">
                             <div class="thumbs-slider">
                                 <div dir="ltr" class="swiper tf-product-media-thumbs other-image-zoom"
-                                    id="thumbs-swiper" data-direction="vertical">
-                                    <div class="swiper-wrapper stagger-wrap">
+                                    id="thumbs-swiper">
+                                    <div class="swiper-wrapper">
                                         {{-- Mỗi ảnh phụ là 1 slide --}}
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide stagger-item">
                                                 <div class="item">
-                                                    <img style="width: 100%;" class="lazyload mb-1" data-src="{{ asset($image->image_url) }}"
+                                                    <img style="width: 100%;" class="lazyload mb-1"
+                                                        data-src="{{ asset($image->image_url) }}"
                                                         src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
                                                 </div>
                                             </div>
                                         @endforeach
                                     </div>
+                                    <div class="swiper-scrollbar"></div>
                                 </div>
+                                <style>
+                                    #thumbs-swiper {
+                                        max-width: 90px;
+                                        height: 400px;
+                                        /* 5 ảnh x 70px + 4 khoảng cách x 10px */
+                                        overflow: hidden;
+                                    }
+
+                                    #thumbs-swiper .swiper-wrapper {
+                                        flex-direction: column;
+                                    }
+
+                                    #thumbs-swiper .swiper-slide {
+                                        height: 70px !important;
+                                        width: 70px !important;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                    }
+                                </style>
+                                <script>
+                                    var thumbsSwiper = new Swiper('#thumbs-swiper', {
+                                        direction: 'vertical',
+                                        slidesPerView: 5, // Hiển thị đúng 5 ảnh
+                                        spaceBetween: 10,
+                                        mousewheel: true,
+                                        scrollbar: {
+                                            el: '.swiper-scrollbar',
+                                            draggable: true,
+                                        },
+                                        watchSlidesProgress: true,
+                                        watchSlidesVisibility: true,
+                                        loop: false,
+                                        breakpoints: {
+                                            0: {
+                                                direction: 'horizontal',
+                                                slidesPerView: 5
+                                            },
+                                            769: {
+                                                direction: 'vertical',
+                                                slidesPerView: 5
+                                            }
+                                        }
+                                    });
+                                </script>
                                 <div class="swiper tf-product-media-main" id="gallery-swiper-started">
                                     <div class="swiper-wrapper">
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide">
-                                                <img  style="width: 100%;" class="tf-image-zoom lazyload"
+                                                <img style="width: 100%;" class="tf-image-zoom lazyload"
                                                     data-zoom="{{ asset($image->image_url) }}"
                                                     data-src="{{ asset($image->image_url) }}"
                                                     src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
@@ -75,6 +122,7 @@
                                             spaceBetween: 10,
                                             watchSlidesProgress: true,
                                             watchSlidesVisibility: true,
+                                            loop: false, // Thêm dòng này
                                             breakpoints: {
                                                 0: {
                                                     direction: 'horizontal',
@@ -92,7 +140,7 @@
                                                 nextEl: '.swiper-button-next',
                                                 prevEl: '.swiper-button-prev',
                                             },
-                                            loop: true,
+                                            loop: true, // Chỉ dùng loop ở gallery
                                             slidesPerView: 1,
                                             spaceBetween: 10,
                                             thumbs: {
@@ -100,20 +148,6 @@
                                             }
                                         });
                                         window.gallerySwiper = gallerySwiper; // <-- Thêm dòng này
-
-                                        // Border active cho ảnh phụ
-                                        function updateThumbBorder() {
-                                            let activeIndex = gallerySwiper.realIndex;
-                                            document.querySelectorAll('#thumbs-swiper .swiper-slide').forEach((el, idx) => {
-                                                if (idx === activeIndex) {
-                                                    el.classList.add('thumb-active');
-                                                } else {
-                                                    el.classList.remove('thumb-active');
-                                                }
-                                            });
-                                        }
-                                        gallerySwiper.on('slideChange', updateThumbBorder);
-                                        updateThumbBorder();
 
                                         // Responsive thumbs direction on resize
                                         window.addEventListener('resize', function() {
@@ -124,10 +158,16 @@
                                 </script>
                                 <style>
                                     @media (min-width: 1200px) {
-                                        .container, .container-lg, .container-md, .container-sm, .container-xl {
+
+                                        .container,
+                                        .container-lg,
+                                        .container-md,
+                                        .container-sm,
+                                        .container-xl {
                                             max-width: 1440px;
                                         }
                                     }
+
                                     #gallery-swiper-started {
                                         max-width: 1200px;
                                         height: 100%;
@@ -152,6 +192,13 @@
                                         box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
                                         background: #fff;
                                         border-radius: 18px;
+                                    }
+
+                                    #thumbs-swiper img,
+                                    #gallery-swiper-started img {
+                                        user-select: none;
+                                        -webkit-user-select: none;
+                                        -webkit-touch-callout: none;
                                     }
 
                                     #thumbs-swiper {
@@ -196,11 +243,11 @@
                                     }
 
                                     .tf-product-info-variant-picker .variant-box {
+
                                         min-width: 112px !important;
-                                        padding: 1.4rem !important;
                                         border-width: 1px !important;
                                         border-radius: 4px !important;
-                                        font-size: 80%;
+                                        font-size: 110%;
                                     }
 
                                     .tf-product-info-variant-picker .variant-box img {
@@ -228,11 +275,22 @@
                                     </h5>
                                 </div>
                                 <div class="tf-product-info-badges">
-                                    <div class="badges text-uppercase">Bán chạy</div>
-                                    <div class="product-status-content">
-                                        <i class="icon-lightning"></i>
-                                        {{-- <p class="fw-6">Đang bán rất chạy! 48 người đã thêm vào giỏ hàng.</p> --}}
+                                    @php
+                                        // Đếm số lượt đánh giá đã duyệt
+                                        $approvedReviews = $reviews->where('status', 'approved');
+                                        $reviewCount = $approvedReviews->count();
+
+                                        // Tính trung bình rate
+                                        $averageRate = $reviewCount > 0 ? round($approvedReviews->avg('rating'), 1) : 0;
+                                    @endphp
+                                    <div class="badges text-uppercase">{{ $reviewCount }} Lượt đánh giá | <span
+                                            class="ms-2">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i class="icon icon-star{{ $i <= round($averageRate) ? '' : '-o' }}"></i>
+                                            @endfor
+                                        </span>
                                     </div>
+
                                 </div>
                                 <div class="tf-product-info-badges">
                                     @if ($product->is_featured)
@@ -240,97 +298,203 @@
                                     @endif
                                 </div>
                                 {{-- Hiển thị giá --}}
-                                <div class="tf-product-info-price">
-                                    <div class="price-on-sale" id="product-price">
-                                        {{ number_format($product->regular_price, 0, ',', '.') }}đ
+                                <div class="card shadow-none border-0" style="background: #f5f7fa;">
+                                    <div class="tf-product-info-price p-3">
+                                        <div class="price-on-sale text-danger" id="product-price">
+                                            {{ number_format($product->regular_price, 0, ',', '.') }}đ
+                                        </div>
                                     </div>
                                 </div>
 
                                 {{-- Hiển thị các biến thể (variants) --}}
                                 @if ($product->variants->count())
                                     <div class="tf-product-info-variant-picker mb-3">
-                                        <div class="variant-picker-label mb-2">
-                                            Chọn biến thể:
-                                        </div>
-                                        <div class="variant-picker-values d-flex flex-wrap gap-2">
-                                            @foreach ($product->variants as $variant)
-                                                <label class="variant-box p-2 border rounded mb-2"
-                                                    style="min-width:160px; cursor:pointer;">
-
-                                                    <input type="radio" name="variant_id" value="{{ $variant->id }}"
-                                                        data-title="{{ $variant->name_variant ?? '' }}"
-                                                        data-price="{{ $product->regular_price + $variant->price_modifier }}"
-                                                        data-material="{{ $variant->material ?? '' }}"
-                                                        @if ($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
-                                                        style="margin-right: 8px;">
-                                                    @if ($variant->image)
-                                                        <img  style="width: 100%;" src="{{ asset($variant->image->image_url) }}"
-                                                            alt="Ảnh biến thể"
-                                                            style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
-                                                    @endif
-                                                    <div>
-                                                        <br>
-                                                        <strong>Kho:</strong>
-                                                        @if (($variant->stock_quantity ?? 0) <= 0)
-                                                            <span style="color:red;font-weight:bold;">Hết hàng</span>
-                                                        @else
-                                                            {{ $variant->stock_quantity }}
-                                                        @endif
-                                                        <br>
-                                                        <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
-                                                        {{-- Hiển thị các thuộc tính của biến thể --}}
-                                                        @if ($variant->attributeValues && $variant->attributeValues->count())
-                                                            {{-- <div> --}}
-                                                            {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
-                                                            @foreach ($variant->attributeValues as $attrVal)
-                                                                <strong>{{ $attrVal->attribute->name ?? '' }}</strong>
-                                                                {{ $attrVal->value ?? '' }}<br>
-                                                                {{-- <span
-                                                                        class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
-                                                                        {{ $attrVal->value ?? '' }}</span> --}}
-                                                            @endforeach
-                                                            {{-- </div> --}}
-                                                        @endif
+                                        <!-- shoppingCart -->
+                                        <div class="modal fullRight fade modal-shopping-cart" id="shoppingCart">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="header">
+                                                        <div class="title fw-5">Thêm vào giỏ hàng</div>
+                                                        <span class="icon-close icon-close-popup"
+                                                            data-bs-dismiss="modal"></span>
                                                     </div>
-                                                </label>
-                                            @endforeach
+                                                    <div class="wrap">
+                                                        <div class="tf-mini-cart-wrap">
+                                                            <div class="tf-mini-cart-main">
+                                                                <div class="tf-mini-cart-sroll">
+                                                                    <div class="tf-mini-cart-items">
+                                                                        @foreach ($product->variants as $variant)
+                                                                            <div class="tf-mini-cart-item{{ ($variant->stock_quantity ?? 0) <= 0 ? ' out-of-stock' : '' }}"
+                                                                                data-variant-id="{{ $variant->id }}">
+                                                                                <div class="tf-mini-cart-image"
+                                                                                    style="margin-left: 12px;">
+                                                                                    <a href="javascript:void(0);">
+                                                                                        <img style="object-fit: cover;"
+                                                                                            src="{{ $variant->image ? asset($variant->image->image_url) : asset('images/products/default.jpg') }}"
+                                                                                            alt="{{ $variant->name_variant ?? $product->name }}">
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div class="tf-mini-cart-info">
+                                                                                    <a class="title link text-decoration-none fs-5"
+                                                                                        href="javascript:void(0);">
+                                                                                        {{ $variant->name_variant ?? $product->name }}
+                                                                                    </a>
+                                                                                    <div class="meta-variant">
+                                                                                        @if ($variant->size)
+                                                                                            <span>Kích thước:
+                                                                                                {{ $variant->size }}</span>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                    <div class="meta-variant">
+                                                                                        @if ($variant->material)
+                                                                                            <span>Chất liệu:
+                                                                                                {{ $variant->material }}</span>
+                                                                                        @endif
+                                                                                        @if ($variant->attributeValues && $variant->attributeValues->count())
+                                                                                            @foreach ($variant->attributeValues as $attrVal)
+                                                                                                <span>
+                                                                                                    {{ $attrVal->attribute->name ?? '' }}:
+                                                                                                    {{ $attrVal->value ?? '' }}</span>
+                                                                                            @endforeach
+                                                                                        @endif
+                                                                                    </div>
+                                                                                    <div class="meta-variant">
+                                                                                        @if (($variant->stock_quantity ?? 0) <= 0)
+                                                                                            <span
+                                                                                                style="color: red; font-weight: bold;">Hết
+                                                                                                hàng</span>
+                                                                                        @else
+                                                                                            <span>Tồn kho:
+                                                                                                {{ $variant->stock_quantity }}</span>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                    <div class="price fw-6">
+                                                                                        {{ number_format($product->regular_price + $variant->price_modifier, 0, ',', '.') }}đ
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endforeach
+
+                                                                        <style>
+                                                                            .tf-mini-cart-item.selected {
+                                                                                background: lightgray !important;
+                                                                                /* màu xanh dương nhạt */
+                                                                                transition: background 0.2s;
+                                                                            }
+
+                                                                            .tf-mini-cart-item {
+                                                                                cursor: pointer;
+                                                                            }
+
+                                                                            .tf-mini-cart-item.out-of-stock {
+                                                                                background: #f5f5f5 !important;
+                                                                                cursor: not-allowed;
+                                                                                opacity: 0.5;
+                                                                                pointer-events: none;
+                                                                            }
+
+                                                                            .tf-mini-cart-item.out-of-stock * {
+                                                                                color: #888 !important;
+                                                                                /* Làm mờ chữ */
+                                                                            }
+
+                                                                            .tf-mini-cart-item.out-of-stock img {
+                                                                                filter: grayscale(1) brightness(0.9);
+                                                                                opacity: 0.7;
+                                                                            }
+                                                                        </style>
+
+                                                                        <script>
+                                                                            document.addEventListener('DOMContentLoaded', function() {
+                                                                                document.querySelectorAll('.tf-mini-cart-item').forEach(function(item) {
+                                                                                    item.addEventListener('click', function() {
+                                                                                        // Không cho chọn nếu hết hàng
+                                                                                        if (this.classList.contains('out-of-stock')) return;
+
+                                                                                        if (this.classList.contains('selected')) {
+                                                                                            // Nếu click lại chính nó thì bỏ chọn luôn
+                                                                                            this.classList.remove('selected');
+                                                                                            window.selectedVariantId = null;
+                                                                                        } else {
+                                                                                            document.querySelectorAll('.tf-mini-cart-item').forEach(function(i) {
+                                                                                                i.classList.remove('selected');
+                                                                                            });
+                                                                                            this.classList.add('selected');
+                                                                                            window.selectedVariantId = this.getAttribute('data-variant-id');
+                                                                                        }
+                                                                                    });
+                                                                                });
+                                                                            });
+                                                                        </script>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="tf-mini-cart-bottom">
+                                                                <div class="tf-mini-cart-bottom-wrap">
+                                                                    <div class="tf-product-info-quantity">
+                                                                        <div class="quantity-title fw-6 d-flex">Số lượng
+                                                                        </div>
+                                                                        <div class="wg-quantity">
+                                                                            <span
+                                                                                class="btn-quantity btn-decrease">-</span>
+                                                                            <input type="text" class="quantity-product"
+                                                                                id="quantity-product" name="number"
+                                                                                value="1" min="1">
+                                                                            <span
+                                                                                class="btn-quantity btn-increase">+</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="tf-mini-cart-line"></div>
+                                                                    <div class="tf-mini-cart-view-checkout">
+                                                                        <a href="javascript:void(0);"
+                                                                            class="tf-btn btn-fill animate-hover-btn radius-3 w-100 justify-content-center text-decoration-none btn-add-to-cart"><span>Thêm
+                                                                                ngay</span></a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
+                                        <!-- /shoppingCart -->
                                     </div>
                                 @endif
 
-                                <div class="tf-product-info-quantity">
-                                    <div class="quantity-title fw-6">Số lượng</div>
-                                    <div class="wg-quantity">
-                                        <span class="btn-quantity btn-decrease">-</span>
-                                        <input type="text" class="quantity-product" id="quantity-product" name="number"
-                                            value="1" min="1">
-                                        <span class="btn-quantity btn-increase">+</span>
-                                    </div>
-                                </div>
                                 <div class="tf-product-info-buy-button">
                                     <form class="">
-                                        <a href="javascript:void(0);"
-                                            class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn btn-add-to-cart">
-                                            <span>Thêm vào giỏ hàng -&nbsp;</span>
-                                            <span class="tf-qty-price" id="total-price">
-                                                {{ number_format($product->regular_price, 0, ',', '.') }}đ
-                                            </span>
+                                        <a href="javascript:void(0);" data-bs-toggle="modal"
+                                            data-bs-target="#shoppingCart"
+                                            class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn">
+                                            <span>Thêm vào giỏ hàng</span>
                                         </a>
                                         <div class="tf-product-btn-wishlist btn-icon-action">
                                             <button class="wishlist-btn" data-product-id="{{ $product->id }}"
-                                                style="background:none;border:none;padding:0;cursor:pointer;margin-right:8px;">
+                                                style="background:none;border:none;padding:0;cursor:pointer;">
                                                 <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
                                                     class="fa-solid fa-heart" id="heart-Product"></i>
                                             </button>
                                             <i class="icon-delete"></i>
                                         </div>
+                                        <style>
+                                            .wishlist-btn i {
+                                                font-size: 18px !important;
+                                                color: #545353 !important;
+                                                vertical-align: middle;
+                                                margin: 0 !important;
+                                                transition: color 0.2s;
+                                                width: 22px;
+                                                text-align: center;
+                                                display: inline-block;
+                                            }
+
+                                            .wishlist-btn i.fa-solid {
+                                                color: red !important;
+                                            }
+                                        </style>
                                         <div class="w-100">
-                                            <a href="#" class="btns-full">Mua với <img 
-                                                    src="{{ asset('client/ecomus/images/payments/paypal.png') }}"
-                                                    alt=""></a>
-                                            <a href="#" class="payment-more-option">Thêm phương thức thanh toán</a>
+                                            <a href="#" class="btns-full fw-6 fs-16">Mua với</a>
                                         </div>
-                                    </form>
                                 </div>
                                 <div class="tf-product-info-extra-link">
                                     <a href="#delivery_return" data-bs-toggle="modal" class="tf-product-extra-icon">
@@ -350,28 +514,6 @@
                                         </div>
                                         <div class="text fw-6">Chia sẻ</div>
                                     </a>
-                                </div>
-                                <div class="tf-product-info-delivery-return">
-                                    <div class="row">
-                                        <div class="col-xl-6 col-12">
-                                            <div class="tf-product-delivery">
-                                                <div class="icon">
-                                                    <i class="icon-delivery-time"></i>
-                                                </div>
-                                                <p>Thời gian giao hàng dự kiến: <span class="fw-7">12-26 ngày</span>
-                                                    (Quốc tế), <span class="fw-7">3-6 ngày</span> (Nội địa).</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-xl-6 col-12">
-                                            <div class="tf-product-delivery mb-0">
-                                                <div class="icon">
-                                                    <i class="icon-return-order"></i>
-                                                </div>
-                                                <p>Đổi trả trong vòng <span class="fw-7">30 ngày</span> kể từ ngày mua.
-                                                    Thuế và phí không hoàn lại.</p>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="tf-product-info-trust-seal">
                                     <div class="tf-product-trust-mess">
@@ -484,7 +626,7 @@
                                 const slide = img.closest('.swiper-slide');
                                 if (slide && typeof slide.dataset.swiperSlideIndex !== 'undefined') {
                                     window.gallerySwiper.slideToLoop(Number(slide.dataset
-                                    .swiperSlideIndex));
+                                        .swiperSlideIndex));
                                 } else {
                                     window.gallerySwiper.slideToLoop(idx);
                                 }
@@ -528,9 +670,6 @@
                                 <span class="inner">Mô tả</span>
                             </li>
                             <li class="item-title">
-                                <span class="inner">Thông tin bổ sung</span>
-                            </li>
-                            <li class="item-title">
                                 <span class="inner">Đánh giá</span>
                             </li>
                             <li class="item-title">
@@ -545,10 +684,8 @@
                             <div class="widget-content-inner active">
                                 <div class="">
                                     <p class="mb_30">
-
                                         {!! nl2br(e($product->description)) !!}
                                     </p>
-
                                     <div class="tf-product-des-demo">
                                         <div class="right">
                                             <h3 class="fs-16 fw-5">Tính năng nổi bật</h3>
@@ -599,62 +736,6 @@
                                 </div>
                             </div>
                             {{-- /mô tả --}}
-
-                            {{-- biến thể --}}
-                            <div class="widget-content-inner">
-                                <div class="variant-picker-slider-wrap">
-                                    <div class="swiper variant-picker-swiper" id="variant-picker-swiper">
-                                        <div class="swiper-wrapper">
-                                            @foreach ($product->variants as $variant)
-                                                <div class="swiper-slide">
-                                                    <label class="variant-box p-2 border rounded mb-2"
-                                                        style="min-width:160px; cursor:pointer;">
-
-                                                        <input type="radio" name="variant_id" value="{{ $variant->id }}"
-                                                        data-title="{{ $variant->name_variant ?? '' }}"
-                                                        data-price="{{ $product->regular_price + $variant->price_modifier }}"
-                                                        data-material="{{ $variant->material ?? '' }}"
-
-                                                        @if($variant->image) data-image="{{ asset($variant->image->image_url) }}" @endif
-                                                        style="margin-right: 8px;">
-                                                        @if ($variant->image)
-                                                            <img  style="width: 100%;" src="{{ asset($variant->image->image_url) }}"
-                                                                alt="Ảnh biến thể"
-                                                                style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
-                                                        @endif
-                                                        <div>
-                                                            <br>
-                                                            <strong>Kho:</strong>
-                                                            @if(($variant->stock_quantity ?? 0) <= 0)
-                                                                <span style="color:red;font-weight:bold;">Hết hàng</span>
-                                                            @else
-                                                                {{ $variant->stock_quantity }}
-                                                            @endif
-                                                            <br>
-                                                            <strong>Kích thước:</strong> {{ $variant->size ?? '-' }}<br>
-                                                                {{-- Hiển thị các thuộc tính của biến thể --}}
-                                                            @if ($variant->attributeValues && $variant->attributeValues->count())
-                                                                {{-- <div> --}}
-                                                                    {{-- <span class="badge bg-light text-dark border"> Kích thước: {{ $variant->size ?? '-' }}</span> --}}
-                                                                    @foreach ($variant->attributeValues as $attrVal)
-                                                                        <strong>{{ $attrVal->attribute->name ?? '' }}</strong> {{ $attrVal->value ?? '' }}<br>
-                                                                        {{-- <span
-                                                                            class="badge bg-light text-dark border">{{ $attrVal->attribute->name ?? '' }}:
-                                                                            {{ $attrVal->value ?? '' }}</span> --}}
-                                                                    @endforeach
-                                                                {{-- </div> --}}
-                                                            @endif
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        <div class="swiper-button-next"></div>
-                                        <div class="swiper-button-prev"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- /biến thể --}}
 
                             {{-- đánh giá --}}
                             @php
@@ -716,7 +797,6 @@
                                             class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap">
                                             <h5 class="">{{ $reviewCount }} Bình luận</h5>
                                             <form method="GET" id="review-sort-form">
-                                                <label for="sort-select" class="me-2">Sắp xếp theo:</label>
                                                 <select name="sort" id="sort-select"
                                                     class="form-select d-inline w-auto"
                                                     onchange="document.getElementById('review-sort-form').submit()">
@@ -898,9 +978,15 @@
                                         <div class="form-content">
                                             <fieldset class="box-field">
                                                 <label class="label">Nội dung đánh giá</label>
-                                                <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây" tabindex="2" ></textarea>
+                                                <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây" tabindex="2" required></textarea>
                                             </fieldset>
-                                            
+                                            {{-- <div class="box-check">
+                                                <input type="checkbox" name="availability" class="tf-check"
+                                                    id="check1" {{ old('availability') ? 'checked' : '' }}>
+                                                <label class="text_black-3" for="check1">
+                                                    Tôi Đồng Ý Tuân Thủ Quy Tắc Cộng Đồng Và Tôn Trọng Mọi Người.
+                                                </label>
+                                            </div> --}}
                                         </div>
                                         <div class="button-submit">
                                             <button type="submit" class="tf-btn btn-fill animate-hover-btn">
@@ -1126,103 +1212,109 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            toastr.options = {
-                "positionClass": "toast-bottom-right",
-                "timeOut": "3000",
-                "closeButton": true,
-                "progressBar": true
-            };
-            @if (session('success'))
-                toastr.success("{{ session('success') }}");
-            @endif
-
-            @if (session('error'))
-                toastr.error("{{ session('error') }}");
-            @endif
-        });
-
-        // Đặt ngoài DOMContentLoaded để luôn hoạt động kể cả khi toastr chưa hiện
-        const addToCartBtn = document.querySelector('.btn-add-to-cart');
-        if (addToCartBtn) {
-            addToCartBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                let productId = {{ $product->id }};
-                let quantity = parseInt(document.getElementById('quantity-product').value) || 1;
-                let variantInput = document.querySelector('input[name="variant_id"]:checked');
-                let productVariantId = variantInput ? variantInput.value : null;
-                let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
-                if (hasVariants && !productVariantId) {
-                    toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
-                    return;
+        // Fallback functions nếu header chưa load
+        if (typeof updateCartCountBadge !== 'function') {
+            window.updateCartCountBadge = function(newCount) {
+                const cartBadge = document.getElementById('cart-count-badge');
+                if (cartBadge) {
+                    cartBadge.textContent = newCount;
+                    // Hiển thị/ẩn badge dựa trên số lượng
+                    if (newCount > 0) {
+                        cartBadge.style.display = 'flex';
+                    } else {
+                        cartBadge.style.display = 'none';
+                    }
                 }
-                fetch('{{ route('client.cart.add') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            product_id: productId,
-                            quantity: quantity,
-                            product_variant_id: productVariantId
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success !== false) {
-                            toastr.success(data.message || 'Đã thêm vào giỏ hàng!');
-
-                            const badge = document.getElementById('cart-count-badge');
-                            const icon = document.querySelector('.fa-cart-shopping.cart');
-
-                            if (badge) {
-                                // Nếu backend trả về cartCount cụ thể thì dùng
-                                if (typeof data.cartCount !== 'undefined') {
-                                    badge.textContent = data.cart_count;
-                                } else {
-                                    let current = parseInt(badge.textContent) || 0;
-                                    badge.textContent = current + 1;
-                                }
-                            } else if (icon) {
-                                // Nếu chưa có badge, tạo mới
-                                const span = document.createElement('span');
-                                span.id = 'cart-count-badge';
-                                span.className = 'cart-count-badge';
-                                span.textContent = data.cart_count !== undefined ? data.cart_count : '1';
-                                span.style = `
-                                            position: absolute;
-                                            top: -10px;
-                                            right: -10px;
-                                            background: #e53935;
-                                            color: #fff;
-                                            border-radius: 50%;
-                                            padding: 2px 6px;
-                                            font-size: 11px;
-                                            font-weight: bold;
-                                            min-width: 18px;
-                                            height: 18px;
-                                            display: flex;
-                                            align-items: center;
-                                            justify-content: center;
-                                            text-align: center;
-                                            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
-                                            z-index: 2;
-                                        `;
-                                icon.parentNode.appendChild(span);
-                            }
-                            // Nếu muốn, có thể hiện thông báo khác khi tăng số lượng, hoặc không hiện gì
-                        } else {
-                            toastr.error(data.message || 'Có lỗi xảy ra!');
-                        }
-
-                    })
-                    .catch(error => {
-                        toastr.error('Có lỗi xảy ra!');
-                        console.error(error);
-                    });
-            });
+            };
         }
+        
+        if (typeof updateMiniCartContent !== 'function') {
+            window.updateMiniCartContent = function() {
+                // Fallback - có thể reload trang hoặc không làm gì
+                console.log('Mini cart update function not available');
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('shoppingCart');
+            if (!modal) return;
+
+            // Gán sự kiện cho nút "Thêm ngay" trong modal, không phụ thuộc vào sự kiện mở modal
+            const addToCartBtn = modal.querySelector('.btn-add-to-cart');
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Lấy input số lượng trong modal
+                    const quantityInput = modal.querySelector('#quantity-product');
+                    let quantity = parseInt(quantityInput ? quantityInput.value : 1) || 1;
+                    // Lấy biến thể đã chọn trong modal
+                    const selectedVariant = modal.querySelector('.tf-mini-cart-item.selected');
+                    let productVariantId = selectedVariant ? selectedVariant.getAttribute(
+                        'data-variant-id') : null;
+                    let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
+                    if (hasVariants && !productVariantId) {
+                        toastr.error('Vui lòng chọn biến thể trước khi thêm vào giỏ hàng!');
+                        return;
+                    }
+                    fetch('{{ route('client.cart.add') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                product_id: {{ $product->id }},
+                                quantity: quantity,
+                                product_variant_id: productVariantId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success('Đã thêm vào giỏ hàng!');
+                                // Cập nhật cart count badge
+                                if (data.cart_count !== undefined && typeof updateCartCountBadge === 'function') {
+                                    console.log('Updating cart count badge to:', data.cart_count);
+                                    // Thêm delay nhỏ để đảm bảo DOM đã load
+                                    setTimeout(() => {
+                                        updateCartCountBadge(data.cart_count);
+                                    }, 100);
+                                } else {
+                                    console.log('Cannot update cart count badge:', {
+                                        cart_count: data.cart_count,
+                                        function_exists: typeof updateCartCountBadge === 'function'
+                                    });
+                                }
+                                // Cập nhật mini cart content
+                                if (typeof updateMiniCartContent === 'function') {
+                                    updateMiniCartContent();
+                                }
+                                // Đóng modal
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('shoppingCart'));
+                                if (modal) {
+                                    modal.hide();
+                                }
+                                // Reset số lượng về 1
+                                const quantityInput = document.getElementById('quantity-product');
+                                if (quantityInput) {
+                                    quantityInput.value = '1';
+                                }
+                                // Bỏ chọn biến thể
+                                document.querySelectorAll('.tf-mini-cart-item.selected').forEach(function(item) {
+                                    item.classList.remove('selected');
+                                });
+                                window.selectedVariantId = null;
+                            } else {
+                                toastr.error(data.message || 'Có lỗi xảy ra!');
+                            }
+                        })
+                        .catch(error => {
+                            toastr.error('Có lỗi xảy ra!');
+                            console.error(error);
+                        });
+                });
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
@@ -1267,7 +1359,7 @@
                 });
             }
         });
-        // thêm vào yêu thích
+
         document.addEventListener("DOMContentLoaded", function() {
             toastr.options = {
                 "positionClass": "toast-top-right",
@@ -1353,7 +1445,7 @@
                                 // Đổi màu thông báo xóa khỏi yêu thích
                                 setTimeout(function() {
                                     var toast = document.querySelector(
-                                    '.toast-success');
+                                        '.toast-success');
                                     if (toast) {
                                         toast.style.backgroundColor = '#e53935';
                                         toast.style.color = '#fff';
@@ -1368,12 +1460,12 @@
                                 }
                             }
                             // Cập nhật mini-wishlist
-                            fetch('{{ route('wishlist.miniList') }}')
+                            fetch('/wishlist/mini-list')
                                 .then(res => res.text())
                                 .then(html => {
                                     var miniWishlist = document.querySelector(
                                         '#mini-wishlist-content');
-                                    if (miniWishlist) miniWishlist.innerHTML = html;
+                                    if (miniWishlist) miniclient.wishlist.innerHTML = html;
                                 });
                         })
                         .catch(error => {
@@ -1388,24 +1480,6 @@
                 });
             });
         });
-        //
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Nếu URL có #product-reviews thì active tab Đánh giá
-            if (window.location.hash === '#product-reviews') {
-                const tabTitles = document.querySelectorAll('.widget-menu-tab .item-title');
-                const tabContents = document.querySelectorAll('.widget-content-tab .widget-content-inner');
-                // Tab Đánh giá là tab thứ 3 (index 2)
-                if (tabTitles.length >= 3 && tabContents.length >= 3) {
-                    tabTitles.forEach(t => t.classList.remove('active'));
-                    tabContents.forEach(c => c.classList.remove('active'));
-                    tabTitles[2].classList.add('active');
-                    tabContents[2].classList.add('active');
-                    // Cuộn đến tab nếu cần
-                    tabContents[2].scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
-        });
-    </script>
+
 @endsection

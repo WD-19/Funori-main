@@ -1,4 +1,7 @@
 @extends('admin.layout.admin')
+
+@section('title', 'Danh sách thương hiệu')
+
 @section('content')
     <div class="main-content-inner">
         <div class="main-content-wrap">
@@ -6,23 +9,23 @@
                 <h3>Tất cả thương hiệu</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
-                        <a href="#">
-                            <div class="text-tiny">Dashboard</div>
+                        <a href="{{ route('admin.dashboard') }}">
+                            <div class="text-tiny">Bảng điều khiển</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <a href="#">
-                            <div class="text-tiny">thương hiệu</div>
+                        <a href="{{ route('admin.brands.index') }}">
+                            <div class="text-tiny">Thương hiệu</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Tất cả thương hiệu</div>
+                        <div class="text-tiny">Danh sách thương hiệu</div>
                     </li>
                 </ul>
 
@@ -35,7 +38,7 @@
                 </div>
                 <div class="flex items-center justify-between gap10 flex-wrap" style="min-width: max-content;">
                     <div class="wg-filter flex-grow">
-                        <form class="form-search flex gap10" method="GET" action="#">
+                        <form class="form-search flex gap10" method="GET" action="{{ route('admin.brands.index') }}">
                             <fieldset class="name">
                                 <input type="text" placeholder="Tìm kiếm tên thương hiệu..." name="name"
                                     value="{{ request('name') }}">
@@ -89,7 +92,8 @@
                                         <span class="block-stock bg-1 fw-7">Ẩn</span>
                                     @endif
                                 </div>
-                                <div class="list-icon-function" style="width: 20%; display: flex; gap: 16px; align-items: center;">
+                                <div class="list-icon-function"
+                                    style="width: 20%; display: flex; gap: 16px; align-items: center;">
                                     <form action="{{ route('admin.brands.toggle', $brand) }}" method="POST"
                                         style="display:inline-block;">
                                         @csrf

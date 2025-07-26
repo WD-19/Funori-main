@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 use App\Models\Address;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Order; // Add this at the top if not already imported
+use App\Models\Promotion;
 
 class ProfileController
 {
@@ -276,7 +277,7 @@ class ProfileController
     /**
      * User request to cancel an order (chuyển trạng thái sang pending_cancellation)
      */
-    public function cancelOrder(Request $request, $orderId)
+    public function cancelOrder(Request $request, Order $order)
     {
         // Nếu là request JSON (AJAX), merge dữ liệu vào $request
         if ($request->isJson()) {
@@ -288,13 +289,13 @@ class ProfileController
             'cancel_reason_other' => 'nullable|string|max:255',
         ]);
 
-        $order = Order::where('id', $orderId)
-            ->where('user_id', auth()->id())
-            ->whereIn('order_status', ['pending_confirmation', 'processing'])
-            ->first();
+        // Kiểm tra quyền và trạng thái đơn hàng
+        if ($order->user_id !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'Không có quyền hủy đơn hàng này!'], 403);
+        }
 
-        if (!$order) {
-            return response()->json(['success' => false, 'message' => 'Không tìm thấy đơn hàng hoặc không có quyền!'], 404);
+        if (!in_array($order->order_status, ['pending_confirmation', 'processing'])) {
+            return response()->json(['success' => false, 'message' => 'Đơn hàng không thể hủy ở trạng thái hiện tại!'], 400);
         }
 
         $reason = $request->cancellation_reason === 'other'

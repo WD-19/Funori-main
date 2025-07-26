@@ -12,7 +12,6 @@ class CategoryController
     /**
      * Display a listing of the resource.
      */
-
     public function index(Request $request)
     {
         $query = Category::query();
@@ -67,6 +66,23 @@ class CategoryController
             'description' => 'nullable|string',
             'image_url' => 'required|file|mimes:jpg,jpeg,png|max:2048',
             'is_active' => 'required|boolean',
+        ], [
+            'name.required' => 'Tên danh mục là bắt buộc.',
+            'name.string' => 'Tên danh mục phải là chuỗi ký tự.',
+            'name.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
+            'name.unique' => 'Tên danh mục đã tồn tại, vui lòng chọn tên khác.',
+            'slug.required' => 'Slug là bắt buộc.',
+            'slug.string' => 'Slug phải là chuỗi ký tự.',
+            'slug.max' => 'Slug không được vượt quá 255 ký tự.',
+            'slug.unique' => 'Slug đã tồn tại, vui lòng chọn slug khác.',
+            'parent_id.exists' => 'Danh mục cha không tồn tại.',
+            'description.string' => 'Mô tả phải là chuỗi ký tự.',
+            'image_url.required' => 'Ảnh là bắt buộc.',
+            'image_url.file' => 'Tệp phải là file.',
+            'image_url.mimes' => 'Ảnh phải có định dạng: jpg, jpeg, png.',
+            'image_url.max' => 'Kích thước ảnh không được vượt quá 2MB.',
+            'is_active.required' => 'Trạng thái là bắt buộc.',
+            'is_active.boolean' => 'Trạng thái phải là giá trị đúng/sai.',
         ]);
 
         $imagePath = null;
@@ -122,6 +138,21 @@ class CategoryController
                 'description' => 'nullable|string',
                 'image_url' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
                 'is_active' => 'required|boolean',
+            ], [
+                'name.required' => 'Tên danh mục là bắt buộc.',
+                'name.string' => 'Tên danh mục phải là chuỗi ký tự.',
+                'name.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
+                'name.unique' => 'Tên danh mục đã tồn tại, vui lòng chọn tên khác.',
+                'slug.required' => 'Slug là bắt buộc.',
+                'slug.string' => 'Slug phải là chuỗi ký tự.',
+                'slug.max' => 'Slug không được vượt quá 255 ký tự.',
+                'slug.unique' => 'Slug đã tồn tại, vui lòng chọn slug khác.',
+                'description.string' => 'Mô tả phải là chuỗi ký tự.',
+                'image_url.file' => 'Tệp phải là file.',
+                'image_url.mimes' => 'Ảnh phải có định dạng: jpg, jpeg, png.',
+                'image_url.max' => 'Kích thước ảnh không được vượt quá 2MB.',
+                'is_active.required' => 'Trạng thái là bắt buộc.',
+                'is_active.boolean' => 'Trạng thái phải là giá trị đúng/sai.',
             ]);
 
             // Nếu người dùng cố tình thay đổi parent_id
@@ -138,6 +169,23 @@ class CategoryController
                 'description' => 'nullable|string',
                 'image_url' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
                 'is_active' => 'required|boolean',
+            ], [
+                'name.required' => 'Tên danh mục là bắt buộc.',
+                'name.string' => 'Tên danh mục phải là chuỗi ký tự.',
+                'name.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
+                'name.unique' => 'Tên danh mục đã tồn tại, vui lòng chọn tên khác.',
+                'slug.required' => 'Slug là bắt buộc.',
+                'slug.string' => 'Slug phải là chuỗi ký tự.',
+                'slug.max' => 'Slug không được vượt quá 255 ký tự.',
+                'slug.unique' => 'Slug đã tồn tại, vui lòng chọn slug khác.',
+                'parent_id.exists' => 'Danh mục cha không tồn tại.',
+                'parent_id.not_in' => 'Không thể chọn chính danh mục này làm danh mục cha.',
+                'description.string' => 'Mô tả phải là chuỗi ký tự.',
+                'image_url.file' => 'Tệp phải là file.',
+                'image_url.mimes' => 'Ảnh phải có định dạng: jpg, jpeg, png.',
+                'image_url.max' => 'Kích thước ảnh không được vượt quá 2MB.',
+                'is_active.required' => 'Trạng thái là bắt buộc.',
+                'is_active.boolean' => 'Trạng thái phải là giá trị đúng/sai.',
             ]);
         }
 

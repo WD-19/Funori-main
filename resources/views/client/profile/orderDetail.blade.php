@@ -192,7 +192,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form method="POST"
-                        action="{{ route('client.profile.my_account.order.cancel', ['id' => $order->id]) }}"
+                        action="{{ route('client.profile.my_account.order.cancel', ['order' => $order->id]) }}"
                         id="cancelOrderForm">
                         @csrf
                         <div class="modal-header">

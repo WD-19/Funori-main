@@ -280,7 +280,7 @@
     // Hàm mở modal và set action động
     function openCancelModal(orderId) {
         const form = document.getElementById('cancelOrderForm');
-        form.action = '{{ route("client.profile.my_account.order.cancel", ":id") }}'.replace(':id', orderId);
+        form.action = '{{ route("client.profile.my_account.order.cancel", ":order") }}'.replace(':order', orderId);
         form.reset();
         document.getElementById('order_cancelReasonOtherText').classList.add('d-none');
         document.getElementById('order_cancelReasonOtherText').required = false;
@@ -383,7 +383,7 @@
     .order-status-tabs {
         display: flex;
         justify-content: flex-start;
-        gap: 10px;
+        gap: 25px;
         /* Space between tabs */
         margin-bottom: 25px;
         padding: 10px;
@@ -592,7 +592,7 @@
         display: flex;
         flex-direction: column;
         gap: 5px;
-        font-size: 14px;
+        font-size: 13px;
         color: #666;
         margin-right: 15px;
         /* Space between summary and total */
@@ -612,14 +612,14 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
         color: #333;
         flex-shrink: 0;
     }
 
     .order-date {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
         color: #333;
         white-space: nowrap;
@@ -668,7 +668,7 @@
     }
 
     .order-total-amount p {
-        font-size: 14px;
+        font-size: 13px;
         color: #666;
         margin-bottom: 5px;
     }
@@ -694,7 +694,7 @@
     /* Your existing tf-btn styles should be here or imported */
     .tf-btn {
         padding: 8px 18px;
-        font-size: 14px;
+        font-size: 13px;
         border-radius: 4px;
         cursor: pointer;
         text-align: center;
@@ -753,7 +753,7 @@
         }
 
         .status-tab {
-            font-size: 13px;
+            font-size: 12px;
             padding: 7px 12px;
         }
 
@@ -865,7 +865,44 @@
 
     /* Modal backdrop */
     .modal-backdrop.show {
-        opacity: 0.7 !important; /* Mặc định là 0.5, tăng lên nếu muốn mờ hơn */
-        background-color: #000 !important;
+        opacity: 0.8 !important; /* Đậm hơn để nổi bật modal */
+        background-color: #222 !important;
+    }
+
+    /* Nổi bật modal content */
+    #cancelOrderModal .modal-content {
+        box-shadow: 0 8px 40px 0 rgba(0,0,0,0.45), 0 1.5px 8px 0 rgba(238,77,45,0.15);
+        border: 2.5px solid #ee4d2d;
+        border-radius: 18px;
+        background: #fff;
+        z-index: 1051;
+        position: relative;
+        animation: modal-pop 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes modal-pop {
+        0% { transform: scale(0.95); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    #cancelOrderModal .modal-header {
+        background: linear-gradient(90deg, #ee4d2d 0%, #ffb199 100%);
+        color: #fff;
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+        border-bottom: none;
+    }
+
+    #cancelOrderModal .modal-title {
+        font-weight: bold;
+        font-size: 1.25rem;
+        letter-spacing: 0.5px;
+    }
+
+    #cancelOrderModal .modal-footer {
+        border-top: none;
+        background: #f7f7f7;
+        border-bottom-left-radius: 18px;
+        border-bottom-right-radius: 18px;
     }
 </style>

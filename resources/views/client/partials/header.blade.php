@@ -164,12 +164,10 @@
             <div class="cart-popup-group" style="position: relative; display: flex; align-items: center; height: 36px;">
                 <a href="{{ route('client.view-cart') }}" class="box-cart" style="position: relative; z-index: 10;">
                     <i class="fa-solid fa-cart-shopping cart"></i>
-                    @if (isset($cartCount) && $cartCount > 0)
-                        <span class="cart-count-badge" id="cart-count-badge"
-                            style="position: absolute; top: -12px; right: -12px; background: #e53935; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 11px; font-weight: bold; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 2;">
-                            {{ $cartCount }}
-                        </span>
-                    @endif
+                    <span class="cart-count-badge" id="cart-count-badge"
+                        style="position: absolute; top: -12px; right: -12px; background: #e53935; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 11px; font-weight: bold; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.12); z-index: 2; {{ (!isset($cartCount) || $cartCount == 0) ? 'display: none;' : '' }}">
+                        {{ $cartCount ?? 0 }}
+                    </span>
                 </a>
                 <div id="cart-popup-modal"
                     style="display: none; position: absolute; top: 120%; right: 0; background: #fff; border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15); z-index: 100; width: 360px; max-width: 90vw; max-height: 80vh; overflow-y: auto; transition: all 0.2s ease;">
@@ -229,6 +227,12 @@
         function updateCartCountBadge(newCount) {
             if (cartBadge) {
                 cartBadge.textContent = newCount;
+                // Hiển thị/ẩn badge dựa trên số lượng
+                if (newCount > 0) {
+                    cartBadge.style.display = 'flex';
+                } else {
+                    cartBadge.style.display = 'none';
+                }
             }
         }
 
@@ -253,7 +257,7 @@
                             updateCartCountBadge(data.cart_count);
                         }
                         updateMiniCartContent();
-                        alert('Sản phẩm đã được thêm vào giỏ hàng!');
+                        // alert('Sản phẩm đã được thêm vào giỏ hàng!'); // Đã bỏ thông báo
                     } else {
                         alert(data.message || 'Có lỗi xảy ra!');
                     }

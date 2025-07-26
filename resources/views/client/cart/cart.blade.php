@@ -250,7 +250,6 @@
                         </div>
                         <div class="tf-page-cart-checkout">
 
-
                             <div class="tf-cart-coupon" style="margin-top: 24px;">
                                 <div class="body-title mb-2">Mã giảm giá</div>
                                 <div class="tf-coupon-field d-flex gap-2">
@@ -355,7 +354,8 @@
                                     <div
                                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                         <span>Giảm giá</span>
-                                       <span class="discount-value">-{{ number_format($discount ?? 0, 0, ',', '.') }}đ</span>
+                                        <span
+                                            class="discount-value">-{{ number_format($discount ?? 0, 0, ',', '.') }}đ</span>
                                     </div>
 
 
@@ -452,7 +452,6 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- Biến DOM chính ---
             const selectAllCheckbox = document.getElementById('select-all-checkbox');
             const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
             const deleteSelectedBtn = document.getElementById('delete-selected-btn');
@@ -461,7 +460,6 @@
             const checkoutBtn = document.querySelector('.cart-checkout-btn a');
             const checkoutDiv = document.querySelector('.cart-checkout-btn');
 
-            // --- Chọn tất cả / bỏ chọn tất cả ---
             if (selectAllCheckbox) {
                 selectAllCheckbox.addEventListener('change', function() {
                     const isChecked = this.checked;
@@ -472,7 +470,6 @@
                 });
             }
 
-            // --- Cập nhật tổng tiền và hiển thị nút xóa đã chọn ---
             function updateSelectedTotal() {
                 const selectedItems = document.querySelectorAll('.cart-item-checkbox:checked');
                 let selectedTotal = 0;
@@ -483,6 +480,7 @@
                     const total = parseInt(totalText.replace(/[^\d]/g, '')) || 0;
                     selectedTotal += total;
                 });
+
                 const totalValueElement = document.querySelector('.total-value');
                 if (totalValueElement) {
                     if (selectedItems.length === 0) {
@@ -508,6 +506,7 @@
                         }
                     }
                 }
+
                 if (deleteSelectedBtn) {
                     if (selectedItems.length > 0) {
                         deleteSelectedBtn.style.display = 'block';
@@ -519,12 +518,11 @@
                     }
                 }
             }
-            // Gắn sự kiện change cho từng checkbox sản phẩm
+
             itemCheckboxes.forEach(function(checkbox) {
                 checkbox.addEventListener('change', updateSelectedTotal);
             });
 
-            // --- Xóa nhiều sản phẩm đã chọn ---
             if (deleteSelectedBtn) {
                 deleteSelectedBtn.addEventListener('click', function() {
                     const selectedItems = document.querySelectorAll('.cart-item-checkbox:checked');
@@ -533,6 +531,7 @@
                         return;
                     }
                     if (!confirm(`Bạn có chắc muốn xóa ${selectedItems.length} sản phẩm đã chọn?`)) return;
+
                     const deletePromises = [];
                     selectedItems.forEach(function(checkbox) {
                         const itemId = checkbox.dataset.itemId;
@@ -546,7 +545,8 @@
                                 body: JSON.stringify({
                                     item_id: itemId
                                 })
-                            }).then(response => response.json())
+                            })
+                            .then(response => response.json())
                             .then(data => {
                                 if (data && data.success) {
                                     const row = checkbox.closest('tr');
@@ -561,11 +561,13 @@
                                         success: false
                                     };
                                 }
-                            }).catch(() => ({
+                            })
+                            .catch(() => ({
                                 success: false
                             }));
                         deletePromises.push(deletePromise);
                     });
+
                     Promise.all(deletePromises).then((results) => {
                         const failedCount = results.filter(r => !r.success).length;
                         updateSelectedTotal();
@@ -575,7 +577,6 @@
                 });
             }
 
-            // --- Tăng/giảm số lượng ---
             document.querySelectorAll('.btn-quantity').forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -601,7 +602,7 @@
                     }
                 });
             });
-            // Sự kiện change cho input số lượng (gộp lại, chỉ 1 lần)
+
             document.querySelectorAll('.cart-qty-input').forEach(function(input) {
                 input.addEventListener('change', function() {
                     let quantity = parseInt(this.value) || 1;
@@ -610,14 +611,13 @@
                     if (quantity > max) quantity = max;
                     this.value = quantity;
                     updateCart(this);
-                    // Disable/enable nút +
                     const plusBtn = this.parentNode.querySelector('.plus-btn');
                     if (plusBtn) {
                         if (quantity >= max) plusBtn.setAttribute('disabled', 'disabled');
                         else plusBtn.removeAttribute('disabled');
                     }
                 });
-                // Khởi tạo trạng thái nút + khi load trang
+
                 const max = parseInt(input.getAttribute('data-max')) || 9999;
                 const plusBtn = input.parentNode.querySelector('.plus-btn');
                 if (plusBtn) {
@@ -626,7 +626,6 @@
                 }
             });
 
-            // --- Hàm cập nhật giỏ hàng (gọi API) ---
             function updateCart(input) {
                 const itemId = input.dataset.itemId;
                 const quantity = parseInt(input.value);
@@ -658,11 +657,7 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data && data.success) {
-                            // Hiển thị thông báo thành công (nếu muốn)
-                            // alert('Cập nhật số lượng thành công!');
-                        } else {
-                            // Hiển thị thông báo lỗi
+                        if (!(data && data.success)) {
                             alert(data.message || 'Cập nhật số lượng thất bại!');
                         }
                     })
@@ -672,7 +667,6 @@
                     });
             }
 
-            // --- Xóa từng sản phẩm ---
             document.querySelectorAll('.remove-cart-x').forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -707,7 +701,6 @@
                 });
             });
 
-            // --- Xóa toàn bộ giỏ hàng ---
             if (clearCartBtn) {
                 clearCartBtn.addEventListener('click', function() {
                     if (!confirm('Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng?')) return;
@@ -741,7 +734,6 @@
                 });
             }
 
-            // --- Cập nhật badge số lượng giỏ hàng ---
             function updateCartCountBadge(newCount) {
                 const badge = document.getElementById('cart-count-badge');
                 if (badge) {
@@ -749,75 +741,6 @@
                     badge.style.display = newCount > 0 ? 'flex' : 'none';
                 }
             }
-
-            // Áp dụng mã giảm giá
-            function applyDiscount(discountCode) {
-                fetch('/cart/apply-discount', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
-                        },
-                        body: JSON.stringify({
-                            discount_code: discountCode
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        const messageDiv = document.getElementById('discount_message');
-                        const totalValue = document.querySelector('.total-value');
-                        const grandTotalValue = document.querySelector('.grand-total-value');
-                        const discountValue = document.querySelector('.discount-value');
-
-                        messageDiv.style.display = 'block';
-                        if (data.success) {
-                            messageDiv.textContent = data.message;
-                            messageDiv.style.color = 'green';
-
-                            // Cập nhật tổng tiền hàng (nếu cần)
-                            if (data.new_total !== undefined) {
-                                totalValue.textContent = data.new_total.toLocaleString('vi-VN') + 'đ';
-                            }
-
-                            // Cập nhật giá trị giảm giá
-                            discountValue.textContent = '-' + data.discount.toLocaleString('vi-VN') + 'đ';
-
-                            // Cập nhật tổng cộng (tạm thời giữ nguyên, có thể cần điều chỉnh nếu có phí ship)
-                            let currentTotal = parseFloat(totalValue.textContent.replace(/[^\d]/g, '')) || 0;
-                            grandTotalValue.textContent = (currentTotal - data.discount).toLocaleString(
-                                'vi-VN') + 'đ';
-
-                        } else {
-                            messageDiv.textContent = data.message;
-                            messageDiv.style.color = 'red';
-                            // Ẩn thông tin giảm giá nếu không thành công
-                            discountValue.textContent = '-0đ';
-
-                            // Khôi phục lại tổng ban đầu
-                            let originalTotal = <?php echo e($total); ?>;
-                            totalValue.textContent = originalTotal.toLocaleString('vi-VN') + 'đ';
-                            grandTotalValue.textContent = originalTotal.toLocaleString('vi-VN') + 'đ';
-                        }
-                        // Tự động ẩn thông báo sau 5 giây
-                        setTimeout(() => {
-                            messageDiv.style.display = 'none';
-                        }, 5000);
-                    })
-                    .catch(error => {
-                        const messageDiv = document.getElementById('discount_message');
-                        messageDiv.style.display = 'block';
-                        messageDiv.textContent = 'Có lỗi xảy ra khi áp dụng mã giảm giá!';
-                        messageDiv.style.color = 'red';
-                        // Ẩn thông tin giảm giá nếu có lỗi
-                        const discountValue = document.querySelector('.discount-value');
-                        discountValue.textContent = '-0đ';
-
-                        setTimeout(() => {
-                            messageDiv.style.display = 'none';
-                        }, 5000);
-                    });
-            }
-
 
             function toggleCheckoutState() {
                 if (agreeCheckbox && checkoutBtn && checkoutDiv) {
@@ -832,12 +755,12 @@
                     }
                 }
             }
+
             if (agreeCheckbox) {
                 agreeCheckbox.addEventListener('change', toggleCheckoutState);
                 toggleCheckoutState();
             }
 
-            // --- Scroll đến sản phẩm gợi ý (nếu có) ---
             document.querySelectorAll('.similar-search-icon').forEach(function(el) {
                 el.addEventListener('click', function(e) {
                     const target = document.getElementById('suggested-products');
@@ -850,10 +773,42 @@
                 });
             });
 
-            // --- Khởi tạo tổng tiền ban đầu ---
-            updateSelectedTotal();
-        });
+            const checkoutBtnEl = document.getElementById('checkout-btn');
+            if (checkoutBtnEl) {
+                checkoutBtnEl.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const selectedItems = document.querySelectorAll('.cart-item-checkbox:checked');
+                    if (selectedItems.length === 0) {
+                        alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+                        return;
+                    }
+                    const selectedItemIds = Array.from(selectedItems).map(checkbox => checkbox.dataset
+                        .itemId);
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ route('client.checkout.prepare') }}';
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = '{{ csrf_token() }}';
+                    form.appendChild(csrfToken);
+                    selectedItemIds.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'selected_items[]';
+                        input.value = id;
+                        form.appendChild(input);
+                    });
+                    document.body.appendChild(form);
+                    form.submit();
+                });
+
+                updateSelectedTotal();
+            }
+        }); // <-- đóng đúng sự kiện DOMContentLoaded
     </script>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             @php
