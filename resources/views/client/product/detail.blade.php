@@ -462,20 +462,32 @@
                                 @endif
 
                                 <div class="tf-product-info-buy-button">
-                                    <form class="">
-                                        <a href="javascript:void(0);" data-bs-toggle="modal"
-                                            data-bs-target="#shoppingCart"
-                                            class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn">
-                                            <span>Thêm vào giỏ hàng</span>
-                                        </a>
-                                        <div class="tf-product-btn-wishlist btn-icon-action">
+                                    <form>
+                                        @if ($product->status == 'draft')
+                                            <a href="javascript:void(0);"
+                                                class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn"
+                                                style="pointer-events: none; opacity: 0.5;">
+                                                <span>Sản phẩm đã ngừng kinh doanh</span>
+                                            </a>
+                                        @else
+                                            <a href="javascript:void(0);" data-bs-toggle="modal"
+                                                data-bs-target="#shoppingCart"
+                                                class="tf-btn btn-fill justify-content-center fw-6 fs-16 flex-grow-1 animate-hover-btn">
+                                                <span>Thêm vào giỏ hàng</span>
+                                            </a>
+                                        @endif
+
+                                        <div class="tf-product-btn-wishlist btn-icon-action"
+                                            style="{{ $product->status == 'draft' ? 'opacity: 0.5; pointer-events: none;' : '' }}">
                                             <button class="wishlist-btn" data-product-id="{{ $product->id }}"
-                                                style="background:none;border:none;padding:0;cursor:pointer;">
+                                                style="background:none;border:none;padding:0;cursor:pointer;"
+                                                {{ $product->status == 'draft' ? 'disabled' : '' }}>
                                                 <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
                                                     class="fa-solid fa-heart" id="heart-Product"></i>
                                             </button>
                                             <i class="icon-delete"></i>
                                         </div>
+
                                         <style>
                                             .wishlist-btn i {
                                                 font-size: 18px !important;
@@ -492,10 +504,9 @@
                                                 color: red !important;
                                             }
                                         </style>
-                                        {{-- <div class="w-100">
-                                            <a href="#" class="btns-full fw-6 fs-16">Mua với</a>
-                                        </div> --}}
+                                    </form>
                                 </div>
+
                                 <div class="tf-product-info-extra-link">
                                     <a href="#delivery_return" data-bs-toggle="modal" class="tf-product-extra-icon">
                                         <div class="icon">
