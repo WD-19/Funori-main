@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -167,7 +168,23 @@ class VnPayController
                 // Mail::to($order->customer_email)->send(new OrderSuccessEmail($order));
 
                 // Xóa giỏ hàng và dữ liệu checkout trong session
-                Session::forget(['cart', 'checkout_data']);
+                $cart = Cart::where('user_id', $order->user_id)->with('items')->first();
+
+                if ($cart) {
+                    foreach ($order->items as $orderItem) {
+                        $cart->items()
+                            ->where(function ($query) use ($orderItem) {
+                                if ($orderItem->product_variant_id) {
+                                    $query->where('product_variant_id', $orderItem->product_variant_id);
+                                } else {
+                                    $query->where('product_id', $orderItem->product_id);
+                                }
+                            })
+                            ->delete();
+                    }
+                }
+
+                Session::forget(['checkout_data']);
 
                 DB::commit();
 
