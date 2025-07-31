@@ -1,4 +1,4 @@
-z@extends('admin.layout.admin')
+@extends('admin.layout.admin')
 
 @section('title', 'Thêm banner mới')
 

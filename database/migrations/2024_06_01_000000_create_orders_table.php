@@ -15,7 +15,7 @@ class CreateOrdersTable extends Migration
             $table->string('customer_name');
             $table->string('customer_email');
             $table->string('customer_phone', 20);
-            $table->text('shipping_address');
+            $table->longText('shipping_address');
             $table->decimal('subtotal_amount', 15, 2)->default(0);
             $table->decimal('shipping_fee', 10, 2)->default(0);
             $table->decimal('discount_amount', 15, 2)->default(0);

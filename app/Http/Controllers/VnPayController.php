@@ -106,14 +106,12 @@ class VnPayController
 
         $inputData = $request->all();
         $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
-
         // Loại bỏ vnp_SecureHash và vnp_SecureHashType ra khỏi dữ liệu để kiểm tra chữ ký
         unset($inputData['vnp_SecureHash']);
         unset($inputData['vnp_SecureHashType']);
 
         // Sắp xếp dữ liệu theo thứ tự alphabet
         ksort($inputData);
-
         // Tạo chuỗi hash
         $i = 0;
         $hashdata = "";

@@ -258,6 +258,18 @@ class OrderController
         $newStatus = $request->input('order_status');
         $adminNote = $request->input('admin_note');
 
+        // Kiểm tra hoàn trả hàng chỉ trong 7 ngày kể từ khi nhận hàng
+        if ($oldStatus === 'delivered' && $newStatus === 'returned') {
+            if (!$order->delivered_at) {
+                return redirect()->back()->with('error', 'Không xác định được ngày giao hàng. Không thể hoàn trả.');
+            }
+            $now = now();
+            $deliveredAt = $order->delivered_at instanceof \Carbon\Carbon ? $order->delivered_at : \Carbon\Carbon::parse($order->delivered_at);
+            if ($now->diffInDays($deliveredAt) > 7) {
+                return redirect()->back()->with('error', 'Chỉ được hoàn trả hàng trong vòng 7 ngày kể từ khi nhận hàng. Đơn hàng này đã quá hạn hoàn trả.');
+            }
+        }
+
         // Cho phép chuyển đổi tự do giữa các trạng thái để test
 
         // Gán trạng thái mới cho đơn hàng
@@ -368,7 +380,9 @@ class OrderController
             $order->order_status = 'cancelled';
             $order->cancelled_at = now();
             $order->admin_note = $adminNote;
-            $order->cancellation_reason = $cancelReason;
+            if (!empty($cancelReason)) {
+                $order->cancellation_reason = $cancelReason;
+            }
 
             // Trả lại số lượng tồn kho cho từng sản phẩm/biến thể trong đơn hàng
             // Sửa lỗi: Cần trả kho cho cả biến thể và sản phẩm, và đúng cột `stock_quantity`

@@ -39,6 +39,7 @@ html {
 .box-menu .all-list-menu li {
     display: inline-block;
     padding-right: 15px;
+
 }
 
 /* khoảng cách các box trong phan menu */
@@ -62,6 +63,7 @@ html {
     padding: 0 0 5px 0;
     transition: 0.4s;
     position: relative;
+    margin: none;
 }
 
 /* Hiệu ứng hover menu */
@@ -939,7 +941,7 @@ html {
 
 .box-first-footer {
     width: 100%;
-    height: 305px;
+    height: 350px;
     padding: 55px 15px 45px 15px;
     background-color: #F6F6F6;
     border-bottom: 1px solid rgb(204, 202, 202);

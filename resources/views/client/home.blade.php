@@ -10,15 +10,19 @@
         }
     @endphp
     <div class="banner">
+        @php
+            $homeBanners = $banners->where('position', 'banner_home');
+        @endphp
+
         <script>
             var img = [
-                @foreach ($banners as $banner)
+                @foreach ($homeBanners as $banner)
                     "{{ asset('storage/' . $banner->image_url) }}",
                 @endforeach
-            ];
+                ];
         </script>
-        <img id="pic" src="{{ count($banners) ? asset('storage/' . $banners[0]->image_url) : '' }}" alt="" />
 
+        <img id="pic" src="{{ $homeBanners->count() ? asset('storage/' . $homeBanners->first()->image_url) : '' }}" alt="" />
         <div class="in-content">
             <div class="tran-box">
                 <div class="title">Thiết kế cho cuộc sống</div>
@@ -38,7 +42,7 @@
         </div>
         <div id="list">
             <ul id="banner-dots">
-                @foreach ($banners as $index => $banner)
+                @foreach ($homeBanners as $index => $banner)
                     <li><button onclick="indexNumber({{ $index }})"></button></li>
                 @endforeach
             </ul>
@@ -47,33 +51,26 @@
 
     {{-- <div class="all-box-banner">
         @foreach ($latestPages as $page)
-            <div class="box-first-banner">
-                <div class="box-img-banner">
-                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">
-                        <img src="{{ asset('storage/' . $page->featured_image_url) }}" alt="{{ $page->title }}" />
-                    </a>
-                </div>
-                <div class="title-in-banner">
-                    <h3>{{ $page->title }}</h3>
-                    <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">Xem Bài Viết</a>
-                </div>
+        <div class="box-first-banner">
+            <div class="box-img-banner">
+                <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">
+                    <img src="{{ asset('storage/' . $page->featured_image_url) }}" alt="{{ $page->title }}" />
+                </a>
             </div>
+            <div class="title-in-banner">
+                <h3>{{ $page->title }}</h3>
+                <a href="{{ route('client.page.show', ['slug' => $page->slug]) }}">Xem Bài Viết</a>
+            </div>
+        </div>
         @endforeach
     </div> --}}
-    <style>
-        .title-Living-room {
-            position: absolute;
-            left: 45%;
 
-        }
-    </style>
     <div class="box-room">
         @foreach ($banners->where('position', 'banner_category') as $banner)
             <a href="{{ $banner->link_url }}">
                 <div class="living-room">
                     <img src="{{ asset('storage/' . $banner->image_url) }}" alt="{{ $banner->title ?? '' }}" />
-                    <div style="text-align:center;display:flex;justify-content:center;align-items:center;"
-                        class="title-Living-room">{{ $banner->title ?? '' }}</div>
+                    <div class="title-Living-room">{{ $banner->title ?? '' }}</div>
                     <div class="Shop-col"> Bộ Sưu Tập</div>
                 </div>
             </a>
@@ -87,7 +84,7 @@
             @foreach ($topCategories as $cat)
                 <div class="box-product">
                     <a href="{{ route('shop', ['category_id' => $cat]) }}">
-                        <img src="{{ asset($cat->image_url ?? 'client/picture/default-category.jpg') }}" alt="" />
+                        <img src="{{ asset('storage/' . $cat->image_url) }}" alt="" />
                         <div class="title-product">{{ $cat->name }}</div>
                     </a>
                 </div>
@@ -107,59 +104,58 @@
             </div>
             <div class="all-new-product">
                 @foreach ($products as $product)
-                    <div class="new-product">
-                        <div class="all-product">
-                            <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}"
-                                style="text-decoration: none">
-                                <div class="new-img-product">
-                                    <img src="{{ asset($product->thumbnail->image_url ?? 'default.jpg') }}"
-                                        alt="{{ $product->thumbnail->alt_text ?? $product->name }}">
-                                    <div class="note-notif">
-                                        @if ($product->is_featured)
-                                            <div class="title-hot">Hot</div>
-                                        @endif
-                                    </div>
-                            </a>
-                            <div class="all-box-icon">
-                                <button class="wishlist-btn" data-product-id="{{ $product->id }}"
-                                    style="background:none;border:none;padding:0;cursor:pointer;">
-                                    <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
-                                        class="fa-solid fa-heart" id="heart-Product"></i>
-                                </button>
+                        <div class="new-product">
+                            <div class="all-product">
                                 <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}"
-                                    style="color:inherit;">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    style="text-decoration: none">
+                                    <div class="new-img-product">
+                                        <img src="{{ asset($product->thumbnail->image_url ?? 'default.jpg') }}"
+                                            alt="{{ $product->thumbnail->alt_text ?? $product->name }}">
+                                        <div class="note-notif">
+                                            @if ($product->is_featured)
+                                                <div class="title-hot">Hot</div>
+                                            @endif
+                                        </div>
                                 </a>
+                                <div class="all-box-icon">
+                                    <button class="wishlist-btn" data-product-id="{{ $product->id }}"
+                                        style="background:none;border:none;padding:0;cursor:pointer;">
+                                        <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
+                                            class="fa-solid fa-heart" id="heart-Product"></i>
+                                    </button>
+                                    <a href="{{ route('client.product.show', ['slug' => $product->slug]) }}" style="color:inherit;">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="contents-new-product">
-                            <div class="star">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <i class="fa-solid fa-star"></i>
-                                @endfor
+                            <div class="contents-new-product">
+                                <div class="star">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <i class="fa-solid fa-star"></i>
+                                    @endfor
+                                </div>
+                                <div class="view-product">
+                                    ({{ $product->reviews->count() }} đánh giá)
+                                </div>
                             </div>
-                            <div class="view-product">
-                                ({{ $product->reviews->count() }} đánh giá)
-                            </div>
-                        </div>
 
 
-                        <div class="box-name-product" data-product-id="{{ $product->id }}">
-                            <div class="name-product">{{ $product->name }}</div>
-                            <div id="Prict-prod">
-                                <span>{{ number_format($product->regular_price, decimals: 2) }} đ</span>
-                            </div>
-                            {{-- <div class="buttom-1">
+                            <div class="box-name-product" data-product-id="{{ $product->id }}">
+                                <div class="name-product">{{ $product->name }}</div>
+                                <div id="Prict-prod">
+                                    <span>{{ number_format($product->regular_price, decimals: 2) }} đ</span>
+                                </div>
+                                {{-- <div class="buttom-1">
                                     <button type="submit">
                                         <i class="fa-solid fa-cart-plus"></i>
                                         <span>Thêm vào giỏ</span>
                                     </button>
                                 </div> --}}
 
+                            </div>
                         </div>
                     </div>
-            </div>
-            @endforeach
+                @endforeach
         </div>
     </div>
     </div>
@@ -234,7 +230,7 @@
 
         </div>
     </div> --}}
-    <div class="all-box-banner">
+    <div style="margin-bottom: 200px" class="all-box-banner ">
         @foreach ($latestPages as $page)
             <div class="box-first-banner">
                 <div class="box-img-banner">
@@ -260,7 +256,7 @@
     </div>
     <script>
         // thêm vào yêu thích
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             toastr.options = {
                 "positionClass": "toast-top-right",
                 "timeOut": "1000",
@@ -268,8 +264,8 @@
                 "progressBar": true
             };
             let wishlistProcessing = false;
-            document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
+            document.querySelectorAll('.wishlist-btn').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
                     e.preventDefault();
                     if (wishlistProcessing) {
                         toastr.warning('Bạn thao tác quá nhanh, vui lòng chờ!');
@@ -293,15 +289,15 @@
                         product_id: productId
                     });
                     fetch(url, {
-                            method: method,
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')
-                                    .getAttribute('content')
-                            },
-                            body: body
-                        })
+                        method: method,
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')
+                                .getAttribute('content')
+                        },
+                        body: body
+                    })
                         .then(response => response.json())
                         .then(data => {
                             if (!isActive && data.success !== false) {
@@ -338,7 +334,7 @@
                                     badge.textContent = Math.max(count - 1, 0);
                                     if (badge.textContent == '0') badge.remove();
                                 }
-                                setTimeout(function() {
+                                setTimeout(function () {
                                     var toast = document.querySelector(
                                         '.toast-success');
                                     if (toast) {
@@ -368,7 +364,7 @@
                             console.error(error);
                         })
                         .finally(() => {
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 wishlistProcessing = false;
                             }, 600);
                         });

@@ -57,7 +57,7 @@
         <a href="{{ route('home') }}" class="btn btn-primary mt-3"
             style="background: #ff3029; color: #fff; padding: 12px 28px; font-weight: bold; border-radius: 3px; margin-right: 8px;">Về
             trang chủ</a>
-        <a href="{{ route('client.profile.order') }}" class="btn btn-outline-secondary mt-3"
+        <a href="{{ route('client.profile.my_account.order') }}" class="btn btn-outline-secondary mt-3"
             style="padding: 12px 28px; font-weight: bold; border-radius: 3px; border: 1px solid #ff3029; color: #ff3029;">Xem
             đơn hàng của tôi</a>
     </div>
