@@ -588,17 +588,17 @@
             quantityInput.addEventListener('input', updatePrice);
 
             // Tăng giảm số lượng
-            document.querySelectorAll('.btn-quantity').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    let val = parseInt(quantityInput.value) || 1;
-                    if (this.classList.contains('btn-increase')) {
-                        quantityInput.value = val + 1;
-                    } else if (this.classList.contains('btn-decrease') && val > 1) {
-                        quantityInput.value = val - 1;
-                    }
-                    updatePrice();
-                });
-            });
+            // document.querySelectorAll('.btn-quantity').forEach(btn => {
+            //     btn.addEventListener('click', function() {
+            //         let val = parseInt(quantityInput.value) || 1;
+            //         if (this.classList.contains('btn-increase')) {
+            //             quantityInput.value = val + 1;
+            //         } else if (this.classList.contains('btn-decrease') && val > 1) {
+            //             quantityInput.value = val - 1;
+            //         }
+            //         updatePrice();
+            //     });
+            // });
 
             // Cập nhật tiêu đề sản phẩm
             function updateProductTitle() {
