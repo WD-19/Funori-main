@@ -167,6 +167,9 @@
                                                     </div>
                                                     <div class="cart-meta-variant"
                                                         style="font-size: 13px; color: #b0b0b0; font-style: italic; margin-top: 4px;">
+                                                        @if (!empty($cartItem['variant']['name_variant']))
+                                                            <div>Tên biến thể: {{ $cartItem['variant']['name_variant'] }}</div>
+                                                        @endif
                                                         @if (!empty($cartItem['variant_attributes']))
                                                             @foreach ($cartItem['variant_attributes'] as $attr)
                                                                 <div>{{ $attr }}</div>

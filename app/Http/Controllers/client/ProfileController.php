@@ -21,27 +21,25 @@ class ProfileController
     }
 
     public function order(Request $request)
-    {
-        $user = Auth::user();
-        $orders = $user->orders()->latest();
+{
+    $user = Auth::user();
 
-        $status = $request->query('order_status', 'all');
-        if ($status !== 'all') {
-            $orders = $orders->where('order_status', $status);
-        }
+    // Lọc trạng thái nếu có
+    $status = $request->query('order_status', 'all');
 
-        $orders = $orders->get();
+    $ordersQuery = $user->orders()->latest(); // orderBy created_at DESC
 
-        // Nếu vẫn muốn groupBy để dùng lại view cũ:
-        $ordersByStatus = $status === 'all'
-            ? $orders->groupBy('order_status')
-            : collect([$status => $orders]);
-
-        return view('client.profile.order', [
-            'pageTitle' => 'My Orders',
-            'ordersByStatus' => $ordersByStatus
-        ]);
+    if ($status !== 'all') {
+        $ordersQuery->where('order_status', $status);
     }
+
+    $orders = $ordersQuery->get();
+
+    return view('client.profile.order', [
+        'pageTitle' => 'My Orders',
+        'orders' => $orders // <-- chỉ truyền 1 danh sách, không groupBy nữa
+    ]);
+}
 
     public function detailOrder($orderId)
     {
@@ -315,8 +313,8 @@ class ProfileController
         $order = Order::with('items')->findOrFail($id);
 
         // Lấy giỏ hàng hiện tại (theo user hoặc session)
-        $cart = auth()->check()
-            ? \App\Models\Cart::firstOrCreate(['user_id' => auth()->id()])
+        $cart = Auth::check()
+            ? \App\Models\Cart::firstOrCreate(['user_id' => Auth::id()])
             : session()->get('cart', []);
 
         $repeatIds = [];
@@ -328,7 +326,7 @@ class ProfileController
             // Tính đơn giá tại thời điểm đặt hàng
             $unitPrice = $item->quantity > 0 ? ($item->subtotal / $item->quantity) : 0;
 
-            if (auth()->check()) {
+            if (Auth::check()) {
                 $cartItem = $cart->items()->where([
                     'product_id' => $item->product_id,
                     'product_variant_id' => $item->product_variant_id
@@ -380,25 +378,23 @@ class ProfileController
    
 
     public function ajaxOrderList(Request $request)
-    {
-        $user = Auth::user();
-        $orders = $user->orders()->latest();
+{
+    $user = Auth::user();
 
-        $status = $request->query('order_status', 'all');
-        if ($status !== 'all') {
-            $orders = $orders->where('order_status', $status);
-        }
-        $orders = $orders->get();
+    $status = $request->query('order_status', 'all');
 
-        $ordersByStatus = $status === 'all'
-            ? $orders->groupBy('order_status')
-            : collect([$status => $orders]);
+    $ordersQuery = $user->orders()->latest(); // orderBy created_at DESC
 
-        // Trả về view partial chỉ chứa danh sách đơn hàng
-        return view('client.profile.order_list', [
-            'ordersByStatus' => $ordersByStatus
-        ])->render();
+    if ($status !== 'all') {
+        $ordersQuery->where('order_status', $status);
     }
+
+    $orders = $ordersQuery->get();
+
+    return view('client.profile.order_list', [
+        'orders' => $orders // <-- truyền 1 danh sách
+    ])->render();
+}
 
     public function markDelivered($orderId)
     {

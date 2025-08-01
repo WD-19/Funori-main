@@ -53,8 +53,7 @@
                                             </div>
                                             <div>
                                                 <div class="text-tiny">Tên sản phẩm</div>
-                                                <div class="title"
-                                                    style="display:flex; align-items:center; gap:10px;">
+                                                <div class="title" style="display:flex; align-items:center; gap:10px;">
                                                     <a href="#"
                                                         class="body-title-2">{{ $item->product->name ?? 'Không xác định' }}</a>
                                                     <span class="body-text tf-color-1">
@@ -139,6 +138,13 @@
                                     <span
                                         class="body-title-2">{{ number_format($order->shipping_fee, 0, ',', '.') }}₫</span>
                                 </li>
+                                @if ($order->discount_code)
+                                    <li class="divider"></li>
+                                    <li class="cart-totals-item">
+                                        <span class="body-text">Mã giảm giá:</span>
+                                        <span class="body-title-2">{{ $order->discount_code }}</span>
+                                    </li>
+                                @endif
                                 @if ($order->discount_amount)
                                     <li class="divider"></li>
                                     <li class="cart-totals-item">
@@ -186,16 +192,30 @@
                             <div class="body-title-2">
                                 @if ($order->order_status === 'delivered')
                                     <span class="block-available bg-1 fw-7">Đã giao</span>
-                                @elseif($order->order_status === 'pending' || $order->order_status === 'pending_confirmation')
-                                    <span class="block-pending bg-1 fw-7">Chờ xử lý</span>
+                                @elseif($order->order_status === 'pending_confirmation' || $order->order_status === 'pending')
+                                    <span class="block-pending bg-1 fw-7">Chờ xác nhận</span>
+                                @elseif($order->order_status === 'processing')
+                                    <span class="block-pending bg-1 fw-7">Đang xử lý</span>
+                                @elseif($order->order_status === 'shipped')
+                                    <span class="block-pending bg-1 fw-7">Đang giao</span>
                                 @elseif($order->order_status === 'cancelled')
                                     <span class="block-pending bg-1 fw-7" style="background:#f87171">Đã hủy</span>
+                                @elseif($order->order_status === 'returned')
+                                    <span class="block-pending bg-1 fw-7">Đã trả hàng</span>
                                 @else
                                     <span
                                         class="block-pending bg-1 fw-7">{{ ucfirst(str_replace('_', ' ', $order->order_status)) }}</span>
                                 @endif
                             </div>
                         </div>
+                        @if (in_array($order->order_status, ['cancelled', 'pending_cancellation']) && $order->cancellation_reason)
+                            <div class="summary-item">
+                                <div class="body-text">Lý do</div>
+                                <div class="body-title-2 text-sm text-danger">
+                                    <b>{{ $order->cancellation_reason }}</b>
+                                </div>
+                            </div>
+                        @endif
                         <div class="summary-item">
                             <div class="body-text">Ngày đặt</div>
                             <div class="body-title-2">
