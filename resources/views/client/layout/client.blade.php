@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -31,44 +32,48 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YRJ52MEC41"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
         gtag('js', new Date());
 
         gtag('config', 'G-YRJ52MEC41');
     </script>
 </head>
 
-    <style>
-        /* Loader full screen */
-        #preload {
-            position: fixed;
-            z-index: 9999;
-            inset: 0;
-            background-color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
+<style>
+    /* Loader full screen */
+    #preload {
+        position: fixed;
+        z-index: 9999;
+        inset: 0;
+        background-color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
 
-        #preload.fade-out {
-            opacity: 0;
-            visibility: hidden;
-        }
+    #preload.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
 
-        .preloading i {
-            font-size: 3rem;
-            color: #333;
-            animation: spin 1s linear infinite;
-        }
+    .preloading i {
+        font-size: 3rem;
+        color: #333;
+        animation: spin 1s linear infinite;
+    }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
         }
-    </style>
+    }
+</style>
 </head>
+
 <body>
     <!-- Loader -->
     <div id="preload">
@@ -104,7 +109,7 @@
 
     <!-- Fade-out effect on load -->
     <script>
-        window.addEventListener('load', function () {
+        window.addEventListener('load', function() {
             const preload = document.getElementById('preload');
             preload.classList.add('fade-out');
         });
@@ -112,8 +117,9 @@
 
     <!-- Tawk.to -->
     <script type="text/javascript">
-        var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-        (function () {
+        var Tawk_API = Tawk_API || {},
+            Tawk_LoadStart = new Date();
+        (function() {
             var s1 = document.createElement("script"),
                 s0 = document.getElementsByTagName("script")[0];
             s1.async = true;
@@ -126,14 +132,16 @@
             s0.parentNode.insertBefore(s1, s0);
         })();
     </script>
-        @stack('scripts')
+    @stack('scripts')
 
 </body>
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">
-    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-    (function () {
-        var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+    var Tawk_API = Tawk_API || {},
+        Tawk_LoadStart = new Date();
+    (function() {
+        var s1 = document.createElement("script"),
+            s0 = document.getElementsByTagName("script")[0];
         s1.async = true;
         s1.src = 'https://embed.tawk.to/687856501786aa1911e6b66b/1j0b12bap';
         s1.charset = 'UTF-8';
@@ -162,5 +170,67 @@
 <!-- Toastr JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    const preload = document.getElementById('preload');
+
+    // 1. Xử lý khi load lại do back/forward
+    window.addEventListener('pageshow', function(event) {
+        // Nếu trình duyệt load từ cache (bfcache) hoặc là dạng "back_forward"
+        const isBack = event.persisted || performance.getEntriesByType("navigation")[0]?.type ===
+            "back_forward";
+
+        if (isBack) {
+            // Cho hiện preload
+            if (preload) {
+                preload.style.opacity = '1';
+                preload.style.visibility = 'visible';
+                preload.classList.remove('fade-out');
+            }
+
+            // Lưu cờ trong sessionStorage để biết là đang reload lại
+            sessionStorage.setItem('forceReload', 'yes');
+
+            // Reload lại sau 50ms (cho preload kịp hiển thị)
+            setTimeout(() => {
+                window.location.reload();
+            }, 50);
+        }
+    });
+
+    // 2. Khi trang load bình thường
+    window.addEventListener('load', function() {
+        const forceReload = sessionStorage.getItem('forceReload');
+
+        if (forceReload === 'yes') {
+            // Vừa reload xong sau back → KHÔNG ẩn preload
+            sessionStorage.removeItem('forceReload');
+            return;
+        }
+
+        // Load bình thường → fade out preload
+        if (preload) {
+            preload.classList.add('fade-out');
+        }
+    });
+</script>
+
+<style>
+    #preload {
+        position: fixed;
+        inset: 0;
+        background: white;
+        z-index: 9999;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    #preload.fade-out {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+</style>
 
 </html>
