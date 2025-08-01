@@ -382,25 +382,35 @@
     <!-- JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const host = "https://provinces.open-api.vn/api/";
-            const hanoiCode = 1; // Mã của Hà Nội
+        document.addEventListener('DOMContentLoaded', async function() {
+            let districtsData = [];
 
-            var callApiDistrict = (api) => {
-                return axios.get(api);
+            var getDistricts = async () => {
+                try {
+                    const response = await axios.get('/data/hanoi-districts.json');
+                    return response.data.districts;
+                } catch (error) {
+                    console.error("Lỗi khi tải danh sách quận/huyện:", error);
+                    return [];
+                }
             }
 
-            var callApiWard = (api) => {
-                return axios.get(api);
+            var getWards = (districtCode) => {
+                const district = districtsData.find(d => d.code === districtCode);
+                return district ? district.wards : [];
             }
 
             var renderData = (array, selectId) => {
                 let row = '<option value="">-- Chọn --</option>';
-                array.forEach(element => {
-                    row +=
-                        `<option data-code="${element.code}" value="${element.name}">${element.name}</option>`
-                });
-                document.getElementById(selectId).innerHTML = row;
+                if (Array.isArray(array)) {
+                    array.forEach(element => {
+                        row += `<option data-code="${element.code}" value="${element.name}">${element.name}</option>`;
+                    });
+                }
+                const selectElement = document.getElementById(selectId);
+                if (selectElement) {
+                    selectElement.innerHTML = row;
+                }
             }
 
             const buyerDistrictSelect = document.getElementById('buyer_district');
@@ -416,21 +426,21 @@
                 const userWard = `{{ auth()->check() ? auth()->user()->ward : '' }}`;
 
                 try {
-                    // Tải quận/huyện cho cả hai form
-                    const districtResponse = await callApiDistrict(host + "p/" + hanoiCode + "?depth=2");
-                    renderData(districtResponse.data.districts, "buyer_district");
-                    renderData(districtResponse.data.districts, "shipping_district");
+                    // Render quận/huyện cho cả hai form từ dữ liệu đã load
+                    renderData(districtsData, "buyer_district");
+                    renderData(districtsData, "shipping_district");
 
                     // Nếu người dùng có quận đã lưu, chọn nó
                     if (userDistrict) {
                         buyerDistrictSelect.value = userDistrict;
 
                         // Lấy mã quận để tải phường/xã
-                        const districtCode = buyerDistrictSelect.options[buyerDistrictSelect.selectedIndex]
-                            ?.dataset.code;
-                        if (districtCode) {
-                            const wardResponse = await callApiWard(host + "d/" + districtCode + "?depth=2");
-                            renderData(wardResponse.data.wards, "buyer_ward");
+                        const selectedOption = Array.from(buyerDistrictSelect.options)
+                            .find(option => option.value === userDistrict);
+                        
+                        if (selectedOption && selectedOption.dataset.code) {
+                            const wards = getWards(selectedOption.dataset.code);
+                            renderData(wards, "buyer_ward");
 
                             // Nếu người dùng có phường đã lưu, chọn nó
                             if (userWard) {
@@ -443,23 +453,23 @@
                 }
             }
 
+            // Tải dữ liệu quận/huyện từ file JSON và lưu vào biến toàn cục
+            districtsData = await getDistricts();
+
             // Chạy hàm khởi tạo nếu người dùng đã đăng nhập, ngược lại chỉ tải quận/huyện
             if (`{{ auth()->check() }}`) {
                 initializeUserAddress();
             } else {
-                callApiDistrict(host + "p/" + hanoiCode + "?depth=2").then(res => {
-                    renderData(res.data.districts, "buyer_district");
-                    renderData(res.data.districts, "shipping_district");
-                });
+                renderData(districtsData, "buyer_district");
+                renderData(districtsData, "shipping_district");
             }
 
             // Khi chọn quận/huyện -> tải phường/xã cho buyer
             buyerDistrictSelect.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
-                if (selectedOption.dataset.code) {
-                    callApiWard(host + "d/" + selectedOption.dataset.code + "?depth=2").then(res => {
-                        renderData(res.data.wards, "buyer_ward");
-                    });
+                if (selectedOption && selectedOption.dataset.code) {
+                    const wards = getWards(selectedOption.dataset.code);
+                    renderData(wards, "buyer_ward");
                 } else {
                     buyerWardSelect.innerHTML = '<option value="">-- Chọn --</option>';
                 }
@@ -468,10 +478,9 @@
             // Khi chọn quận/huyện -> tải phường/xã cho shipping
             shippingDistrictSelect.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
-                if (selectedOption.dataset.code) {
-                    callApiWard(host + "d/" + selectedOption.dataset.code + "?depth=2").then(res => {
-                        renderData(res.data.wards, "shipping_ward");
-                    });
+                if (selectedOption && selectedOption.dataset.code) {
+                    const wards = getWards(selectedOption.dataset.code);
+                    renderData(wards, "shipping_ward");
                 } else {
                     shippingWardSelect.innerHTML = '<option value="">-- Chọn --</option>';
                 }
