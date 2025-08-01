@@ -14,14 +14,14 @@ class ProductController
     public function search(Request $request)
     {
         $query = $request->input('q');
-        
-        if($request->ajax()) {
+
+        if ($request->ajax()) {
             // Nếu là ajax request thì trả về gợi ý tìm kiếm
             $products = Product::where('name', 'LIKE', "%{$query}%")
-                ->orWhereHas('category', function($q) use ($query) {
+                ->orWhereHas('category', function ($q) use ($query) {
                     $q->where('name', 'LIKE', "%{$query}%");
                 })
-                ->orWhereHas('brand', function($q) use ($query) {
+                ->orWhereHas('brand', function ($q) use ($query) {
                     $q->where('name', 'LIKE', "%{$query}%");
                 })
                 ->with(['images'])
@@ -29,7 +29,7 @@ class ProductController
                 ->take(5)
                 ->get();
 
-            return response()->json($products->map(function($product) {
+            return response()->json($products->map(function ($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -41,19 +41,19 @@ class ProductController
         }
 
         // Nếu là request thường thì trả về trang kết quả tìm kiếm
-        $products = Product::where(function($query) use ($request) {
+        $products = Product::where(function ($query) use ($request) {
             $q = $request->input('q');
             $query->where('name', 'LIKE', "%{$q}%")
-                ->orWhereHas('category', function($subQuery) use ($q) {
+                ->orWhereHas('category', function ($subQuery) use ($q) {
                     $subQuery->where('name', 'LIKE', "%{$q}%");
                 })
-                ->orWhereHas('brand', function($subQuery) use ($q) {
+                ->orWhereHas('brand', function ($subQuery) use ($q) {
                     $subQuery->where('name', 'LIKE', "%{$q}%");
                 });
         })
-        ->with(['images', 'category', 'brand', 'reviews'])
-        ->where('status', 'published')
-        ->paginate(12);
+            ->with(['images', 'category', 'brand', 'reviews'])
+            ->where('status', 'published')
+            ->paginate(12);
 
         return view('client.search.index', compact('products', 'query'));
     }
@@ -65,7 +65,8 @@ class ProductController
             'images',
             'thumbnail',
             'variants.image',
-            'category'
+            'category',
+            'variants.attributeValues.attribute',
         ])->where('slug', $slug)->first();
 
         if (!$product) {
@@ -82,7 +83,7 @@ class ProductController
                 if (Auth::check()) {
                     $q->orWhere(function ($q2) {
                         $q2->where('status', 'pending')
-                            ->where('user_id', auth()->id());
+                            ->where('user_id', Auth::id());
                     });
                 }
             })
@@ -93,6 +94,7 @@ class ProductController
 
         return view('client.product.detail', compact('product', 'reviews'));
     }
+    
     public function store(Request $request, $productId)
     {
         $userId = Auth::id();
