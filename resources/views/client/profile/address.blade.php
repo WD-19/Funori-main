@@ -92,7 +92,7 @@
                             </div>
                         @endif
                         <div style="margin-top:8px;">
-                            <a href="#" class="edit-address-btn" data-id="{{ $address->id }}"
+                            <a href="" class="edit-address-btn" data-id="{{ $address->id }}"
                                 style="color:#3498db; margin-right:8px;">Cập nhật</a>
                             <form action="{{ route('client.profile.address.destroy', $address->id) }}" method="POST"
                                 class="d-inline delete-address-form" style="display:inline;">

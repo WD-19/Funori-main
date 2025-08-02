@@ -91,13 +91,14 @@ class CheckoutController
             }
         } else {
             // Fallback cho guest users - vẫn dùng session
-            $fullCartItems = Session::get('cart.items', []);
-            if (empty($fullCartItems)) {
+            $sessionCart = Session::get('cart', []);
+            if (empty($sessionCart)) {
                 return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống.');
             }
 
-            foreach ($fullCartItems as $item) {
-                if (in_array($item['id'], $selectedItemIds)) {
+            foreach ($sessionCart as $item) {
+                $itemId = $item['product_id'] . '_' . ($item['product_variant_id'] ?? 'null');
+                if (in_array($itemId, $selectedItemIds)) {
                     $selectedItems[] = $item;
                     $newTotal += $item['quantity'] * $item['price_at_addition'];
                 }
@@ -530,21 +531,14 @@ class CheckoutController
             if (Auth::check()) {
                 $cart = Cart::where('user_id', Auth::id())->first();
                 if ($cart) {
-                    // Lấy danh sách các sản phẩm đã checkout
-                    $checkoutItemIds = collect($cart['items'])->pluck('product_id')->toArray();
-                    $checkoutVariantIds = collect($cart['items'])->pluck('product_variant_id')->toArray();
-                    
-                    // Xóa các cart items tương ứng
-                    $cart->items()->whereIn('product_id', $checkoutItemIds)
-                        ->where(function($query) use ($checkoutVariantIds) {
-                            foreach ($checkoutVariantIds as $index => $variantId) {
-                                if ($index === 0) {
-                                    $query->where('product_variant_id', $variantId);
-                                } else {
-                                    $query->orWhere('product_variant_id', $variantId);
-                                }
-                            }
-                        })->delete();
+                    // Lấy danh sách các sản phẩm đã checkout từ session
+                    $checkoutItems = Session::get('checkout.items', []);
+                    foreach ($checkoutItems as $item) {
+                        $cart->items()->where([
+                            'product_id' => $item['product_id'],
+                            'product_variant_id' => $item['product_variant_id']
+                        ])->delete();
+                    }
                 }
             }
             

@@ -2,44 +2,53 @@
 
 namespace App\Http\Controllers\client;
 
-use App\Http\Controllers\Controller;
-use App\Models\Order;
 use App\Models\Promotion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class VoucherController 
 {
-    /**
-     * Lấy danh sách các voucher hợp lệ cho người dùng hiện tại.
-     * Trả về một partial view để hiển thị trong modal.
-     */
-    public function getApplicableVouchers(Request $request)
-    {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Bạn cần đăng nhập để xem voucher'], 401);
-        }
-
-        $user = Auth::user();
-
-        // Lấy ID các voucher đã sử dụng
-        $usedVoucherIds = $user->orders()->whereHas('promotions')->with('promotions')->get()
-            ->flatMap(function ($order) {
-                return $order->promotions->pluck('id');
-            })
-            ->unique()
-            ->toArray();
-
-        // Lấy các voucher còn hiệu lực và chưa được sử dụng
-        $vouchers = Promotion::with('brands', 'categories')
-            ->where('is_active', 1)
-            ->where(function ($q) {
-                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
-            })
-            ->whereNotIn('id', $usedVoucherIds)
-            ->get();
-
-        // Trả về một view partial chứa danh sách voucher
-        return view('client.cart.partials.voucher_list', compact('vouchers'));
+   public function getApplicableVouchers(Request $request)
+{
+    if (!Auth::check()) {
+        return response('<p class="p-3 text-center text-muted">Bạn cần đăng nhập để xem voucher.</p>');
     }
+
+    $user = Auth::user();
+
+    // ✅ Chỉ lọc theo trạng thái và thời gian
+    $vouchers = Promotion::where('is_active', 1)
+        ->where(function ($q) {
+            $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+        })
+        ->get();
+
+    if ($vouchers->isEmpty()) {
+        return response('<p class="p-3 text-center">Không có voucher nào đang hoạt động.</p>');
+    }
+
+    $html = '';
+    foreach ($vouchers as $voucher) {
+        $discountText = $voucher->discount_type == 'percentage'
+            ? "Giảm {$voucher->discount_value}%"
+            : "Giảm " . number_format($voucher->discount_value) . "đ";
+
+        $limitText = $voucher->usage_limit_per_user
+            ? " (Tối đa {$voucher->usage_limit_per_user} lượt dùng)"
+            : "";
+
+        $html .= '
+        <div class="p-3 border-bottom">
+            <strong>' . $voucher->code . '</strong> - ' . $discountText . $limitText . '
+            <br><small>' . htmlspecialchars($voucher->description ?? '') . '</small>
+            <button type="button" 
+                    class="apply-voucher-btn btn btn-sm btn-primary mt-2"
+                    data-code="' . $voucher->code . '">
+                Áp dụng
+            </button>
+        </div>';
+    }
+
+    return response($html);
+}
 }
