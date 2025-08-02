@@ -28,16 +28,6 @@
         </ul>
     </div>
 
-    {{-- @if ($errors->any())
-    <div class="alert alert-danger mb-3">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif --}}
-
     <!-- form-edit-product -->
     <form class="form-edit-product" method="POST" action="{{ route('admin.products.update', $product->id) }}"
         enctype="multipart/form-data">
@@ -127,7 +117,7 @@
                 @enderror
             </fieldset>
             <fieldset class="description">
-                <div class="body-title mb-10">Mô tả chi tiết</div>
+                <div class="body-title mb-10">Mô tả chi tiết <span class="tf-color-1">*</span></div>
                 <textarea name="description">{{ old('description', $product->description) }}</textarea>
                 @error('description')
                     <div class="text-danger text-tiny mt-2">{{ $message }}</div>
@@ -136,7 +126,7 @@
 
             <!-- VARIANTS -->
             <fieldset class="variants">
-                <div class="body-title mb-10">Biến thể</div>
+                <div class="body-title mb-10">Biến thể <span class="tf-color-1">*</span></div>
                 @error('variants')
                     <div class="text-danger text-tiny mt-2">{{ $message }}</div>
                 @enderror
@@ -155,7 +145,7 @@
                                     <option value="">-- {{ $attribute->name }} --</option>
                                     @foreach ($attribute->values as $value)
                                         <option value="{{ $value->id }}"
-                                            @if ($variant->attributeValues->contains('id', $value->id)) selected @endif>
+                                            @if (old("variants.$i.attribute_values.$attribute->id", $variant->attributeValues->contains('id', $value->id) ? $value->id : null)) selected @endif>
                                             {{ $value->value }}
                                         </option>
                                     @endforeach
@@ -210,6 +200,8 @@
             }
             $attributeSelects .= '</select>';
         }
+        // Chuẩn bị dữ liệu old variants dưới dạng JSON
+        $oldVariants = old('variants', []);
     @endphp
 
     <script>
@@ -294,20 +286,50 @@
             const addVariantBtn = document.getElementById('add-variant-btn');
             const attributeSelectsTemplate = `{!! addslashes($attributeSelects) !!}`;
             let variantIndex = variantList.querySelectorAll('.variant-row').length;
+
+            // Truyền dữ liệu old variants từ PHP sang JavaScript
+            const oldVariantsData = @json($oldVariants);
+
+            // Load old variants from session if available
+            if (oldVariantsData && Object.keys(oldVariantsData).length > 0) {
+                Object.keys(oldVariantsData).forEach((i) => {
+                    if (i >= variantIndex) {
+                        variantIndex = parseInt(i) + 1;
+                        const variantDiv = document.createElement('div');
+                        variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
+                        let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${i}]`);
+                        const variant = oldVariantsData[i];
+                        variantDiv.innerHTML = `
+                            ${selects}
+                            <input type="text" name="variants[${i}][name_variant]" value="${variant.name_variant || ''}" placeholder="Tên biến thể" style="width:28%;">
+                            <input type="text" name="variants[${i}][size]" value="${variant.size || ''}" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
+                            <input type="number" name="variants[${i}][price_modifier]" value="${variant.price_modifier || ''}" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+                            <input type="number" name="variants[${i}][stock_quantity]" value="${variant.stock_quantity || ''}" placeholder="Kho" min="0" style="width: 100px;">
+                            <input type="file" name="variants[${i}][new_image]" accept="image/*" style="width:180px;">
+                            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">×</button>
+                        `;
+                        variantList.appendChild(variantDiv);
+                        variantDiv.querySelector('.remove-variant').onclick = function() {
+                            variantDiv.remove();
+                        };
+                    }
+                });
+            }
+
             addVariantBtn.addEventListener('click', function() {
                 const variantDiv = document.createElement('div');
                 variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
-                let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g,
-                `variants[${variantIndex}]`);
+                let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${variantIndex}]`);
+                const oldVariant = oldVariantsData[variantIndex] || {};
                 variantDiv.innerHTML = `
-                ${selects}
-                <input type="text" name="variants[${variantIndex}][name_variant]" placeholder="Tên biến thể" style="width:28%;">
-                <input type="text" name="variants[${variantIndex}][size]" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-                <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
-                <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
-                <input type="file" name="variants[${variantIndex}][new_image]" accept="image/*" style="width:180px;">
-                <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">×</button> <br>
-            `;
+                    ${selects}
+                    <input type="text" name="variants[${variantIndex}][name_variant]" value="${oldVariant.name_variant || ''}" placeholder="Tên biến thể" style="width:28%;">
+                    <input type="text" name="variants[${variantIndex}][size]" value="${oldVariant.size || ''}" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
+                    <input type="number" name="variants[${variantIndex}][price_modifier]" value="${oldVariant.price_modifier || ''}" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+                    <input type="number" name="variants[${variantIndex}][stock_quantity]" value="${oldVariant.stock_quantity || ''}" placeholder="Kho" min="0" style="width: 100px;">
+                    <input type="file" name="variants[${variantIndex}][new_image]" accept="image/*" style="width:180px;">
+                    <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">×</button>
+                `;
                 variantList.appendChild(variantDiv);
 
                 variantDiv.querySelector('.remove-variant').onclick = function() {
@@ -317,5 +339,4 @@
             });
         });
     </script>
-
 @endsection

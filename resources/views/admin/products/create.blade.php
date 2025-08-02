@@ -8,7 +8,7 @@
         <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
             <li>
                 <a href="{{ route('admin.dashboard') }}">
-                    <div class="text-tiny">Trang chủ</div>
+                    <div class="text-tiny">Bảng điều khiển</div>
                 </a>
             </li>
             <li>
@@ -27,16 +27,6 @@
             </li>
         </ul>
     </div>
-
-    @if ($errors->any())
-        <div class="alert alert-danger mb-3">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <form class="form-add-product" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
         @csrf
@@ -115,7 +105,7 @@
                 @enderror
             </fieldset>
             <fieldset class="description">
-                <div class="body-title mb-10">Mô tả chi tiết</div>
+                <div class="body-title mb-10">Mô tả chi tiết <span class="tf-color-1">*</span></div>
                 <textarea name="description">{{ old('description') }}</textarea>
                 @error('description')
                     <div class="text-danger text-tiny mt-2">{{ $message }}</div>
@@ -124,22 +114,22 @@
 
             <!-- VARIANTS -->
             <fieldset class="variants">
-                <div class="body-title mb-10">Biến thể</div>
-                @error('variants')
-                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
-                @enderror
-                @foreach (['name_variant', 'size', 'price_modifier', 'stock_quantity', 'image'] as $field)
-                    @error('variants.*.' . $field)
-                        <div class="text-danger text-tiny mt-2">{{ $message }}</div>
-                    @enderror
-                @endforeach
-                <div id="variant-list">
-                </div>
-                <br><br>
-                <button type="button" class="tf-button style-1 mt-10" id="add-variant-btn">
-                    <i class="icon-plus"></i> Thêm biến thể
-                </button>
-            </fieldset>
+    <div class="body-title mb-10">Biến thể <span class="tf-color-1">*</span></div>
+    @error('variants')
+        <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+    @enderror
+    @foreach (['name_variant', 'size', 'price_modifier', 'stock_quantity', 'image'] as $field)
+        @error('variants.*.' . $field)
+            <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+        @enderror
+    @endforeach
+    <div id="variant-list">
+    </div>
+    <br><br>
+    <button type="button" class="tf-button style-1 mt-10" id="add-variant-btn">
+        <i class="icon-plus"></i> Thêm biến thể
+    </button>
+</fieldset>
         </div>
         <div class="cols gap10">
             <button class="tf-button w380" type="submit">Thêm sản phẩm</button>
@@ -161,139 +151,140 @@
     @endphp
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const dropArea = document.getElementById('drop-area');
-            const input = document.getElementById('myFile');
-            const gallery = document.getElementById('gallery');
-            let filesArray = [];
+    document.addEventListener('DOMContentLoaded', function () {
+        const dropArea = document.getElementById('drop-area');
+        const input = document.getElementById('myFile');
+        const gallery = document.getElementById('gallery');
+        let filesArray = [];
 
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, e => e.preventDefault(), false);
-                dropArea.addEventListener(eventName, e => e.stopPropagation(), false);
-            });
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.style.borderColor = '#007bff', false);
-            });
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, () => dropArea.style.borderColor = '#ccc', false);
-            });
-            dropArea.addEventListener('drop', handleDrop, false);
+        // Drag and drop logic (giữ nguyên như cũ)
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, e => e.preventDefault(), false);
+            dropArea.addEventListener(eventName, e => e.stopPropagation(), false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.style.borderColor = '#007bff', false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.style.borderColor = '#ccc', false);
+        });
+        dropArea.addEventListener('drop', handleDrop, false);
 
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = Array.from(dt.files);
-                filesArray = filesArray.concat(files);
-                updateInputFiles();
-                previewFiles(filesArray);
-            }
-            input.addEventListener('change', function () {
-                const files = Array.from(this.files);
-                filesArray = filesArray.concat(files);
-                updateInputFiles();
-                previewFiles(filesArray);
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = Array.from(dt.files);
+            filesArray = filesArray.concat(files);
+            updateInputFiles();
+            previewFiles(filesArray);
+        }
+        input.addEventListener('change', function () {
+            const files = Array.from(this.files);
+            filesArray = filesArray.concat(files);
+            updateInputFiles();
+            previewFiles(filesArray);
+        });
+
+        function updateInputFiles() {
+            const dataTransfer = new DataTransfer();
+            filesArray.forEach(file => dataTransfer.items.add(file));
+            input.files = dataTransfer.files;
+        }
+
+        function previewFiles(files) {
+            gallery.innerHTML = '';
+            files.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '80px';
+                    img.style.maxHeight = '80px';
+                    img.style.objectFit = 'cover';
+                    img.style.border = '1px solid #eee';
+                    img.style.borderRadius = '4px';
+                    div.appendChild(img);
+                    gallery.appendChild(div);
+                };
+                reader.readAsDataURL(file);
             });
+        }
 
-            function updateInputFiles() {
-                const dataTransfer = new DataTransfer();
-                filesArray.forEach(file => dataTransfer.items.add(file));
-                input.files = dataTransfer.files;
-            }
+        const variantList = document.getElementById('variant-list');
+        const addVariantBtn = document.getElementById('add-variant-btn');
+        let variantIndex = 0;
 
-            function previewFiles(files) {
-                gallery.innerHTML = '';
-                files.forEach(file => {
-                    if (!file.type.startsWith('image/')) return;
+        const attributeSelectsTemplate = `{!! addslashes($attributeSelects) !!}`;
+
+        // Function to create a variant row
+        function createVariantRow(index, variantData = {}) {
+            const variantDiv = document.createElement('div');
+            variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
+            let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${index}]`);
+            variantDiv.innerHTML = `
+                ${selects}
+                <input type="text" name="variants[${index}][name_variant]" value="${variantData.name_variant || ''}" placeholder="Tên biến thể" style="width:28%;">
+                <input type="text" name="variants[${index}][size]" value="${variantData.size || ''}" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
+                <input type="number" name="variants[${index}][price_modifier]" value="${variantData.price_modifier || ''}" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+                <input type="number" name="variants[${index}][stock_quantity]" value="${variantData.stock_quantity || ''}" placeholder="Kho" min="0" style="width: 100px;">
+                <div class="variant-image-upload">
+                    <label style="cursor:pointer; display:block; border:1px dashed #ccc; border-radius:6px; padding:10px; text-align:center; background:#fafafa;">
+                        <span class="icon"><i class="icon-upload-cloud"></i></span>
+                        <span class="text-tiny">Chọn ảnh biến thể</span>
+                        <input type="file" name="variants[${index}][image]" accept="image/*" style="display:none;">
+                    </label>
+                    <div class="variant-image-preview"></div>
+                </div>
+                <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 30px; height: 30px;">&times;</button>
+            `;
+            variantList.appendChild(variantDiv);
+
+            const imageInput = variantDiv.querySelector('input[type="file"]');
+            const previewDiv = variantDiv.querySelector('.variant-image-preview');
+            imageInput.addEventListener('change', function () {
+                previewDiv.innerHTML = '';
+                if (this.files && this.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = e => {
-                        const div = document.createElement('div');
-                        div.className = 'item';
+                    reader.onload = function (e) {
                         const img = document.createElement('img');
                         img.src = e.target.result;
-                        img.style.maxWidth = '80px';
+                        img.style.maxWidth = '160px';
                         img.style.maxHeight = '80px';
                         img.style.objectFit = 'cover';
-                        img.style.border = '1px solid #eee';
                         img.style.borderRadius = '4px';
-                        div.appendChild(img);
-                        gallery.appendChild(div);
+                        img.style.border = '1px solid #eee';
+                        previewDiv.appendChild(img);
                     };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            const variantList = document.getElementById('variant-list');
-            const addVariantBtn = document.getElementById('add-variant-btn');
-            let variantIndex = 0;
-
-            const attributeSelectsTemplate = `{!! addslashes($attributeSelects) !!}`;
-
-            // Function to create a variant row
-            function createVariantRow(index, variantData = {}) {
-                const variantDiv = document.createElement('div');
-                variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
-                let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${index}]`);
-                variantDiv.innerHTML = `
-                            ${selects}
-                            <input type="text" name="variants[${variantIndex}][name_variant]" value="" placeholder="Tên biến thể" style="width:28%;">
-                            <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-                            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
-                            <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
-                            <div class="variant-image-upload">
-                                <label style="cursor:pointer; display:block; border:1px dashed #ccc; border-radius:6px; padding:10px; text-align:center; background:#fafafa;">
-                                    <span class="icon"><i class="icon-upload-cloud"></i></span>
-                                    <span class="text-tiny">Chọn ảnh biến thể</span>
-                                    <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="display:none;">
-                                </label>
-                                <div class="variant-image-preview"></div>
-                            </div>
-                            <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 30px; height: 30px;">&times;</button>
-                        `;
-                variantList.appendChild(variantDiv);
-
-                const imageInput = variantDiv.querySelector('input[type="file"]');
-                const previewDiv = variantDiv.querySelector('.variant-image-preview');
-                imageInput.addEventListener('change', function () {
-                    previewDiv.innerHTML = '';
-                    if (this.files && this.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.style.maxWidth = '160px';
-                            img.style.maxHeight = '80px';
-                            img.style.objectFit = 'cover';
-                            img.style.borderRadius = '4px';
-                            img.style.border = '1px solid #eee';
-                            previewDiv.appendChild(img);
-                        };
-                        reader.readAsDataURL(this.files[0]);
-                    }
-                });
-
-                variantDiv.querySelector('.remove-variant').onclick = function () {
-                    variantDiv.remove();
-                };
-            }
-
-            // Initialize variants from old data
-            @if (old('variants'))
-                @foreach (old('variants') as $i => $variant)
-                    variantIndex = {{ $i + 1 }};
-                    createVariantRow({{ $i }}, {
-                        name_variant: "{{ addslashes($variant['name_variant'] ?? '') }}",
-                        size: "{{ addslashes($variant['size'] ?? '') }}",
-                        price_modifier: "{{ $variant['price_modifier'] ?? '' }}",
-                        stock_quantity: "{{ $variant['stock_quantity'] ?? '' }}"
-                    });
-                @endforeach
-            @endif
-
-            addVariantBtn.addEventListener('click', function() {
-                createVariantRow(variantIndex);
-                variantIndex++;
+                    reader.readAsDataURL(this.files[0]);
+                }
             });
+
+            variantDiv.querySelector('.remove-variant').onclick = function () {
+                variantDiv.remove();
+            };
+        }
+
+        // Initialize variants from old data
+        @if (old('variants'))
+            @foreach (old('variants') as $i => $variant)
+                variantIndex = {{ $i }};
+                createVariantRow({{ $i }}, {
+                    name_variant: "{{ addslashes($variant['name_variant'] ?? '') }}",
+                    size: "{{ addslashes($variant['size'] ?? '') }}",
+                    price_modifier: "{{ $variant['price_modifier'] ?? '' }}",
+                    stock_quantity: "{{ $variant['stock_quantity'] ?? '' }}"
+                });
+            @endforeach
+        @endif
+
+        addVariantBtn.addEventListener('click', function() {
+            createVariantRow(variantIndex);
+            variantIndex++;
         });
-    </script>
+    });
+</script>
     <style>
         .variant-image-upload {
             display: flex;
