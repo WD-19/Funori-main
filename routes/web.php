@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\client\AboutController;
+use App\Http\Controllers\admin\MessageController;
 //client Controller
 use App\Http\Controllers\client\Auth\LoginController;
 use App\Http\Controllers\client\Auth\RegisterController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\VnPayController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
+use App\Http\Controllers\client\MessageController as ClientMessageController;
 use App\Http\Controllers\PayPalController;
 
 use App\Http\Controllers\MomoController;
@@ -85,6 +87,13 @@ Route::prefix('admin')->name('admin.')
 
         // Quản lý thương hiệu
         Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
+
+        // Quản lý đoạn chat
+        Route::get('messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('message/messages/{id}', [MessageController::class, 'messages'])->name('messages.messages');
+        Route::post('message/messages/{id}', [MessageController::class, 'store'])->name('messages.store');
+        Route::delete('messages/{id}', [MessageController::class, 'delete'])->name('messages.delete');
+        Route::post('/admin/message/messages/{id}/file', [MessageController::class, 'sendFile'])->name('message.sendFile');
 
         //quản lý đánh giá
         Route::get('reviews/export', [ReviewController::class, 'export'])->name('reviews.export');
@@ -208,6 +217,10 @@ Route::prefix('/')->name('client.')->group(function () {
         return view('client.index');
     })->name('dashboard');
 
+    // Lấy danh sách tin nhắn (GET)
+    Route::get('/messages', [ClientMessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages', [ClientMessageController::class, 'store'])->name('messages.store');
+
     // thêm và xóa sản phẩm trong danh sách yêu thích (wishlist)
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
@@ -322,7 +335,6 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/wishlist', [ProfileController::class, 'wishlist'])->name('wishlist');
         Route::get('/password/edit', [ProfileController::class, 'editPassword'])->name('password.edit');
         Route::post('/password/edit', [ProfileController::class, 'updatePassword'])->name('password.update');
-
     });
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });
