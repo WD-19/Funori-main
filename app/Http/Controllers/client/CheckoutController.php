@@ -558,27 +558,28 @@ class CheckoutController
             return back()->withInput()->with('error', 'Lỗi: ' . $e->getMessage());
         }
     }
+       public function success(Request $request)
+{
+    $order = null;
+    $paymentDetails = null;
 
-    public function success(Request $request)
-    {
-        // Không kiểm tra session('success') vì khi redirect từ route khác sẽ mất session này
-        $order = null;
-        $paymentDetails = null;
-        if ($request->has('order')) {
-            $order = Order::with(['items.product.images', 'items.productVariant', 'paymentMethod', 'shippingMethod'])
-                ->find($request->query('order'));
-            // Nếu là thanh toán VNPAY và có payment_details thì giải mã
-            if ($order && $order->paymentMethod && strtolower($order->paymentMethod->name) === 'vnpay' && $order->payment_details) {
-                $paymentDetails = is_array($order->payment_details) ? $order->payment_details : json_decode($order->payment_details, true);
-            }
+    if ($request->has('order')) {
+        $order = Order::with(['items.product.images', 'items.productVariant', 'paymentMethod', 'shippingMethod'])
+            ->find($request->query('order'));
+
+        if ($order && $order->payment_details) {
+            $paymentDetails = is_array($order->payment_details)
+                ? $order->payment_details
+                : json_decode($order->payment_details, true);
         }
-        // Nếu không tìm thấy order, chuyển về trang chủ hoặc trang đơn hàng của user
-        if (!$order) {
-            return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng!');
-        }
-        return view('client.checkout.success', compact('order', 'paymentDetails'));
     }
 
+    if (!$order) {
+        return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng!');
+    }
+
+    return view('client.checkout.success', compact('order', 'paymentDetails'));
+}
     /**
      * Cập nhật discount trong checkout session
      */
