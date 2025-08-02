@@ -10,7 +10,7 @@
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="{{ route('admin.dashboard') }}">
-                            <div class="text-tiny">Trang chủ
+                            <div class="text-tiny">Bảng điều khiển
                             </div>
                         </a>
                     </li>
@@ -38,9 +38,7 @@
                     <a class="tf-button style-1 w208" href="{{ route('admin.promotions.create') }}"><i
                             class="icon-plus"></i>Thêm khuyến mãi</a>
                 </div>
-                @if (session('success'))
-                    <div class="alert alert-success mb-3">{{ session('success') }}</div>
-                @endif
+
                 <div class="wg-table table-product-list">
                     <ul style="width: 1440px ;" class=" table-title flex mb-14">
                         <li style="width: 15%">
