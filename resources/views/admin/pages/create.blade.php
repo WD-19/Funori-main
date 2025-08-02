@@ -323,22 +323,51 @@
         {{-- Sử dụng offline --}}
         <script src="{{ asset('tinymce/tinymce.min.js') }}" referrerpolicy="origin"></script>
         <script>
-            tinymce.init({
-                selector: '#content',
-                license_key: 'gpl',
-                plugins: 'image media link table lists advlist',
-                toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
-                height: 800,
-                menubar: false,
-                // Vô hiệu hóa hoặc điều chỉnh images_upload_url vì không dùng online
-                images_upload_url: '', // Tạm thời vô hiệu hóa
-                images_upload_handler: null, // Tạm thời vô hiệu hóa
-                readonly: false,
-                image_caption: true,
-                image_advtab: true,
-                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
-            });
-        </script>
+        tinymce.init({
+            selector: '#content',
+            license_key: 'gpl',
+            plugins: 'image media link table lists advlist',
+            toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
+            height: 800,
+            menubar: false,
+            relative_urls: false, // Tắt đường dẫn tương đối
+            remove_script_host: false, // Giữ host trong URL
+            convert_urls: false, // Không chuyển đổi URL
+            images_upload_handler: async (blobInfo, progress) => {
+                let formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+                formData.append('_token', '{{ csrf_token() }}');
+
+                try {
+                    const response = await fetch('{{ route('admin.pages.upload-image') }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Accept': 'application/json' },
+                        onUploadProgress: (event) => {
+                            progress((event.loaded / event.total) * 100); // Hiển thị tiến trình upload
+                        }
+                    });
+
+                    const json = await response.json();
+                    console.log('Upload response:', json); // Debug để kiểm tra phản hồi
+
+                    if (!response.ok || !json.location) {
+                        throw new Error(json.error || 'Tải ảnh thất bại');
+                    }
+
+                    // Đảm bảo trả về đường dẫn tuyệt đối đầy đủ
+                    const fullUrl = new URL(json.location, window.location.origin).href;
+                    return fullUrl; // Trả về URL đầy đủ (ví dụ: http://localhost/storage/pages/filename.jpg)
+                } catch (error) {
+                    throw new Error('Tải ảnh thất bại: ' + error.message);
+                }
+            },
+            readonly: false,
+            image_caption: true,
+            image_advtab: true,
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
+        });
+    </script>
     @endpush
     @push('head')
         <style>
