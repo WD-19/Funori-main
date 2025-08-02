@@ -148,12 +148,20 @@ class CartController
     {
         $request->validate([
             'discount_code' => 'required|string',
+            'selected_items' => 'required|array',
+            'selected_items.*.item_id' => 'required|string',
+            'selected_items.*.quantity' => 'required|integer|min:1',
+            'selected_items.*.price' => 'required|numeric|min:0',
         ]);
     
         $discountCode = $request->discount_code;
-        // Sửa lỗi: Lấy trực tiếp 'cart.items' và 'cart.total' từ session
-        $cartItems = Session::get('cart.items', []);
-        $total = Session::get('cart.total', 0);
+        $selectedItemsData = $request->selected_items;
+    
+        // Tính tổng tiền của các sản phẩm được chọn
+        $total = 0;
+        foreach ($selectedItemsData as $item) {
+            $total += $item['quantity'] * $item['price'];
+        }
 
         // Tìm khuyến mãi hợp lệ
         $promotion = Promotion::where('code', $discountCode)
@@ -206,6 +214,7 @@ class CartController
         }
     
         // Lưu thông tin khuyến mãi vào session
+        // Lưu ý: discountAmount ở đây là cho các sản phẩm được chọn, không phải toàn bộ giỏ hàng
         Session::put('cart.discount', $discountAmount);
         Session::put('cart.discount_code', $discountCode); // Lưu mã code để kiểm tra sau này
     

@@ -35,6 +35,7 @@ use App\Http\Controllers\client\Auth\ResetPasswordController;
 use App\Http\Controllers\PayPalController;
 
 use App\Http\Controllers\MomoController;
+use App\Http\Controllers\client\VoucherController;
 
 // Middleware
 use App\Http\Middleware\CheckLogin;
@@ -331,3 +332,6 @@ Route::prefix('/')->name('client.')->group(function () {
 Route::fallback(function () {
     return response()->view('client.errors.404', [], 404);
 });
+
+// Thêm route API lấy voucher có thể áp dụng cho giỏ hàng
+Route::get('/vouchers/applicable', [VoucherController::class, 'getApplicableVouchers'])->name('vouchers.applicable');

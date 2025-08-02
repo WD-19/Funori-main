@@ -366,13 +366,21 @@ class ProfileController
     public function vouchers()
     {
         $user = Auth::user();
-        // Lấy các promotion còn hiệu lực, có thể lọc theo user nếu cần
-        $vouchers = Promotion::where('is_active', 1)
-            ->where(function($q){
-                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
-            })
+
+        // Lấy tất cả các voucher có thể có (cả hết hạn) để hiển thị trạng thái
+        $vouchers = Promotion::with('brands', 'categories')
+            ->where('is_active', 1)
             ->get();
-        return view('client.profile.voucher', compact('vouchers'));
+
+        // Lấy ID của các voucher mà người dùng đã sử dụng
+        $usedVoucherIds = $user->orders()->whereHas('promotions')->with('promotions')->get()
+            ->flatMap(function ($order) {
+                return $order->promotions->pluck('id');
+            })
+            ->unique()
+            ->toArray();
+
+        return view('client.profile.voucher', compact('vouchers', 'usedVoucherIds'));
     }
 
    
