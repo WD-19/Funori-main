@@ -1,5 +1,6 @@
 {{-- filepath: d:\laragon\www\Funori-main\resources\views\client\shop.blade.php --}}
 @extends('client.layout.client')
+@section('title', 'Cửa Hàng')
 
 @section('content')
 
