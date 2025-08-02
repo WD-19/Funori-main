@@ -51,15 +51,189 @@
                 <input type="text" name="q" id="search-input" autocomplete="off"
                     placeholder="Tìm kiếm sản phẩm..."
                     style="width:100%;height:36px;padding:8px 40px 8px 16px;border-radius:18px;border:1px solid #ddd;font-size:15px;line-height:1.2;">
-                <button type="submit" disabled
+                <button type="submit" id="search-submit"
                     style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;height:28px;display:flex;align-items:center;">
                     <i class="fa-solid fa-magnifying-glass" style="color:#fcad02;font-size:18px;"></i>
                 </button>
                 <div id="search-suggestions"
                     style="display:none;position:absolute;top:110%;left:0;width:100%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;max-height:400px;overflow:auto;">
-                    <!-- Gợi ý sản phẩm sẽ hiển thị ở đây -->
                 </div>
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchInput = document.getElementById('search-input');
+                    const searchSuggestions = document.getElementById('search-suggestions');
+                    let searchTimeout;
+
+                    searchInput.addEventListener('input', function() {
+                        const query = this.value.trim();
+                        
+                        clearTimeout(searchTimeout);
+                        
+                        if (query.length < 2) {
+                            searchSuggestions.style.display = 'none';
+                            return;
+                        }
+
+                        // Set timeout to prevent too many requests
+                        searchTimeout = setTimeout(function() {
+                            // Add loading indicator
+                            searchSuggestions.innerHTML = '<div class="p-3 text-center">Đang tìm kiếm...</div>';
+                            searchSuggestions.style.display = 'block';
+
+                            // Make AJAX request
+                            fetch(`/search?q=${encodeURIComponent(query)}`, {
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(products => {
+                                if (products.length > 0) {
+                                    // Build HTML for suggestions
+                                    const html = products.map(product => `
+                                        <a href="/${product.slug}" class="suggestion-item">
+                                            <div class="d-flex align-items-center p-2 hover-bg">
+                                                <div class="search-product-image me-2">
+                                                    <img src="${product.image}" alt="${product.name}" 
+                                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="search-product-name" style="font-weight: 500; color: #333;">
+                                                        ${product.name}
+                                                    </div>
+                                                    <div class="search-product-price" style="color: #fc573b; font-weight: 600;">
+                                                        ${product.price}đ
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    `).join('');
+                                    
+                                    searchSuggestions.innerHTML = html;
+                                } else {
+                                    searchSuggestions.innerHTML = '<div class="p-3 text-center">Không tìm thấy sản phẩm</div>';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                searchSuggestions.innerHTML = '<div class="p-3 text-center">Có lỗi xảy ra</div>';
+                            });
+                        }, 300);
+                    });
+
+                    // Hide suggestions when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                            searchSuggestions.style.display = 'none';
+                        }
+                    });
+
+                    // Style for suggestion items
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        .suggestion-item {
+                            display: block;
+                            text-decoration: none;
+                            border-bottom: 1px solid #eee;
+                        }
+                        .suggestion-item:last-child {
+                            border-bottom: none;
+                        }
+                        .hover-bg:hover {
+                            background-color: #f8f9fa;
+                        }
+                        .search-product-name {
+                            font-size: 14px;
+                            margin-bottom: 4px;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 2;
+                            -webkit-box-orient: vertical;
+                            overflow: hidden;
+                        }
+                        .search-product-price {
+                            font-size: 13px;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                });
+                </script>
             </form>
+            
+            <script>
+            $(document).ready(function() {
+                var searchTimeout;
+                var searchInput = $('#search-input');
+                var searchSuggestions = $('#search-suggestions');
+
+                searchInput.on('input', function() {
+                    clearTimeout(searchTimeout);
+                    var query = $(this).val().trim();
+
+                    if (query.length < 2) {
+                        searchSuggestions.hide().empty();
+                        return;
+                    }
+
+                    searchTimeout = setTimeout(function() {
+                        $.ajax({
+                            url: '{{ route("client.search") }}',
+                            method: 'GET',
+                            data: {
+                                q: query
+                            },
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            success: function(response) {
+                                if (response && response.length > 0) {
+                                    var html = '';
+                                    response.forEach(function(product) {
+                                        html += `
+                                        <a href="/product/${product.slug}" class="search-suggestion-item">
+                                            <div class="d-flex align-items-center p-2" style="border-bottom: 1px solid #eee;">
+                                                <div class="search-product-image" style="width: 50px; height: 50px; margin-right: 10px;">
+                                                    <img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div class="search-product-info" style="flex: 1;">
+                                                    <div class="search-product-name" style="font-weight: 500; color: #333;">${product.name}</div>
+                                                    <div class="search-product-price" style="color: #fc573b; font-size: 14px;">${product.price}đ</div>
+                                                </div>
+                                            </div>
+                                        </a>`;
+                                    });
+                                    searchSuggestions.html(html).show();
+                                } else {
+                                    searchSuggestions.html('<div class="p-3 text-center">Không tìm thấy sản phẩm</div>').show();
+                                }
+                            }
+                        });
+                    }, 300);
+                });
+
+                // Ẩn gợi ý khi click ra ngoài
+                $(document).on('click', function(e) {
+                    if (!$(e.target).closest('.search-bar').length) {
+                        searchSuggestions.hide();
+                    }
+                });
+
+                // Style cho các item gợi ý
+                $('<style>')
+                    .text(`
+                        .search-suggestion-item {
+                            display: block;
+                            text-decoration: none;
+                            transition: background-color 0.2s;
+                        }
+                        .search-suggestion-item:hover {
+                            background-color: #f5f5f5;
+                        }
+                    `)
+                    .appendTo('head');
+            });
+            </script>
+
+
             <div class="box-user dropdown d-flex align-items-center"
                 style="height: 36px; display: flex;  position: relative;">
                 <a href="{{ Auth::check() ? '#' : route('client.login') }}" id="userDropdown"
@@ -397,58 +571,4 @@
         margin-top: 2px;
     }
 </style>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var input = document.getElementById('search-input');
-        var suggestions = document.getElementById('search-suggestions');
-        var timeout = null;
 
-        input.addEventListener('input', function() {
-            clearTimeout(timeout);
-            var query = this.value.trim();
-            if (query.length < 2) {
-                suggestions.style.display = 'none';
-                suggestions.innerHTML = '';
-                return;
-            }
-            timeout = setTimeout(function() {
-                fetch('/search/suggest?q=' + encodeURIComponent(query))
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.length) {
-                            suggestions.innerHTML = data.map(item => `
-                            <a href="/${item.slug}" class="suggest-item">
-                                <img src="${item.image_url}" class="suggest-thumb" alt="${item.name}">
-                                <div class="suggest-info">
-                                    <div class="suggest-title">${item.name}</div>
-                                    <div class="suggest-price">${item.price}đ</div>
-                                </div>
-                            </a>
-                        `).join('');
-                            suggestions.style.display = 'block';
-                        } else {
-                            suggestions.innerHTML =
-                                '<div style="padding:12px;color:#888;">Không tìm thấy sản phẩm</div>';
-                            suggestions.style.display = 'block';
-                        }
-                    });
-            }, 250);
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!input.contains(e.target) && !suggestions.contains(e.target)) {
-                suggestions.style.display = 'none';
-            }
-        });
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var form = document.querySelector('.search-bar');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-            });
-        }
-    });
-</script>

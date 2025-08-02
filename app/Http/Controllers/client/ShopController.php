@@ -28,7 +28,8 @@ class ShopController
         }
 
 
-        $query = Product::with(['images', 'brand', 'category', 'reviews']);
+        $query = Product::with(['images', 'brand', 'category', 'reviews'])
+        ->where('status', '!=', 'archived');
 
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);

@@ -204,6 +204,62 @@
         };
     </script>
     <script>
+        // Hàm render dữ liệu cho select
+        function renderData(array, selectId) {
+            let selectElement = document.getElementById(selectId);
+            selectElement.innerHTML = '<option value="">-- Chọn --</option>';
+            array.forEach(element => {
+                let option = document.createElement('option');
+                option.value = element.name;
+                option.textContent = element.name;
+                option.dataset.code = element.code;
+                selectElement.appendChild(option);
+            });
+        }
+
+        // Hàm lấy danh sách phường/xã theo quận/huyện
+        function getWardsByDistrict(districtCode) {
+            return fetch('/data/hanoi-districts.json')
+                .then(response => response.json())
+                .then(data => {
+                    const district = data.districts.find(d => d.code === districtCode);
+                    return district ? district.wards : [];
+                });
+        }
+
+        // Tải quận/huyện cho form THÊM MỚI khi trang load
+        fetch('/data/hanoi-districts.json')
+            .then(response => response.json())
+            .then(data => {
+                renderData(data.districts, "add_district");
+            });
+
+        // Khi chọn quận/huyện -> tải phường/xã cho form THÊM MỚI
+        document.getElementById('add_district').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption && selectedOption.dataset.code) {
+                getWardsByDistrict(selectedOption.dataset.code)
+                    .then(wards => {
+                        renderData(wards, "add_ward");
+                    });
+            } else {
+                document.getElementById('add_ward').innerHTML = '<option value="">-- Phường/Xã --</option>';
+            }
+        });
+
+        // Khi chọn quận/huyện -> tải phường/xã cho form CẬP NHẬT
+        document.getElementById('edit_district').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption && selectedOption.dataset.code) {
+                getWardsByDistrict(selectedOption.dataset.code)
+                    .then(wards => {
+                        renderData(wards, "edit_ward");
+                    });
+            } else {
+                document.getElementById('edit_ward').innerHTML = '<option value="">-- Phường/Xã --</option>';
+            }
+        });
+
         document.getElementById('formnewAddress').onsubmit = async function(e) {
             e.preventDefault();
             let form = this;
@@ -299,18 +355,19 @@
                 const editDistrictSelect = document.getElementById('edit_district');
                 const editWardSelect = document.getElementById('edit_ward');
 
-                // Tải danh sách quận/huyện và chọn đúng quận
-                const districtResponse = await axios.get("https://provinces.open-api.vn/api/p/1?depth=2");
-                renderData(districtResponse.data.districts, 'edit_district');
+                // Tải danh sách quận/huyện từ JSON local
+                const response = await fetch('/data/hanoi-districts.json');
+                const data = await response.json();
+                renderData(data.districts, 'edit_district');
                 editDistrictSelect.value = addressData.district;
 
-                // Tải danh sách phường/xã và chọn đúng phường
-                const districtCode = editDistrictSelect.options[editDistrictSelect.selectedIndex]?.dataset
-                    .code;
-                const wardResponse = await axios.get(
-                    `https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
-                renderData(wardResponse.data.wards, 'edit_ward');
-                editWardSelect.value = addressData.ward;
+                // Tìm district code dựa vào tên district
+                const selectedDistrict = data.districts.find(d => d.name === addressData.district);
+                if (selectedDistrict) {
+                    // Tải danh sách phường/xã từ district đã chọn
+                    renderData(selectedDistrict.wards, 'edit_ward');
+                    editWardSelect.value = addressData.ward;
+                }
 
                 document.getElementById('editAddressModal').style.display = 'flex';
             }

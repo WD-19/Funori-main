@@ -1,5 +1,6 @@
 {{-- filepath: d:\laragon\www\Funori-main\resources\views\client\shop.blade.php --}}
 @extends('client.layout.client')
+@section('title', 'Cửa Hàng')
 
 @section('content')
 
@@ -66,8 +67,8 @@
                             <a href="{{ route('shop', array_merge(request()->except('page'), ['brand_id' => $brand->id])) }}"
                                 style="display:block;{{ request('brand_id') == $brand->id ? 'border:2px solid #fcad02;border-radius:8px;' : '' }}">
                                 @if ($brand->logo_url)
-                                    <img style="width: 100% ;" src="{{ asset('storage/' . $brand->logo_url) }}" alt="{{ $brand->name }}"
-                                        style="max-width:60px;max-height:60px;">
+                                    <img style="width: 100% ;" src="{{ asset('storage/' . $brand->logo_url) }}"
+                                        alt="{{ $brand->name }}" style="max-width:60px;max-height:60px;">
                                 @else
                                     <div
                                         style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;background:#f3f3f3;border-radius:8px;">
@@ -194,18 +195,30 @@
                                     onmouseover="this.src='{{ $product->images->get(1) ? asset($product->images->get(1)->image_url) : asset($product->images->first() ? $product->images->first()->image_url : 'images/no-image.png') }}'"
                                     onmouseout="this.src='{{ $product->images->first() ? asset($product->images->first()->image_url) : asset('images/no-image.png') }}'">
                             </a>
-                            <div class="box-icon-new-product">
-                                <a href="{{ route('client.product.show', $product->slug) }}"><i style="font-size: 19px;"
-                                        id="search-Product" class="fa-solid fa-magnifying-glass" ></i>
-                                </a>
-                                <button class="wishlist-btn" data-product-id="{{ $product->id }}"
-                                    style="background:none;border:none;padding:0;cursor:pointer;">
-                                    <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
-                                        class="fa-solid fa-heart" id="heart-Product"></i>
-                                </button>
-                            <a href="{{ route('client.product.show', $product->slug) }}"><i style="font-size: 18px;" id="cart-Product" class="fa-solid fa-cart-shopping"></i></a>
-                            </div>
+
+                            @if ($product->status !== 'draft')
+                                <div class="box-icon-new-product">
+                                    <a href="{{ route('client.product.show', $product->slug) }}">
+                                        <i style="font-size: 19px;" id="search-Product"
+                                            class="fa-solid fa-magnifying-glass"></i>
+                                    </a>
+                                    <button class="wishlist-btn" data-product-id="{{ $product->id }}"
+                                        style="background:none;border:none;padding:0;cursor:pointer;">
+                                        <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
+                                            class="fa-solid fa-heart" id="heart-Product"></i>
+                                    </button>
+                                    <a href="{{ route('client.product.show', $product->slug) }}">
+                                        <i style="font-size: 18px;" id="cart-Product"
+                                            class="fa-solid fa-cart-shopping"></i>
+                                    </a>
+                                </div>
+                            @else
+                                {{-- <div style="text-align: center; padding: 10px 0; color: red; font-weight: bold;">
+                                    Sản phẩm ngừng kinh doanh
+                                </div> --}}
+                            @endif
                         </div>
+
                         <div class="box-star" style="width: 100%; height: 23px;">
                             @php
                                 $avg = round($product->reviews->avg('rating'), 1);
@@ -224,14 +237,19 @@
                                 ({{ $count }} review{{ $count != 1 ? 's' : '' }})
                             </span>
                         </div>
+
                         <div class="title-new-product">
                             <a href="{{ route('client.product.show', $product->slug) }}">{{ $product->name }}</a>
                         </div>
+
                         @php
                             $totalStock = $product->variants->sum('stock_quantity');
                         @endphp
+
                         <div style="font-size: 16px; color: rgb(170, 167, 167);">
-                            @if ($product->variants->count() > 0 && $totalStock <= 0)
+                            @if ($product->status === 'draft')
+                                <span style="color:red;font-weight:bold;">Ngừng kinh doanh</span>
+                            @elseif ($product->variants->count() > 0 && $totalStock <= 0)
                                 <span style="color:red;font-weight:bold;">Hết hàng</span>
                             @else
                                 {{ number_format($product->regular_price, 0, ',', '.') }} đ
@@ -344,7 +362,7 @@
                                 // Đổi màu thông báo xóa khỏi yêu thích
                                 setTimeout(function() {
                                     var toast = document.querySelector(
-                                    '.toast-success');
+                                        '.toast-success');
                                     if (toast) {
                                         toast.style.backgroundColor = '#e53935';
                                         toast.style.color = '#fff';

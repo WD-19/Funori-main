@@ -30,13 +30,13 @@
                 </div>
 
                 <div class="flex items-center justify-between gap10 flex-wrap">
-                    <div class="wg-filter flex-grow">
+                    <div  class="wg-filter flex-grow">
                         <form class="form-search flex gap10" method="GET">
-                            <fieldset class="name">
+                            <fieldset style="width: 1200px ;" class="name">
                                 <input type="text" placeholder="Tìm kiếm sản phẩm..." name="name"
                                     value="{{ request('name') }}">
                             </fieldset>
-                            <fieldset>
+                            <fieldset >
                                 <select name="category_id">
                                     <option value="">Danh Mục</option>
                                     @foreach ($categories as $cat)

@@ -84,6 +84,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderStatusHistory::class);
     }
+     public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 
     public static function getAllowedStatusTransitions(): array
     {

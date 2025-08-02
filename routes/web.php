@@ -1,18 +1,19 @@
 <?php
 //Admin Controller
-use App\Http\Controllers\admin\PaymentMethodController;
-use App\Http\Controllers\admin\AttributeController;
-use App\Http\Controllers\admin\BrandController;
-use App\Http\Controllers\admin\BannerController;
-use App\Http\Controllers\admin\PromotionController;
-use App\Http\Controllers\admin\CategoryController;
-use App\Http\Controllers\admin\OrderController;
-use App\Http\Controllers\admin\ProductController;
-use App\Http\Controllers\admin\UserController;
-use App\Http\Controllers\admin\ContactController;
-use App\Http\Controllers\admin\PageController;
-use App\Http\Controllers\admin\ReviewController;
-use App\Http\Controllers\admin\ShippingMethodController;
+use App\Http\Controllers\Admin\PaymentMethodController;
+use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\PromotionController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\client\AboutController;
 //client Controller
@@ -31,9 +32,10 @@ use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\VnPayController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
+use App\Http\Controllers\PayPalController;
+
 use App\Http\Controllers\MomoController;
-use App\Http\Controllers\OnePayController;
-use App\Http\Controllers\PayOSController;
+
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use App\Http\Middleware\RedirectIfAuthenticatedCustom;
@@ -43,6 +45,20 @@ use Illuminate\Support\Facades\Hash;
 
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use Spatie\Analytics\Facades\Analytics;
+use Spatie\Analytics\Period;
+
+Route::controller(PayPalController::class)->group(function () {
+    Route::post('/paypal/payment', 'createPayment')->name('paypal.payment');
+    Route::get('/paypal/success', 'success')->name('paypal.success');
+    Route::get('/paypal/cancel', 'cancel')->name('paypal.cancel');
+});
+
+Route::get('/analytics-test', function () {
+    $analyticsData = Analytics::fetchMostVisitedPages(Period::days(7));
+
+    return $analyticsData;
+});
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -61,15 +77,14 @@ Route::get('/', function () {
 Route::prefix('admin')->name('admin.')
     ->middleware([CheckLogin::class])
     ->group(function () {
-        Route::get('/', function () {
-            return view('admin.index');
-        })
+        Route::get('/', [DashboardController::class, 'index'])
             ->middleware(CheckLogin::class)
             ->name('dashboard');
 
+        Route::get('dashboard/data', [DashboardController::class, 'fetchData'])->name('dashboard.data');
+
         // Quản lý thương hiệu
         Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');
-
 
         //quản lý đánh giá
         Route::get('reviews/export', [ReviewController::class, 'export'])->name('reviews.export');
@@ -188,10 +203,6 @@ Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
-Route::get('/payos/create', [PayOSController::class, 'createPayment'])->name('payos.create');
-Route::get('/payos/return', [PayOSController::class, 'return'])->name('payos.return');
-Route::get('/payos/cancel', [PayOSController::class, 'cancel'])->name('payos.cancel');
-
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
         return view('client.index');
@@ -275,9 +286,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
     Route::get('/cart/mini-list', [CartController::class, 'miniCart'])->name('cart.miniList');
 
-
     Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
-
 
     // Thêm lại route mã giảm giá:
     Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.applyDiscount');
@@ -293,12 +302,10 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/order', [ProfileController::class, 'order'])->name('my_account.order');
         Route::get('/order/detail/{id}', [ProfileController::class, 'detailOrder'])->name('my_account.orderdetail');
         Route::post('/order/{order}/cancel', [ProfileController::class, 'cancelOrder'])->name('my_account.order.cancel');
-      
+
         Route::post('/order/{id}/repeat', [ProfileController::class, 'repeatOrder'])->name('order.repeat');
         Route::get('/voucher', [ProfileController::class, 'vouchers'])->name('voucher');
         Route::post('/order/{id}/mark-delivered', [ProfileController::class, 'markDelivered'])->name('order.markDelivered');
-
-
 
         // Address Management
         Route::prefix('address')->name('address.')->group(function () {
@@ -319,7 +326,6 @@ Route::prefix('/')->name('client.')->group(function () {
     });
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });
-
 
 Route::fallback(function () {
     return response()->view('client.errors.404', [], 404);
