@@ -284,7 +284,8 @@
         });
     </script>
     @push('scripts')
-        <script src="https://cdn.tiny.cloud/1/hs04m6101y0gorgukhuffqutjnhs52o68gb16y52y7nvuj6u/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+        {{-- Sử dụng khi có mạng --}}
+        {{-- <script src="https://cdn.tiny.cloud/1/hs04m6101y0gorgukhuffqutjnhs52o68gb16y52y7nvuj6u/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
         <script>
             tinymce.init({
                 selector: '#content',
@@ -312,6 +313,26 @@
                     }
                     return json.location;
                 },
+                readonly: false,
+                image_caption: true,
+                image_advtab: true,
+                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; } img { max-width: 100%; height: auto; }'
+            });
+        </script> --}}
+
+        {{-- Sử dụng offline --}}
+        <script src="{{ asset('tinymce/tinymce.min.js') }}" referrerpolicy="origin"></script>
+        <script>
+            tinymce.init({
+                selector: '#content',
+                license_key: 'gpl',
+                plugins: 'image media link table lists advlist',
+                toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | image media link | table bullist numlist | styleselect | formatselect | fontselect | fontsizeselect',
+                height: 800,
+                menubar: false,
+                // Vô hiệu hóa hoặc điều chỉnh images_upload_url vì không dùng online
+                images_upload_url: '', // Tạm thời vô hiệu hóa
+                images_upload_handler: null, // Tạm thời vô hiệu hóa
                 readonly: false,
                 image_caption: true,
                 image_advtab: true,
