@@ -190,7 +190,7 @@ class VnPayController
 
                 // Chuyển hướng đến trang đặt hàng thành công
                 return redirect()->route('client.checkout.success', ['order' => $order->id])
-                    ->with('success', 'Thanh toán và đặt hàng thành công!');
+                    ->with('success', value: 'Thanh toán và đặt hàng thành công!');
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('VNPAY Return Success - DB Error: ' . $e->getMessage(), ['order_code' => $orderCode]);

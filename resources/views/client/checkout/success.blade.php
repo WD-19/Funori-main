@@ -35,7 +35,16 @@
                     </tr>
                     <tr>
                         <th>Thời gian</th>
-                        <td>{{ $paymentDetails['vnp_PayDate'] ?? '' }}</td>
+                        <td>
+                            @php
+                                $vnpDateRaw = $paymentDetails['vnp_PayDate'] ?? null;
+                                if ($vnpDateRaw) {
+                                    $dateTime = \DateTime::createFromFormat('YmdHis', $vnpDateRaw);
+                                    echo $dateTime ? $dateTime->format('d/m/Y H:i') : $vnpDateRaw;
+                                }
+                            @endphp
+                        </td>
+
                     </tr>
                     <tr>
                         <th>Trạng thái</th>
@@ -50,6 +59,56 @@
                     <tr>
                         <th>Mã đơn hàng</th>
                         <td>{{ $paymentDetails['vnp_TxnRef'] ?? '' }}</td>
+                    </tr>
+                </table>
+            @endif
+            @if (isset($paymentDetails) &&
+                    is_array($paymentDetails) &&
+                    isset($paymentDetails['orderId']) &&
+                    isset($paymentDetails['transId']))
+                <h3 style="margin-top: 32px; font-size: 20px; color: #e04a1b;">Chi tiết giao dịch MoMo</h3>
+                <table class="table table-bordered"
+                    style="margin: 16px auto; text-align: left; width: 100%; max-width: 100%; background: #f8f9fa;">
+                    <tr>
+                        <th>Mã giao dịch</th>
+                        <td>{{ $paymentDetails['transId'] ?? '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <td>{{ $paymentDetails['orderId'] ?? '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Số tiền</th>
+                        <td>{{ isset($paymentDetails['amount']) ? number_format($paymentDetails['amount'], 0, ',', '.') : '' }}
+                            VND</td>
+                    </tr>
+                    <tr>
+                        <th>Loại thanh toán</th>
+                        <td>{{ $paymentDetails['payType'] ?? '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Thời gian</th>
+                        <td>
+                            @php
+                                $momoTimestamp =
+                                    $paymentDetails['responseTime'] ?? ($paymentDetails['payDate'] ?? null);
+                                if ($momoTimestamp) {
+                                    $timestamp = intval(substr($momoTimestamp, 0, 13)); // lấy 13 số đầu (milliseconds)
+                                    echo date('d/m/Y H:i', $timestamp / 1000);
+                                }
+                            @endphp
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <th>Trạng thái</th>
+                        <td>
+                            @if (($paymentDetails['resultCode'] ?? null) == 0)
+                                <span class="text-success">Thành công</span>
+                            @else
+                                <span class="text-danger">Thất bại</span>
+                            @endif
+                        </td>
                     </tr>
                 </table>
             @endif
