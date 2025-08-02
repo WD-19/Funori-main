@@ -290,6 +290,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
     // Thêm lại route mã giảm giá:
+    Route::get('/vouchers/applicable', [VoucherController::class, 'getApplicableVouchers'])->name('vouchers.applicable');
     Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.apply-discount');
 
     // Checkout (One-Page)
@@ -334,4 +335,3 @@ Route::fallback(function () {
 });
 
 // Thêm route API lấy voucher có thể áp dụng cho giỏ hàng
-Route::get('/vouchers/applicable', [VoucherController::class, 'getApplicableVouchers'])->name('vouchers.applicable');
