@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{{ asset('font/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('icon/style.css') }}">
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="apple-touch-icon-precomposed" href="{{ asset('images/favicon.png') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -156,6 +157,67 @@
         });
     </script>
 
+    <script>
+        const preload = document.getElementById('preload');
+
+        // 1. Xử lý khi load lại do back/forward
+        window.addEventListener('pageshow', function(event) {
+            // Nếu trình duyệt load từ cache (bfcache) hoặc là dạng "back_forward"
+            const isBack = event.persisted || performance.getEntriesByType("navigation")[0]?.type ===
+                "back_forward";
+
+            if (isBack) {
+                // Cho hiện preload
+                if (preload) {
+                    preload.style.opacity = '1';
+                    preload.style.visibility = 'visible';
+                    preload.classList.remove('fade-out');
+                }
+
+                // Lưu cờ trong sessionStorage để biết là đang reload lại
+                sessionStorage.setItem('forceReload', 'yes');
+
+                // Reload lại sau 50ms (cho preload kịp hiển thị)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 50);
+            }
+        });
+
+        // 2. Khi trang load bình thường
+        window.addEventListener('load', function() {
+            const forceReload = sessionStorage.getItem('forceReload');
+
+            if (forceReload === 'yes') {
+                // Vừa reload xong sau back → KHÔNG ẩn preload
+                sessionStorage.removeItem('forceReload');
+                return;
+            }
+
+            // Load bình thường → fade out preload
+            if (preload) {
+                preload.classList.add('fade-out');
+            }
+        });
+    </script>
+
+    <style>
+        #preload {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 9999;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        #preload.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
 </body>
 
 </html>

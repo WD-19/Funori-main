@@ -28,7 +28,6 @@
         </ul>
     </div>
 
-<<<<<<< HEAD
     @if ($errors->any())
         <div class="alert alert-danger mb-3">
             <ul class="mb-0">
@@ -40,10 +39,6 @@
     @endif
 
     <form class="form-add-product" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
-=======
-    <form class="form-add-product" method="POST" action="{{ route('admin.products.store') }}"
-        enctype="multipart/form-data">
->>>>>>> origin
         @csrf
         <div class="wg-box mb-30">
             <fieldset>
@@ -232,17 +227,12 @@
 
             const attributeSelectsTemplate = `{!! addslashes($attributeSelects) !!}`;
 
-<<<<<<< HEAD
-            addVariantBtn.addEventListener('click', function () {
-=======
             // Function to create a variant row
             function createVariantRow(index, variantData = {}) {
->>>>>>> origin
                 const variantDiv = document.createElement('div');
                 variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
                 let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${index}]`);
                 variantDiv.innerHTML = `
-<<<<<<< HEAD
                             ${selects}
                             <input type="text" name="variants[${variantIndex}][name_variant]" value="" placeholder="Tên biến thể" style="width:28%;">
                             <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
@@ -258,16 +248,6 @@
                             </div>
                             <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 30px; height: 30px;">&times;</button>
                         `;
-=======
-                    ${selects}
-                    <input type="text" name="variants[${index}][name_variant]" value="${variantData.name_variant || ''}" placeholder="Tên biến thể" style="width:28%;">
-                    <input type="text" name="variants[${index}][size]" value="${variantData.size || ''}" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-                    <input type="number" name="variants[${index}][price_modifier]" value="${variantData.price_modifier || ''}" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
-                    <input type="number" name="variants[${index}][stock_quantity]" value="${variantData.stock_quantity || ''}" placeholder="Kho" min="0" style="width: 100px;">
-                    <input type="file" name="variants[${index}][image]" accept="image/*" style="width:180px;">
-                    <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">×</button>
-                `;
->>>>>>> origin
                 variantList.appendChild(variantDiv);
 
                 const imageInput = variantDiv.querySelector('input[type="file"]');
@@ -314,7 +294,6 @@
             });
         });
     </script>
-<<<<<<< HEAD
     <style>
         .variant-image-upload {
             display: flex;
@@ -342,6 +321,4 @@
             padding: 4px;
         }
     </style>
-=======
->>>>>>> origin
 @endsection

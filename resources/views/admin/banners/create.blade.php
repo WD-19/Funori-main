@@ -1,4 +1,4 @@
-z@extends('admin.layout.admin')
+@extends('admin.layout.admin')
 
 @section('title', 'Thêm banner mới')
 
@@ -25,14 +25,10 @@ z@extends('admin.layout.admin')
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Link</label>
-<<<<<<< HEAD
-                    <input type="text" name="link_url" class="input-field" value="{{ old('link_url') }}">
-=======
                     <input type="text" name="link" class="input-field" value="{{ old('link') }}">
                     @error('link')
                         <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                     @enderror
->>>>>>> origin
                 </fieldset>
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Vị trí</label>
@@ -57,11 +53,6 @@ z@extends('admin.layout.admin')
                 <fieldset class="mb-4">
                     <label class="body-title mb-2">Thời gian hiển thị</label>
                     <div class="flex gap-2">
-<<<<<<< HEAD
-                        <input type="datetime-local" name="start_date" class="input-field" value="{{ old('start_date') }}">
-                        <span>đến</span>
-                        <input type="datetime-local" name="end_date" class="input-field" value="{{ old('end_date') }}">
-=======
                         <div>
                             <input type="datetime-local" name="start_at" class="input-field" value="{{ old('start_at') }}">
                             @error('start_at')
@@ -75,7 +66,6 @@ z@extends('admin.layout.admin')
                                 <div class="text-danger mt-1" style="font-size:1.25rem; padding:8px; display:block;">{{ $message }}</div>
                             @enderror
                         </div>
->>>>>>> origin
                     </div>
                 </fieldset>
                 <fieldset class="mb-4">

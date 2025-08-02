@@ -118,7 +118,20 @@ class MomoController
                 $order->save();
 
                 // Xóa giỏ hàng và dữ liệu checkout trong session
-                Cart::where('user_id', $order->user_id)->delete();
+                $cart = \App\Models\Cart::where('user_id', $order->user_id)->with('items')->first();
+                if ($cart) {
+                    foreach ($order->items as $orderItem) {
+                        $cart->items()
+                            ->where(function ($query) use ($orderItem) {
+                                if ($orderItem->product_variant_id) {
+                                    $query->where('product_variant_id', $orderItem->product_variant_id);
+                                } else {
+                                    $query->where('product_id', $orderItem->product_id);
+                                }
+                            })
+                            ->delete();
+                    }
+                }
                 Session::forget(['cart', 'checkout_data', 'order_data']);
 
                 DB::commit();
