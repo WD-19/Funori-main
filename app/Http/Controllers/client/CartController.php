@@ -24,6 +24,7 @@ class CartController
         $cartCount = 0;
 
         if (Auth::check()) {
+            // Lấy giỏ hàng từ database cho user đã đăng nhập
             $cart = Cart::where('user_id', Auth::id())->first();
 
             if ($cart) {
@@ -243,6 +244,7 @@ class CartController
         }
 
         if (Auth::check()) {
+            // User đã đăng nhập - lưu vào database
             $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
             $cartItem = $cart->items()->where([
                 'product_id' => $product->id,
@@ -281,7 +283,7 @@ class CartController
                 ]);
             }
         } else {
-            // Guest
+            // Guest - vẫn dùng session
             $cart = Session::get('cart', []);
             $key = $product->id . '_' . ($productVariantId ?? 'null');
             $currentCartQty = isset($cart[$key]) ? $cart[$key]['quantity'] : 0;
@@ -546,9 +548,15 @@ class CartController
     }
     private function getCartCount()
     {
-        // giờ chỉ cần đếm trong session('cart.items')
-        $items = Session::get('cart.items', []);
-        return count($items);
+        if (Auth::check()) {
+            // Đếm từ database cho user đã đăng nhập
+            $cart = Cart::where('user_id', Auth::id())->first();
+            return $cart ? $cart->items()->count() : 0;
+        } else {
+            // Đếm từ session cho guest
+            $items = Session::get('cart.items', []);
+            return count($items);
+        }
     }
 
   
@@ -558,6 +566,7 @@ class CartController
         $cartCount = 0;
 
         if (Auth::check()) {
+            // Lấy từ database cho user đã đăng nhập
             $cart = Cart::where('user_id', Auth::id())->first();
             if ($cart) {
                 $cartItems = CartItem::with([
@@ -580,6 +589,7 @@ class CartController
                 $cartCount = $cart->items()->count();
             }
         } else {
+            // Lấy từ session cho guest
             $sessionCart = Session::get('cart', []);
             $cartItems = collect($sessionCart)->reverse()->take(3)->map(function ($item) {
                 $product = Product::with(['images'])->find($item['product_id']);

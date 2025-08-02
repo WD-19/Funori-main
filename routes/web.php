@@ -279,7 +279,7 @@ Route::prefix('/')->name('client.')->group(function () {
         ->name('reviews.store');
 
     // giỏ hàng (Cart)
-    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
+    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart')->middleware('sync.cart');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
@@ -289,12 +289,13 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
     // Thêm lại route mã giảm giá:
-    Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.applyDiscount');
+    Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.apply-discount');
 
     // Checkout (One-Page)
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index')->middleware('sync.cart');
     Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/update-discount', [CheckoutController::class, 'updateDiscount'])->name('checkout.update-discount');
 
     // Profile (gộp các route trùng lặp và thêm middleware)
     Route::prefix('profile')->name('profile.')->middleware(CheckClientLogin::class)->group(function () {
