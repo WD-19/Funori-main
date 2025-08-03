@@ -274,6 +274,8 @@
                                         class="tf-btn btn-sm btn-fill animate-hover-btn"
                                         style="height: 48px; padding: 0 24px; border-radius: 6px;">Áp dụng</button>
                                 </div>
+                                <button type="button" id="select_voucher_btn" class="tf-btn btn-sm btn-outline-primary mt-2"
+                                    style="height: 48px; padding: 0 24px; border-radius: 6px; border: 1px solid #ff3029; color: #ff3029; background: transparent;">Chọn Voucher</button>
                                 <div id="discount_message" style="margin-top: 8px; display: none;"></div>
                             </div>
 
@@ -831,11 +833,65 @@
 
                 updateSelectedTotal();
             }
-        }); // <-- đóng đúng sự kiện DOMContentLoaded
-    </script>
+        </script>
 
+    <!-- Voucher Modal -->
+    <div class="modal fade" id="voucherModal" tabindex="-1" role="dialog" aria-labelledby="voucherModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectVoucherBtn = document.getElementById('select_voucher_btn');
+            const voucherModal = document.getElementById('voucherModal');
+            const voucherModalContent = voucherModal.querySelector('.modal-content');
+
+            if (selectVoucherBtn) {
+                selectVoucherBtn.addEventListener('click', function() {
+                    // Load vouchers into modal
+                    fetch('/vouchers/applicable')
+                        .then(response => {
+                            if (!response.ok) {
+                                if (response.status === 401) {
+                                    alert('Bạn cần đăng nhập để xem voucher.');
+                                    window.location.href = '/login'; // Redirect to login page
+                                    return Promise.reject('Unauthorized');
+                                }
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            voucherModalContent.innerHTML = html;
+                            $(voucherModal).modal('show'); // Show modal using jQuery
+
+                            // Add event listeners to apply buttons inside the modal
+                            voucherModalContent.querySelectorAll('.apply-voucher-btn').forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    const voucherCode = this.dataset.code;
+                                    document.getElementById('discount_code').value = voucherCode;
+                                    $(voucherModal).modal('hide'); // Hide modal
+                                    document.getElementById('apply_discount').click(); // Trigger apply discount
+                                });
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error loading vouchers:', error);
+                            if (error.message !== 'Unauthorized') {
+                                alert('Không thể tải danh sách voucher. Vui lòng thử lại sau.');
+                            }
+                        });
+                });
+            }
+
+            // Existing DOMContentLoaded content...
+        }); // <-- đóng đúng sự kiện DOMContentLoaded
+
+        // Script for repeatIds, re-added after previous modification
         document.addEventListener('DOMContentLoaded', function() {
             @php
                 $repeatIds = session('repeat_ids') ? explode(',', session('repeat_ids')) : [];

@@ -107,7 +107,6 @@ class MomoController
 
         // 3. Lưu lại toàn bộ dữ liệu MoMo trả về để đối soát
         $order->payment_details = $inputData;
-
         // 4. Xử lý kết quả từ MoMo
         if ($resultCode == 0) {
             // Giao dịch THÀNH CÔNG
@@ -135,7 +134,7 @@ class MomoController
                 Session::forget(['cart', 'checkout_data', 'order_data']);
 
                 DB::commit();
-
+                
                 return redirect()->route('client.checkout.success', ['order' => $order->id])
                     ->with('success', 'Thanh toán và đặt hàng thành công!');
             } catch (\Exception $e) {

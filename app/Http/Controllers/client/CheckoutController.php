@@ -9,6 +9,8 @@ use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
+use App\Models\Cart;
+use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -32,20 +34,73 @@ class CheckoutController
             return redirect()->route('client.view-cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán.');
         }
 
-        // Get the full cart items from the session, which were set by CartController
-        $fullCartItems = Session::get('cart.items', []);
-        if (empty($fullCartItems)) {
-            return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống.');
-        }
-
+        // Lấy giỏ hàng từ database thay vì session
+        $cart = null;
         $selectedItems = [];
         $newTotal = 0;
 
-        // Filter the cart items based on the IDs of the selected checkboxes
-        foreach ($fullCartItems as $item) {
-            if (in_array($item['id'], $selectedItemIds)) {
-                $selectedItems[] = $item;
-                $newTotal += $item['quantity'] * $item['price_at_addition'];
+        if (Auth::check()) {
+            $cart = Cart::where('user_id', Auth::id())->first();
+            if ($cart) {
+                $cartItems = CartItem::with([
+                    'product.images',
+                    'productVariant.image',
+                    'productVariant.attributeValues.attribute'
+                ])->where('cart_id', $cart->id)->get();
+
+                foreach ($cartItems as $item) {
+                    $itemId = $item->product_id . '_' . ($item->product_variant_id ?? 'null');
+                    if (in_array($itemId, $selectedItemIds)) {
+                        $product = $item->product;
+                        $variant = $item->productVariant;
+
+                        $imageUrl = null;
+                        $variantImage = null;
+                        if ($variant && $variant->image && $variant->image->image_url) {
+                            $variantImage = $variant->image->image_url;
+                        }
+
+                        if ($variantImage) {
+                            $imageUrl = $variantImage;
+                        } elseif ($product && $product->images && $product->images->first()) {
+                            $imageUrl = $product->images->first()->image_url;
+                        } else {
+                            $imageUrl = 'images/products/no-image.png';
+                        }
+
+                        $variantAttributes = $variant && $variant->attributeValues
+                            ? $variant->attributeValues->map(function ($v) {
+                                return (optional($v->attribute)->name ?? '') . ': ' . ($v->value ?? '');
+                            })->filter()->toArray()
+                            : [];
+
+                        $selectedItems[] = [
+                            'id' => $itemId,
+                            'product_id' => $product->id,
+                            'product_variant_id' => $variant->id ?? null,
+                            'quantity' => $item->quantity,
+                            'price_at_addition' => $item->price_at_addition,
+                            'image_url' => $imageUrl,
+                            'product' => $product->toArray(),
+                            'variant_attributes' => $variantAttributes,
+                            'variant' => $variant ? $variant->toArray() : null,
+                        ];
+                        $newTotal += $item->quantity * $item->price_at_addition;
+                    }
+                }
+            }
+        } else {
+            // Fallback cho guest users - vẫn dùng session
+            $fullCartItems = Session::get('cart.items', []);
+            if (empty($fullCartItems)) {
+                return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống.');
+            }
+
+            foreach ($fullCartItems as $item) {
+                if (in_array($item['id'], $selectedItemIds)) {
+                    $selectedItems[] = $item;
+                    $newTotal += $item['quantity'] * $item['price_at_addition'];
+                }
             }
         }
 
@@ -53,9 +108,40 @@ class CheckoutController
             return redirect()->route('client.view-cart')->with('error', 'Sản phẩm bạn chọn không hợp lệ.');
         }
 
-        // Overwrite the session cart with ONLY the selected items for the checkout process.
-        Session::put('cart.items', $selectedItems);
-        Session::put('cart.total', $newTotal);
+        // Lưu selected items vào session cho checkout process
+        Session::put('checkout.items', $selectedItems);
+        Session::put('checkout.total', $newTotal);
+        
+        // Copy discount information từ cart session sang checkout session
+        $originalDiscount = Session::get('cart.discount', 0);
+        $originalDiscountCode = Session::get('cart.discount_code', null);
+        
+        // Kiểm tra lại promotion để đảm bảo selected total đủ điều kiện
+        $finalDiscount = 0;
+        if ($originalDiscount > 0 && $originalDiscountCode) {
+            $promotion = \App\Models\Promotion::where('code', $originalDiscountCode)
+                ->where('is_active', 1)
+                ->first();
+                
+            if ($promotion) {
+                // Kiểm tra điều kiện min_order_value
+                if (!$promotion->min_order_value || $newTotal >= $promotion->min_order_value) {
+                    // Tính lại discount dựa trên selected total
+                    if ($promotion->discount_type == 'percentage') {
+                        $finalDiscount = ($newTotal * $promotion->discount_value) / 100;
+                        if ($promotion->max_discount_amount && $finalDiscount > $promotion->max_discount_amount) {
+                            $finalDiscount = $promotion->max_discount_amount;
+                        }
+                    } elseif ($promotion->discount_type == 'fixed_amount') {
+                        $finalDiscount = $promotion->discount_value;
+                    }
+                    $finalDiscount = round($finalDiscount);
+                }
+            }
+        }
+        
+        Session::put('checkout.discount', $finalDiscount);
+        Session::put('checkout.discount_code', $originalDiscountCode);
 
         // Now, redirect to the actual checkout page
         return redirect()->route('client.checkout.index');
@@ -65,12 +151,15 @@ class CheckoutController
      */
     public function index()
     {
+        // Lấy dữ liệu giỏ hàng từ session checkout (đã được prepare từ prepareCheckout)
         $cart = [
-            'items' => Session::get('cart.items', []),
-            'total' => Session::get('cart.total', 0),
-            'discount' => Session::get('cart.discount', 0),
-            'discount_code' => Session::get('cart.discount_code', null),
+            'items' => Session::get('checkout.items', []),
+            'total' => Session::get('checkout.total', 0),
+            'discount' => Session::get('checkout.discount', 0),
+            'discount_code' => Session::get('checkout.discount_code', null),
         ];
+        
+
 
         if (empty($cart['items'])) {
             return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng trống hoặc chưa chọn sản phẩm để thanh toán!');
@@ -170,11 +259,12 @@ class CheckoutController
 
         $validatedData = $request->validate($rules, $messages, $attributes);
 
+        // Lấy dữ liệu giỏ hàng từ session checkout
         $cart = [
-            'items' => Session::get('cart.items', []),
-            'total' => Session::get('cart.total', 0),
-            'discount' => Session::get('cart.discount', 0),
-            'discount_code' => Session::get('cart.discount_code', null),
+            'items' => Session::get('checkout.items', []),
+            'total' => Session::get('checkout.total', 0),
+            'discount' => Session::get('checkout.discount', 0),
+            'discount_code' => Session::get('checkout.discount_code', null),
         ];
 
         if (empty($cart['items'])) {
@@ -433,7 +523,31 @@ class CheckoutController
             }
           
 
-            Session::forget('cart');
+            // Xóa dữ liệu checkout khỏi session sau khi hoàn thành
+            Session::forget('checkout');
+            
+            // Xóa các sản phẩm đã checkout khỏi database cart nếu user đã đăng nhập
+            if (Auth::check()) {
+                $cart = Cart::where('user_id', Auth::id())->first();
+                if ($cart) {
+                    // Lấy danh sách các sản phẩm đã checkout
+                    $checkoutItemIds = collect($cart['items'])->pluck('product_id')->toArray();
+                    $checkoutVariantIds = collect($cart['items'])->pluck('product_variant_id')->toArray();
+                    
+                    // Xóa các cart items tương ứng
+                    $cart->items()->whereIn('product_id', $checkoutItemIds)
+                        ->where(function($query) use ($checkoutVariantIds) {
+                            foreach ($checkoutVariantIds as $index => $variantId) {
+                                if ($index === 0) {
+                                    $query->where('product_variant_id', $variantId);
+                                } else {
+                                    $query->orWhere('product_variant_id', $variantId);
+                                }
+                            }
+                        })->delete();
+                }
+            }
+            
             DB::commit();
 
             return redirect()->route('client.checkout.success', ['order' => $order->id])
@@ -450,24 +564,44 @@ class CheckoutController
             return back()->withInput()->with('error', 'Lỗi: ' . $e->getMessage());
         }
     }
+       public function success(Request $request)
+{
+    $order = null;
+    $paymentDetails = null;
 
-    public function success(Request $request)
+    if ($request->has('order')) {
+        $order = Order::with(['items.product.images', 'items.productVariant', 'paymentMethod', 'shippingMethod'])
+            ->find($request->query('order'));
+
+        if ($order && $order->payment_details) {
+            $paymentDetails = is_array($order->payment_details)
+                ? $order->payment_details
+                : json_decode($order->payment_details, true);
+        }
+    }
+
+    if (!$order) {
+        return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng!');
+    }
+
+    return view('client.checkout.success', compact('order', 'paymentDetails'));
+}
+    /**
+     * Cập nhật discount trong checkout session
+     */
+    public function updateDiscount(Request $request)
     {
-        // Không kiểm tra session('success') vì khi redirect từ route khác sẽ mất session này
-        $order = null;
-        $paymentDetails = null;
-        if ($request->has('order')) {
-            $order = Order::with(['items.product.images', 'items.productVariant', 'paymentMethod', 'shippingMethod'])
-                ->find($request->query('order'));
-            // Nếu là thanh toán VNPAY và có payment_details thì giải mã
-            if ($order && $order->paymentMethod && strtolower($order->paymentMethod->name) === 'vnpay' && $order->payment_details) {
-                $paymentDetails = is_array($order->payment_details) ? $order->payment_details : json_decode($order->payment_details, true);
-            }
-        }
-        // Nếu không tìm thấy order, chuyển về trang chủ hoặc trang đơn hàng của user
-        if (!$order) {
-            return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng!');
-        }
-        return view('client.checkout.success', compact('order', 'paymentDetails'));
+        $request->validate([
+            'discount' => 'required|numeric|min:0',
+            'discount_code' => 'nullable|string'
+        ]);
+
+        Session::put('checkout.discount', $request->discount);
+        Session::put('checkout.discount_code', $request->discount_code);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Discount updated successfully'
+        ]);
     }
 }
