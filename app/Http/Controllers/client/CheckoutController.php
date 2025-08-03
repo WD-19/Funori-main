@@ -112,18 +112,18 @@ class CheckoutController
         // Lưu selected items vào session cho checkout process
         Session::put('checkout.items', $selectedItems);
         Session::put('checkout.total', $newTotal);
-        
+
         // Copy discount information từ cart session sang checkout session
         $originalDiscount = Session::get('cart.discount', 0);
         $originalDiscountCode = Session::get('cart.discount_code', null);
-        
+
         // Kiểm tra lại promotion để đảm bảo selected total đủ điều kiện
         $finalDiscount = 0;
         if ($originalDiscount > 0 && $originalDiscountCode) {
             $promotion = \App\Models\Promotion::where('code', $originalDiscountCode)
                 ->where('is_active', 1)
                 ->first();
-                
+
             if ($promotion) {
                 // Kiểm tra điều kiện min_order_value
                 if (!$promotion->min_order_value || $newTotal >= $promotion->min_order_value) {
@@ -140,7 +140,7 @@ class CheckoutController
                 }
             }
         }
-        
+
         Session::put('checkout.discount', $finalDiscount);
         Session::put('checkout.discount_code', $originalDiscountCode);
 
@@ -159,7 +159,7 @@ class CheckoutController
             'discount' => Session::get('checkout.discount', 0),
             'discount_code' => Session::get('checkout.discount_code', null),
         ];
-        
+
 
 
         if (empty($cart['items'])) {
@@ -417,7 +417,7 @@ class CheckoutController
             }
             return back()->with('error', 'Không thể chuyển hướng sang MoMo!');
         }
-        
+
         // --- START: Xác thực lại giỏ hàng trước khi xử lý ---
         foreach ($cart['items'] as $key => $item) {
             // Lấy tên sản phẩm từ session một cách an toàn để hiển thị lỗi
@@ -522,11 +522,11 @@ class CheckoutController
             if (Auth::check()) {
                 $orderData['user_id'] = Auth::id();
             }
-          
+
 
             // Xóa dữ liệu checkout khỏi session sau khi hoàn thành
             Session::forget('checkout');
-            
+
             // Xóa các sản phẩm đã checkout khỏi database cart nếu user đã đăng nhập
             if (Auth::check()) {
                 $cart = Cart::where('user_id', Auth::id())->first();
@@ -541,7 +541,7 @@ class CheckoutController
                     }
                 }
             }
-            
+
             DB::commit();
 
             return redirect()->route('client.checkout.success', ['order' => $order->id])
