@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\client;
 
 use App\Models\Cart;
+use Illuminate\Support\Facades\Log;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -23,7 +24,10 @@ class CartController
         $total = 0;
         $cartCount = 0;
 
+        Log::info('Loading cart page. Initial cartItems:', ['cartItems' => $cartItems]);
+
         if (Auth::check()) {
+            // Lấy giỏ hàng từ database cho user đã đăng nhập
             $cart = Cart::where('user_id', Auth::id())->first();
 
             if ($cart) {
@@ -85,9 +89,7 @@ class CartController
                         'variants.attributeValues.attribute'
                     ])->find($item['product_id']);
                 } else {
-                    // Xử lý khi không có product_id, ví dụ:
-                    // throw new \Exception('Thiếu product_id trong $item');
-                    // hoặc return response()->json(['error' => 'Thiếu product_id'], 400);
+                    continue; // Bỏ qua item không hợp lệ
                 }
 
                 // Lấy thông tin biến thể nếu có
@@ -129,6 +131,7 @@ class CartController
         Session::put('cart.discount', 0); // Khởi tạo discount = 0
         // Có thể thêm các giá trị khác nếu cần (discount, shipping_fee...)
 
+        // Chuyển đổi cartItems thành format phù hợp cho view
         $cartItems = collect($cartItems)->mapWithKeys(function ($item) {
             $key = $item['product_id'] . '_' . ($item['product_variant_id'] ?? 'null');
             return [$key => $item];
@@ -147,12 +150,20 @@ class CartController
     {
         $request->validate([
             'discount_code' => 'required|string',
+            'selected_items' => 'required|array',
+            'selected_items.*.item_id' => 'required|string',
+            'selected_items.*.quantity' => 'required|integer|min:1',
+            'selected_items.*.price' => 'required|numeric|min:0',
         ]);
     
         $discountCode = $request->discount_code;
-        // Sửa lỗi: Lấy trực tiếp 'cart.items' và 'cart.total' từ session
-        $cartItems = Session::get('cart.items', []);
-        $total = Session::get('cart.total', 0);
+        $selectedItemsData = $request->selected_items;
+    
+        // Tính tổng tiền của các sản phẩm được chọn
+        $total = 0;
+        foreach ($selectedItemsData as $item) {
+            $total += $item['quantity'] * $item['price'];
+        }
 
         // Tìm khuyến mãi hợp lệ
         $promotion = Promotion::where('code', $discountCode)
@@ -205,6 +216,7 @@ class CartController
         }
     
         // Lưu thông tin khuyến mãi vào session
+        // Lưu ý: discountAmount ở đây là cho các sản phẩm được chọn, không phải toàn bộ giỏ hàng
         Session::put('cart.discount', $discountAmount);
         Session::put('cart.discount_code', $discountCode); // Lưu mã code để kiểm tra sau này
     
@@ -243,6 +255,7 @@ class CartController
         }
 
         if (Auth::check()) {
+            // User đã đăng nhập - lưu vào database
             $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
             $cartItem = $cart->items()->where([
                 'product_id' => $product->id,
@@ -281,7 +294,7 @@ class CartController
                 ]);
             }
         } else {
-            // Guest
+            // Guest - vẫn dùng session
             $cart = Session::get('cart', []);
             $key = $product->id . '_' . ($productVariantId ?? 'null');
             $currentCartQty = isset($cart[$key]) ? $cart[$key]['quantity'] : 0;
@@ -472,8 +485,14 @@ class CartController
                 ], 404);
             }
 
+            Log::info('Attempting to delete cart item from DB', [
+                'user_id' => Auth::id(),
+                'product_id' => $productId,
+                'product_variant_id' => $variantId
+            ]);
             $cartItem->delete();
             $cartCount = $cart->items()->count();
+            Log::info('Cart item deleted from DB', ['cart_count' => $cartCount]);
 
             return response()->json([
                 'success' => true,
@@ -489,13 +508,18 @@ class CartController
                     'message' => 'Không tìm thấy sản phẩm trong giỏ hàng!'
                 ], 404);
             }
+            Log::info('Attempting to delete cart item from session', [
+                'item_id' => $request->item_id,
+                'current_cart' => $cart
+            ]);
             unset($cart[$request->item_id]);
             Session::put('cart', $cart);
+            Log::info('Cart item deleted from session', ['new_cart' => Session::get('cart')]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Đã xóa sản phẩm khỏi giỏ hàng!',
-                'cart_count' => count($cart)
+                'cartCount' => count($cart)
             ]);
         }
     }
@@ -531,7 +555,8 @@ class CartController
             if (empty($cart)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Giỏ hàng đã trống!'
+                    'message' => 'Giỏ hàng đã trống!',
+                     'cartCount' => 0
                 ], 400);
             }
 
@@ -540,15 +565,22 @@ class CartController
 
             return response()->json([
                 'success' => true,
-                'message' => "Đã xóa {$itemCount} sản phẩm khỏi giỏ hàng!"
+                'message' => "Đã xóa {$itemCount} sản phẩm khỏi giỏ hàng!",
+                'cartCount' => 0
             ]);
         }
     }
     private function getCartCount()
     {
-        // giờ chỉ cần đếm trong session('cart.items')
-        $items = Session::get('cart.items', []);
-        return count($items);
+        if (Auth::check()) {
+            // Đếm từ database cho user đã đăng nhập
+            $cart = Cart::where('user_id', Auth::id())->first();
+            return $cart ? $cart->items()->count() : 0;
+        } else {
+            // Đếm từ session cho guest
+            $items = Session::get('cart.items', []);
+            return count($items);
+        }
     }
 
   
@@ -558,6 +590,7 @@ class CartController
         $cartCount = 0;
 
         if (Auth::check()) {
+            // Lấy từ database cho user đã đăng nhập
             $cart = Cart::where('user_id', Auth::id())->first();
             if ($cart) {
                 $cartItems = CartItem::with([
@@ -580,6 +613,7 @@ class CartController
                 $cartCount = $cart->items()->count();
             }
         } else {
+            // Lấy từ session cho guest
             $sessionCart = Session::get('cart', []);
             $cartItems = collect($sessionCart)->reverse()->take(3)->map(function ($item) {
                 $product = Product::with(['images'])->find($item['product_id']);

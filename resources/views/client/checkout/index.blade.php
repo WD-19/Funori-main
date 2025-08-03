@@ -112,6 +112,8 @@
     .address-item:hover {
         background-color: #f5f5f5;
     }
+
+
 </style>
 
 @section('content')
@@ -306,13 +308,13 @@
                             <h4>Tóm tắt đơn hàng</h4>
                             @foreach ($cart['items'] as $item)
                                 <div class="summary-item">
-                                    <img src="{{ asset($item['image_url']) }}" alt="{{ $item['product']['name'] }}">
+                                    <img src="{{ asset($item['image_url'] ?? 'images/products/no-image.png') }}" alt="{{ $item['product']['name'] ?? 'Sản phẩm' }}">
                                     <div class="product-info">
-                                        <div class="product-name">{{ $item['product']['name'] }}</div>
-                                        <div class="product-qty">Số lượng: {{ $item['quantity'] }}</div>
+                                        <div class="product-name">{{ $item['product']['name'] ?? 'Sản phẩm' }}</div>
+                                        <div class="product-qty">Số lượng: {{ $item['quantity'] ?? 1 }}</div>
                                     </div>
                                     <div class="product-price">
-                                        {{ number_format($item['price_at_addition'] * $item['quantity'], 0, ',', '.') }}đ
+                                        {{ number_format(($item['price_at_addition'] ?? 0) * ($item['quantity'] ?? 1), 0, ',', '.') }}đ
                                     </div>
                                 </div>
                             @endforeach
@@ -343,20 +345,15 @@
                                         @endforeach
                                     </select>
                                 </div>
-                            </div>
-
-                            <div class="totals-row mt-4">
+                                                          </div>
+                              <div class="totals-row mt-4">
                                 <span>Tạm tính</span>
-                                <span>{{ number_format($cart['total'], 0, ',', '.') }}đ</span>
+                                <span>{{ number_format($cart['total'] ?? 0, 0, ',', '.') }}đ</span>
                             </div>
-                            @if (($cart['discount'] ?? 0) > 0)
-                                <div class="totals-row">
-                                    <span>Giảm
-                                        giá{{ $cart['discount_code'] ? ' (' . $cart['discount_code'] . ')' : '' }}</span>
-                                    <span
-                                        style="color:#ff3029;">-{{ number_format($cart['discount'], 0, ',', '.') }}đ</span>
-                                </div>
-                            @endif
+                            <div class="totals-row" id="discount-row" style="{{ ($cart['discount'] ?? 0) > 0 ? '' : 'display: none;' }}">
+                                <span>Giảm giá<span id="discount-code-text">{{ ($cart['discount_code'] ?? '') ? ' (' . ($cart['discount_code'] ?? '') . ')' : '' }}</span></span>
+                                <span style="color:#ff3029;" id="discount-amount">-{{ number_format($cart['discount'] ?? 0, 0, ',', '.') }}đ</span>
+                            </div>
                             <div class="totals-row">
                                 <span>Phí vận chuyển</span>
                                 <span id="shipping-fee-display">0đ</span>
@@ -364,9 +361,11 @@
                             <div class="totals-row grand-total">
                                 <span>Tổng cộng</span>
                                 <span id="grand-total-display">
-                                    {{ number_format($cart['total'] - ($cart['discount'] ?? 0), 0, ',', '.') }}đ
+                                    {{ number_format(($cart['total'] ?? 0) - ($cart['discount'] ?? 0), 0, ',', '.') }}đ
                                 </span>
                             </div>
+
+                          
 
                             <button type="submit"
                                 class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center mt-4">
@@ -503,13 +502,43 @@
             const shippingSelect = document.querySelector('select[name="shipping_method_id"]');
             const shippingFeeDisplay = document.getElementById('shipping-fee-display');
             const grandTotalDisplay = document.getElementById('grand-total-display');
-            const subtotal = {{ $cart['total'] }};
-            shippingSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
+            const subtotal = {{ $cart['total'] ?? 0 }};
+            let currentDiscount = {{ $cart['discount'] ?? 0 }};
+            
+
+            
+            function updateGrandTotal() {
+                const selectedOption = shippingSelect.options[shippingSelect.selectedIndex];
                 const cost = parseFloat(selectedOption.dataset.cost) || 0;
+                const grandTotal = subtotal + cost - currentDiscount;
                 shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
-                grandTotalDisplay.textContent = (subtotal + cost).toLocaleString('vi-VN') + 'đ';
-            });
+                grandTotalDisplay.textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
+                
+                // Cập nhật hiển thị discount row
+                const discountRow = document.getElementById('discount-row');
+                const discountAmount = document.getElementById('discount-amount');
+                const discountCodeText = document.getElementById('discount-code-text');
+                if (discountRow && discountAmount) {
+                    if (currentDiscount > 0) {
+                        discountRow.style.display = 'flex';
+                        discountAmount.textContent = '-' + Math.round(currentDiscount).toLocaleString('vi-VN') + 'đ';
+                        // Cập nhật discount code text nếu có
+                        if (discountCodeText) {
+                            const discountCode = '{{ $cart['discount_code'] ?? '' }}';
+                            discountCodeText.textContent = discountCode ? ' (' + discountCode + ')' : '';
+                        }
+                    } else {
+                        discountRow.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Khởi tạo giá trị ban đầu
+            updateGrandTotal();
+            
+            shippingSelect.addEventListener('change', updateGrandTotal);
+
+
 
             // Handle saved address selection
             const savedAddressSelect = document.getElementById('saved_address');

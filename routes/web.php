@@ -37,6 +37,7 @@ use App\Http\Controllers\client\MessageController as ClientMessageController;
 use App\Http\Controllers\PayPalController;
 
 use App\Http\Controllers\MomoController;
+use App\Http\Controllers\client\VoucherController;
 
 // Middleware
 use App\Http\Middleware\CheckLogin;
@@ -292,7 +293,7 @@ Route::prefix('/')->name('client.')->group(function () {
         ->name('reviews.store');
 
     // giỏ hàng (Cart)
-    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart');
+    Route::get('/cart', [CartController::class, 'cart'])->name('view-cart')->middleware('sync.cart');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
     Route::put('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
     Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
@@ -302,12 +303,14 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 
     // Thêm lại route mã giảm giá:
-    Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.applyDiscount');
+    Route::get('/vouchers/applicable', [VoucherController::class, 'getApplicableVouchers'])->name('vouchers.applicable');
+    Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.apply-discount');
 
     // Checkout (One-Page)
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index')->middleware('sync.cart');
     Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/update-discount', [CheckoutController::class, 'updateDiscount'])->name('checkout.update-discount');
 
     // Profile (gộp các route trùng lặp và thêm middleware)
     Route::prefix('profile')->name('profile.')->middleware(CheckClientLogin::class)->group(function () {
@@ -342,3 +345,5 @@ Route::prefix('/')->name('client.')->group(function () {
 Route::fallback(function () {
     return response()->view('client.errors.404', [], 404);
 });
+
+// Thêm route API lấy voucher có thể áp dụng cho giỏ hàng
