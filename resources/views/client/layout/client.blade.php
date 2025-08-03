@@ -152,10 +152,12 @@
     </script>
 
     <!-- Nút mở chat -->
-    <div id="chat-toggle"
-        style="position:fixed;bottom:30px;right:30px;z-index:9999;cursor:pointer;background:#007bff;color:#fff;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
-        <i class="fas fa-comments"></i>
-    </div>
+    @if (Auth::check())
+        <div id="chat-toggle"
+            style="position:fixed;bottom:30px;right:30px;z-index:9999;cursor:pointer;background:#007bff;color:#fff;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+            <i class="fas fa-comments"></i>
+        </div>
+    @endif
 
     <!-- Khung chat -->
     <div id="chat-box"
