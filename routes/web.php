@@ -36,6 +36,8 @@ use App\Http\Controllers\PayPalController;
 
 use App\Http\Controllers\MomoController;
 use App\Http\Controllers\client\VoucherController;
+use App\Http\Controllers\Admin\ShipperController;
+
 
 // Middleware
 use App\Http\Middleware\CheckLogin;
@@ -61,7 +63,31 @@ Route::get('/analytics-test', function () {
     return $analyticsData;
 });
 
+
+
+// Shipper App Routes - Đặt TRƯỚC TẤT CẢ để ưu tiên cao nhất
+Route::get('/shipper-app', function () {
+    return view('shipper-app');
+})->name('shipper-app');
+
+Route::get('/shipper-app/{any}', function () {
+    return view('shipper-app');
+})->where('any', '.*')->name('shipper-app.all');
+
+// Route cho shipper app ở trang chủ
+Route::get('/shipper', function () {
+    return redirect()->route('shipper-app');
+})->name('shipper');
+
+
+
+// Route cho shipper app - đặt trước route '/' để ưu tiên
 Route::get('/', function () {
+    // Nếu có query parameter shipper=1 thì redirect về shipper app
+    if (request()->has('shipper') || request()->is('shipper*')) {
+        return redirect()->route('shipper-app');
+    }
+    
     if (Auth::check()) {
         $user = Auth::user();
         // Nếu là admin, chuyển về dashboard admin
@@ -72,7 +98,7 @@ Route::get('/', function () {
         return redirect()->route('client.dashboard');
     }
     // Nếu chưa đăng nhập, chuyển về trang đăng nhập
-    return redirect()->route('client.home');
+    return redirect()->route('home');
 });
 
 Route::prefix('admin')->name('admin.')
@@ -133,6 +159,9 @@ Route::prefix('admin')->name('admin.')
         // (2) Xem chi tiết một đơn hàng
         Route::get('orders/{order}', [OrderController::class, 'show'])
             ->name('orders.show');
+        // (2.1) Lấy thông tin delivery cho modal
+        Route::get('orders/{order}/delivery-info', [OrderController::class, 'getDeliveryInfo'])
+            ->name('orders.delivery-info');
         // (3) Hiển thị form sửa đơn hàng (chỉnh thông tin, cập nhật toàn bộ)
         Route::get('orders/{order}/edit', [OrderController::class, 'edit'])
             ->name('orders.edit');
@@ -157,6 +186,11 @@ Route::prefix('admin')->name('admin.')
         // (9) In phiếu giao hàng
         Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
             ->name('orders.printShipping');
+        // (10) Gán và đổi shipper
+        Route::post('orders/{order}/assign-shipper', [OrderController::class, 'assignShipper'])
+            ->name('orders.assign-shipper');
+        Route::post('orders/{order}/change-shipper', [OrderController::class, 'changeShipper'])
+            ->name('orders.change-shipper');
         // Thống kê đơn hàng (trang riêng)
         Route::get('orders-stats', [OrderController::class, 'stats'])->name('orders.stats');
         // Xuất file Excel/CSV đơn hàng
@@ -176,6 +210,27 @@ Route::prefix('admin')->name('admin.')
         Route::resource('reviews', ReviewController::class);
         Route::resource('banners', BannerController::class);
         Route::resource('brands', BrandController::class);
+
+        
+
+        // Quản lý shipper
+        Route::prefix('shippers')->name('shippers.')->group(function () {
+            Route::get('/', [ShipperController::class, 'index'])->name('index');
+            Route::get('/create', [ShipperController::class, 'create'])->name('create');
+            Route::post('/', [ShipperController::class, 'store'])->name('store');
+            Route::get('/{shipper}', [ShipperController::class, 'show'])->name('show');
+            Route::get('/{shipper}/edit', [ShipperController::class, 'edit'])->name('edit');
+            Route::put('/{shipper}', [ShipperController::class, 'update'])->name('update');
+            Route::delete('/{shipper}', [ShipperController::class, 'destroy'])->name('destroy');
+            
+            // Phân chia đơn hàng
+            Route::get('/assign/orders', [ShipperController::class, 'assignOrders'])->name('assign-orders');
+            Route::post('/assign/process', [ShipperController::class, 'processAssignOrders'])->name('process-assign');
+            Route::post('/assign/auto', [ShipperController::class, 'autoAssignOrders'])->name('auto-assign');
+            
+            // Xem chi tiết shipper
+            Route::get('/{shipper}/details', [ShipperController::class, 'showDetails'])->name('details');
+        });
 
         Route::fallback(function () {
             return response()->view('admin.errors.404', [], 404);
@@ -213,11 +268,11 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add')->middleware(CheckClientLogin::class);
     Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove')->middleware(CheckClientLogin::class);
 
-    // đăng ký, đăng nhập và đăng xuất
+    // đăng ký, đăng nhập và đăng xuất - Disable CSRF cho auth routes
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware(RedirectIfAuthenticatedCustom::class);
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/login', [LoginController::class, 'login'])->name('login.post');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // đăng nhập bằng Google
@@ -309,6 +364,9 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::post('/order/{id}/repeat', [ProfileController::class, 'repeatOrder'])->name('order.repeat');
         Route::get('/voucher', [ProfileController::class, 'vouchers'])->name('voucher');
         Route::post('/order/{id}/mark-delivered', [ProfileController::class, 'markDelivered'])->name('order.markDelivered');
+        
+        // Order tracking endpoint
+        Route::get('/order/{orderId}/tracking', [ProfileController::class, 'getOrderTracking'])->name('order.tracking');
 
         // Address Management
         Route::prefix('address')->name('address.')->group(function () {
@@ -335,3 +393,9 @@ Route::fallback(function () {
 });
 
 // Thêm route API lấy voucher có thể áp dụng cho giỏ hàng
+
+
+
+
+
+

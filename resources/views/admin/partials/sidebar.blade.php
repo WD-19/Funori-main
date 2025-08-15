@@ -227,6 +227,35 @@
                             </li>
                         </ul>
                     </li>
+                    <!-- Shipper -->
+                    <li class="menu-item has-children {{ request()->routeIs('admin.shippers.*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon">
+                                <svg width="24" height="24" fill="none">
+                                    <path d="M7 17l-4-4 4-4M17 7l4 4-4 4" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M13 6h-2a4 4 0 0 0 0 8h2" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="text">Shipper</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.shippers.index') }}">
+                                    <div class="text">Danh sách shipper</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.shippers.create') }}">
+                                    <div class="text">Thêm mới shipper</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.shippers.assign-orders') }}">
+                                    <div class="text">Phân chia đơn hàng</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <!-- Người Dùng -->
                     <li class="menu-item has-children {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">

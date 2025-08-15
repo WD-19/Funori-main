@@ -36,10 +36,24 @@ class Order extends Model
         'customer_note',
         'admin_note',
         'ordered_at',
+        'received_at',
+        'in_delivery_at',
         'delivered_at',
+        'failed_at',
         'cancelled_at',
         'cancellation_reason',
         'discount_code',
+        'shipper_id',
+        'delivery_notes',
+        'failure_reason',
+        'delivery_images',
+        'shipping_lat',
+        'shipping_lng',
+        'delivery_lat',
+        'delivery_lng',
+        'delivery_started_at',
+        'delivery_completed_at',
+        'delivery_address',
     ];
 
     protected $casts = [
@@ -50,8 +64,12 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'ordered_at' => 'datetime',
         'payment_details' => 'array',
+        'received_at' => 'datetime',
+        'in_delivery_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'failed_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'delivery_images' => 'array',
         'payment_status' => 'string', // Enum
         'order_status' => 'string', // Enum
     ];
@@ -89,12 +107,20 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    /**
+     * Get the shipper assigned to this order
+     */
+    public function shipper()
+    {
+        return $this->belongsTo(Shipper::class);
+    }
+
     public static function getAllowedStatusTransitions(): array
     {
         return [
             'pending_confirmation' => ['processing', 'cancelled'],
             'processing'           => ['shipped', 'cancelled'],
-            'shipped'              => ['delivered', 'cancelled'],
+            'shipped'              => ['delivered', 'returned'],
             'delivered'            => ['returned'],
             'returned'             => [],
             'cancelled'            => [],
