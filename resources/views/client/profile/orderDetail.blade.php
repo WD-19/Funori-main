@@ -7,17 +7,16 @@
         $statusMap = [
             'pending_confirmation' => 'Chờ xác nhận',
             'processing' => 'Đang xử lý',
-            'shipped' => 'Đang giao',
-            'delivered' => 'Đã giao',
+            'shipped' => 'Đang giao hàng',
+            'delivered' => 'Đã giao hàng',
             'cancelled' => 'Đã hủy',
-            'returned' => 'Trả hàng/Hoàn tiền',
-            'pending_cancellation' => 'Chờ xác nhận hủy đơn',
+            'returned' => 'Đã trả hàng',
         ];
         // Chuẩn hóa key trạng thái (nếu trạng thái là tiếng Anh hoặc mã)
         $orderStatusKey = \Illuminate\Support\Str::slug($order->order_status ?? 'unknown_status', '_');
         $orderStatusVN = $statusMap[$orderStatusKey] ?? ($order->order_status ?? 'Trạng thái không xác định');
     @endphp
-    <div class="container my-5">
+    <div class="container my-5" x-data="orderTracking({ orderId: {{ $order->id }}, initialStatus: '{{ $order->order_status }}', initialCreatedAt: '{{ $order->created_at?->format('c') }}', initialUpdatedAt: '{{ $order->updated_at?->format('c') }}' })" x-init="init()">
         <div class="order-detail-card"> {{-- Added padding, rounded corners, and shadow --}}
             <div class="text-center mb-4">
                 <h2 style="font-size: 50px"  class="fw-bold text-uppercase mb-2"> {{-- Increased bottom margin for heading --}}
@@ -93,6 +92,181 @@
             </div>
 
             <hr class="my-5 border-secondary-subtle"> {{-- Thicker, softer HR --}}
+
+            {{-- Timeline trạng thái đơn hàng kiểu Shopee --}}
+            <div class="mb-5">
+                <h4 class="fw-bold mb-4"><i class="bi bi-clock-history me-2 text-primary"></i>Lịch sử đơn hàng</h4>
+                
+                <!-- Status Badge -->
+                <div class="d-flex align-items-center flex-wrap gap-2 mb-4">
+                    <span :class="['badge rounded-pill px-3 py-2', statusClass]" x-text="statusText"></span>
+                    <template x-if="shipper && shipper.name">
+                        <span class="text-muted">Shipper: <strong x-text="shipper.name"></strong></span>
+                    </template>
+                </div>
+
+                <!-- Timeline -->
+                <div class="order-timeline">
+                    <!-- Step 1: Đặt hàng -->
+                    <div class="timeline-item completed">
+                        <div class="timeline-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Đơn hàng đã được đặt</div>
+                            <div class="timeline-desc">Đơn hàng đã được tạo thành công</div>
+                            <div class="timeline-time">{{ $order->created_at?->format('d/m/Y H:i') }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Xác nhận -->
+                    <div class="timeline-item" :class="{ 'completed': status !== 'pending_confirmation' }">
+                        <div class="timeline-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Đơn hàng đã được xác nhận</div>
+                            <div class="timeline-desc">Cửa hàng đã xác nhận đơn hàng</div>
+                            <div class="timeline-time" x-text="getStepTime('confirmed')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Chuẩn bị hàng -->
+                    <div class="timeline-item" :class="{ 'completed': ['shipped', 'delivered', 'failed', 'returned'].includes(status) }" x-show="!['cancelled'].includes(status)">
+                        <div class="timeline-icon">
+                            <i class="bi bi-box-seam-fill"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Đang chuẩn bị hàng</div>
+                            <div class="timeline-desc">Cửa hàng đang chuẩn bị sản phẩm</div>
+                            <div class="timeline-time" x-text="getStepTime('processing')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Đang giao -->
+                    <div class="timeline-item" :class="{ 'completed': ['delivered', 'failed', 'returned'].includes(status), 'active': status === 'shipped' }" x-show="!['cancelled'].includes(status)">
+                        <div class="timeline-icon">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Đang giao hàng</div>
+                            <div class="timeline-desc">
+                                <span x-show="status === 'shipped'">Đơn hàng đang được giao đến bạn</span>
+                                <span x-show="status === 'delivered'">Đơn hàng đã được giao thành công</span>
+                                <span x-show="status === 'failed'">Giao hàng thất bại</span>
+                                <span x-show="status === 'returned'">Đã hoàn trả hàng về kho</span>
+                                <span x-show="!['shipped', 'delivered', 'failed', 'returned'].includes(status)">Chờ giao hàng</span>
+                                
+                                <!-- Thông tin shipper -->
+                                <template x-if="['shipped', 'delivered', 'failed', 'returned'].includes(status)">
+                                    <div class="shipper-info">
+                                        <template x-if="shipper && shipper.name">
+                                            <div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <i class="bi bi-person-circle text-primary"></i>
+                                                    <span class="fw-medium">Shipper: <strong x-text="shipper.name"></strong></span>
+                                                </div>
+                                                <template x-if="shipper.lat && shipper.lng">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class="bi bi-geo-alt text-success"></i>
+                                                        <a :href="`https://www.google.com/maps?q=${shipper.lat},${shipper.lng}`" 
+                                                           target="_blank" 
+                                                           class="text-decoration-none small">
+                                                            📍 Xem vị trí hiện tại của shipper
+                                                        </a>
+                                                    </div>
+                                                </template>
+                                                <template x-if="!shipper.lat || !shipper.lng">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class="bi bi-geo-alt text-warning"></i>
+                                                        <span class="small text-muted">Vị trí chưa được cập nhật</span>
+                                                    </div>
+                                                </template>
+                                                <template x-if="shipper.updated_at">
+                                                    <div class="mt-1">
+                                                        <small class="text-muted">
+                                                            <i class="bi bi-clock"></i>
+                                                            Cập nhật: <span x-text="formatTime(shipper.updated_at)"></span>
+                                                        </small>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        
+                                        <template x-if="!shipper || !shipper.name">
+                                            <div class="alert alert-warning py-2 px-3 mb-0">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                                    <div>
+                                                        <div class="fw-medium">Đơn hàng đang được chuẩn bị giao</div>
+                                                        <div class="small">Shipper sẽ được phân công sớm nhất</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="timeline-time" x-text="getStepTime('shipped')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Đã giao -->
+                    <div class="timeline-item" :class="{ 'completed': status === 'delivered' }" x-show="!['cancelled'].includes(status)">
+                        <div class="timeline-icon">
+                            <i class="bi bi-house-check-fill"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Giao hàng thành công</div>
+                            <div class="timeline-desc">Đơn hàng đã được giao thành công</div>
+                            <div class="timeline-time" x-text="getStepTime('delivered')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: Giao hàng thất bại -->
+                    <div class="timeline-item" x-show="status === 'failed'" style="display: none;">
+                        <div class="timeline-icon failed">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Giao hàng thất bại</div>
+                            <div class="timeline-desc">Đơn hàng không thể giao được</div>
+                            <div class="timeline-time" x-text="getStepTime('failed')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 7: Đã hủy (hiển thị khi đơn hàng bị hủy trước khi giao) -->
+                    <div class="timeline-item" :class="{ 'completed': ['cancelled', 'returned'].includes(status) }" x-show="['cancelled', 'returned'].includes(status)" style="display: none;">
+                        <div class="timeline-icon cancelled">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Đơn hàng đã bị hủy</div>
+                            <div class="timeline-desc">
+                                <span x-show="status === 'cancelled'">Đơn hàng đã được hủy</span>
+                                <span x-show="status === 'returned'">Đơn hàng không giao được, đã trả về kho</span>
+                            </div>
+                            <div class="timeline-time" x-text="getStepTime('cancelled') || getStepTime('returned')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 8: Đánh giá (chỉ hiển thị khi đã giao) -->
+                    <div class="timeline-item" x-show="status === 'delivered'" style="display: none;">
+                        <div class="timeline-icon">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Đánh giá sản phẩm</div>
+                            <div class="timeline-desc">Hãy đánh giá sản phẩm để giúp chúng tôi cải thiện dịch vụ</div>
+                            <div class="timeline-time">
+                                <a href="#" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-star me-1"></i>Đánh giá ngay
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="mb-5"> {{-- Increased bottom margin --}}
                 <h4 class="fw-bold mb-4"><i class="bi bi-box-seam me-2 text-primary"></i>Sản phẩm đã mua</h4>
@@ -534,6 +708,254 @@
         text-transform: uppercase !important;
     }
 
+    /* Timeline Styles - Shopee-like */
+    .order-timeline {
+        position: relative;
+        padding: 1rem 0;
+    }
+
+    .timeline-item {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 25px;
+        top: 50px;
+        width: 2px;
+        height: calc(100% + 1rem);
+        background: #e9ecef;
+        z-index: 1;
+    }
+
+    .timeline-item:last-child::before {
+        display: none;
+    }
+
+    .timeline-item.completed::before {
+        background: #28a745;
+    }
+
+    .timeline-item.active::before {
+        background: #007bff;
+    }
+
+    .timeline-item.cancelled::before {
+        background: #dc3545;
+    }
+
+    .timeline-item.failed::before {
+        background: #dc3545;
+    }
+
+    .timeline-item.returned::before {
+        background: #6c757d;
+    }
+
+    .timeline-icon {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        background: #e9ecef;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        z-index: 2;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item.completed .timeline-icon {
+        background: #28a745;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
+    }
+
+    .timeline-item.active .timeline-icon {
+        background: #007bff;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2);
+        animation: pulse 2s infinite;
+    }
+
+    .timeline-item.cancelled .timeline-icon {
+        background: #dc3545;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2);
+    }
+
+    .timeline-item.failed .timeline-icon {
+        background: #dc3545;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2);
+    }
+
+    .timeline-item.returned .timeline-icon {
+        background: #6c757d;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(108, 117, 125, 0.2);
+    }
+
+    .timeline-icon i {
+        font-size: 1.2rem;
+        color: #6c757d;
+    }
+
+    .timeline-item.completed .timeline-icon i,
+    .timeline-item.active .timeline-icon i,
+    .timeline-item.cancelled .timeline-icon i,
+    .timeline-item.returned .timeline-icon i {
+        color: white;
+    }
+
+    .timeline-content {
+        flex: 1;
+        background: #f8f9fa;
+        padding: 1.2rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item.completed .timeline-content {
+        background: #f8fff9;
+        border-color: #28a745;
+    }
+
+    .timeline-item.active .timeline-content {
+        background: #f0f8ff;
+        border-color: #007bff;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    }
+
+    .timeline-item.cancelled .timeline-content {
+        background: #f8d7da;
+        border-color: #dc3545;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+    }
+
+    .timeline-item.failed .timeline-content {
+        background: #f8d7da;
+        border-color: #dc3545;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+    }
+
+    .timeline-item.returned .timeline-content {
+        background: #e9ecef;
+        border-color: #6c757d;
+        box-shadow: 0 2px 8px rgba(108, 117, 125, 0.1);
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+
+    .timeline-item.completed .timeline-title {
+        color: #28a745;
+    }
+
+    .timeline-item.active .timeline-title {
+        color: #007bff;
+    }
+
+    .timeline-item.cancelled .timeline-title {
+        color: #dc3545;
+    }
+
+    .timeline-item.failed .timeline-title {
+        color: #dc3545;
+    }
+
+    .timeline-item.returned .timeline-title {
+        color: #6c757d;
+    }
+
+    .timeline-desc {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .timeline-time {
+        color: #495057;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .timeline-item.completed .timeline-time {
+        color: #28a745;
+    }
+
+    .timeline-item.active .timeline-time {
+        color: #007bff;
+    }
+
+    .timeline-item.cancelled .timeline-time {
+        color: #dc3545;
+    }
+
+    .timeline-item.failed .timeline-time {
+        color: #dc3545;
+    }
+
+    .timeline-item.returned .timeline-time {
+        color: #6c757d;
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+        }
+    }
+
+    /* Shipper Info in Timeline */
+    .shipper-info {
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(40, 167, 69, 0.05) 100%);
+        border: 1px solid rgba(0, 123, 255, 0.2);
+        border-radius: 0.6rem;
+        padding: 0.75rem;
+        margin-top: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item.active .shipper-info {
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(40, 167, 69, 0.1) 100%);
+        border-color: rgba(0, 123, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    }
+
+    .shipper-info a {
+        color: #007bff;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .shipper-info a:hover {
+        color: #0056b3;
+        transform: translateX(2px);
+    }
+
     /* Responsive Adjustments */
     @media (max-width: 767.98px) {
         .order-detail-card {
@@ -618,6 +1040,45 @@
             font-size: 0.85rem;
             border-radius: 0.5rem;
         }
+
+        /* Timeline mobile responsive */
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 0.75rem;
+        }
+
+        .timeline-icon i {
+            font-size: 1rem;
+        }
+
+        .timeline-item::before {
+            left: 20px;
+        }
+
+        .timeline-content {
+            padding: 0.8rem;
+        }
+
+        .timeline-title {
+            font-size: 1rem;
+        }
+
+        .timeline-desc {
+            font-size: 0.85rem;
+        }
+
+        /* Shipper info mobile responsive */
+        .shipper-info {
+            padding: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .shipper-info .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 0.25rem !important;
+        }
     }
 
     @media (max-width: 575.98px) {
@@ -628,6 +1089,148 @@
     }
 </style>
 
+<!-- Alpine.js for dynamic timeline updates -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<!-- Echo (Reverb over Pusher protocol) -->
+<!-- Realtime disabled for client page -->
+
+<script>
+    // Alpine component for order tracking (timeline only)
+    function orderTracking({ orderId, initialStatus, initialCreatedAt, initialUpdatedAt }) {
+        return {
+            orderId,
+            status: initialStatus,
+            statusText: '',
+            statusClass: 'bg-secondary',
+            received_at: null,
+            in_delivery_at: null,
+            delivered_at: null,
+            created_at: initialCreatedAt,
+            updated_at: initialUpdatedAt,
+            shipper: null,
+            timer: null,
+            
+            async init() {
+                this.updateStatusDisplay()
+                await this.fetchTracking()
+                // Poll for updates every 30 seconds
+                this.timer = setInterval(() => this.fetchTracking(), 30000)
+            },
+            
+            async fetchTracking() {
+                try {
+                    const res = await fetch(`/profile/order/${this.orderId}/tracking`, { 
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    const json = await res.json()
+                    if (!json.success) return
+                    
+                    const d = json.data
+                    this.status = d.order_status
+                    this.received_at = d.received_at
+                    this.in_delivery_at = d.in_delivery_at
+                    this.delivered_at = d.delivered_at
+                    // Update timestamps from API if available, keep initial values as fallback
+                    this.created_at = d.created_at || this.created_at
+                    this.updated_at = d.updated_at || this.updated_at
+                    this.shipper = d.shipper
+                    this.updateStatusDisplay()
+                } catch (e) { 
+                    console.error('Failed to fetch tracking:', e) 
+                }
+            },
+            
+            updateStatusDisplay() {
+                const statusMap = {
+                    pending_confirmation: { text: 'Chờ xác nhận', cls: 'bg-warning text-dark' },
+                    processing: { text: 'Đang xử lý', cls: 'bg-info text-dark' },
+                    shipped: { text: 'Đang giao', cls: 'bg-primary text-white' },
+                    in_delivery: { text: 'Đang giao', cls: 'bg-primary text-white' },
+                    delivered: { text: 'Đã giao', cls: 'bg-success text-white' },
+                    cancelled: { text: 'Đã hủy', cls: 'bg-danger text-white' },
+                    returned: { text: 'Hoàn trả', cls: 'bg-secondary text-white' },
+                    failed: { text: 'Giao thất bại', cls: 'bg-danger text-white' },
+                }
+                const cfg = statusMap[this.status] || { text: this.status, cls: 'bg-secondary text-white' }
+                this.statusText = cfg.text
+                this.statusClass = `badge ${cfg.cls}`
+            },
+            
+            formatTime(v) {
+                if (!v) return '—'
+                try { 
+                    return new Date(v).toLocaleString('vi-VN', {
+                        day: '2-digit',
+                        month: '2-digit', 
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                } catch { 
+                    return v 
+                }
+            },
+
+            getStepTime(step) {
+                // Helper function to check if timestamp is valid
+                const isValidTime = (time) => time && time !== '' && time !== null;
+                
+                // Fallback logic for each timeline step using API data
+                switch(step) {
+                    case 'confirmed':
+                        // Use received_at if available, otherwise use updated_at for confirmed orders
+                        if (isValidTime(this.received_at)) return this.formatTime(this.received_at);
+                        if (this.status !== 'pending_confirmation' && isValidTime(this.updated_at)) {
+                            return this.formatTime(this.updated_at);
+                        }
+                        return '—';
+                        
+                    case 'processing':
+                        // Use received_at or updated_at for processing/shipped/delivered orders
+                        if (isValidTime(this.received_at)) return this.formatTime(this.received_at);
+                        if (['processing', 'shipped', 'delivered', 'failed', 'returned'].includes(this.status) && isValidTime(this.updated_at)) {
+                            return this.formatTime(this.updated_at);
+                        }
+                        return '—';
+                        
+                    case 'shipped':
+                        // Use in_delivery_at if available, otherwise use updated_at for shipped/delivered/failed/returned
+                        if (isValidTime(this.in_delivery_at)) return this.formatTime(this.in_delivery_at);
+                        if (['shipped', 'delivered', 'failed', 'returned'].includes(this.status) && isValidTime(this.updated_at)) {
+                            return this.formatTime(this.updated_at);
+                        }
+                        return '—';
+                        
+                    case 'delivered':
+                        // Use delivered_at if available, otherwise use updated_at for delivered orders
+                        if (isValidTime(this.delivered_at)) return this.formatTime(this.delivered_at);
+                        if (this.status === 'delivered' && isValidTime(this.updated_at)) {
+                            return this.formatTime(this.updated_at);
+                        }
+                        return '—';
+                        
+                    case 'cancelled':
+                        // Use updated_at for cancelled orders
+                        if (isValidTime(this.updated_at)) return this.formatTime(this.updated_at);
+                        return '—';
+
+                    case 'failed':
+                        // Use updated_at for failed orders
+                        if (isValidTime(this.updated_at)) return this.formatTime(this.updated_at);
+                        return '—';
+
+                    case 'returned':
+                        // Use updated_at for returned orders
+                        if (isValidTime(this.updated_at)) return this.formatTime(this.updated_at);
+                        return '—';
+                        
+                    default:
+                        return '—';
+                }
+            }
+        }
+    }
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Xử lý nút đánh giá - smooth scroll đến phần đánh giá

@@ -43,4 +43,12 @@ class OrderItem extends Model
     {
         return $this->hasOne(Review::class);
     }
+
+    /**
+     * Get the price per unit
+     */
+    public function getPriceAttribute()
+    {
+        return $this->subtotal / $this->quantity;
+    }
 }

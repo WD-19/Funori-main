@@ -7,10 +7,41 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\client\ProductController;
 use App\Http\Controllers\API\client\RegisterController;
+use App\Http\Controllers\API\ShipperAppController;
 use App\Http\Middleware\CheckApiLogin;
 
 Route::post('/client/register', [RegisterController::class, 'store']);
 Route::post('/client/login', [LoginController::class, 'store']);
+
+// ========== SHIPPER APP API ==========
+Route::prefix('shipper-app')->name('api.shipper-app.')->group(function () {
+    // Public routes
+    Route::post('/login', [ShipperAppController::class, 'login'])->name('login');
+    
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        // Profile management
+        Route::get('/profile', [ShipperAppController::class, 'getProfile'])->name('profile');
+        Route::put('/profile', [ShipperAppController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password', [ShipperAppController::class, 'changePassword'])->name('password.change');
+        
+        // Orders management
+        Route::get('/orders', [ShipperAppController::class, 'getOrders'])->name('orders');
+        Route::get('/orders/{id}', [ShipperAppController::class, 'getOrder'])->name('orders.show');
+        Route::post('/orders/{id}/status', [ShipperAppController::class, 'updateOrderStatus'])->name('orders.status');
+        
+        // Notifications
+        Route::get('/notifications', [ShipperAppController::class, 'getNotifications'])->name('notifications');
+        Route::put('/notifications/{id}/read', [ShipperAppController::class, 'markNotificationAsRead'])->name('notifications.read');
+        Route::put('/notifications/mark-all-read', [ShipperAppController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
+        
+        // Location tracking
+        Route::post('/location', [ShipperAppController::class, 'updateLocation'])->name('location.update');
+        
+        // Logout
+        Route::post('/logout', [ShipperAppController::class, 'logout'])->name('logout');
+    });
+});
 
 // ========== API ROUTE ==========
 Route::prefix('admin')->name('api.admin.')->middleware(['auth:sanctum'])->group(function () {
