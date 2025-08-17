@@ -28,15 +28,7 @@
         </ul>
     </div>
 
-    @if ($errors->any())
-        <div class="alert alert-danger mb-3">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+
 
     <form class="form-add-product" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
         @csrf
@@ -55,6 +47,9 @@
                             <input type="file" id="myFile" name="images[]" multiple style="display:none;">
                         </label>
                     </div>
+                    @error('images')
+                        <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                    @enderror
                     @error('images.*')
                         <div class="text-danger text-tiny mt-2">{{ $message }}</div>
                     @enderror
@@ -102,7 +97,7 @@
             </fieldset>
             <fieldset class="price">
                 <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
-                <input type="number" name="regular_price" min="0" step="0.01" value="{{ old('regular_price') }}">
+                <input type="text" name="regular_price" class="price-input" placeholder="Nhập giá (ví dụ: 1,500,000)" value="{{ old('regular_price') ? number_format(old('regular_price'), 0, ',', '.') : '' }}">
                 @error('regular_price')
                     <div class="text-danger text-tiny mt-2">{{ $message }}</div>
                 @enderror
@@ -128,11 +123,25 @@
                 @error('variants')
                     <div class="text-danger text-tiny mt-2">{{ $message }}</div>
                 @enderror
-                @foreach (['name_variant', 'size', 'price_modifier', 'stock_quantity', 'image'] as $field)
-                    @error('variants.*.' . $field)
-                        <div class="text-danger text-tiny mt-2">{{ $message }}</div>
-                    @enderror
-                @endforeach
+                @error('variants.*.name_variant')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
+                @error('variants.*.size')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
+                @error('variants.*.price_modifier')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
+                @error('variants.*.stock_quantity')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
+                @error('variants.*.image')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
+                @error('variants.*.attribute_values')
+                    <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                @enderror
+
                 <div id="variant-list">
                 </div>
                 <br><br>
@@ -162,6 +171,56 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Format số với dấu phẩy
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            // Xóa dấu phẩy để lấy số nguyên
+            function unformatNumber(str) {
+                return str.replace(/\./g, '');
+            }
+
+            // Xử lý input giá
+            function handlePriceInput(input) {
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        e.target.value = formatNumber(value);
+                    }
+                });
+
+                input.addEventListener('blur', function(e) {
+                    let value = e.target.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        e.target.value = formatNumber(value);
+                    }
+                });
+            }
+
+            // Xử lý form submit
+            document.querySelector('.form-add-product').addEventListener('submit', function(e) {
+                // Xử lý giá gốc
+                const regularPriceInput = document.querySelector('input[name="regular_price"]');
+                if (regularPriceInput.value) {
+                    regularPriceInput.value = unformatNumber(regularPriceInput.value);
+                }
+
+                // Xử lý giá chênh lệch trong variants
+                const priceModifierInputs = document.querySelectorAll('input[name*="[price_modifier]"]');
+                priceModifierInputs.forEach(input => {
+                    if (input.value) {
+                        input.value = unformatNumber(input.value);
+                    }
+                });
+            });
+
+            // Áp dụng format cho các input giá hiện có
+            document.querySelectorAll('.price-input').forEach(handlePriceInput);
+
+
+
+
             const dropArea = document.getElementById('drop-area');
             const input = document.getElementById('myFile');
             const gallery = document.getElementById('gallery');
@@ -206,7 +265,7 @@
                     const reader = new FileReader();
                     reader.onload = e => {
                         const div = document.createElement('div');
-                        div.className = 'item';
+                        div.className = 'item position-relative';
                         const img = document.createElement('img');
                         img.src = e.target.result;
                         img.style.maxWidth = '80px';
@@ -214,7 +273,25 @@
                         img.style.objectFit = 'cover';
                         img.style.border = '1px solid #eee';
                         img.style.borderRadius = '4px';
+                        
+                        // Thêm nút xóa ảnh
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'btn btn-danger btn-sm btn-remove-image';
+                        removeBtn.innerHTML = '×';
+                        removeBtn.style.cssText = 'position:absolute;top:2px;right:2px;padding:2px 6px;line-height:1;font-size:14px;';
+                        removeBtn.onclick = function() {
+                            div.remove();
+                            // Xóa file khỏi filesArray
+                            const index = filesArray.indexOf(file);
+                            if (index > -1) {
+                                filesArray.splice(index, 1);
+                                updateInputFiles();
+                            }
+                        };
+                        
                         div.appendChild(img);
+                        div.appendChild(removeBtn);
                         gallery.appendChild(div);
                     };
                     reader.readAsDataURL(file);
@@ -230,16 +307,16 @@
             // Function to create a variant row
             function createVariantRow(index, variantData = {}) {
                 const variantDiv = document.createElement('div');
-                variantDiv.className = 'variant-row flex gap10 mb-2 align-items-center';
+                variantDiv.className = 'variant-row';
                 let selects = attributeSelectsTemplate.replace(/VARIANT_NAME/g, `variants[${index}]`);
                 variantDiv.innerHTML = `
                             ${selects}
                             <input type="text" name="variants[${variantIndex}][name_variant]" value="" placeholder="Tên biến thể" style="width:28%;">
                             <input type="text" name="variants[${variantIndex}][size]" value="" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-                            <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
+                            <input type="text" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch (ví dụ: 50,000)" class="price-input" style="width: 150px;">
                             <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
                             <div class="variant-image-upload">
-                                <label style="cursor:pointer; display:block; border:1px dashed #ccc; border-radius:6px; padding:10px; text-align:center; background:#fafafa;">
+                                <label>
                                     <span class="icon"><i class="icon-upload-cloud"></i></span>
                                     <span class="text-tiny">Chọn ảnh biến thể</span>
                                     <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="display:none;">
@@ -250,24 +327,50 @@
                         `;
                 variantList.appendChild(variantDiv);
 
+                // Áp dụng format cho input giá chênh lệch mới
+                const priceModifierInput = variantDiv.querySelector('input[name*="[price_modifier]"]');
+                if (priceModifierInput) {
+                    handlePriceInput(priceModifierInput);
+                }
+
                 const imageInput = variantDiv.querySelector('input[type="file"]');
                 const previewDiv = variantDiv.querySelector('.variant-image-preview');
-                imageInput.addEventListener('change', function () {
-                    previewDiv.innerHTML = '';
-                    if (this.files && this.files[0]) {
+                
+                // Function để xử lý thay đổi ảnh
+                function handleVariantImageChange(input, label, variantIndex) {
+                    if (input.files && input.files[0]) {
                         const reader = new FileReader();
                         reader.onload = function (e) {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.style.maxWidth = '160px';
-                            img.style.maxHeight = '80px';
-                            img.style.objectFit = 'cover';
-                            img.style.borderRadius = '4px';
-                            img.style.border = '1px solid #eee';
-                            previewDiv.appendChild(img);
+                            label.innerHTML = `
+                                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <img src="${e.target.result}" style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 4px;">
+                                    <button type="button" class="btn btn-danger btn-sm btn-remove-image" style="position:absolute;top:2px;right:2px;padding:2px 6px;line-height:1;font-size:14px;">×</button>
+                                </div>
+                            `;
+                            
+                            // Thêm event listener cho nút xóa ảnh
+                            const removeBtn = label.querySelector('.btn-remove-image');
+                            removeBtn.onclick = function() {
+                                input.value = '';
+                                label.innerHTML = `
+                                    <span class="icon"><i class="icon-upload-cloud"></i></span>
+                                    <span class="text-tiny">Chọn ảnh biến thể</span>
+                                    <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="display:none;">
+                                `;
+                                // Thêm lại event listener cho input mới
+                                const newInput = label.querySelector('input[type="file"]');
+                                newInput.addEventListener('change', function() {
+                                    handleVariantImageChange(this, label, variantIndex);
+                                });
+                            };
                         };
-                        reader.readAsDataURL(this.files[0]);
+                        reader.readAsDataURL(input.files[0]);
                     }
+                }
+
+                imageInput.addEventListener('change', function() {
+                    const label = variantDiv.querySelector('.variant-image-upload label');
+                    handleVariantImageChange(this, label, variantIndex);
                 });
 
                 variantDiv.querySelector('.remove-variant').onclick = function () {
@@ -278,15 +381,19 @@
             // Initialize variants from old data
             @if (old('variants'))
                 @foreach (old('variants') as $i => $variant)
-                    variantIndex = {{ $i + 1 }};
                     createVariantRow({{ $i }}, {
                         name_variant: "{{ addslashes($variant['name_variant'] ?? '') }}",
                         size: "{{ addslashes($variant['size'] ?? '') }}",
                         price_modifier: "{{ $variant['price_modifier'] ?? '' }}",
                         stock_quantity: "{{ $variant['stock_quantity'] ?? '' }}"
                     });
+                    variantIndex = {{ $i + 1 }};
                 @endforeach
             @endif
+
+
+
+
 
             addVariantBtn.addEventListener('click', function() {
                 createVariantRow(variantIndex);
@@ -302,23 +409,83 @@
             width: 180px;
         }
 
-        .variant-image-preview {
-            margin-top: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 90px;
+        .variant-image-upload label {
+            cursor: pointer;
+            display: block;
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            background: #f8f9fa;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
         }
 
-        .variant-image-preview img {
-            max-width: 160px;
-            max-height: 90px;
-            object-fit: cover;
+        .variant-image-upload label:hover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+
+        .variant-image-upload .icon {
+            display: block;
+            font-size: 20px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+
+        .variant-image-upload .text-tiny {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .variant-image-preview {
+            display: none;
+        }
+
+
+
+        .variant-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
             border-radius: 8px;
-            border: 1px solid #eee;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            background: #fff;
-            padding: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .variant-row input,
+        .variant-row select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .variant-row input:focus,
+        .variant-row select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .remove-variant {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .remove-variant:hover {
+            background: #c82333;
+            transform: scale(1.05);
         }
     </style>
 @endsection

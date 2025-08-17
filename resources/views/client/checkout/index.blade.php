@@ -297,13 +297,13 @@
                             <h4>Tóm tắt đơn hàng</h4>
                             @foreach ($cart['items'] as $item)
                                 <div class="summary-item">
-                                    <img src="{{ asset($item['image_url']) }}" alt="{{ $item['product']['name'] }}">
+                                    <img src="{{ asset($item['image_url'] ?? 'images/products/no-image.png') }}" alt="{{ $item['product']['name'] ?? 'Sản phẩm' }}">
                                     <div class="product-info">
-                                        <div class="product-name">{{ $item['product']['name'] }}</div>
-                                        <div class="product-qty">Số lượng: {{ $item['quantity'] }}</div>
+                                        <div class="product-name">{{ $item['product']['name'] ?? 'Sản phẩm' }}</div>
+                                        <div class="product-qty">Số lượng: {{ $item['quantity'] ?? 1 }}</div>
                                     </div>
                                     <div class="product-price">
-                                        {{ number_format($item['price_at_addition'] * $item['quantity'], 0, ',', '.') }}đ
+                                        {{ number_format(($item['price_at_addition'] ?? 0) * ($item['quantity'] ?? 1), 0, ',', '.') }}đ
                                     </div>
                                 </div>
                             @endforeach
@@ -337,10 +337,10 @@
                                                           </div>
                               <div class="totals-row mt-4">
                                 <span>Tạm tính</span>
-                                <span>{{ number_format($cart['total'], 0, ',', '.') }}đ</span>
+                                <span>{{ number_format($cart['total'] ?? 0, 0, ',', '.') }}đ</span>
                             </div>
                             <div class="totals-row" id="discount-row" style="{{ ($cart['discount'] ?? 0) > 0 ? '' : 'display: none;' }}">
-                                <span>Giảm giá<span id="discount-code-text">{{ $cart['discount_code'] ? ' (' . $cart['discount_code'] . ')' : '' }}</span></span>
+                                <span>Giảm giá<span id="discount-code-text">{{ ($cart['discount_code'] ?? '') ? ' (' . ($cart['discount_code'] ?? '') . ')' : '' }}</span></span>
                                 <span style="color:#ff3029;" id="discount-amount">-{{ number_format($cart['discount'] ?? 0, 0, ',', '.') }}đ</span>
                             </div>
                             <div class="totals-row">
@@ -350,7 +350,7 @@
                             <div class="totals-row grand-total">
                                 <span>Tổng cộng</span>
                                 <span id="grand-total-display">
-                                    {{ number_format($cart['total'] - ($cart['discount'] ?? 0), 0, ',', '.') }}đ
+                                    {{ number_format(($cart['total'] ?? 0) - ($cart['discount'] ?? 0), 0, ',', '.') }}đ
                                 </span>
                             </div>
                             <button type="submit"

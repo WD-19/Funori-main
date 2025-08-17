@@ -113,8 +113,8 @@
             </fieldset>
             <fieldset class="price">
                 <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
-                <input type="number" name="regular_price" min="0" step="0.01"
-                    value="{{ old('regular_price', $product->regular_price) }}">
+                <input type="text" name="regular_price" class="price-input" placeholder="Nhập giá (ví dụ: 1.500.000)"
+                    value="{{ old('regular_price', $product->regular_price) ? number_format(old('regular_price', $product->regular_price), 0, ',', '.') : '' }}">
                 @error('regular_price')
                     <div class="text-danger text-tiny mt-2">{{ $message }}</div>
                 @enderror
@@ -140,11 +140,7 @@
                 @error('variants')
                     <div class="text-danger text-tiny mt-2">{{ $message }}</div>
                 @enderror
-                @foreach (['name_variant', 'size', 'price_modifier', 'stock_quantity', 'new_image'] as $field)
-                    @error('variants.*.' . $field)
-                        <div class="text-danger text-tiny mt-2">{{ $message }}</div>
-                    @enderror
-                @endforeach
+
                 <div id="variant-list">
                     @foreach ($product->variants as $i => $variant)
                         <div class="variant-row flex gap10 mb-2 align-items-center">
@@ -161,20 +157,40 @@
                                     @endforeach
                                 </select>
                             @endforeach
-                            <input type="text" name="variants[{{ $i }}][name_variant]"
-                                value="{{ old('variants.' . $i . '.name_variant', $variant->name_variant ?? '') }}"
-                                placeholder="Tên biến thể" style="width:28%;">
-                            <input type="text" name="variants[{{ $i }}][size]"
-                                value="{{ old('variants.' . $i . '.size', $variant->size ?? '') }}"
-                                placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-                            <input style="width: 150px;" type="number"
-                                name="variants[{{ $i }}][price_modifier]"
-                                value="{{ old('variants.' . $i . '.price_modifier', $variant->price_modifier) }}"
-                                placeholder="Giá chênh lệch" step="0.01">
-                            <input style="width: 100px;" type="number"
-                                name="variants[{{ $i }}][stock_quantity]"
-                                value="{{ old('variants.' . $i . '.stock_quantity', $variant->stock_quantity) }}"
-                                placeholder="Kho" min="0">
+                            <div style="width:28%;">
+                                <input type="text" name="variants[{{ $i }}][name_variant]"
+                                    value="{{ old('variants.' . $i . '.name_variant', $variant->name_variant ?? '') }}"
+                                    placeholder="Tên biến thể" style="width:100%;">
+                                @error('variants.' . $i . '.name_variant')
+                                    <div class="text-danger text-tiny mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div style="width:200px;">
+                                <input type="text" name="variants[{{ $i }}][size]"
+                                    value="{{ old('variants.' . $i . '.size', $variant->size ?? '') }}"
+                                    placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:100%;">
+                                @error('variants.' . $i . '.size')
+                                    <div class="text-danger text-tiny mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div style="width: 150px;">
+                                <input type="text"
+                                    name="variants[{{ $i }}][price_modifier]"
+                                    value="{{ old('variants.' . $i . '.price_modifier', $variant->price_modifier) ? number_format(old('variants.' . $i . '.price_modifier', $variant->price_modifier), 0, ',', '.') : '' }}"
+                                    placeholder="Giá chênh lệch (ví dụ: 50,000)" class="price-input" style="width:100%;">
+                                @error('variants.' . $i . '.price_modifier')
+                                    <div class="text-danger text-tiny mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div style="width: 100px;">
+                                <input type="number"
+                                    name="variants[{{ $i }}][stock_quantity]"
+                                    value="{{ old('variants.' . $i . '.stock_quantity', $variant->stock_quantity) }}"
+                                    placeholder="Kho" min="0" style="width:100%;">
+                                @error('variants.' . $i . '.stock_quantity')
+                                    <div class="text-danger text-tiny mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <div class="d-flex flex-column align-items-center" style="min-width:150px;">
                                 <img class="variant-preview mb-1"
                                     src="{{ $variant->image ? asset($variant->image->image_url) : '' }}"
@@ -214,6 +230,52 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Format số với dấu phẩy
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            // Xóa dấu phẩy để lấy số nguyên
+            function unformatNumber(str) {
+                return str.replace(/\./g, '');
+            }
+
+            // Xử lý input giá
+            function handlePriceInput(input) {
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        e.target.value = formatNumber(value);
+                    }
+                });
+
+                input.addEventListener('blur', function(e) {
+                    let value = e.target.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        e.target.value = formatNumber(value);
+                    }
+                });
+            }
+
+            // Xử lý form submit
+            document.querySelector('.form-edit-product').addEventListener('submit', function(e) {
+                // Xử lý giá gốc
+                const regularPriceInput = document.querySelector('input[name="regular_price"]');
+                if (regularPriceInput.value) {
+                    regularPriceInput.value = unformatNumber(regularPriceInput.value);
+                }
+
+                // Xử lý giá chênh lệch trong variants
+                const priceModifierInputs = document.querySelectorAll('input[name*="[price_modifier]"]');
+                priceModifierInputs.forEach(input => {
+                    if (input.value) {
+                        input.value = unformatNumber(input.value);
+                    }
+                });
+            });
+
+            // Áp dụng format cho các input giá hiện có
+            document.querySelectorAll('.price-input').forEach(handlePriceInput);
             const dropArea = document.getElementById('drop-area');
             const input = document.getElementById('myFile');
             const gallery = document.getElementById('gallery');
@@ -282,7 +344,25 @@
                         img.style.objectFit = 'cover';
                         img.style.border = '1px solid #eee';
                         img.style.borderRadius = '4px';
+                        
+                        // Thêm nút xóa ảnh
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'btn btn-danger btn-sm btn-remove-image';
+                        removeBtn.innerHTML = '×';
+                        removeBtn.style.cssText = 'position:absolute;top:2px;right:2px;padding:2px 6px;line-height:1;font-size:14px;';
+                        removeBtn.onclick = function() {
+                            div.remove();
+                            // Xóa file khỏi filesArray
+                            const index = filesArray.indexOf(file);
+                            if (index > -1) {
+                                filesArray.splice(index, 1);
+                                updateInputFiles();
+                            }
+                        };
+                        
                         div.appendChild(img);
+                        div.appendChild(removeBtn);
                         gallery.appendChild(div);
                     };
                     reader.readAsDataURL(file);
@@ -301,14 +381,28 @@
                 `variants[${variantIndex}]`);
                 variantDiv.innerHTML = `
                 ${selects}
-                <input type="text" name="variants[${variantIndex}][name_variant]" placeholder="Tên biến thể" style="width:28%;">
-                <input type="text" name="variants[${variantIndex}][size]" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:200px;">
-                <input type="number" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch" step="0.01" style="width: 150px;">
-                <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
+                <div style="width:28%;">
+                    <input type="text" name="variants[${variantIndex}][name_variant]" placeholder="Tên biến thể" style="width:100%;">
+                </div>
+                <div style="width:200px;">
+                    <input type="text" name="variants[${variantIndex}][size]" placeholder="Kích thước (ví dụ: 120x60x75 cm)" style="width:100%;">
+                </div>
+                <div style="width: 150px;">
+                    <input type="text" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch (ví dụ: 50,000)" class="price-input" style="width:100%;">
+                </div>
+                <div style="width: 100px;">
+                    <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width:100%;">
+                </div>
                 <input type="file" name="variants[${variantIndex}][new_image]" accept="image/*" style="width:180px;">
                 <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 50px; height: 50px;">×</button> <br>
             `;
                 variantList.appendChild(variantDiv);
+
+                // Áp dụng format cho input giá chênh lệch mới
+                const priceModifierInput = variantDiv.querySelector('input[name*="[price_modifier]"]');
+                if (priceModifierInput) {
+                    handlePriceInput(priceModifierInput);
+                }
 
                 variantDiv.querySelector('.remove-variant').onclick = function() {
                     variantDiv.remove();

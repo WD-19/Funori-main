@@ -29,6 +29,7 @@ class ProfileController
 
     $ordersQuery = $user->orders()->latest(); // orderBy created_at DESC
 
+    // Lọc theo trạng thái đơn hàng
     if ($status !== 'all') {
         $ordersQuery->where('order_status', $status);
     }
@@ -366,16 +367,60 @@ class ProfileController
     public function vouchers()
     {
         $user = Auth::user();
-        // Lấy các promotion còn hiệu lực, có thể lọc theo user nếu cần
-        $vouchers = Promotion::where('is_active', 1)
-            ->where(function($q){
-                $q->whereNull('end_date')->orWhere('end_date', '>=', now());
-            })
+
+        // Lấy tất cả các voucher có thể có (cả hết hạn) để hiển thị trạng thái
+        $vouchers = Promotion::with('brands', 'categories')
+            ->where('is_active', 1)
             ->get();
-        return view('client.profile.voucher', compact('vouchers'));
+
+        // Lấy ID của các voucher mà người dùng đã sử dụng
+        $usedVoucherIds = $user->orders()->whereHas('promotions')->with('promotions')->get()
+            ->flatMap(function ($order) {
+                return $order->promotions->pluck('id');
+            })
+            ->unique()
+            ->toArray();
+
+        return view('client.profile.voucher', compact('vouchers', 'usedVoucherIds'));
     }
 
-   
+    /**
+     * JSON tracking data for client order detail page (client and admin can access)
+     */
+    public function getOrderTracking($orderId)
+    {
+        $user = Auth::user();
+        $query = Order::with(['shipper:id,name,current_lat,current_lng,location_updated_at'])
+            ->where('id', $orderId);
+
+        // Allow admin to view any order; otherwise restrict to owner
+        if (!($user && property_exists($user, 'role') && $user->role === 'admin')) {
+            $query->where('user_id', $user?->id);
+        }
+
+        $order = $query->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'order_status' => $order->order_status,
+                'received_at' => $order->received_at,
+                'in_delivery_at' => $order->in_delivery_at,
+                'delivered_at' => $order->delivered_at,
+                'failed_at' => $order->failed_at,
+                'delivery_lat' => $order->delivery_lat,
+                'delivery_lng' => $order->delivery_lng,
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+                'shipper' => $order->shipper ? [
+                    'name' => $order->shipper->name,
+                    'lat' => $order->shipper->current_lat,
+                    'lng' => $order->shipper->current_lng,
+                    'updated_at' => $order->shipper->location_updated_at,
+                ] : null,
+            ]
+        ]);
+    }
 
     public function ajaxOrderList(Request $request)
 {
