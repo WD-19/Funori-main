@@ -316,12 +316,11 @@
                             <input type="text" name="variants[${variantIndex}][price_modifier]" placeholder="Giá chênh lệch (ví dụ: 50,000)" class="price-input" style="width: 150px;">
                             <input type="number" name="variants[${variantIndex}][stock_quantity]" placeholder="Kho" min="0" style="width: 100px;">
                             <div class="variant-image-upload">
-                                <label>
+                                <div class="upload-area">
                                     <span class="icon"><i class="icon-upload-cloud"></i></span>
                                     <span class="text-tiny">Chọn ảnh biến thể</span>
-                                    <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="display:none;">
-                                </label>
-                                <div class="variant-image-preview"></div>
+                                    <input type="file" name="variants[${variantIndex}][image]" accept="image/*" class="file-input">
+                                </div>
                             </div>
                             <button type="button" class="remove-variant tf-button style-3" style="padding:0 8px; width: 30px; height: 30px;">&times;</button>
                         `;
@@ -333,44 +332,30 @@
                     handlePriceInput(priceModifierInput);
                 }
 
+                // Xử lý preview ảnh đơn giản
                 const imageInput = variantDiv.querySelector('input[type="file"]');
-                const previewDiv = variantDiv.querySelector('.variant-image-preview');
+                const uploadArea = variantDiv.querySelector('.upload-area');
                 
-                // Function để xử lý thay đổi ảnh
-                function handleVariantImageChange(input, label, variantIndex) {
-                    if (input.files && input.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            label.innerHTML = `
-                                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                                    <img src="${e.target.result}" style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 4px;">
-                                    <button type="button" class="btn btn-danger btn-sm btn-remove-image" style="position:absolute;top:2px;right:2px;padding:2px 6px;line-height:1;font-size:14px;">×</button>
-                                </div>
-                            `;
-                            
-                            // Thêm event listener cho nút xóa ảnh
-                            const removeBtn = label.querySelector('.btn-remove-image');
-                            removeBtn.onclick = function() {
-                                input.value = '';
-                                label.innerHTML = `
-                                    <span class="icon"><i class="icon-upload-cloud"></i></span>
-                                    <span class="text-tiny">Chọn ảnh biến thể</span>
-                                    <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="display:none;">
-                                `;
-                                // Thêm lại event listener cho input mới
-                                const newInput = label.querySelector('input[type="file"]');
-                                newInput.addEventListener('change', function() {
-                                    handleVariantImageChange(this, label, variantIndex);
-                                });
-                            };
-                        };
-                        reader.readAsDataURL(input.files[0]);
-                    }
-                }
-
                 imageInput.addEventListener('change', function() {
-                    const label = variantDiv.querySelector('.variant-image-upload label');
-                    handleVariantImageChange(this, label, variantIndex);
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Tạo preview element mà không thay đổi HTML structure
+                            let previewDiv = uploadArea.querySelector('.image-preview');
+                            if (!previewDiv) {
+                                previewDiv = document.createElement('div');
+                                previewDiv.className = 'image-preview';
+                                previewDiv.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;';
+                                uploadArea.appendChild(previewDiv);
+                            }
+                            
+                            previewDiv.innerHTML = `
+                                <img src="${e.target.result}" style="width:100%;height:100%;object-fit:contain;border-radius:8px;">
+                                <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.7);color:white;padding:2px 6px;border-radius:3px;font-size:10px;">✓</div>
+                            `;
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
                 });
 
                 variantDiv.querySelector('.remove-variant').onclick = function () {
@@ -409,7 +394,7 @@
             width: 180px;
         }
 
-        .variant-image-upload label {
+        .variant-image-upload .upload-area {
             cursor: pointer;
             display: block;
             border: 2px dashed #e0e0e0;
@@ -419,12 +404,64 @@
             background: #f8f9fa;
             width: 100%;
             transition: all 0.3s ease;
-            margin-bottom: 8px;
+            position: relative;
         }
 
-        .variant-image-upload label:hover {
+        .variant-image-upload .upload-area:hover {
             border-color: #007bff;
             background: #e3f2fd;
+        }
+
+        .variant-image-upload .existing-image-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #e0e0e0;
+        }
+
+        .variant-image-upload .existing-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .variant-image-upload .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .variant-image-upload .existing-image-container:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .variant-image-upload .change-text {
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .variant-image-upload .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
 
         .variant-image-upload .icon {
@@ -438,10 +475,6 @@
             font-size: 12px;
             color: #6c757d;
             font-weight: 500;
-        }
-
-        .variant-image-preview {
-            display: none;
         }
 
 
