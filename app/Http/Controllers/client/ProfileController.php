@@ -115,7 +115,7 @@ class ProfileController
             'receiver_name' => ['required', 'string', 'min:5'],
             'receiver_phone' => ['required', 'regex:/^0\d{9}$/'],
             'province' => 'required|string',
-            'district' => 'required|string',
+            // 'district' => 'required|string',
             'ward' => 'required|string',
             'street_address' => ['required', 'string'],
         ], [
@@ -125,7 +125,7 @@ class ProfileController
             'receiver_phone.regex' => 'Số điện thoại phải gồm 10 số và bắt đầu bằng số 0.',
             'street_address.required' => 'Vui lòng nhập địa chỉ cụ thể.',
             'province.required' => 'Vui lòng chọn Tỉnh/Thành phố.',
-            'district.required' => 'Vui lòng chọn Quận/Huyện.',
+            // 'district.required' => 'Vui lòng chọn Quận/Huyện.',
             'ward.required' => 'Vui lòng chọn Phường/Xã.',
             'street_address.required' => 'Vui lòng nhập địa chỉ cụ thể.',
         ]);

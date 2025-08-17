@@ -14,66 +14,68 @@
                 </button>
             </div>
             <div class="address-form-wrapper card-style" style="display:none;" id="formnewAddressWrapper">
-                <form class="address-form" id="formnewAddress" action="{{ route('client.profile.address.store') }}" method="POST">
-                    @csrf
-                    <div class="form-title text-center mb-4">
-                        <i class="bx bx-map-pin" style="color:#ff3029;font-size:2em;"></i>
-                        <span style="font-size:1.3em;font-weight:700;color:#222;">Thông tin địa chỉ mới</span>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <input type="text" class="form-control" id="receiver_name" name="receiver_name" value="{{ old('receiver_name') }}" placeholder="Họ và tên" required>
-                                <label for="receiver_name">Họ và tên</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <input type="text" class="form-control" id="receiver_phone" name="receiver_phone" value="{{ old('receiver_phone') }}" placeholder="Số điện thoại" required>
-                                <label for="receiver_phone">Số điện thoại</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                <select class="form-control" id="add_province_disabled" name="province_disabled" disabled>
-                                    <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
-                                </select>
-                                <input type="hidden" name="province" value="Thành phố Hà Nội">
-                                <label for="add_province_disabled">Tỉnh/Thành phố</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                <select class="form-control" id="add_district" name="district" required>
-                                    <option value="">-- Chọn --</option>
-                                </select>
-                                <label for="add_district">Quận/Huyện</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                <select class="form-control" id="add_ward" name="ward" required>
-                                    <option value="">-- Phường/Xã --</option>
-                                </select>
-                                <label for="add_ward">Phường/Xã</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-floating mt-3">
-                        <input type="text" class="form-control" id="street_address" name="street_address" value="{{ old('street_address') }}" placeholder="Địa chỉ cụ thể" required>
-                        <label for="street_address">Địa chỉ cụ thể</label>
-                    </div>
-                    <div class="form-check mt-3 text-start">
-                        <input class="form-check-input" type="checkbox" id="check-new-address" name="is_default" value="1" {{ old('is_default') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="check-new-address">Đặt làm địa chỉ mặc định</label>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-center gap-3 mt-4">
-                        <button type="submit" class="tf-btn btn-main">Lưu địa chỉ</button>
-                        <span class="tf-btn btn-light" id="btnHideAddAddress" style="cursor:pointer">Hủy</span>
-                    </div>
-                </form>
+              <form class="address-form" id="formnewAddress" action="{{ route('client.profile.address.store') }}" method="POST">
+    @csrf
+    <div class="form-title text-center mb-4">
+        <i class="bx bx-map-pin" style="color:#ff3029;font-size:2em;"></i>
+        <span style="font-size:1.3em;font-weight:700;color:#222;">Thông tin địa chỉ mới</span>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="receiver_name" name="receiver_name"
+                    value="{{ old('receiver_name') }}" placeholder="Họ và tên" required>
+                <label for="receiver_name">Họ và tên</label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="receiver_phone" name="receiver_phone"
+                    value="{{ old('receiver_phone') }}" placeholder="Số điện thoại" required>
+                <label for="receiver_phone">Số điện thoại</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-2">
+        <div class="col-md-4">
+            <div class="form-floating">
+                <select class="form-control" id="add_province_disabled" name="province_disabled" disabled>
+                    <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
+                </select>
+                <input type="hidden" name="province" value="Thành phố Hà Nội">
+                <label for="add_province_disabled">Tỉnh/Thành phố</label>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="form-floating">
+                <select class="form-control" id="add_ward" name="ward" required>
+                    <option value="">-- Chọn phường/xã --</option>
+                </select>
+                <label for="add_ward">Phường/Xã</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-floating mt-3">
+        <input type="text" class="form-control" id="street_address" name="street_address"
+            value="{{ old('street_address') }}" placeholder="Địa chỉ cụ thể" required>
+        <label for="street_address">Địa chỉ cụ thể</label>
+    </div>
+
+    <div class="form-check mt-3 text-start">
+        <input class="form-check-input" type="checkbox" id="check-new-address" name="is_default" value="1"
+            {{ old('is_default') ? 'checked' : '' }}>
+        <label class="form-check-label" for="check-new-address">Đặt làm địa chỉ mặc định</label>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-center gap-3 mt-4">
+        <button type="submit" class="tf-btn btn-main">Lưu địa chỉ</button>
+        <span class="tf-btn btn-light" id="btnHideAddAddress" style="cursor:pointer">Hủy</span>
+    </div>
+</form>
+
             </div>
 
             <div class="list-account-address">
@@ -159,14 +161,14 @@
                             <label class="tf-field-label fw-4 text_black-2">Tỉnh/Thành phố</label>
                         </div>
                     </div>
-                    <div class="box-field w-100">
+                    {{-- <div class="box-field w-100">
                         <div class="tf-field style-1">
                             <select class="tf-field-input tf-input" name="district" id="edit_district" required>
                                 <option value="">-- Quận/Huyện --</option>
                             </select>
                             <label class="tf-field-label fw-4 text_black-2">Quận/Huyện</label>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="box-field w-100">
                         <div class="tf-field style-1">
                             <select class="tf-field-input tf-input" name="ward" id="edit_ward" required>
@@ -203,101 +205,72 @@
             document.getElementById('btnShowAddAddress').style.display = 'inline-block';
         };
     </script>
-    <script>
-        // Hàm render dữ liệu cho select
-        function renderData(array, selectId) {
-            let selectElement = document.getElementById(selectId);
-            selectElement.innerHTML = '<option value="">-- Chọn --</option>';
-            array.forEach(element => {
-                let option = document.createElement('option');
-                option.value = element.name;
-                option.textContent = element.name;
-                option.dataset.code = element.code;
-                selectElement.appendChild(option);
-            });
-        }
+   <script>
+    // Hàm render dữ liệu cho select
+    function renderWardData(wardsArray, selectId) {
+        let selectElement = document.getElementById(selectId);
+        selectElement.innerHTML = '<option value="">-- Chọn phường/xã --</option>';
+        wardsArray.forEach(element => {
+            let option = document.createElement('option');
+            option.value = element.tenphuongxa;
+            option.textContent = element.tenphuongxa;
+            selectElement.appendChild(option);
+        });
+    }
 
-        // Hàm lấy danh sách phường/xã theo quận/huyện
-        function getWardsByDistrict(districtCode) {
-            return fetch('/data/hanoi-districts.json')
-                .then(response => response.json())
-                .then(data => {
-                    const district = data.districts.find(d => d.code === districtCode);
-                    return district ? district.wards : [];
-                });
-        }
+    // Tải danh sách phường/xã cho cả form THÊM MỚI và CẬP NHẬT
+    fetch('/data/hanoi-districts.json')
+        .then(response => response.json())
+        .then(data => {
+            const hanoi = data.find(item => item.tentinhmoi === 'Thành phố Hà Nội');
+            const wards = hanoi?.phuongxa || [];
 
-        // Tải quận/huyện cho form THÊM MỚI khi trang load
-        fetch('/data/hanoi-districts.json')
-            .then(response => response.json())
-            .then(data => {
-                renderData(data.districts, "add_district");
-            });
-
-        // Khi chọn quận/huyện -> tải phường/xã cho form THÊM MỚI
-        document.getElementById('add_district').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.dataset.code) {
-                getWardsByDistrict(selectedOption.dataset.code)
-                    .then(wards => {
-                        renderData(wards, "add_ward");
-                    });
-            } else {
-                document.getElementById('add_ward').innerHTML = '<option value="">-- Phường/Xã --</option>';
-            }
+            // Render cho cả hai form
+            renderWardData(wards, "add_ward");
+            renderWardData(wards, "edit_ward");
+        })
+        .catch(error => {
+            console.error("Lỗi khi tải dữ liệu phường/xã:", error);
         });
 
-        // Khi chọn quận/huyện -> tải phường/xã cho form CẬP NHẬT
-        document.getElementById('edit_district').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.dataset.code) {
-                getWardsByDistrict(selectedOption.dataset.code)
-                    .then(wards => {
-                        renderData(wards, "edit_ward");
-                    });
-            } else {
-                document.getElementById('edit_ward').innerHTML = '<option value="">-- Phường/Xã --</option>';
-            }
+    // Xử lý form thêm địa chỉ
+    document.getElementById('formnewAddress').onsubmit = async function(e) {
+        e.preventDefault();
+        let form = this;
+        let data = new FormData(form);
+
+        // Xóa thông báo lỗi cũ
+        let alertDiv = document.querySelector('.alert.alert-danger');
+        if (alertDiv) alertDiv.remove();
+
+        // Gửi AJAX
+        let response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Accept': 'application/json'
+            },
+            body: data
         });
 
-        document.getElementById('formnewAddress').onsubmit = async function(e) {
-            e.preventDefault();
-            let form = this;
-            let data = new FormData(form);
-
-            // Xóa thông báo lỗi cũ
-            let alertDiv = document.querySelector('.alert.alert-danger');
-            if (alertDiv) alertDiv.remove();
-
-            // Gửi AJAX
-            let response = await fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                    'Accept': 'application/json'
-                },
-                body: data
-            });
-
-            if (response.status === 422) {
-                let result = await response.json();
-                // Hiển thị lỗi
-                let errorHtml = '<div class="alert alert-danger"><ul>';
-                Object.values(result.errors).forEach(function(msgArr) {
-                    msgArr.forEach(function(msg) {
-                        errorHtml += '<li>' + msg + '</li>';
-                    });
+        if (response.status === 422) {
+            let result = await response.json();
+            // Hiển thị lỗi
+            let errorHtml = '<div class="alert alert-danger"><ul>';
+            Object.values(result.errors).forEach(function(msgArr) {
+                msgArr.forEach(function(msg) {
+                    errorHtml += '<li>' + msg + '</li>';
                 });
-                errorHtml += '</ul></div>';
-                form.insertAdjacentHTML('beforebegin', errorHtml);
-                // Giữ lại dữ liệu đã nhập (không cần làm gì thêm, input vẫn giữ nguyên)
-            } else if (response.ok) {
-                // Thành công, có thể reset form, ẩn form, hiện lại danh sách, v.v.
-                alert('Thêm địa chỉ thành công!');
-                location.reload();
-            }
-        };
-    </script>
+            });
+            errorHtml += '</ul></div>';
+            form.insertAdjacentHTML('beforebegin', errorHtml);
+        } else if (response.ok) {
+            alert('Thêm địa chỉ thành công!');
+            location.reload();
+        }
+    };
+</script>
+
     <script>
         document.querySelectorAll('.delete-address-form').forEach(form => {
             form.onsubmit = async function(e) {
