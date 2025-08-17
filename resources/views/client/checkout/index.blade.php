@@ -178,8 +178,8 @@
                                             data-phone="{{ $address->receiver_phone ?? '' }}"
                                             data-email="{{ auth()->user()->email ?? '' }}"
                                             data-address="{{ $address->street_address ?? '' }}"
-                                            data-province="{{ $address->province ?? '' }}"
-                                            data-district="{{ $address->district ?? '' }}"
+                                            {{-- data-province="{{ $address->province ?? '' }}"
+                                            data-district="{{ $address->district ?? '' }}" --}}
                                             data-ward="{{ $address->ward ?? '' }}">
                                             {{ $address->receiver_name }} - {{ $address->street_address }}
                                         </option>
@@ -214,12 +214,6 @@
                                     <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
                                 </select>
                                 <input type="hidden" name="buyer_province" value="Thành phố Hà Nội">
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label for="buyer_district">Quận/Huyện <span class="text-danger">*</span></label>
-                                <select class="form-control" id="buyer_district" name="buyer_district" required>
-                                    <option value="">-- Vui lòng chọn --</option>
-                                </select>
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="buyer_ward">Phường/Xã <span class="text-danger">*</span></label>
@@ -275,12 +269,7 @@
                                     </select>
                                     <input type="hidden" name="shipping_province" value="Thành phố Hà Nội">
                                 </div>
-                                <div class="col-md-4 form-group">
-                                    <label for="shipping_district">Quận/Huyện <span class="text-danger">*</span></label>
-                                    <select class="form-control" id="shipping_district" name="shipping_district">
-                                        <option value="">-- Vui lòng chọn --</option>
-                                    </select>
-                                </div>
+                              
                                 <div class="col-md-4 form-group">
                                     <label for="shipping_ward">Phường/Xã <span class="text-danger">*</span></label>
                                     <select class="form-control" id="shipping_ward" name="shipping_ward">
@@ -364,9 +353,6 @@
                                     {{ number_format($cart['total'] - ($cart['discount'] ?? 0), 0, ',', '.') }}đ
                                 </span>
                             </div>
-
-                          
-
                             <button type="submit"
                                 class="tf-btn w-100 btn-fill animate-hover-btn radius-3 justify-content-center mt-4">
                                 <span>Hoàn tất đơn hàng</span>
@@ -381,221 +367,140 @@
     <!-- JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            let districtsData = [];
+    document.addEventListener('DOMContentLoaded', async function () {
+        let wardsData = [];
 
-            var getDistricts = async () => {
-                try {
-                    const response = await axios.get('/data/hanoi-districts.json');
-                    return response.data.districts;
-                } catch (error) {
-                    console.error("Lỗi khi tải danh sách quận/huyện:", error);
-                    return [];
-                }
+        // Lấy danh sách phường/xã từ file JSON
+        const getWardsFromFile = async () => {
+            try {
+                const response = await axios.get('/data/hanoi-districts.json');
+                const hanoiData = response.data.find(t => t.tentinhmoi === 'Thành phố Hà Nội');
+                return hanoiData ? hanoiData.phuongxa : [];
+            } catch (error) {
+                console.error("Lỗi khi tải danh sách phường/xã:", error);
+                return [];
             }
+        }
 
-            var getWards = (districtCode) => {
-                const district = districtsData.find(d => d.code === districtCode);
-                return district ? district.wards : [];
-            }
-
-            var renderData = (array, selectId) => {
-                let row = '<option value="">-- Chọn --</option>';
-                if (Array.isArray(array)) {
-                    array.forEach(element => {
-                        row += `<option data-code="${element.code}" value="${element.name}">${element.name}</option>`;
-                    });
-                }
-                const selectElement = document.getElementById(selectId);
-                if (selectElement) {
-                    selectElement.innerHTML = row;
-                }
-            }
-
-            const buyerDistrictSelect = document.getElementById('buyer_district');
-            const buyerWardSelect = document.getElementById('buyer_ward');
-            const shippingDistrictSelect = document.getElementById('shipping_district');
-            const shippingWardSelect = document.getElementById('shipping_ward');
-            const shipToDifferentAddressCheckbox = document.getElementById('ship_to_different_address');
-            const shippingInfoSection = document.getElementById('shipping_info');
-
-            // Hàm khởi tạo địa chỉ cho người dùng đã đăng nhập
-            async function initializeUserAddress() {
-                const userDistrict = `{{ auth()->check() ? auth()->user()->district : '' }}`;
-                const userWard = `{{ auth()->check() ? auth()->user()->ward : '' }}`;
-
-                try {
-                    // Render quận/huyện cho cả hai form từ dữ liệu đã load
-                    renderData(districtsData, "buyer_district");
-                    renderData(districtsData, "shipping_district");
-
-                    // Nếu người dùng có quận đã lưu, chọn nó
-                    if (userDistrict) {
-                        buyerDistrictSelect.value = userDistrict;
-
-                        // Lấy mã quận để tải phường/xã
-                        const selectedOption = Array.from(buyerDistrictSelect.options)
-                            .find(option => option.value === userDistrict);
-                        
-                        if (selectedOption && selectedOption.dataset.code) {
-                            const wards = getWards(selectedOption.dataset.code);
-                            renderData(wards, "buyer_ward");
-
-                            // Nếu người dùng có phường đã lưu, chọn nó
-                            if (userWard) {
-                                buyerWardSelect.value = userWard;
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error("Lỗi khi tải địa chỉ:", error);
-                }
-            }
-
-            // Tải dữ liệu quận/huyện từ file JSON và lưu vào biến toàn cục
-            districtsData = await getDistricts();
-
-            // Chạy hàm khởi tạo nếu người dùng đã đăng nhập, ngược lại chỉ tải quận/huyện
-            if (`{{ auth()->check() }}`) {
-                initializeUserAddress();
-            } else {
-                renderData(districtsData, "buyer_district");
-                renderData(districtsData, "shipping_district");
-            }
-
-            // Khi chọn quận/huyện -> tải phường/xã cho buyer
-            buyerDistrictSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                if (selectedOption && selectedOption.dataset.code) {
-                    const wards = getWards(selectedOption.dataset.code);
-                    renderData(wards, "buyer_ward");
-                } else {
-                    buyerWardSelect.innerHTML = '<option value="">-- Chọn --</option>';
-                }
+        // Render phường/xã ra dropdown
+        const renderWards = (array, selectId) => {
+            let options = '<option value="">-- Chọn phường/xã --</option>';
+            array.forEach(item => {
+                options += `<option data-code="${item.maphuongxa}" value="${item.tenphuongxa}">${item.tenphuongxa}</option>`;
             });
+            document.getElementById(selectId).innerHTML = options;
+        }
 
-            // Khi chọn quận/huyện -> tải phường/xã cho shipping
-            shippingDistrictSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                if (selectedOption && selectedOption.dataset.code) {
-                    const wards = getWards(selectedOption.dataset.code);
-                    renderData(wards, "shipping_ward");
-                } else {
-                    shippingWardSelect.innerHTML = '<option value="">-- Chọn --</option>';
+        const buyerWardSelect = document.getElementById('buyer_ward');
+        const shippingWardSelect = document.getElementById('shipping_ward');
+        const shipToDifferentAddressCheckbox = document.getElementById('ship_to_different_address');
+        const shippingInfoSection = document.getElementById('shipping_info');
+
+        // Hàm khởi tạo địa chỉ nếu đã đăng nhập
+        async function initializeUserAddress() {
+            const userWard = `{{ auth()->check() ? auth()->user()->ward : '' }}`;
+
+            try {
+                renderWards(wardsData, "buyer_ward");
+                renderWards(wardsData, "shipping_ward");
+
+                if (userWard) {
+                    buyerWardSelect.value = userWard;
                 }
-            });
-
-            // Toggle shipping form visibility
-            shipToDifferentAddressCheckbox.addEventListener('change', function() {
-                shippingInfoSection.style.display = this.checked ? 'block' : 'none';
-                // Update required attributes based on checkbox state
-                const shippingFields = ['shipping_name', 'shipping_email', 'shipping_phone',
-                    'shipping_address', 'shipping_district', 'shipping_ward'
-                ];
-                shippingFields.forEach(field => {
-                    const input = document.getElementById(field);
-                    if (input) input.required = this.checked;
-                });
-            });
-
-            // Shipping fee calculation
-            const shippingSelect = document.querySelector('select[name="shipping_method_id"]');
-            const shippingFeeDisplay = document.getElementById('shipping-fee-display');
-            const grandTotalDisplay = document.getElementById('grand-total-display');
-            const subtotal = {{ $cart['total'] }};
-            let currentDiscount = {{ $cart['discount'] ?? 0 }};
-            
-
-            
-            function updateGrandTotal() {
-                const selectedOption = shippingSelect.options[shippingSelect.selectedIndex];
-                const cost = parseFloat(selectedOption.dataset.cost) || 0;
-                const grandTotal = subtotal + cost - currentDiscount;
-                shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
-                grandTotalDisplay.textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
-                
-                // Cập nhật hiển thị discount row
-                const discountRow = document.getElementById('discount-row');
-                const discountAmount = document.getElementById('discount-amount');
-                const discountCodeText = document.getElementById('discount-code-text');
-                if (discountRow && discountAmount) {
-                    if (currentDiscount > 0) {
-                        discountRow.style.display = 'flex';
-                        discountAmount.textContent = '-' + currentDiscount.toLocaleString('vi-VN') + 'đ';
-                        // Cập nhật discount code text nếu có
-                        if (discountCodeText) {
-                            const discountCode = '{{ $cart['discount_code'] ?? '' }}';
-                            discountCodeText.textContent = discountCode ? ' (' + discountCode + ')' : '';
-                        }
-                    } else {
-                        discountRow.style.display = 'none';
-                    }
-                }
+            } catch (error) {
+                console.error("Lỗi khi tải địa chỉ:", error);
             }
-            
-            // Khởi tạo giá trị ban đầu
-            updateGrandTotal();
-            
-            shippingSelect.addEventListener('change', updateGrandTotal);
+        }
 
+        // Load dữ liệu phường/xã
+        wardsData = await getWardsFromFile();
 
+        // Nếu có user đăng nhập → khởi tạo địa chỉ, không thì render mặc định
+        if (`{{ auth()->check() }}`) {
+            await initializeUserAddress();
+        } else {
+            renderWards(wardsData, "buyer_ward");
+            renderWards(wardsData, "shipping_ward");
+        }
 
-            // Handle saved address selection
-            const savedAddressSelect = document.getElementById('saved_address');
-            if (savedAddressSelect) {
-                savedAddressSelect.addEventListener('change', async function() {
-                    const selectedOption = this.options[this.selectedIndex];
+        // Toggle phần địa chỉ giao hàng khác
+        shipToDifferentAddressCheckbox?.addEventListener('change', function () {
+            shippingInfoSection.style.display = this.checked ? 'block' : 'none';
 
-                    // Lấy các element của form NGƯỜI MUA
-                    const buyerNameInput = document.getElementById('buyer_name');
-                    const buyerPhoneInput = document.getElementById('buyer_phone');
-                    const buyerEmailInput = document.getElementById('buyer_email');
-                    const buyerAddressInput = document.getElementById('buyer_address');
-                    const buyerDistrictSelect = document.getElementById('buyer_district');
-                    const buyerWardSelect = document.getElementById('buyer_ward');
-
-                    if (!selectedOption.value) {
-                        // Nếu chọn "-- Nhập địa chỉ mới --", khôi phục thông tin người dùng mặc định
-                        buyerNameInput.value =
-                            '{{ old('buyer_name', auth()->user()->full_name ?? '') }}';
-                        buyerPhoneInput.value =
-                            '{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}';
-                        buyerEmailInput.value =
-                            '{{ old('buyer_email', auth()->user()->email ?? '') }}';
-                        buyerAddressInput.value =
-                            '{{ old('buyer_address', auth()->user()->address ?? '') }}';
-                        // Gọi lại hàm khởi tạo để chọn lại địa chỉ mặc định của user nếu có
-                        await initializeUserAddress();
-                        return;
-                    }
-
-                    // Điền thông tin từ địa chỉ đã lưu vào form NGƯỜI MUA
-                    buyerNameInput.value = selectedOption.dataset.name;
-                    buyerPhoneInput.value = selectedOption.dataset.phone;
-                    buyerEmailInput.value = selectedOption.dataset.email;
-                    buyerAddressInput.value = selectedOption.dataset.address;
-
-                    // Lấy và tự động chọn Tỉnh/Huyện/Xã cho form NGƯỜI MUA
-                    const selectedDistrict = selectedOption.dataset.district;
-                    const selectedWard = selectedOption.dataset.ward;
-
-                    // Chọn đúng quận/huyện
-                    buyerDistrictSelect.value = selectedDistrict;
-
-                    // Tải danh sách phường/xã tương ứng và chọn đúng phường/xã
-                    const districtCode = Array.from(buyerDistrictSelect.options).find(opt => opt
-                        .value === selectedDistrict)?.dataset.code;
-                    if (districtCode) {
-                        const wardResponse = await callApiWard(host + "d/" + districtCode + "?depth=2");
-                        renderData(wardResponse.data.wards, "buyer_ward");
-                        buyerWardSelect.value = selectedWard;
-                    } else {
-                        buyerWardSelect.innerHTML = '<option value="">-- Chọn --</option>';
-                    }
-                });
-            }
+            const shippingFields = ['shipping_name', 'shipping_email', 'shipping_phone',
+                'shipping_address', 'shipping_ward'
+            ];
+            shippingFields.forEach(field => {
+                const input = document.getElementById(field);
+                if (input) input.required = this.checked;
+            });
         });
 
-        
-    </script>
+        // Tính phí vận chuyển
+        const shippingSelect = document.querySelector('select[name="shipping_method_id"]');
+        const shippingFeeDisplay = document.getElementById('shipping-fee-display');
+        const grandTotalDisplay = document.getElementById('grand-total-display');
+        const subtotal = {{ $cart['total'] }};
+        let currentDiscount = {{ $cart['discount'] ?? 0 }};
+
+        function updateGrandTotal() {
+            const selectedOption = shippingSelect.options[shippingSelect.selectedIndex];
+            const cost = parseFloat(selectedOption.dataset.cost) || 0;
+            const grandTotal = subtotal + cost - currentDiscount;
+            shippingFeeDisplay.textContent = cost.toLocaleString('vi-VN') + 'đ';
+            grandTotalDisplay.textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
+
+            const discountRow = document.getElementById('discount-row');
+            const discountAmount = document.getElementById('discount-amount');
+            const discountCodeText = document.getElementById('discount-code-text');
+            if (discountRow && discountAmount) {
+                if (currentDiscount > 0) {
+                    discountRow.style.display = 'flex';
+                    discountAmount.textContent = '-' + currentDiscount.toLocaleString('vi-VN') + 'đ';
+                    if (discountCodeText) {
+                        const discountCode = '{{ $cart['discount_code'] ?? '' }}';
+                        discountCodeText.textContent = discountCode ? ' (' + discountCode + ')' : '';
+                    }
+                } else {
+                    discountRow.style.display = 'none';
+                }
+            }
+        }
+
+        updateGrandTotal();
+        shippingSelect?.addEventListener('change', updateGrandTotal);
+
+        // Xử lý chọn địa chỉ đã lưu
+        const savedAddressSelect = document.getElementById('saved_address');
+        if (savedAddressSelect) {
+            savedAddressSelect.addEventListener('change', async function () {
+                const selectedOption = this.options[this.selectedIndex];
+
+                const buyerNameInput = document.getElementById('buyer_name');
+                const buyerPhoneInput = document.getElementById('buyer_phone');
+                const buyerEmailInput = document.getElementById('buyer_email');
+                const buyerAddressInput = document.getElementById('buyer_address');
+                const buyerWardSelect = document.getElementById('buyer_ward');
+
+                if (!selectedOption.value) {
+                    buyerNameInput.value = '{{ old('buyer_name', auth()->user()->full_name ?? '') }}';
+                    buyerPhoneInput.value = '{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}';
+                    buyerEmailInput.value = '{{ old('buyer_email', auth()->user()->email ?? '') }}';
+                    buyerAddressInput.value = '{{ old('buyer_address', auth()->user()->address ?? '') }}';
+                    await initializeUserAddress();
+                    return;
+                }
+
+                buyerNameInput.value = selectedOption.dataset.name;
+                buyerPhoneInput.value = selectedOption.dataset.phone;
+                buyerEmailInput.value = selectedOption.dataset.email;
+                buyerAddressInput.value = selectedOption.dataset.address;
+
+                const selectedWard = selectedOption.dataset.ward;
+                buyerWardSelect.value = selectedWard;
+            });
+        }
+    });
+</script>
+
 @endsection

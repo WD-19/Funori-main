@@ -194,7 +194,7 @@ class CheckoutController
             'buyer_email'        => 'required|email|max:255',
             'buyer_address'      => 'required|string|max:255',
             'buyer_province'     => 'required|string',
-            'buyer_district'     => 'required|string',
+            // 'buyer_district'     => 'required|string',
             'buyer_ward'         => 'required|string',
 
             // Thông tin chung
@@ -212,7 +212,7 @@ class CheckoutController
                 'shipping_email'   => 'required|email|max:255',
                 'shipping_address' => 'required|string|max:255',
                 'shipping_province' => 'required|string',
-                'shipping_district' => 'required|string',
+                // 'shipping_district' => 'required|string',
                 'shipping_ward'    => 'required|string',
             ];
         }
@@ -229,7 +229,7 @@ class CheckoutController
             'buyer_email.required' => 'Vui lòng nhập email người mua.',
             'buyer_address.required' => 'Vui lòng nhập địa chỉ cụ thể của người mua.',
             'buyer_province.required' => 'Vui lòng chọn Tỉnh/Thành phố của người mua.',
-            'buyer_district.required' => 'Vui lòng chọn Quận/Huyện của người mua.',
+            // 'buyer_district.required' => 'Vui lòng chọn Quận/Huyện của người mua.',
             'buyer_ward.required' => 'Vui lòng chọn Phường/Xã của người mua.',
 
             // Shipping info
@@ -238,7 +238,7 @@ class CheckoutController
             'shipping_email.required' => 'Vui lòng nhập email người nhận.',
             'shipping_address.required' => 'Vui lòng nhập địa chỉ cụ thể của người nhận.',
             'shipping_province.required' => 'Vui lòng chọn Tỉnh/Thành phố của người nhận.',
-            'shipping_district.required' => 'Vui lòng chọn Quận/Huyện của người nhận.',
+            // 'shipping_district.required' => 'Vui lòng chọn Quận/Huyện của người nhận.',
             'shipping_ward.required' => 'Vui lòng chọn Phường/Xã của người nhận.',
 
             // Methods
@@ -288,7 +288,7 @@ class CheckoutController
         $fullBuyerAddress = implode(', ', array_filter([
             $validatedData['buyer_address'],
             $validatedData['buyer_ward'],
-            $validatedData['buyer_district'],
+            // $validatedData['buyer_district'],
             $validatedData['buyer_province'],
         ]));
 
@@ -300,7 +300,7 @@ class CheckoutController
             $fullShippingAddress = implode(', ', array_filter([
                 $validatedData['shipping_address'],
                 $validatedData['shipping_ward'],
-                $validatedData['shipping_district'],
+                // $validatedData['shipping_district'],
                 $validatedData['shipping_province'],
             ]));
         } else {
@@ -462,7 +462,7 @@ class CheckoutController
             $fullBuyerAddress = implode(', ', array_filter([
                 $validatedData['buyer_address'],
                 $validatedData['buyer_ward'],
-                $validatedData['buyer_district'],
+                // $validatedData['buyer_district'],
                 $validatedData['buyer_province'],
             ]));
 
@@ -474,7 +474,7 @@ class CheckoutController
                 $fullShippingAddress = implode(', ', array_filter([
                     $validatedData['shipping_address'],
                     $validatedData['shipping_ward'],
-                    $validatedData['shipping_district'],
+                    // $validatedData['shipping_district'],
                     $validatedData['shipping_province'],
                 ]));
             } else {
