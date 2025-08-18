@@ -215,6 +215,9 @@ class CartController
             }
         }
     
+        // Cập nhật số lần sử dụng voucher
+        $promotion->increment('times_used');
+        
         // Lưu thông tin khuyến mãi vào session
         // Lưu ý: discountAmount ở đây là cho các sản phẩm được chọn, không phải toàn bộ giỏ hàng
         Session::put('cart.discount', $discountAmount);
@@ -223,7 +226,7 @@ class CartController
         return response()->json([
             'success' => true,
             'message' => 'Mã giảm giá đã được áp dụng!',
-            'discount' => $discountAmount,
+            'discount' => (int) $discountAmount,
             'new_total' => $total - $discountAmount
         ]);
     }
@@ -637,6 +640,19 @@ class CartController
         return view('client.partials.mini-cart', [
             'cartItems' => $cartItems,
             'cartCount' => $cartCount
+        ])->render();
+    }
+
+    public function getVouchers()
+    {
+        // Lấy danh sách voucher khả dụng
+        $vouchers = \App\Models\Promotion::where('is_active', true)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->get();
+
+        return view('client.cart.partials.voucher_list', [
+            'vouchers' => $vouchers
         ])->render();
     }
 }

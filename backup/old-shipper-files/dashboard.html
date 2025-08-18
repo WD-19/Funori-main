@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipper App - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,.1);
+        }
+        .navbar-brand, .navbar-nav .nav-link {
+            color: white !important;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,.1);
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .order-card .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+        .status-badge {
+            font-size: 0.9em;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        .status-assigned { background-color: #6c757d; color: #fff; }
+        .status-received { background-color: #17a2b8; color: #fff; }
+        .status-in_delivery { background-color: #ffc107; color: #000; }
+        .status-delivered { background-color: #28a745; color: #fff; }
+        .status-failed { background-color: #dc3545; color: #fff; }
+        .btn-update {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        .btn-update:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+        .btn-update:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .container {
+            padding-top: 80px;
+        }
+        .delivery-notes {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .failure-reason {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .delivery-images {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .delivery-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shipping-fast me-2"></i>
+                Shipper App
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3" id="shipper-name">
+                    <i class="fas fa-user me-1"></i>
+                    Chào mừng!
+                </span>
+                <button class="btn btn-outline-light btn-sm" id="logout-btn">
+                    <i class="fas fa-sign-out-alt me-1"></i>
+                    Đăng Xuất
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Stats Row -->
+        <div class="row mb-4">
+            <div class="col-md-2 col-sm-6 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-boxes fa-2x mb-2"></i>
+                        <h4 id="total-orders">0</h4>
+                        <small>Tổng Đơn</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                        <h4 id="assigned-orders">0</h4>
+                        <small>Đã Phân Công</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-hand-holding-box fa-2x mb-2"></i>
+                        <h4 id="received-orders">0</h4>
+                        <small>Đã Nhận</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-truck fa-2x mb-2"></i>
+                        <h4 id="in-delivery-orders">0</h4>
+                        <small>Đang Giao</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <h4 id="delivered-orders">0</h4>
+                        <small>Thành Công</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                        <h4 id="failed-orders">0</h4>
+                        <small>Thất Bại</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5><i class="fas fa-list me-2"></i>Đơn Hàng Của Bạn</h5>
+                    <div class="d-flex gap-2">
+                        <select id="status-filter" class="form-select form-select-sm" style="width: auto;">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="assigned">Đã phân công</option>
+                            <option value="received">Đã nhận hàng</option>
+                            <option value="in_delivery">Đang giao</option>
+                            <option value="delivered">Đã giao</option>
+                            <option value="failed">Thất bại</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" id="refresh-btn">
+                            <i class="fas fa-sync-alt me-1"></i>
+                            Làm Mới
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders List -->
+        <div id="orders-container" class="row">
+            <!-- Orders will be loaded here -->
+        </div>
+        
+        <!-- Pagination -->
+        <div id="pagination" class="d-flex justify-content-center mt-4">
+            <!-- Pagination will be loaded here -->
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container">
+            <!-- Toasts will be added here -->
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-eye me-2"></i>Chi Tiết Đơn Hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailContent">
+                    <!-- Content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Update Modal -->
+    <div class="modal fade" id="quickUpdateModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Cập Nhật Nhanh</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="quickUpdateForm">
+                        <input type="hidden" id="quick-order-id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Trạng Thái Mới:</label>
+                            <select class="form-select" id="quick-status-select" required>
+                                <option value="">Chọn trạng thái...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="quick-notes-section" style="display: none;">
+                            <label class="form-label">Ghi Chú Giao Hàng:</label>
+                            <textarea class="form-control" id="quick-notes" rows="3" 
+                                      placeholder="Nhập ghi chú về việc giao hàng..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3" id="quick-reason-section" style="display: none;">
+                            <label class="form-label">Lý Do Thất Bại:</label>
+                            <textarea class="form-control" id="quick-reason" rows="3" 
+                                      placeholder="Nhập lý do giao hàng thất bại..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3" id="quick-images-section" style="display: none;">
+                            <label class="form-label">Ảnh Giao Hàng:</label>
+                            <input type="file" class="form-control" id="quick-images" multiple accept="image/*">
+                            <small class="text-muted">Chọn ảnh biên nhận, chữ ký, hoặc ảnh giao hàng</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirm-quick-update-btn">
+                        <i class="fas fa-check me-1"></i>Cập Nhật
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // API Configuration
+        const API_BASE_URL = window.location.origin + '/api/shipper-app';
+        
+        // DOM Elements
+        const ordersContainer = document.getElementById('orders-container');
+        const logoutBtn = document.getElementById('logout-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const statusFilter = document.getElementById('status-filter');
+        const paginationContainer = document.getElementById('pagination');
+        const shipperNameEl = document.getElementById('shipper-name');
+        
+        // Pagination variables
+        let currentPage = 1;
+        const ordersPerPage = 4; // Giảm xuống 4 đơn hàng/trang
+        let allOrders = [];
+        let filteredOrders = [];
+        
+        // Stats elements
+        const totalOrdersEl = document.getElementById('total-orders');
+        const assignedOrdersEl = document.getElementById('assigned-orders');
+        const receivedOrdersEl = document.getElementById('received-orders');
+        const inDeliveryOrdersEl = document.getElementById('in-delivery-orders');
+        const deliveredOrdersEl = document.getElementById('delivered-orders');
+        const failedOrdersEl = document.getElementById('failed-orders');
+
+        // Modal elements - Remove old modal references since we're using new modals
+
+        // Check authentication
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('shipper_token');
+            const shipperInfo = localStorage.getItem('shipper_info');
+            
+            if (!token) {
+                window.location.href = './index.html';
+                return;
+            }
+            
+            // Display shipper name
+            if (shipperInfo) {
+                const shipper = JSON.parse(shipperInfo);
+                shipperNameEl.innerHTML = `<i class="fas fa-user me-1"></i>Chào ${shipper.name}!`;
+            }
+            
+            // Load initial data
+            loadProfile();
+            loadOrders();
+        });
+
+        // Event Listeners
+        logoutBtn.addEventListener('click', handleLogout);
+        refreshBtn.addEventListener('click', () => {
+            loadOrders();
+            loadProfile();
+        });
+        statusFilter.addEventListener('change', filterOrders);
+
+        // Load Profile & Stats
+        async function loadProfile() {
+            try {
+                const token = localStorage.getItem('shipper_token');
+                const response = await fetch(`${API_BASE_URL}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.data.stats;
+                    totalOrdersEl.textContent = stats.total_orders;
+                    assignedOrdersEl.textContent = stats.assigned_orders;
+                    receivedOrdersEl.textContent = stats.received_orders;
+                    inDeliveryOrdersEl.textContent = stats.in_delivery_orders;
+                    deliveredOrdersEl.textContent = stats.delivered_orders;
+                    failedOrdersEl.textContent = stats.failed_orders;
+                    
+                    // Update shipper name
+                    const shipper = data.data.shipper;
+                    shipperNameEl.innerHTML = `<i class="fas fa-user me-1"></i>Chào ${shipper.name}!`;
+                } else {
+                    throw new Error(data.message);
+                }
+                
+            } catch (error) {
+                console.error('Load profile error:', error);
+                if (error.message.includes('Unauthorized')) {
+                    handleAuthError();
+                }
+            }
+        }
+
+        // Load Orders
+        async function loadOrders() {
+            showLoading();
+            
+            try {
+                const token = localStorage.getItem('shipper_token');
+                console.log('Loading orders with token:', token ? 'Token exists' : 'No token');
+                
+                const response = await fetch(`${API_BASE_URL}/orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    allOrders = data.data.orders;
+                    console.log('All orders loaded:', allOrders.length);
+                    filterOrders();
+                } else {
+                    throw new Error(data.message);
+                }
+                
+            } catch (error) {
+                console.error('Load orders error:', error);
+                showError('Không thể tải danh sách đơn hàng: ' + error.message);
+                
+                if (error.message.includes('Unauthorized')) {
+                    handleAuthError();
+                }
+            }
+        }
+
+        // Filter Orders
+        function filterOrders() {
+            const selectedStatus = statusFilter.value;
+            console.log('Filtering orders. Selected status:', selectedStatus);
+            console.log('All orders before filter:', allOrders.length);
+            
+            if (selectedStatus) {
+                filteredOrders = allOrders.filter(order => order.order_status === selectedStatus);
+            } else {
+                filteredOrders = [...allOrders];
+            }
+            
+            console.log('Filtered orders:', filteredOrders.length);
+            currentPage = 1;
+            renderOrders();
+        }
+        
+        // Render Orders with Pagination
+        function renderOrders() {
+            const startIndex = (currentPage - 1) * ordersPerPage;
+            const endIndex = startIndex + ordersPerPage;
+            const ordersToShow = filteredOrders.slice(startIndex, endIndex);
+            
+            if (filteredOrders.length === 0) {
+                ordersContainer.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h5>Không Có Đơn Hàng</h5>
+                            <p>Hiện tại bạn chưa có đơn hàng nào được giao.</p>
+                        </div>
+                    </div>
+                `;
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            ordersContainer.innerHTML = '';
+            
+            ordersToShow.forEach(order => {
+                const orderCard = createOrderCard(order);
+                ordersContainer.appendChild(orderCard);
+            });
+            
+            renderPagination();
+        }
+        
+        // Render Pagination
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+            
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '<nav><ul class="pagination pagination-sm">';
+            
+            // Previous button
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Trước</a>
+                </li>
+            `;
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    paginationHTML += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                        </li>
+                    `;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Sau</a>
+                </li>
+            `;
+            
+            paginationHTML += '</ul></nav>';
+            paginationContainer.innerHTML = paginationHTML;
+        }
+        
+        // Change Page
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                renderOrders();
+            }
+        }
+        
+        // View Order Detail
+        function viewOrderDetail(orderId) {
+            const order = allOrders.find(o => o.id == orderId);
+            if (!order) return;
+            
+            const detailModal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+            const modalBody = document.getElementById('orderDetailContent');
+            
+            modalBody.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-receipt me-2"></i>Thông tin đơn hàng</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Mã đơn:</strong></td><td>${order.order_code}</td></tr>
+                            <tr><td><strong>Ngày tạo:</strong></td><td>${order.created_at}</td></tr>
+                            <tr><td><strong>Trạng thái:</strong></td><td><span class="badge status-${order.order_status}">${order.status_text}</span></td></tr>
+                            <tr><td><strong>Tổng tiền:</strong></td><td>${order.total_amount} VNĐ</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-user me-2"></i>Thông tin khách hàng</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Tên:</strong></td><td>${order.customer_name}</td></tr>
+                            <tr><td><strong>SĐT:</strong></td><td>${order.customer_phone}</td></tr>
+                            <tr><td><strong>Địa chỉ:</strong></td><td>${order.shipping_address}</td></tr>
+                        </table>
+                    </div>
+                </div>
+                
+                ${order.delivery_notes ? `
+                <div class="mt-3">
+                    <h6><i class="fas fa-sticky-note me-2"></i>Ghi chú giao hàng</h6>
+                    <div class="alert alert-info">${order.delivery_notes}</div>
+                </div>
+                ` : ''}
+                
+                ${order.failure_reason ? `
+                <div class="mt-3">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Lý do thất bại</h6>
+                    <div class="alert alert-warning">${order.failure_reason}</div>
+                </div>
+                ` : ''}
+                
+                ${order.delivery_images && order.delivery_images.length > 0 ? `
+                <div class="mt-3">
+                    <h6><i class="fas fa-images me-2"></i>Ảnh giao hàng</h6>
+                    <div class="row">
+                        ${order.delivery_images.map((img, index) => `
+                        <div class="col-md-3 mb-2">
+                            <img src="${img}" class="img-fluid rounded" alt="Ảnh ${index + 1}" style="max-height: 150px; object-fit: cover;">
+                        </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            detailModal.show();
+        }
+        
+        // Show Quick Update Modal
+        function showQuickUpdate(orderId, currentStatus) {
+            const order = allOrders.find(o => o.id == orderId);
+            if (!order) return;
+            
+            const quickModal = new bootstrap.Modal(document.getElementById('quickUpdateModal'));
+            const statusSelect = document.getElementById('quick-status-select');
+            const notesInput = document.getElementById('quick-notes');
+            const reasonInput = document.getElementById('quick-reason');
+            const imagesInput = document.getElementById('quick-images');
+            
+            // Reset form
+            statusSelect.innerHTML = '<option value="">Chọn trạng thái...</option>' + generateStatusOptions(order.available_statuses);
+            notesInput.value = '';
+            reasonInput.value = '';
+            imagesInput.value = '';
+            
+            // Show/hide fields based on current status
+            document.getElementById('quick-notes-section').style.display = 'none';
+            document.getElementById('quick-reason-section').style.display = 'none';
+            document.getElementById('quick-images-section').style.display = 'none';
+            
+            statusSelect.addEventListener('change', function() {
+                const selectedStatus = this.value;
+                document.getElementById('quick-notes-section').style.display = ['in_delivery', 'delivered'].includes(selectedStatus) ? 'block' : 'none';
+                document.getElementById('quick-reason-section').style.display = selectedStatus === 'failed' ? 'block' : 'none';
+                document.getElementById('quick-images-section').style.display = ['delivered', 'failed'].includes(selectedStatus) ? 'block' : 'none';
+            });
+            
+            document.getElementById('quick-order-id').value = orderId;
+            quickModal.show();
+        }
+
+        // Create Order Card
+        function createOrderCard(order) {
+            const col = document.createElement('div');
+            col.className = 'col-lg-6 col-md-6 mb-4'; // Thay đổi layout
+            
+            const statusClass = `status-${order.order_status}`;
+            const canUpdate = order.can_update;
+            
+            col.innerHTML = `
+                <div class="card order-card h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong><i class="fas fa-receipt me-1"></i>${order.order_code}</strong>
+                            <small>${order.created_at}</small>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2">
+                            <strong><i class="fas fa-user me-1"></i>Khách hàng:</strong><br>
+                            <small>${order.customer_name}</small>
+                        </div>
+                        <div class="mb-2">
+                            <strong><i class="fas fa-phone me-1"></i>SĐT:</strong><br>
+                            <small>${order.customer_phone}</small>
+                        </div>
+                        <div class="mb-2">
+                            <strong><i class="fas fa-map-marker-alt me-1"></i>Địa chỉ:</strong><br>
+                            <small>${order.shipping_address}</small>
+                        </div>
+                        <div class="mb-2">
+                            <strong><i class="fas fa-money-bill me-1"></i>Tổng tiền:</strong><br>
+                            <small>${order.total_amount} VNĐ</small>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Trạng thái:</strong><br>
+                            <span class="badge ${statusClass} status-badge">${order.status_text}</span>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-info btn-sm flex-fill" onclick="viewOrderDetail('${order.id}')">
+                                    <i class="fas fa-eye me-1"></i>Chi tiết
+                                </button>
+                                ${canUpdate ? `
+                                <button class="btn btn-update btn-sm flex-fill" onclick="showQuickUpdate('${order.id}', '${order.order_status}')">
+                                    <i class="fas fa-edit me-1"></i>Cập nhật
+                                </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+
+        // Generate Status Options
+        function generateStatusOptions(availableStatuses) {
+            const statusMap = {
+                'assigned': 'Đã phân công',
+                'received': 'Đã nhận hàng',
+                'in_delivery': 'Đang giao',
+                'delivered': 'Đã giao thành công',
+                'failed': 'Giao thất bại'
+            };
+            
+            // Use next_statuses from backend
+            const nextStatuses = availableStatuses.next_statuses || [];
+            
+            return nextStatuses.map(status => 
+                `<option value="${status.value}">${status.label}</option>`
+            ).join('');
+        }
+
+
+
+        // Confirm Quick Update
+        document.getElementById('confirm-quick-update-btn').addEventListener('click', async function() {
+            const orderId = document.getElementById('quick-order-id').value;
+            const newStatus = document.getElementById('quick-status-select').value;
+            const deliveryNotes = document.getElementById('quick-notes').value;
+            const failureReason = document.getElementById('quick-reason').value;
+            
+            if (!newStatus) {
+                showToast('Vui lòng chọn trạng thái mới!', 'error');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('shipper_token');
+                const formData = new FormData();
+                formData.append('status', newStatus);
+                
+                if (deliveryNotes) {
+                    formData.append('delivery_notes', deliveryNotes);
+                }
+                
+                if (failureReason) {
+                    formData.append('failure_reason', failureReason);
+                }
+                
+                // Handle file uploads
+                const fileInput = document.getElementById('quick-images');
+                if (fileInput.files.length > 0) {
+                    for (let i = 0; i < fileInput.files.length; i++) {
+                        formData.append(`delivery_images[${i}]`, fileInput.files[i]);
+                    }
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Cập nhật trạng thái thành công!', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('quickUpdateModal')).hide();
+                    loadOrders(); // Reload orders
+                    loadProfile(); // Reload stats
+                } else {
+                    throw new Error(data.message);
+                }
+                
+            } catch (error) {
+                console.error('Update status error:', error);
+                showToast('Lỗi cập nhật: ' + error.message, 'error');
+            }
+        });
+
+        // Show Loading
+        function showLoading() {
+            ordersContainer.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="loading-spinner me-2"></div>
+                    <span>Đang tải đơn hàng...</span>
+                </div>
+            `;
+        }
+
+        // Show Error
+        function showError(message) {
+            ordersContainer.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${message}
+                        <button class="btn btn-sm btn-outline-danger ms-2" onclick="loadOrders()">
+                            <i class="fas fa-redo me-1"></i>Thử Lại
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show Toast
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toastId = 'toast-' + Date.now();
+            
+            const bgClass = type === 'success' ? 'bg-success' : 
+                           type === 'error' ? 'bg-danger' : 'bg-info';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${bgClass} text-white`;
+            toast.id = toastId;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="toast-body">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    ${message}
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            // Remove after hide
+            toast.addEventListener('hidden.bs.toast', () => {
+                toast.remove();
+            });
+        }
+
+        // Handle Logout
+        async function handleLogout() {
+            if (!confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('shipper_token');
+                await fetch(`${API_BASE_URL}/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
+            // Clear local storage and redirect
+            localStorage.removeItem('shipper_token');
+            localStorage.removeItem('shipper_info');
+            window.location.href = './index.html';
+        }
+
+        // Handle Auth Error
+        function handleAuthError() {
+            localStorage.removeItem('shipper_token');
+            localStorage.removeItem('shipper_info');
+            alert('Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.');
+            window.location.href = './index.html';
+        }
+    </script>
+</body>
+</html>

@@ -13,6 +13,7 @@ class OrderStatusHistory extends Model
         'order_id',
         'status',
         'admin_note',
+        'image_path',
     ];
 
     protected $casts = [

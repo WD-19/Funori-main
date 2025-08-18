@@ -45,6 +45,9 @@
                             <input type="file" id="myFile" name="images[]" multiple style="display:none;">
                         </label>
                     </div>
+                    @error('images')
+                        <div class="text-danger text-tiny mt-2">{{ $message }}</div>
+                    @enderror
                     @error('images.*')
                         <div class="text-danger text-tiny mt-2">{{ $message }}</div>
                     @enderror
@@ -92,7 +95,7 @@
             </fieldset>
             <fieldset class="price">
                 <div class="body-title mb-10">Giá gốc <span class="tf-color-1">*</span></div>
-                <input type="number" name="regular_price" min="0" step="0.01" value="{{ old('regular_price') }}">
+                <input type="text" name="regular_price" class="price-input" placeholder="Nhập giá (ví dụ: 1,500,000)" value="{{ old('regular_price') ? number_format(old('regular_price'), 0, ',', '.') : '' }}">
                 @error('regular_price')
                     <div class="text-danger text-tiny mt-2">{{ $message }}</div>
                 @enderror
@@ -293,23 +296,131 @@
             width: 180px;
         }
 
-        .variant-image-preview {
-            margin-top: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 90px;
+        .variant-image-upload .upload-area {
+            cursor: pointer;
+            display: block;
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            background: #f8f9fa;
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .variant-image-preview img {
-            max-width: 160px;
-            max-height: 90px;
-            object-fit: cover;
+        .variant-image-upload .upload-area:hover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+
+        .variant-image-upload .existing-image-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
             border-radius: 8px;
-            border: 1px solid #eee;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            background: #fff;
-            padding: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #e0e0e0;
+        }
+
+        .variant-image-upload .existing-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .variant-image-upload .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .variant-image-upload .existing-image-container:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .variant-image-upload .change-text {
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .variant-image-upload .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .variant-image-upload .icon {
+            display: block;
+            font-size: 20px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+
+        .variant-image-upload .text-tiny {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+
+
+        .variant-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .variant-row input,
+        .variant-row select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .variant-row input:focus,
+        .variant-row select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .remove-variant {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .remove-variant:hover {
+            background: #c82333;
+            transform: scale(1.05);
         }
     </style>
 @endsection

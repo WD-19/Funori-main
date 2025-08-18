@@ -146,74 +146,86 @@
 
             <div class="wg-box mb-20">
                 <div class="road-map flex gap10" style="justify-content:space-between;">
-                    <div
+                    <div id="step-pending"
                         class="road-map-item {{ in_array($order->order_status, ['pending_confirmation', 'processing', 'shipped', 'delivered', 'cancelled', 'returned']) ? 'active' : '' }}">
                         <div class="icon"><i class="icon-check"></i></div>
                         <h6>Chờ xử lý</h6>
                         <div class="body-text">
-                            @if ($order->ordered_at)
-                                {{ \Carbon\Carbon::parse($order->ordered_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
-                            @else
-                                -
-                            @endif
+                            <span id="time-ordered">
+                                @if ($order->ordered_at)
+                                    {{ \Carbon\Carbon::parse($order->ordered_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
+                                @else
+                                    -
+                                @endif
+                            </span>
                         </div>
                     </div>
-                    <div
+                    <div id="step-processing"
                         class="road-map-item {{ in_array($order->order_status, ['processing', 'shipped', 'delivered', 'cancelled', 'returned']) ? 'active' : '' }}">
                         <div class="icon"><i class="icon-check"></i></div>
                         <h6>Đang xử lý</h6>
                         <div class="body-text">
-                            @if ($order->processing_at)
-                                {{ \Carbon\Carbon::parse($order->processing_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
-                            @else
-                                -
-                            @endif
+                            <span id="time-processing">
+                                @if ($order->processing_at)
+                                    {{ \Carbon\Carbon::parse($order->processing_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
+                                @else
+                                    -
+                                @endif
+                            </span>
                         </div>
                     </div>
-                    <div
+                    <div id="step-shipped"
                         class="road-map-item {{ in_array($order->order_status, ['shipped', 'delivered', 'cancelled', 'returned']) ? 'active' : '' }}">
                         <div class="icon"><i class="icon-check"></i></div>
                         <h6>Đang giao hàng</h6>
                         <div class="body-text">
-                            @if ($order->shipped_at)
-                                {{ \Carbon\Carbon::parse($order->shipped_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
-                            @else
-                                -
-                            @endif
+                            <span id="time-shipped">
+                                @if ($order->shipped_at)
+                                    {{ \Carbon\Carbon::parse($order->shipped_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
+                                @else
+                                    -
+                                @endif
+                            </span>
                         </div>
                     </div>
-                    <div
+                    <div id="step-delivered"
                         class="road-map-item {{ in_array($order->order_status, ['delivered', 'returned']) ? 'active' : '' }}">
                         <div class="icon"><i class="icon-check"></i></div>
                         <h6>Đã nhận hàng</h6>
                         <div class="body-text">
-                            @if ($order->delivered_at)
-                                {{ \Carbon\Carbon::parse($order->delivered_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
-                            @else
-                                -
-                            @endif
+                            <span id="time-delivered">
+                                @if ($order->delivered_at)
+                                    {{ \Carbon\Carbon::parse($order->delivered_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
+                                @else
+                                    -
+                                @endif
+                            </span>
                         </div>
                     </div>
-                    <div class="road-map-item {{ $order->order_status == 'cancelled' ? 'active' : '' }}">
+                    <div id="step-cancelled" class="road-map-item {{ $order->order_status == 'cancelled' ? 'active' : '' }}">
                         <div class="icon"><i class="icon-check"></i></div>
                         <h6>Đã hủy</h6>
                         <div class="body-text">
-                            @if ($order->cancelled_at)
-                                {{ \Carbon\Carbon::parse($order->cancelled_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
-                            @else
-                                -
-                            @endif
+                            <span id="time-cancelled">
+                                @if ($order->cancelled_at)
+                                    {{ \Carbon\Carbon::parse($order->cancelled_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
+                                @else
+                                    -
+                                @endif
+                            </span>
                         </div>
                     </div>
-                    <div class="road-map-item {{ $order->order_status == 'returned' ? 'active' : '' }}">
+                    <div id="step-returned" class="road-map-item {{ $order->order_status == 'returned' ? 'active' : '' }}">
                         <div class="icon"><i class="icon-check"></i></div>
                         <h6>Đã trả hàng</h6>
                         <div class="body-text">
-                            @if ($order->returned_at)
-                                {{ \Carbon\Carbon::parse($order->returned_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
-                            @else
-                                -
-                            @endif
+                            <span id="time-returned">
+                                @if ($order->returned_at)
+                                    {{ \Carbon\Carbon::parse($order->returned_at)->setTimezone('Asia/Ho_Chi_Minh')->format('d/m/Y, h:i A') }}
+                                @else
+                                    -
+                                @endif
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -230,6 +242,7 @@
                     <th style="min-width:140px; font-size: 1.3rem;">Trạng thái</th>
                     <th style="min-width:200px; font-size: 1.3rem;">Mô tả</th>
                     <th style="min-width:180px; font-size: 1.3rem;">Ghi chú</th>
+                    <th style="min-width:120px; font-size: 1.3rem;">Hình ảnh</th>
                 </tr>
             </thead>
             <tbody style="font-size: 1.25rem;">
@@ -242,7 +255,6 @@
                             'delivered' => 'Đã giao thành công',
                             'cancelled' => 'Đã hủy',
                             'returned' => 'Đã trả hàng',
-                            'pending_cancellation' => 'Đang chờ hủy',
                         ];
                         $statusDesc = [
                             'pending_confirmation' => 'Đơn hàng đã được đặt',
@@ -296,13 +308,24 @@
                                 <span class="text-muted">-</span>
                             @endif
                         </td>
+                        <td>
+                            @if($history->image_path)
+                                <img src="{{ asset('storage/' . $history->image_path) }}" 
+                                     alt="Hình ảnh shipper" 
+                                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer;"
+                                     onclick="openImageModal('{{ asset('storage/' . $history->image_path) }}')"
+                                     title="Click để xem ảnh lớn">
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="4"><hr style="margin: 8px 0; border-top: 2px solid #e5e7eb;"></td>
+                        <td colspan="5"><hr style="margin: 8px 0; border-top: 2px solid #e5e7eb;"></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center text-muted" style="font-size:1.25rem;">Chưa có lịch sử trạng thái nào.</td>
+                        <td colspan="5" class="text-center text-muted" style="font-size:1.25rem;">Chưa có lịch sử trạng thái nào.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -310,4 +333,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.9);">
+        <div style="position: relative; margin: auto; padding: 0; width: 90%; max-width: 700px; top: 50%; transform: translateY(-50%);">
+            <span class="close" onclick="closeImageModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <img id="modalImage" src="" style="width: 100%; height: auto; border-radius: 8px;">
+        </div>
+    </div>
+
+    <script>
+        function openImageModal(imageSrc) {
+            document.getElementById('modalImage').src = imageSrc;
+            document.getElementById('imageModal').style.display = 'block';
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            var modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+    <!-- Realtime disabled -->
 @endsection

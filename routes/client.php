@@ -1,20 +1,4 @@
 <?php
-//Admin Controller
-use App\Http\Controllers\Admin\PaymentMethodController;
-use App\Http\Controllers\Admin\AttributeController;
-use App\Http\Controllers\Admin\BrandController;
-use App\Http\Controllers\Admin\BannerController;
-use App\Http\Controllers\Admin\PromotionController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\ContactController;
-use App\Http\Controllers\Admin\PageController;
-use App\Http\Controllers\Admin\ReviewController;
-use App\Http\Controllers\Admin\ShippingMethodController;
-use App\Http\Controllers\admin\MessageController;
 //client Controller
 use App\Http\Controllers\client\Auth\LoginController;
 use App\Http\Controllers\AuthController;
@@ -32,13 +16,8 @@ use App\Http\Controllers\client\VoucherController;
 use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
-use App\Http\Controllers\client\MessageController as ClientMessageController;
-// Payment Controller
-use App\Http\Controllers\PayPalController;
-use App\Http\Controllers\MomoController;
-use App\Http\Controllers\VnPayController;
+use App\Http\Controllers\Client\MessageController as ClientMessageController;
 // Middleware
-use App\Http\Middleware\CheckLogin;
 use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use App\Http\Middleware\CheckClientLogin;
 // Support
@@ -48,8 +27,6 @@ use Illuminate\Support\Facades\Hash;
 // Model & Analytics
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
-use Spatie\Analytics\Facades\Analytics;
-use Spatie\Analytics\Period;
 
 Route::prefix('/')->name('client.')->group(function () {
     Route::get('/dashboard', function () {
@@ -68,7 +45,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/register', [RegisterController::class, 'index'])->name('register.index')->middleware(RedirectIfAuthenticatedCustom::class);
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware(RedirectIfAuthenticatedCustom::class);
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/login', [LoginController::class, 'login'])->name('login.post');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // đăng nhập bằng Google
@@ -103,7 +80,6 @@ Route::prefix('/')->name('client.')->group(function () {
     })->name('auth.google.callback')->middleware(RedirectIfAuthenticatedCustom::class);
 
     // checkout vnpay & momo
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
     Route::post('/checkout/prepare', [CheckoutController::class, 'prepareCheckout'])->name('checkout.prepare');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
@@ -138,16 +114,13 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
     Route::get('/cart/mini-list', [CartController::class, 'miniCart'])->name('cart.miniList');
 
-    Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
-
     // Thêm lại route mã giảm giá:
     Route::get('/vouchers/applicable', [VoucherController::class, 'getApplicableVouchers'])->name('vouchers.applicable');
+    Route::get('/cart/vouchers', [CartController::class, 'getVouchers'])->name('cart.vouchers');
     Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.apply-discount');
 
     // Checkout (One-Page)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index')->middleware('sync.cart');
-    Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
-    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::post('/checkout/update-discount', [CheckoutController::class, 'updateDiscount'])->name('checkout.update-discount');
 
     // Profile (gộp các route trùng lặp và thêm middleware)
@@ -160,6 +133,9 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::post('/order/{id}/repeat', [ProfileController::class, 'repeatOrder'])->name('order.repeat');
         Route::get('/voucher', [ProfileController::class, 'vouchers'])->name('voucher');
         Route::post('/order/{id}/mark-delivered', [ProfileController::class, 'markDelivered'])->name('order.markDelivered');
+        
+        // Order tracking endpoint
+        Route::get('/order/{orderId}/tracking', [ProfileController::class, 'getOrderTracking'])->name('order.tracking');
 
         // Address Management
         Route::prefix('address')->name('address.')->group(function () {
@@ -177,5 +153,6 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/password/edit', [ProfileController::class, 'editPassword'])->name('password.edit');
         Route::post('/password/edit', [ProfileController::class, 'updatePassword'])->name('password.update');
     });
+    
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });

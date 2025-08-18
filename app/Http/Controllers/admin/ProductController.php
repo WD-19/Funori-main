@@ -87,6 +87,9 @@ class ProductController
     }
     public function store(Request $request)
     {
+        // Xử lý format giá trước khi validate
+        $this->formatPriceInputs($request);
+        
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'category_id' => 'required|exists:categories,id',
@@ -225,6 +228,9 @@ class ProductController
 
     public function update(Request $request, $id)
     {
+        // Xử lý format giá trước khi validate
+        $this->formatPriceInputs($request);
+        
         $product = Product::with(['variants.attributeValues', 'images', 'variants.image'])->findOrFail($id);
 
         if ($request->has('status')) {
@@ -428,5 +434,29 @@ class ProductController
         }
 
         return redirect()->route('admin.products.index')->with('success', 'Cập nhật sản phẩm thành công!');
+    }
+
+    /**
+     * Xử lý format giá trị input trước khi validate
+     */
+    private function formatPriceInputs(Request $request)
+    {
+        // Xử lý giá gốc
+        if ($request->has('regular_price')) {
+            $price = str_replace('.', '', $request->input('regular_price'));
+            $request->merge(['regular_price' => $price]);
+        }
+
+        // Xử lý giá chênh lệch trong variants
+        if ($request->has('variants')) {
+            $variants = $request->input('variants');
+            foreach ($variants as $key => $variant) {
+                if (isset($variant['price_modifier'])) {
+                    $priceModifier = str_replace('.', '', $variant['price_modifier']);
+                    $variants[$key]['price_modifier'] = $priceModifier;
+                }
+            }
+            $request->merge(['variants' => $variants]);
+        }
     }
 }
