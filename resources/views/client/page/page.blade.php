@@ -268,7 +268,7 @@
                             <h3 class="blog-card-title">
                                 <a href="{{ route('client.page.show', $post->slug) }}"
                                     style="color:inherit; text-decoration:none; display: inline-block;">
-                                    {{ $post->meta_title }}
+                                    {{ $post->title }}
                                 </a>
                             </h3>
                             <div class="blog-card-desc">

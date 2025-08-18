@@ -217,10 +217,33 @@ class PageController
     public function destroy($id)
     {
         $page = Page::findOrFail($id);
+
+        // Xóa ảnh đại diện nếu có
         if ($page->featured_image_url && Storage::disk('public')->exists($page->featured_image_url)) {
             Storage::disk('public')->delete($page->featured_image_url);
         }
+
+        // Xóa các ảnh trong nội dung (content)
+        if ($page->content) {
+            // Tìm tất cả các đường dẫn ảnh trong content (giả sử đường dẫn là /storage/pages/filename.jpg)
+            preg_match_all('/<img[^>]+src=["\'](.*?)["\']/i', $page->content, $matches);
+            if (!empty($matches[1])) {
+                foreach ($matches[1] as $imageUrl) {
+                    // Lấy phần path từ URL (bỏ phần domain nếu có)
+                    $path = parse_url($imageUrl, PHP_URL_PATH);
+                    if ($path && strpos($path, '/storage/pages/') === 0) {
+                        $storagePath = str_replace('/storage/pages/', 'pages/', $path);
+                        if (Storage::disk('public')->exists($storagePath)) {
+                            Storage::disk('public')->delete($storagePath);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Xóa bài viết
         $page->delete();
+
         return redirect()->route('admin.pages.index')->with('success', 'Xóa trang thành công!');
     }
 
@@ -241,8 +264,8 @@ class PageController
 
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $path = $file->store('uploads/pages', 'public');
-                $url = asset('storage/' . $path);
+                $path = $file->store('pages', 'public'); // Lưu vào storage/app/public/pages
+                $url = Storage::disk('public')->url($path); // Tạo URL công khai
                 // Kiểm tra file tồn tại
                 if (Storage::disk('public')->exists($path)) {
                     return response()->json(['location' => $url]);
