@@ -1,6 +1,6 @@
 @extends('client.layout.client')
 
-@section('title', 'Trang chủ')
+@section('title', 'Giỏ hàng')
 <link rel="stylesheet" href="{{ asset('css/cart.css') }}">
 
 <style>
