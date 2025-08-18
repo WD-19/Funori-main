@@ -118,6 +118,7 @@ Route::prefix('/')->name('client.')->group(function () {
     Route::get('/vouchers/applicable', [VoucherController::class, 'getApplicableVouchers'])->name('vouchers.applicable');
     Route::get('/cart/vouchers', [CartController::class, 'getVouchers'])->name('cart.vouchers');
     Route::post('/cart/apply-discount', [CartController::class, 'applyDiscount'])->name('cart.apply-discount');
+    Route::post('/cart/remove-discount', [CartController::class, 'removeDiscount'])->name('cart.remove-discount');
 
     // Checkout (One-Page)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index')->middleware('sync.cart');

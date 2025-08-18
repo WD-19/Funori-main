@@ -823,6 +823,7 @@ function initVoucherHandlers() {
         checkbox.addEventListener('change', function() {
             triggerDiscountUpdate();
         });
+
     });
 
     function applyDiscount(discountCode, selectedItems, selectedTotal) {

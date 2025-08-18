@@ -10,7 +10,7 @@
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="{{ route('admin.dashboard') }}">
-                            <div class="text-tiny">Bảng điều khiển
+                            <div class="text-tiny">Trang chủ
                             </div>
                         </a>
                     </li>
@@ -38,7 +38,7 @@
                     <a class="tf-button style-1 w208" href="{{ route('admin.promotions.create') }}"><i
                             class="icon-plus"></i>Thêm khuyến mãi</a>
                 </div>
-
+              
                 <div class="wg-table table-product-list">
                     <ul style="width: 1440px ;" class=" table-title flex mb-14">
                         <li style="width: 15%">
@@ -110,18 +110,6 @@
                                     <div class="item edit">
                                         <a href="{{ route('admin.promotions.edit', $promotion->id) }}" class="item edit"><i
                                                 class="icon-edit-3"></i></a>
-                                    </div>
-                                    <div class="item trash">
-                                        <form action="{{ route('admin.promotions.destroy', $promotion->id) }}"
-                                            method="POST" onsubmit="return confirm('Xóa khuyến mãi này?');"
-                                            style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                style="background: none; border: none; padding: 0; color: inherit; cursor: pointer; display: flex; align-items: center;">
-                                                <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
-                                            </button>
-                                        </form>
                                     </div>
                                 </div>
                             </li>

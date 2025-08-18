@@ -149,6 +149,7 @@ Route::prefix('admin')->name('admin.')
         Route::resource('attributes', AttributeController::class);
         Route::resource('users', UserController::class);
         Route::resource('promotions', PromotionController::class);
+        Route::post('promotions/check-code', [PromotionController::class, 'checkCode'])->name('promotions.check-code');
         Route::resource('categories', CategoryController::class);
         Route::resource('contacts', ContactController::class);
         Route::resource('pages', PageController::class);

@@ -84,6 +84,17 @@
         cursor: pointer;
     }
 
+    /* Required field styling */
+    .required-field {
+        border-color: #ff3029 !important;
+        background-color: #fff5f5 !important;
+    }
+
+    .required-field:focus {
+        border-color: #ff3029 !important;
+        box-shadow: 0 0 0 0.15rem rgba(255, 48, 41, 0.25) !important;
+    }
+
     .order-summary {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         padding: 32px;
@@ -506,21 +517,39 @@
 
                         <div id="shipping_info" style="{{ old('ship_to_different_address') ? '' : 'display: none;' }}">
                             <h4>Địa chỉ giao hàng</h4>
+                            
+                            @if($addresses->count() > 0)
+                                <div class="form-group">
+                                    <label for="shipping_saved_address">Chọn địa chỉ đã lưu</label>
+                                    <select id="shipping_saved_address" class="form-control">
+                                        <option value="">-- Nhập địa chỉ mới --</option>
+                                        @foreach ($addresses as $index => $address)
+                                            <option value="{{ $address->id }}" data-name="{{ $address->receiver_name ?? '' }}"
+                                                data-phone="{{ $address->receiver_phone ?? '' }}"
+                                                data-email="{{ auth()->user()->email ?? '' }}"
+                                                data-address="{{ $address->street_address ?? '' }}"
+                                                data-ward="{{ $address->ward ?? '' }}">
+                                                {{ $address->receiver_name }} - {{ $address->street_address }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
                             <div class="row">
                                 <div class="col-md-12 form-group">
                                     <label for="shipping_name">Họ và tên <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="shipping_name" name="shipping_name"
-                                        value="{{ old('shipping_name') }}">
+                                        value="{{ old('shipping_name') }}" required>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label for="shipping_email">Email <span class="text-danger">*</span></label>
                                     <input type="email" class="form-control" id="shipping_email" name="shipping_email"
-                                        value="{{ old('shipping_email') }}">
+                                        value="{{ old('shipping_email') }}" required>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label for="shipping_phone">Số điện thoại <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="shipping_phone" name="shipping_phone"
-                                        value="{{ old('shipping_phone') }}">
+                                        value="{{ old('shipping_phone') }}" required>
                                 </div>
                             </div>
 
@@ -547,7 +576,7 @@
                                             onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)'; showWardDropdown('shipping');" 
                                             onBlur="this.style.borderColor='#ddd'; this.style.boxShadow='none'; setTimeout(() => hideWardDropdown('shipping'), 150);">
                                         <i class='bx bx-chevron-down' style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px; z-index:2; cursor:pointer;" onclick="showWardDropdown('shipping')"></i>
-                                        <input type="hidden" name="shipping_ward" id="shipping_ward_hidden">
+                                        <input type="hidden" name="shipping_ward" id="shipping_ward_hidden" required>
                                         
                                         <!-- Dropdown tìm kiếm phường/xã -->
                                         <div id="shipping_ward_dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:1000; max-height:200px; overflow-y:auto; margin-top:2px;">
@@ -566,7 +595,7 @@
                                 <label for="shipping_address">Địa chỉ cụ thể (Số nhà, tên đường...) <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="shipping_address" name="shipping_address"
-                                    value="{{ old('shipping_address') }}">
+                                    value="{{ old('shipping_address') }}" required>
                             </div>
                         </div>
 
@@ -677,8 +706,8 @@
             document.getElementById(selectId).innerHTML = options;
         }
 
-        const buyerWardSelect = document.getElementById('buyer_ward');
-        const shippingWardSelect = document.getElementById('shipping_ward');
+        const buyerWardSelect = document.getElementById('buyer_ward_search');
+        const shippingWardSelect = document.getElementById('shipping_ward_search');
         const shipToDifferentAddressCheckbox = document.getElementById('ship_to_different_address');
         const shippingInfoSection = document.getElementById('shipping_info');
 
@@ -687,11 +716,14 @@
             const userWard = `{{ auth()->check() ? auth()->user()->ward : '' }}`;
 
             try {
-                renderWards(wardsData, "buyer_ward");
-                renderWards(wardsData, "shipping_ward");
-
-                if (userWard) {
+                // Không cần render wards vì đã có dropdown tìm kiếm
+                if (userWard && buyerWardSelect) {
                     buyerWardSelect.value = userWard;
+                    // Cũng set giá trị cho hidden input
+                    const buyerWardHidden = document.getElementById('buyer_ward_hidden');
+                    if (buyerWardHidden) {
+                        buyerWardHidden.value = userWard;
+                    }
                 }
             } catch (error) {
                 console.error("Lỗi khi tải địa chỉ:", error);
@@ -700,13 +732,23 @@
 
         // Load dữ liệu phường/xã
         wardsData = await getWardsFromFile();
+        allWards = wardsData; // Cập nhật biến global cho dropdown
 
-        // Nếu có user đăng nhập → khởi tạo địa chỉ, không thì render mặc định
+        // Nếu có user đăng nhập → khởi tạo địa chỉ
         if (`{{ auth()->check() }}`) {
             await initializeUserAddress();
-        } else {
-            renderWards(wardsData, "buyer_ward");
-            renderWards(wardsData, "shipping_ward");
+        }
+
+        // Khởi tạo trạng thái shipping fields
+        const shipToDifferentAddress = document.getElementById('ship_to_different_address');
+        if (shipToDifferentAddress && !shipToDifferentAddress.checked) {
+            const shippingFields = ['shipping_name', 'shipping_email', 'shipping_phone', 'shipping_address', 'shipping_ward_hidden'];
+            shippingFields.forEach(field => {
+                const input = document.getElementById(field);
+                if (input) {
+                    input.removeAttribute('required');
+                }
+            });
         }
 
         // Toggle phần địa chỉ giao hàng khác
@@ -714,11 +756,21 @@
             shippingInfoSection.style.display = this.checked ? 'block' : 'none';
 
             const shippingFields = ['shipping_name', 'shipping_email', 'shipping_phone',
-                'shipping_address', 'shipping_ward'
+                'shipping_address', 'shipping_ward_hidden'
             ];
             shippingFields.forEach(field => {
                 const input = document.getElementById(field);
-                if (input) input.required = this.checked;
+                if (input) {
+                    input.required = this.checked;
+                    // Thêm/bỏ class để hiển thị visual feedback
+                    if (this.checked) {
+                        input.classList.add('required-field');
+                    } else {
+                        input.classList.remove('required-field');
+                        input.value = ''; // Clear values when unchecked
+                        input.removeAttribute('required'); // Xóa required attribute khi unchecked
+                    }
+                }
             });
         });
 
@@ -766,13 +818,16 @@
                 const buyerPhoneInput = document.getElementById('buyer_phone');
                 const buyerEmailInput = document.getElementById('buyer_email');
                 const buyerAddressInput = document.getElementById('buyer_address');
-                const buyerWardSelect = document.getElementById('buyer_ward');
+                const buyerWardSearch = document.getElementById('buyer_ward_search');
+                const buyerWardHidden = document.getElementById('buyer_ward_hidden');
 
                 if (!selectedOption.value) {
                     buyerNameInput.value = '{{ old('buyer_name', auth()->user()->full_name ?? '') }}';
                     buyerPhoneInput.value = '{{ old('buyer_phone', auth()->user()->phone_number ?? '') }}';
                     buyerEmailInput.value = '{{ old('buyer_email', auth()->user()->email ?? '') }}';
                     buyerAddressInput.value = '{{ old('buyer_address', auth()->user()->address ?? '') }}';
+                    if (buyerWardSearch) buyerWardSearch.value = '';
+                    if (buyerWardHidden) buyerWardHidden.value = '';
                     await initializeUserAddress();
                     return;
                 }
@@ -783,7 +838,133 @@
                 buyerAddressInput.value = selectedOption.dataset.address;
 
                 const selectedWard = selectedOption.dataset.ward;
-                buyerWardSelect.value = selectedWard;
+                if (buyerWardSearch) buyerWardSearch.value = selectedWard;
+                if (buyerWardHidden) buyerWardHidden.value = selectedWard;
+
+                // Validate that all required fields are filled
+                if (!selectedOption.dataset.name || !selectedOption.dataset.phone || 
+                    !selectedOption.dataset.email || !selectedOption.dataset.address || 
+                    !selectedWard) {
+                    alert('Địa chỉ đã lưu không đầy đủ thông tin. Vui lòng kiểm tra lại.');
+                    return;
+                }
+
+                // Remove any validation errors
+                [buyerNameInput, buyerPhoneInput, buyerEmailInput, buyerAddressInput, buyerWardSearch, buyerWardHidden].forEach(input => {
+                    if (input) input.classList.remove('required-field');
+                });
+            });
+        }
+
+        // Xử lý chọn địa chỉ đã lưu cho shipping
+        const shippingSavedAddressSelect = document.getElementById('shipping_saved_address');
+        if (shippingSavedAddressSelect) {
+            shippingSavedAddressSelect.addEventListener('change', function () {
+                const selectedOption = this.options[this.selectedIndex];
+
+                const shippingNameInput = document.getElementById('shipping_name');
+                const shippingPhoneInput = document.getElementById('shipping_phone');
+                const shippingEmailInput = document.getElementById('shipping_email');
+                const shippingAddressInput = document.getElementById('shipping_address');
+                const shippingWardSearch = document.getElementById('shipping_ward_search');
+                const shippingWardHidden = document.getElementById('shipping_ward_hidden');
+
+                if (!selectedOption.value) {
+                    // Reset về trống
+                    if (shippingNameInput) shippingNameInput.value = '';
+                    if (shippingPhoneInput) shippingPhoneInput.value = '';
+                    if (shippingEmailInput) shippingEmailInput.value = '';
+                    if (shippingAddressInput) shippingAddressInput.value = '';
+                    if (shippingWardSearch) shippingWardSearch.value = '';
+                    if (shippingWardHidden) shippingWardHidden.value = '';
+                    return;
+                }
+
+                if (shippingNameInput) shippingNameInput.value = selectedOption.dataset.name;
+                if (shippingPhoneInput) shippingPhoneInput.value = selectedOption.dataset.phone;
+                if (shippingEmailInput) shippingEmailInput.value = selectedOption.dataset.email;
+                if (shippingAddressInput) shippingAddressInput.value = selectedOption.dataset.address;
+
+                const selectedWard = selectedOption.dataset.ward;
+                if (shippingWardSearch) shippingWardSearch.value = selectedWard;
+                if (shippingWardHidden) shippingWardHidden.value = selectedWard;
+
+                // Validate that all required fields are filled
+                if (!selectedOption.dataset.name || !selectedOption.dataset.phone || 
+                    !selectedOption.dataset.email || !selectedOption.dataset.address || 
+                    !selectedWard) {
+                    alert('Địa chỉ đã lưu không đầy đủ thông tin. Vui lòng kiểm tra lại.');
+                    return;
+                }
+
+                // Remove any validation errors
+                [shippingNameInput, shippingPhoneInput, shippingEmailInput, shippingAddressInput, shippingWardSearch, shippingWardHidden].forEach(input => {
+                    if (input) input.classList.remove('required-field');
+                });
+            });
+        }
+
+        // Form submit validation
+        const checkoutForm = document.querySelector('.checkout-form');
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', function(e) {
+                // Validate buyer fields
+                const buyerFields = ['buyer_name', 'buyer_phone', 'buyer_email', 'buyer_address', 'buyer_ward_hidden'];
+                let isValid = true;
+
+                buyerFields.forEach(field => {
+                    const input = document.getElementById(field);
+                    if (input && input.required && !input.value.trim()) {
+                        isValid = false;
+                        input.classList.add('required-field');
+                        input.focus();
+                    } else if (input) {
+                        input.classList.remove('required-field');
+                    }
+                });
+
+                // Validate payment and shipping methods
+                const paymentMethod = document.querySelector('select[name="payment_method_id"]');
+                const shippingMethod = document.querySelector('select[name="shipping_method_id"]');
+
+                if (paymentMethod && paymentMethod.required && !paymentMethod.value) {
+                    isValid = false;
+                    paymentMethod.classList.add('required-field');
+                    if (isValid) paymentMethod.focus();
+                } else if (paymentMethod) {
+                    paymentMethod.classList.remove('required-field');
+                }
+
+                if (shippingMethod && shippingMethod.required && !shippingMethod.value) {
+                    isValid = false;
+                    shippingMethod.classList.add('required-field');
+                    if (isValid) shippingMethod.focus();
+                } else if (shippingMethod) {
+                    shippingMethod.classList.remove('required-field');
+                }
+
+                // Validate shipping fields if checkbox is checked
+                const shipToDifferentAddress = document.getElementById('ship_to_different_address');
+                if (shipToDifferentAddress && shipToDifferentAddress.checked) {
+                    const shippingFields = ['shipping_name', 'shipping_email', 'shipping_phone', 'shipping_address', 'shipping_ward_hidden'];
+                    
+                    shippingFields.forEach(field => {
+                        const input = document.getElementById(field);
+                        if (input && input.hasAttribute('required') && !input.value.trim()) {
+                            isValid = false;
+                            input.classList.add('required-field');
+                            if (isValid) input.focus();
+                        } else if (input) {
+                            input.classList.remove('required-field');
+                        }
+                    });
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Vui lòng điền đầy đủ thông tin bắt buộc.');
+                    return false;
+                }
             });
         }
     });

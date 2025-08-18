@@ -128,7 +128,15 @@ class CartController
         // Đảm bảo dữ liệu giỏ hàng được lưu vào session['cart'] để checkout lấy được
         Session::put('cart.items', $cartItems);
         Session::put('cart.total', $total);
-        Session::put('cart.discount', 0); // Khởi tạo discount = 0
+        
+        // Xóa voucher nếu quay về từ trang checkout (để tránh tính sai số lần sử dụng)
+        if (Session::has('checkout')) {
+            Session::forget('cart.discount');
+            Session::forget('cart.discount_code');
+            Session::forget('cart.promotion_id');
+        } else {
+            Session::put('cart.discount', Session::get('cart.discount', 0)); // Giữ nguyên nếu có
+        }
         // Có thể thêm các giá trị khác nếu cần (discount, shipping_fee...)
 
         // Chuyển đổi cartItems thành format phù hợp cho view
@@ -199,10 +207,9 @@ class CartController
             $discountAmount = $promotion->discount_value;
         }
     
-        // Kiểm tra giới hạn sử dụng (nếu có)
+        // Kiểm tra giới hạn sử dụng tổng cộng (nếu có)
         if ($promotion->usage_limit_per_voucher !== null) {
-            $usedCount = Order::where('discount_code', $discountCode)->count();
-            if ($usedCount >= $promotion->usage_limit_per_voucher) {
+            if ($promotion->times_used >= $promotion->usage_limit_per_voucher) {
                 return response()->json(['success' => false, 'message' => 'Mã giảm giá đã hết lượt sử dụng!'], 400);
             }
         }
@@ -215,13 +222,13 @@ class CartController
             }
         }
     
-        // Cập nhật số lần sử dụng voucher
-        $promotion->increment('times_used');
-        
         // Lưu thông tin khuyến mãi vào session
         // Lưu ý: discountAmount ở đây là cho các sản phẩm được chọn, không phải toàn bộ giỏ hàng
         Session::put('cart.discount', $discountAmount);
         Session::put('cart.discount_code', $discountCode); // Lưu mã code để kiểm tra sau này
+        
+        // Lưu thông tin promotion để sử dụng sau này
+        Session::put('cart.promotion_id', $promotion->id);
     
         return response()->json([
             'success' => true,
@@ -649,10 +656,38 @@ class CartController
         $vouchers = \App\Models\Promotion::where('is_active', true)
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
+            ->where(function ($query) {
+                $query->whereNull('usage_limit_per_voucher')
+                      ->orWhereRaw('times_used < usage_limit_per_voucher');
+            })
             ->get();
+
+        // Thêm thông tin về số lần user đã sử dụng
+        $vouchers->each(function ($voucher) {
+            if (Auth::check() && $voucher->usage_limit_per_user) {
+                $voucher->user_used_count = \App\Models\Order::where('user_id', Auth::id())
+                    ->where('discount_code', $voucher->code)
+                    ->count();
+            } else {
+                $voucher->user_used_count = 0;
+            }
+        });
 
         return view('client.cart.partials.voucher_list', [
             'vouchers' => $vouchers
         ])->render();
+    }
+
+    public function removeDiscount()
+    {
+        // Xóa thông tin voucher khỏi session
+        Session::forget('cart.discount');
+        Session::forget('cart.discount_code');
+        Session::forget('cart.promotion_id');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã xóa mã giảm giá!'
+        ]);
     }
 }
