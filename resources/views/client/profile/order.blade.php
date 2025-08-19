@@ -38,8 +38,7 @@
                     'shipped' => 'Đang giao hàng',
                     'delivered' => 'Đã giao hàng',
                     'cancelled' => 'Đã hủy',
-                    'returned' => 'Đã hoàn trả',
-                    'pending_cancellation' => 'Chờ xác nhận hủy đơn / Đang yêu cầu hủy',
+                    'returned' => 'Đã trả hàng',
                 ];
             @endphp
 
@@ -87,13 +86,11 @@
 
                                 @php
                                     $statusColor = match ($order->order_status) {
-                                        'pending_confirmation' => 'warning',
-                                        'processing' => 'info',
-                                        'shipped' => 'primary',
                                         'delivered' => 'success',
+                                        'pending_confirmation', 'processing', 'shipped' => 'warning',
                                         'cancelled' => 'danger',
-                                        'returned' => 'dark',
-                                        default => 'secondary',
+                                        'returned' => 'warning',
+                                        default => 'secondary'
                                     };
                                 @endphp
 

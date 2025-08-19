@@ -133,6 +133,8 @@
     <script src="{{ asset('client/ecomus/js/jquery.min.js') }}"></script>
     <script src="{{ asset('client/ecomus/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('client/ecomus/js/swiper-bundle.min.js') }}"></script>
+    <!-- Bootstrap 5 JS for Modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('client/ecomus/js/carousel.js') }}"></script>
     <script src="{{ asset('client/ecomus/js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('client/ecomus/js/lazysize.min.js') }}"></script>
@@ -210,7 +212,7 @@
 <script src="{{ asset('client/ecomus/js/wow.min.js') }}"></script>
 <script src="{{ asset('client/ecomus/js/multiple-modal.js') }}"></script>
 <script src="{{ asset('client/ecomus/js/main.js') }}"></script>
-<script type="text/javascript" src="js/rangle-slider.js"></script>
+    <script type="text/javascript" src="js/rangle-slider.js"></script>
 
 <!-- Toastr JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -466,8 +468,8 @@
                         if (content === '/strong') {
                             content = `<svg width="36" height="36" viewBox="0 0 24 24" style="vertical-align:middle;">
                             <path fill="#f9d4b7" d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2
-                                7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09
-                                l-.01-.01L22 10z"/>
+                            7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09
+                            l-.01-.01L22 10z"/>
                         </svg>`;
                         }
                         let bubbleStyle = hasImage ?
@@ -515,3 +517,5 @@
         });
     });
 </script>
+
+@stack('scripts')

@@ -64,7 +64,8 @@ class OrderController
         }
         //
         // Lấy danh sách đơn hàng, sắp xếp mới nhất lên đầu, phân trang 20 bản ghi/trang
-        $orders = $query->orderByDesc('created_at')
+        $orders = $query->with(['shipper', 'paymentMethod', 'shippingMethod'])
+            ->orderByDesc('created_at')
             ->paginate(20)
             ->appends($request->all());
 
@@ -148,10 +149,31 @@ class OrderController
     public function show($id)
     {
         // Lấy đơn hàng theo id, kèm các quan hệ liên quan
-        $order = Order::with(['paymentMethod', 'shippingMethod', 'user', 'items.product.images', 'items.productVariant.attributeValues.attribute'])
+        $order = Order::with(['paymentMethod', 'shippingMethod', 'user', 'shipper', 'items.product.images', 'items.productVariant.attributeValues.attribute'])
             ->findOrFail($id);
         // Trả về view chi tiết đơn hàng
         return view('admin.orders.show', compact('order'));
+    }
+
+    /**
+     * Lấy thông tin delivery cho modal
+     */
+    public function getDeliveryInfo($id)
+    {
+        $order = Order::with(['user', 'shipper'])->findOrFail($id);
+        
+        $deliveryInfo = [
+            'order_code' => $order->order_code,
+            'received_at' => $order->received_at ? $order->received_at->format('d/m/Y H:i') : null,
+            'in_delivery_at' => $order->in_delivery_at ? $order->in_delivery_at->format('d/m/Y H:i') : null,
+            'delivered_at' => $order->delivered_at ? $order->delivered_at->format('d/m/Y H:i') : null,
+            'failed_at' => $order->failed_at ? $order->failed_at->format('d/m/Y H:i') : null,
+            'delivery_notes' => $order->delivery_notes,
+            'failure_reason' => $order->failure_reason,
+            'delivery_images' => $order->delivery_images,
+        ];
+        
+        return response()->json($deliveryInfo);
     }
 
     // (3) edit: hiển thị form sửa đơn hàng
@@ -183,7 +205,8 @@ class OrderController
             'payment_method_id'  => 'required|exists:payment_methods,id',
             'payment_status'     => 'required|in:pending,paid,failed,refunded',
             'shipping_method_id' => 'required|exists:shipping_methods,id',
-            'order_status'       => 'required|in:pending_confirmation,processing,shipped,delivered,cancelled,returned',
+            // Admin chỉ có quyền chỉnh ở các trạng thái trước giao hàng
+            'order_status'       => 'required|in:pending_confirmation,processing,cancelled,returned',
             'customer_note'      => 'nullable|string',
             'admin_note'         => 'nullable|string',
             'ordered_at'         => 'nullable|date',
@@ -249,7 +272,8 @@ class OrderController
 
         // Validate dữ liệu đầu vào
         $request->validate([
-            'order_status'        => 'required|in:pending_confirmation,processing,shipped,delivered,cancelled,returned',
+            // Chỉ cho phép cập nhật sang trạng thái thuộc quyền Admin
+            'order_status'        => 'required|in:pending_confirmation,processing,cancelled,returned',
             'admin_note'          => 'nullable|string',
             'cancellation_reason' => 'nullable|string|max:500',
         ]);
@@ -271,6 +295,11 @@ class OrderController
         }
 
         // Cho phép chuyển đổi tự do giữa các trạng thái để test
+
+        // Nếu cố gắng set sang trạng thái của shipper (shipped/delivered) thì chặn
+        if (in_array($newStatus, ['shipped', 'delivered'])) {
+            return redirect()->back()->with('error', 'Trạng thái này thuộc luồng shipper. Admin chỉ xử lý đến Đang xử lý.');
+        }
 
         // Gán trạng thái mới cho đơn hàng
         $order->order_status = $newStatus;
@@ -536,5 +565,83 @@ class OrderController
             'chartAmounts',
             'latestOrder'
         ));
+    }
+
+    /**
+     * Gán shipper cho đơn hàng
+     */
+    public function assignShipper(Request $request, Order $order)
+    {
+        $request->validate([
+            'shipper_id' => 'required|exists:shippers,id'
+        ]);
+
+        try {
+            $shipper = \App\Models\Shipper::findOrFail($request->shipper_id);
+            
+            // Kiểm tra shipper có đang hoạt động không
+            if ($shipper->status !== 'active') {
+                return redirect()->back()->with('error', 'Shipper này hiện đang tạm ngưng hoạt động!');
+            }
+
+            // Gán shipper cho đơn hàng
+            $order->update([
+                'shipper_id' => $shipper->id,
+                'order_status' => 'processing' // Chuyển sang đang xử lý
+            ]);
+
+            return redirect()->back()->with('success', "Đã phân chia đơn hàng #{$order->order_code} cho shipper {$shipper->name}!");
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi phân chia shipper: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Đổi shipper cho đơn hàng
+     */
+    public function changeShipper(Request $request, Order $order)
+    {
+        $request->validate([
+            'shipper_id' => 'required|exists:shippers,id',
+            'change_reason' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $oldShipper = $order->shipper;
+            $newShipper = \App\Models\Shipper::findOrFail($request->shipper_id);
+            
+            // Kiểm tra shipper mới có đang hoạt động không
+            if ($newShipper->status !== 'active') {
+                return redirect()->back()->with('error', 'Shipper mới này hiện đang tạm ngưng hoạt động!');
+            }
+
+            // Kiểm tra không đổi sang chính shipper hiện tại
+            if ($order->shipper_id == $request->shipper_id) {
+                return redirect()->back()->with('error', 'Shipper mới không thể trùng với shipper hiện tại!');
+            }
+
+            // Cập nhật shipper
+            $order->update([
+                'shipper_id' => $newShipper->id
+            ]);
+
+            // Log lý do đổi shipper (có thể lưu vào bảng order_logs sau này)
+            if ($request->change_reason) {
+                // TODO: Lưu log đổi shipper
+            }
+
+            $message = "Đã đổi shipper cho đơn hàng #{$order->order_code}";
+            if ($oldShipper) {
+                $message .= " từ {$oldShipper->name} sang {$newShipper->name}";
+            } else {
+                $message .= " thành {$newShipper->name}";
+            }
+
+            return redirect()->back()->with('success', $message . '!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi đổi shipper: ' . $e->getMessage());
+        }
     }
 }

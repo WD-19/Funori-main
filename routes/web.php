@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\admin\MessageController;
+use App\Http\Controllers\Admin\ShipperController;
 //client Controller
 use App\Http\Controllers\client\Auth\LoginController;
 use App\Http\Controllers\AuthController;
@@ -51,19 +52,19 @@ use App\Models\User;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
 
-Route::get('/', function () {
-    if (Auth::check()) {
-        $user = Auth::user();
-        // Nếu là admin, chuyển về dashboard admin
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        }
-        // Nếu là user, chuyển về dashboard user
-        return redirect()->route('client.dashboard');
-    }
-    // Nếu chưa đăng nhập, chuyển về trang đăng nhập
-    return redirect()->route('client.home');
-});
+// Shipper App Routes - Đặt TRƯỚC TẤT CẢ để ưu tiên cao nhất
+Route::get('/shipper-app', function () {
+    return view('shipper-app');
+})->name('shipper-app');
+
+Route::get('/shipper-app/{any}', function () {
+    return view('shipper-app');
+})->where('any', '.*')->name('shipper-app.all');
+
+// Route cho shipper app ở trang chủ
+Route::get('/shipper', function () {
+    return redirect()->route('shipper-app');
+})->name('shipper');
 
 //=================================Admin=================================
 require __DIR__ . '/admin.php';
@@ -90,7 +91,6 @@ Route::controller(PayPalController::class)->group(function () {
 
 Route::get('/analytics-test', function () {
     $analyticsData = Analytics::fetchMostVisitedPages(Period::days(7));
-
     return $analyticsData;
 });
 

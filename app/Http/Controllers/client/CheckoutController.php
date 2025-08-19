@@ -91,14 +91,13 @@ class CheckoutController
             }
         } else {
             // Fallback cho guest users - vẫn dùng session
-            $sessionCart = Session::get('cart', []);
-            if (empty($sessionCart)) {
+            $fullCartItems = Session::get('cart.items', []);
+            if (empty($fullCartItems)) {
                 return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống.');
             }
 
-            foreach ($sessionCart as $item) {
-                $itemId = $item['product_id'] . '_' . ($item['product_variant_id'] ?? 'null');
-                if (in_array($itemId, $selectedItemIds)) {
+            foreach ($fullCartItems as $item) {
+                if (in_array($item['id'], $selectedItemIds)) {
                     $selectedItems[] = $item;
                     $newTotal += $item['quantity'] * $item['price_at_addition'];
                 }
@@ -112,18 +111,18 @@ class CheckoutController
         // Lưu selected items vào session cho checkout process
         Session::put('checkout.items', $selectedItems);
         Session::put('checkout.total', $newTotal);
-
+        
         // Copy discount information từ cart session sang checkout session
         $originalDiscount = Session::get('cart.discount', 0);
         $originalDiscountCode = Session::get('cart.discount_code', null);
-
+        
         // Kiểm tra lại promotion để đảm bảo selected total đủ điều kiện
         $finalDiscount = 0;
         if ($originalDiscount > 0 && $originalDiscountCode) {
             $promotion = \App\Models\Promotion::where('code', $originalDiscountCode)
                 ->where('is_active', 1)
                 ->first();
-
+                
             if ($promotion) {
                 // Kiểm tra điều kiện min_order_value
                 if (!$promotion->min_order_value || $newTotal >= $promotion->min_order_value) {
@@ -140,7 +139,7 @@ class CheckoutController
                 }
             }
         }
-
+        
         Session::put('checkout.discount', $finalDiscount);
         Session::put('checkout.discount_code', $originalDiscountCode);
 
@@ -159,7 +158,7 @@ class CheckoutController
             'discount' => Session::get('checkout.discount', 0),
             'discount_code' => Session::get('checkout.discount_code', null),
         ];
-
+        
 
 
         if (empty($cart['items'])) {
@@ -195,7 +194,7 @@ class CheckoutController
             'buyer_email'        => 'required|email|max:255',
             'buyer_address'      => 'required|string|max:255',
             'buyer_province'     => 'required|string',
-            'buyer_district'     => 'required|string',
+            // 'buyer_district'     => 'required|string',
             'buyer_ward'         => 'required|string',
 
             // Thông tin chung
@@ -213,7 +212,7 @@ class CheckoutController
                 'shipping_email'   => 'required|email|max:255',
                 'shipping_address' => 'required|string|max:255',
                 'shipping_province' => 'required|string',
-                'shipping_district' => 'required|string',
+                // 'shipping_district' => 'required|string',
                 'shipping_ward'    => 'required|string',
             ];
         }
@@ -230,7 +229,7 @@ class CheckoutController
             'buyer_email.required' => 'Vui lòng nhập email người mua.',
             'buyer_address.required' => 'Vui lòng nhập địa chỉ cụ thể của người mua.',
             'buyer_province.required' => 'Vui lòng chọn Tỉnh/Thành phố của người mua.',
-            'buyer_district.required' => 'Vui lòng chọn Quận/Huyện của người mua.',
+            // 'buyer_district.required' => 'Vui lòng chọn Quận/Huyện của người mua.',
             'buyer_ward.required' => 'Vui lòng chọn Phường/Xã của người mua.',
 
             // Shipping info
@@ -239,7 +238,7 @@ class CheckoutController
             'shipping_email.required' => 'Vui lòng nhập email người nhận.',
             'shipping_address.required' => 'Vui lòng nhập địa chỉ cụ thể của người nhận.',
             'shipping_province.required' => 'Vui lòng chọn Tỉnh/Thành phố của người nhận.',
-            'shipping_district.required' => 'Vui lòng chọn Quận/Huyện của người nhận.',
+            // 'shipping_district.required' => 'Vui lòng chọn Quận/Huyện của người nhận.',
             'shipping_ward.required' => 'Vui lòng chọn Phường/Xã của người nhận.',
 
             // Methods
@@ -289,7 +288,7 @@ class CheckoutController
         $fullBuyerAddress = implode(', ', array_filter([
             $validatedData['buyer_address'],
             $validatedData['buyer_ward'],
-            $validatedData['buyer_district'],
+            // $validatedData['buyer_district'],
             $validatedData['buyer_province'],
         ]));
 
@@ -301,7 +300,7 @@ class CheckoutController
             $fullShippingAddress = implode(', ', array_filter([
                 $validatedData['shipping_address'],
                 $validatedData['shipping_ward'],
-                $validatedData['shipping_district'],
+                // $validatedData['shipping_district'],
                 $validatedData['shipping_province'],
             ]));
         } else {
@@ -417,7 +416,7 @@ class CheckoutController
             }
             return back()->with('error', 'Không thể chuyển hướng sang MoMo!');
         }
-
+        
         // --- START: Xác thực lại giỏ hàng trước khi xử lý ---
         foreach ($cart['items'] as $key => $item) {
             // Lấy tên sản phẩm từ session một cách an toàn để hiển thị lỗi
@@ -463,7 +462,7 @@ class CheckoutController
             $fullBuyerAddress = implode(', ', array_filter([
                 $validatedData['buyer_address'],
                 $validatedData['buyer_ward'],
-                $validatedData['buyer_district'],
+                // $validatedData['buyer_district'],
                 $validatedData['buyer_province'],
             ]));
 
@@ -475,7 +474,7 @@ class CheckoutController
                 $fullShippingAddress = implode(', ', array_filter([
                     $validatedData['shipping_address'],
                     $validatedData['shipping_ward'],
-                    $validatedData['shipping_district'],
+                    // $validatedData['shipping_district'],
                     $validatedData['shipping_province'],
                 ]));
             } else {
@@ -522,26 +521,33 @@ class CheckoutController
             if (Auth::check()) {
                 $orderData['user_id'] = Auth::id();
             }
-
+          
 
             // Xóa dữ liệu checkout khỏi session sau khi hoàn thành
             Session::forget('checkout');
-
+            
             // Xóa các sản phẩm đã checkout khỏi database cart nếu user đã đăng nhập
             if (Auth::check()) {
                 $cart = Cart::where('user_id', Auth::id())->first();
                 if ($cart) {
-                    // Lấy danh sách các sản phẩm đã checkout từ session
-                    $checkoutItems = Session::get('checkout.items', []);
-                    foreach ($checkoutItems as $item) {
-                        $cart->items()->where([
-                            'product_id' => $item['product_id'],
-                            'product_variant_id' => $item['product_variant_id']
-                        ])->delete();
-                    }
+                    // Lấy danh sách các sản phẩm đã checkout
+                    $checkoutItemIds = collect($cart['items'])->pluck('product_id')->toArray();
+                    $checkoutVariantIds = collect($cart['items'])->pluck('product_variant_id')->toArray();
+                    
+                    // Xóa các cart items tương ứng
+                    $cart->items()->whereIn('product_id', $checkoutItemIds)
+                        ->where(function($query) use ($checkoutVariantIds) {
+                            foreach ($checkoutVariantIds as $index => $variantId) {
+                                if ($index === 0) {
+                                    $query->where('product_variant_id', $variantId);
+                                } else {
+                                    $query->orWhere('product_variant_id', $variantId);
+                                }
+                            }
+                        })->delete();
                 }
             }
-
+            
             DB::commit();
 
             return redirect()->route('client.checkout.success', ['order' => $order->id])

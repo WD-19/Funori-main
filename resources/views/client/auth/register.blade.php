@@ -16,7 +16,7 @@
                             </div>
                         </div>
                         <div class="flex flex-column gap16 w-full">
-                            <a href="#" class="tf-button style-2 w-full">
+                            <a href="{{ route('client.login') }}" class="tf-button style-2 w-full">
                                 <span class="">Đăng nhập để tiếp tục sử dụng hệ thống.</span>
                             </a>
                         </div>

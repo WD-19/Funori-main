@@ -15,41 +15,10 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\admin\MessageController;
-//client Controller
-use App\Http\Controllers\client\Auth\LoginController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\client\AboutController;
-use App\Http\Controllers\client\Auth\RegisterController;
-use App\Http\Controllers\client\CartController;
-use App\Http\Controllers\client\clientController;
-use App\Http\Controllers\client\PageController as ClientPageController;
-use App\Http\Controllers\client\ProductController as ClientProductController;
-use App\Http\Controllers\client\ContactController as ClientContactCController;
-use App\Http\Controllers\client\ProfileController as ProfileController;
-use App\Http\Controllers\client\ShopController;
-use App\Http\Controllers\client\CheckoutController;
-use App\Http\Controllers\client\VoucherController;
-use App\Http\Controllers\Client\WishlistController;
-use App\Http\Controllers\client\Auth\ForgotPasswordController;
-use App\Http\Controllers\client\Auth\ResetPasswordController;
-use App\Http\Controllers\client\MessageController as ClientMessageController;
-// Payment Controller
-use App\Http\Controllers\PayPalController;
-use App\Http\Controllers\MomoController;
-use App\Http\Controllers\VnPayController;
+use App\Http\Controllers\Admin\ShipperController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
-use App\Http\Middleware\RedirectIfAuthenticatedCustom;
-use App\Http\Middleware\CheckClientLogin;
-// Support
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Hash;
-// Model & Analytics
-use Laravel\Socialite\Facades\Socialite;
-use App\Models\User;
-use Spatie\Analytics\Facades\Analytics;
-use Spatie\Analytics\Period;
 
 Route::prefix('admin')->name('admin.')
     ->middleware([CheckLogin::class])
@@ -116,6 +85,9 @@ Route::prefix('admin')->name('admin.')
         // (2) Xem chi tiết một đơn hàng
         Route::get('orders/{order}', [OrderController::class, 'show'])
             ->name('orders.show');
+        // (2.1) Lấy thông tin delivery cho modal
+        Route::get('orders/{order}/delivery-info', [OrderController::class, 'getDeliveryInfo'])
+            ->name('orders.delivery-info');
         // (3) Hiển thị form sửa đơn hàng (chỉnh thông tin, cập nhật toàn bộ)
         Route::get('orders/{order}/edit', [OrderController::class, 'edit'])
             ->name('orders.edit');
@@ -140,19 +112,44 @@ Route::prefix('admin')->name('admin.')
         // (9) In phiếu giao hàng
         Route::get('orders/{order}/print-shipping', [OrderController::class, 'printShipping'])
             ->name('orders.printShipping');
+        // (10) Gán và đổi shipper
+        Route::post('orders/{order}/assign-shipper', [OrderController::class, 'assignShipper'])
+            ->name('orders.assign-shipper');
+        Route::post('orders/{order}/change-shipper', [OrderController::class, 'changeShipper'])
+            ->name('orders.change-shipper');
         // Thống kê đơn hàng (trang riêng)
         Route::get('orders-stats', [OrderController::class, 'stats'])->name('orders.stats');
         // Xuất file Excel/CSV đơn hàng
         Route::get('orders-export', [OrderController::class, 'export'])->name('orders.export');
+        
         // banner
         Route::post('banners/reorder', [BannerController::class, 'reorder'])->name('banners.reorder');
         Route::post('banners/{banner}/toggle', [BannerController::class, 'toggle'])->name('banners.toggle');
-        // Login và Register
+
+        // Quản lý shipper
+        Route::prefix('shippers')->name('shippers.')->group(function () {
+            Route::get('/', [ShipperController::class, 'index'])->name('index');
+            Route::get('/create', [ShipperController::class, 'create'])->name('create');
+            Route::post('/', [ShipperController::class, 'store'])->name('store');
+            Route::get('/{shipper}', [ShipperController::class, 'show'])->name('show');
+            Route::get('/{shipper}/edit', [ShipperController::class, 'edit'])->name('edit');
+            Route::put('/{shipper}', [ShipperController::class, 'update'])->name('update');
+            Route::delete('/{shipper}', [ShipperController::class, 'destroy'])->name('destroy');
+            
+            // Phân chia đơn hàng
+            Route::get('/assign/orders', [ShipperController::class, 'assignOrders'])->name('assign-orders');
+            Route::post('/assign/process', [ShipperController::class, 'processAssignOrders'])->name('process-assign');
+            Route::post('/assign/auto', [ShipperController::class, 'autoAssignOrders'])->name('auto-assign');
+            
+            // Xem chi tiết shipper
+            Route::get('/{shipper}/details', [ShipperController::class, 'showDetails'])->name('details');
+        });
 
         Route::resource('products', ProductController::class);
         Route::resource('attributes', AttributeController::class);
         Route::resource('users', UserController::class);
         Route::resource('promotions', PromotionController::class);
+        Route::post('promotions/check-code', [PromotionController::class, 'checkCode'])->name('promotions.check-code');
         Route::resource('categories', CategoryController::class);
         Route::resource('contacts', ContactController::class);
         Route::resource('pages', PageController::class);

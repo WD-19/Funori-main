@@ -131,6 +131,10 @@
                             <div class="body-title">Vận chuyển</div>
                         </li>
 
+                        <li style="min-width: 140px; padding-left: 10px;">
+                            <div class="body-title">🚛 Shipper</div>
+                        </li>
+
                         <li style="min-width: 120px; padding-left: 10px;">
                             <div class="body-title">Trạng thái</div>
                         </li>
@@ -176,6 +180,29 @@
                                 <div class="body-text text-main-dark" style="min-width: 120px; padding-left: 10px;">
                                     {{ optional($order->shippingMethod)->name ?? 'Không có' }}
                                 </div>
+                                
+                                <!-- Cột Shipper -->
+                                <div class="body-text text-main-dark" style="min-width: 140px; padding-left: 10px;">
+                                    @if($order->shipper)
+                                        <div class="flex items-center gap-2">
+                                            <div style="width:24px;height:24px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:10px;">
+                                                {{ strtoupper(substr($order->shipper->name, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <div class="text-sm fw-6">{{ $order->shipper->name }}</div>
+                                                <div class="text-xs" style="color: {{ $order->shipper->status === 'active' ? '#22C55E' : '#F59E0B' }};">
+                                                    {{ $order->shipper->status === 'active' ? 'Hoạt động' : 'Tạm ngưng' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="text-center">
+                                            <div style="color: #F59E0B; font-size: 20px;">📦</div>
+                                            <div class="text-xs" style="color: #92400E;">Chưa gán</div>
+                                        </div>
+                                    @endif
+                                </div>
+                                
                                 <div style="min-width:120px; padding-left: 10px;">
                                     @if ($order->order_status === 'delivered')
                                         <span class="block-available bg-1 fw-7"
@@ -196,7 +223,19 @@
                                             style="padding:2px 8px;border-radius:6px;">Đang xử lý</span>
                                     @elseif($order->order_status === 'shipped')
                                         <span class="block-pending bg-1 fw-7"
-                                            style="padding:2px 8px;border-radius:6px;">Đang giao hàng</span>
+                                            style="padding:2px 8px;border-radius:6px;">Đã gửi hàng</span>
+                                    @elseif($order->order_status === 'assigned')
+                                        <span class="block-pending bg-1 fw-7"
+                                            style="padding:2px 8px;border-radius:6px;">Đã phân công</span>
+                                    @elseif($order->order_status === 'received')
+                                        <span class="block-pending bg-1 fw-7"
+                                            style="padding:2px 8px;border-radius:6px;">Đã nhận hàng</span>
+                                    @elseif($order->order_status === 'in_delivery')
+                                        <span class="block-pending bg-1 fw-7"
+                                            style="padding:2px 8px;border-radius:6px;">Đang giao</span>
+                                    @elseif($order->order_status === 'failed')
+                                        <span class="block-pending fw-7"
+                                            style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:6px;">Giao thất bại</span>
                                     @elseif($order->order_status === 'returned')
                                         <span class="block-pending bg-1 fw-7"
                                             style="padding:2px 8px;border-radius:6px;">Đã
@@ -205,6 +244,20 @@
                                         <span class="block-pending bg-1 fw-7" style="padding:2px 8px;border-radius:6px;">
                                             {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
                                         </span>
+                                    @endif
+                                    
+                                    <!-- Delivery Info -->
+                                                                        @if(in_array($order->order_status, ['received', 'in_delivery', 'delivered', 'failed']))
+                                    <div class="mt-2">
+                                        @if($order->delivery_images)
+                                        <small class="text-info d-block">
+                                            <i class="icon-image"></i> {{ count(is_array($order->delivery_images) ? $order->delivery_images : json_decode($order->delivery_images, true) ?? []) }} ảnh
+                                        </small>
+                                        @endif
+                                        <button onclick="openDeliveryModal('{{ $order->id }}')" class="btn btn-sm btn-info mt-2">
+                                            <i class="icon-eye"></i> Xem chi tiết
+                                        </button>
+                                    </div>
                                     @endif
                                 </div>
                                 <div class="list-icon-function justify-content-center" style="padding-left: 10px;">
@@ -381,4 +434,101 @@
             max-width: 260px !important;
         }
     </style>
+<!-- Simple Delivery Modal -->
+<div id="deliveryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 10px; min-width: 500px; max-width: 800px; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            <h3 style="margin: 0; font-size: 18px; font-weight: bold;">Thông tin giao hàng</h3>
+            <button onclick="closeDeliveryModal()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">&times;</button>
+        </div>
+        <div id="deliveryModalContent">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<script>
+function openDeliveryModal(orderId) {
+    // Show modal
+    document.getElementById('deliveryModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('deliveryModalContent').innerHTML = '<div style="text-align: center; padding: 20px;"><p>Đang tải...</p></div>';
+    
+    // Fetch delivery info
+    fetch(`/admin/orders/${orderId}/delivery-info`)
+        .then(response => response.json())
+        .then(data => {
+            let content = `<h4 style="margin-bottom: 15px;">Đơn hàng: ${data.order_code}</h4>`;
+            
+            // Delivery Timestamps
+            content += `<div style="margin-bottom: 20px;"><h5 style="margin-bottom: 10px; color: #333;">Thời gian cập nhật:</h5>`;
+            
+            if (data.received_at) {
+                content += `<p style="margin: 5px 0; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6;"><strong>Đã nhận hàng:</strong> ${data.received_at}</p>`;
+            }
+            
+            if (data.in_delivery_at) {
+                content += `<p style="margin: 5px 0; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6;"><strong>Bắt đầu giao:</strong> ${data.in_delivery_at}</p>`;
+            }
+            
+            if (data.delivered_at) {
+                content += `<p style="margin: 5px 0; padding: 8px; background: #f0fff4; border-left: 3px solid #10b981;"><strong>Giao thành công:</strong> ${data.delivered_at}</p>`;
+            }
+            
+            if (data.failed_at) {
+                content += `<p style="margin: 5px 0; padding: 8px; background: #fef2f2; border-left: 3px solid #ef4444;"><strong>Giao thất bại:</strong> ${data.failed_at}</p>`;
+            }
+            
+            content += '</div>';
+            
+            // Delivery Notes
+            if (data.delivery_notes) {
+                content += `<div style="margin-bottom: 20px;"><h5 style="margin-bottom: 10px; color: #333;">Ghi chú giao hàng:</h5><p style="padding: 10px; background: #f0f9ff; border-left: 3px solid #3b82f6;">${data.delivery_notes}</p></div>`;
+            }
+            
+            // Failure Reason
+            if (data.failure_reason) {
+                content += `<div style="margin-bottom: 20px;"><h5 style="margin-bottom: 10px; color: #333;">Lý do thất bại:</h5><p style="padding: 10px; background: #fef2f2; border-left: 3px solid #ef4444; color: #dc2626;">${data.failure_reason}</p></div>`;
+            }
+            
+            // Delivery Images
+            if (data.delivery_images) {
+                content += `<div style="margin-bottom: 20px;"><h5 style="margin-bottom: 10px; color: #333;">Ảnh giao hàng:</h5>`;
+                
+                const images = Array.isArray(data.delivery_images) ? data.delivery_images : JSON.parse(data.delivery_images);
+                images.forEach((image, index) => {
+                    content += `<div style="margin: 10px 0;"><img src="${image}" alt="Delivery Image" style="max-width: 100%; height: 200px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd;"><p style="text-align: center; margin-top: 5px; font-size: 12px; color: #666;">Ảnh ${index + 1}</p></div>`;
+                });
+                
+                content += '</div>';
+            }
+            
+            document.getElementById('deliveryModalContent').innerHTML = content;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('deliveryModalContent').innerHTML = '<div style="text-align: center; padding: 20px; color: red;"><p>Lỗi khi tải thông tin</p></div>';
+        });
+}
+
+function closeDeliveryModal() {
+    document.getElementById('deliveryModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+document.getElementById('deliveryModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeliveryModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDeliveryModal();
+    }
+});
+</script>
+
 @endsection

@@ -29,6 +29,7 @@ class ProfileController
 
     $ordersQuery = $user->orders()->latest(); // orderBy created_at DESC
 
+    // Lọc theo trạng thái đơn hàng
     if ($status !== 'all') {
         $ordersQuery->where('order_status', $status);
     }
@@ -114,7 +115,7 @@ class ProfileController
             'receiver_name' => ['required', 'string', 'min:5'],
             'receiver_phone' => ['required', 'regex:/^0\d{9}$/'],
             'province' => 'required|string',
-            'district' => 'required|string',
+            // 'district' => 'required|string',
             'ward' => 'required|string',
             'street_address' => ['required', 'string'],
         ], [
@@ -124,7 +125,7 @@ class ProfileController
             'receiver_phone.regex' => 'Số điện thoại phải gồm 10 số và bắt đầu bằng số 0.',
             'street_address.required' => 'Vui lòng nhập địa chỉ cụ thể.',
             'province.required' => 'Vui lòng chọn Tỉnh/Thành phố.',
-            'district.required' => 'Vui lòng chọn Quận/Huyện.',
+            // 'district.required' => 'Vui lòng chọn Quận/Huyện.',
             'ward.required' => 'Vui lòng chọn Phường/Xã.',
             'street_address.required' => 'Vui lòng nhập địa chỉ cụ thể.',
         ]);
@@ -383,7 +384,43 @@ class ProfileController
         return view('client.profile.voucher', compact('vouchers', 'usedVoucherIds'));
     }
 
-   
+    /**
+     * JSON tracking data for client order detail page (client and admin can access)
+     */
+    public function getOrderTracking($orderId)
+    {
+        $user = Auth::user();
+        $query = Order::with(['shipper:id,name,current_lat,current_lng,location_updated_at'])
+            ->where('id', $orderId);
+
+        // Allow admin to view any order; otherwise restrict to owner
+        if (!($user && property_exists($user, 'role') && $user->role === 'admin')) {
+            $query->where('user_id', $user?->id);
+        }
+
+        $order = $query->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'order_status' => $order->order_status,
+                'received_at' => $order->received_at,
+                'in_delivery_at' => $order->in_delivery_at,
+                'delivered_at' => $order->delivered_at,
+                'failed_at' => $order->failed_at,
+                'delivery_lat' => $order->delivery_lat,
+                'delivery_lng' => $order->delivery_lng,
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+                'shipper' => $order->shipper ? [
+                    'name' => $order->shipper->name,
+                    'lat' => $order->shipper->current_lat,
+                    'lng' => $order->shipper->current_lng,
+                    'updated_at' => $order->shipper->location_updated_at,
+                ] : null,
+            ]
+        ]);
+    }
 
     public function ajaxOrderList(Request $request)
 {

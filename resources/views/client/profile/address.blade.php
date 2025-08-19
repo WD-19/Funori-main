@@ -1,196 +1,372 @@
 @extends('client.profile.profile_base')
 
 @section('content_profile')
-    <div class="my-account-content account-address">
+    <div class="my-account-content account-address" style="background-color: #f9fafb; border-radius: 12px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
 
-        <h3 class="section-heading">Quản lý địa chỉ của tôi</h3>
-        <p class="section-description">Thêm, chỉnh sửa hoặc xóa các địa chỉ giao hàng của bạn.</p>
-        <hr class="my-4"> {{-- Thêm class my-4 cho khoảng cách tốt hơn --}}
-
-        <div class="text-center widget-inner-address">
-            <div class="address-action-bar">
-                <button class="tf-btn btn-main btn-address" id="btnShowAddAddress">
-                    <i class='bx bx-plus-circle'></i> Thêm địa chỉ mới
-                </button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+                <h3 style="font-size: 24px; font-weight: 700; color: #333; margin: 0 0 8px 0;">Địa chỉ giao hàng</h3>
+                <p style="color: #6b7280; margin: 0; font-size: 15px;">Quản lý các địa chỉ giao hàng của bạn</p>
             </div>
-            <div class="address-form-wrapper card-style" style="display:none;" id="formnewAddressWrapper">
-                <form class="address-form" id="formnewAddress" action="{{ route('client.profile.address.store') }}" method="POST">
-                    @csrf
-                    <div class="form-title text-center mb-4">
-                        <i class="bx bx-map-pin" style="color:#ff3029;font-size:2em;"></i>
-                        <span style="font-size:1.3em;font-weight:700;color:#222;">Thông tin địa chỉ mới</span>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <input type="text" class="form-control" id="receiver_name" name="receiver_name" value="{{ old('receiver_name') }}" placeholder="Họ và tên" required>
-                                <label for="receiver_name">Họ và tên</label>
+            <button id="btnShowAddAddress" style="display: inline-flex; align-items: center; padding: 12px 20px; background-color: #ff3029; border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 2px 8px rgba(255, 48, 41, 0.25); transition: all 0.2s ease-in-out;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 48, 41, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 48, 41, 0.25)';">
+                <i class='bx bx-plus' style="margin-right: 8px; font-size: 20px;"></i>Thêm địa chỉ mới
+            </button>
+        </div>
+        
+        <div style="width: 100%; height: 1px; background: linear-gradient(to right, #f0f0f0, #e0e0e0, #f0f0f0); margin-bottom: 24px;"></div>
+        
+        <div class="address-container">
+            <div class="address-form-wrapper" style="display:none; margin-bottom:30px;" id="formnewAddressWrapper">
+                <div style="max-width:600px; margin:0 auto; background-color:#fff; border-radius:16px; padding:30px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+                    <form class="address-form" id="formnewAddress" action="{{ route('client.profile.address.store') }}" method="POST">
+                        @csrf
+                        <div style="text-align:center; margin-bottom:30px;">
+                            <div style="width:60px; height:60px; background-color:#ff30290d; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                                <i class="bx bx-map-pin" style="color:#ff3029; font-size:28px;"></i>
+                            </div>
+                            <h3 style="margin:0; font-size:22px; font-weight:700; color:#111827;">Thông tin địa chỉ mới</h3>
+                        </div>
+                        
+                        <div style="margin-bottom:24px;">
+                            <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Họ và tên người nhận</label>
+                            <div style="position:relative;">
+                                <i class='bx bx-user' style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px;"></i>
+                                <input type="text" name="receiver_name" id="receiver_name" required value="{{ old('receiver_name') }}"
+                                    style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#fff; transition:all 0.2s ease;" 
+                                    placeholder="Nhập họ tên người nhận"
+                                    onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)';" 
+                                    onBlur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                <input type="text" class="form-control" id="receiver_phone" name="receiver_phone" value="{{ old('receiver_phone') }}" placeholder="Số điện thoại" required>
-                                <label for="receiver_phone">Số điện thoại</label>
+                        
+                        <div style="margin-bottom:24px;">
+                            <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Số điện thoại</label>
+                            <div style="position:relative;">
+                                <i class='bx bx-phone' style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px;"></i>
+                                <input type="text" name="receiver_phone" id="receiver_phone" required value="{{ old('receiver_phone') }}"
+                                    style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#fff; transition:all 0.2s ease;" 
+                                    placeholder="Nhập số điện thoại liên hệ"
+                                    onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)';" 
+                                    onBlur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                             </div>
                         </div>
-                    </div>
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                <select class="form-control" id="add_province_disabled" name="province_disabled" disabled>
-                                    <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
-                                </select>
-                                <input type="hidden" name="province" value="Thành phố Hà Nội">
-                                <label for="add_province_disabled">Tỉnh/Thành phố</label>
+                        
+                        <div style="margin-bottom:24px;">
+                            <div style="display:flex; gap:16px;">
+                                <div style="flex:1;">
+                                    <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Tỉnh/Thành phố</label>
+                                    <div style="position:relative;">
+                                        <i class='bx bx-buildings' style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px;"></i>
+                                        <select name="province_disabled" id="add_province_disabled" disabled 
+                                            style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#f9fafb; color:#4b5563; appearance:none; cursor:not-allowed;">
+                                            <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
+                                        </select>
+                                        <i class='bx bx-chevron-down' style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px; pointer-events:none;"></i>
+                                        <input type="hidden" name="province" value="Thành phố Hà Nội">
+                                    </div>
+                                </div>
+                                
+                                <div style="flex:1;">
+                                    <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Phường/Xã</label>
+                                    <div style="position:relative;">
+                                        <i class='bx bx-map-pin' style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px; z-index:2;"></i>
+                                                                        <input type="text" id="add_ward_search" placeholder="Tìm kiếm phường/xã..." 
+                                    style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#fff; transition:all 0.2s ease;"
+                                    onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)'; showWardDropdown('add');" 
+                                    onBlur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'; setTimeout(() => hideWardDropdown('add'), 150);">
+                                        <i class='bx bx-chevron-down' style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px; z-index:2; cursor:pointer;" onclick="showWardDropdown('add')"></i>
+                                        <input type="hidden" name="ward" id="add_ward_hidden" required>
+                                        <input type="hidden" name="district" value="Quốc Oai">
+                                        
+                                        <!-- Dropdown tìm kiếm phường/xã -->
+                                        <div id="add_ward_dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:1000; max-height:200px; overflow-y:auto; margin-top:2px;">
+                                            <div style="padding:8px 12px; border-bottom:1px solid #f3f4f6; color:#6b7280; font-size:13px; font-weight:500;">
+                                                <i class='bx bx-search' style="margin-right:6px;"></i>Gõ để tìm kiếm phường/xã
+                                            </div>
+                                            <div id="add_ward_options" style="max-height:150px; overflow-y:auto;">
+                                                <!-- Các option sẽ được thêm bằng JavaScript -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                <select class="form-control" id="add_district" name="district" required>
-                                    <option value="">-- Chọn --</option>
-                                </select>
-                                <label for="add_district">Quận/Huyện</label>
+                        
+                        <div style="margin-bottom:24px;">
+                            <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Địa chỉ cụ thể</label>
+                            <div style="position:relative;">
+                                <i class='bx bx-home-alt' style="position:absolute; left:12px; top:14px; color:#9ca3af; font-size:18px;"></i>
+                                <textarea name="street_address" id="street_address" required rows="2"
+                                    style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#fff; transition:all 0.2s ease; resize:none; font-family:inherit;"
+                                    placeholder="Nhập số nhà, tên đường hoặc thông tin địa chỉ chi tiết"
+                                    onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)';" 
+                                    onBlur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">{{ old('street_address') }}</textarea>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                <select class="form-control" id="add_ward" name="ward" required>
-                                    <option value="">-- Phường/Xã --</option>
-                                </select>
-                                <label for="add_ward">Phường/Xã</label>
+                        
+                        <div style="margin-bottom:30px; background-color:#f9fafb; border-radius:8px; padding:16px; display:flex; align-items:center;">
+                            <div style="position:relative; margin-right:14px;">
+                                <input type="checkbox" id="check-new-address" name="is_default" value="1" {{ old('is_default') ? 'checked' : '' }}
+                                    style="position:absolute; opacity:0; width:0; height:0;">
+                                <label for="check-new-address" 
+                                    style="display:block; width:20px; height:20px; border:2px solid #d1d5db; border-radius:4px; cursor:pointer; position:relative; transition:all 0.2s ease;"
+                                    onclick="this.style.borderColor='#ff3029'; this.style.backgroundColor=document.getElementById('check-new-address').checked ? '#ff3029' : 'white';">
+                                    <span style="position:absolute; top:1px; left:3px; width:10px; height:10px; border-bottom:2px solid white; border-right:2px solid white; transform:rotate(45deg); opacity:0; transition:opacity 0.2s ease;"
+                                          id="check-mark"></span>
+                                </label>
+                                <script>
+                                    document.getElementById('check-new-address').addEventListener('change', function() {
+                                        document.getElementById('check-mark').style.opacity = this.checked ? '1' : '0';
+                                        document.querySelector('label[for="check-new-address"]').style.backgroundColor = this.checked ? '#ff3029' : 'white';
+                                    });
+                                </script>
                             </div>
-                        </div>
-                    </div>
-                    <div class="form-floating mt-3">
-                        <input type="text" class="form-control" id="street_address" name="street_address" value="{{ old('street_address') }}" placeholder="Địa chỉ cụ thể" required>
-                        <label for="street_address">Địa chỉ cụ thể</label>
-                    </div>
-                    <div class="form-check mt-3 text-start">
-                        <input class="form-check-input" type="checkbox" id="check-new-address" name="is_default" value="1" {{ old('is_default') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="check-new-address">Đặt làm địa chỉ mặc định</label>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-center gap-3 mt-4">
-                        <button type="submit" class="tf-btn btn-main">Lưu địa chỉ</button>
-                        <span class="tf-btn btn-light" id="btnHideAddAddress" style="cursor:pointer">Hủy</span>
-                    </div>
-                </form>
-            </div>
-
-            <div class="list-account-address">
-                @forelse($addresses as $address)
-                    <div class="account-address-item1" style="border-bottom:1px solid #eee; padding:16px;">
-                        <div>
-                            <strong>{{ $address->receiver_name }}</strong>
-                            <span style="color:gray;">| {{ $address->receiver_phone }}</span>
-                        </div>
-                        <div>{{ $address->street_address }}</div>
-                        @if ($address->is_default)
                             <div>
-                                <span
-                                    style="color:#e74c3c; border:1px solid #e74c3c; border-radius:3px; padding:2px 6px; font-size:12px;">Mặc
-                                    định</span>
+                                <label for="check-new-address" style="font-weight:500; color:#111827; cursor:pointer; font-size:15px;">Đặt làm địa chỉ mặc định</label>
+                                <p style="margin:4px 0 0; color:#6b7280; font-size:13px;">Địa chỉ này sẽ được sử dụng mặc định cho các đơn hàng của bạn</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex; gap:16px; margin-top:10px;">
+                            <button type="button" id="btnHideAddAddress"
+                                    style="flex:1; padding:13px; border-radius:8px; background-color:#f3f4f6; color:#4b5563; border:none; font-weight:600; cursor:pointer; font-size:15px; transition:all 0.2s ease;"
+                                    onMouseOver="this.style.backgroundColor='#e5e7eb';"
+                                    onMouseOut="this.style.backgroundColor='#f3f4f6';">
+                                Hủy bỏ
+                            </button>
+                            <button type="submit" 
+                                    style="flex:1; padding:13px; border-radius:8px; background-color:#ff3029; color:white; border:none; font-weight:600; cursor:pointer; font-size:15px; box-shadow:0 2px 6px rgba(255, 48, 41, 0.2); transition:all 0.2s ease;"
+                                    onMouseOver="this.style.backgroundColor='#e31c25';"
+                                    onMouseOut="this.style.backgroundColor='#ff3029';">
+                                Lưu địa chỉ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            </div>
+
+            <div class="address-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px;">
+                @forelse($addresses as $address)
+                    <div class="address-card" style="position: relative; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s;">
+                        @if ($address->is_default)
+                            <div style="position: absolute; top: -10px; right: 24px; background-color: #ff3029; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 5px rgba(255, 48, 41, 0.2);">
+                                <i class='bx bxs-check-circle' style="vertical-align: middle; margin-right: 4px;"></i> Mặc định
                             </div>
                         @endif
-                        <div style="margin-top:8px;">
-                            <a href="" class="edit-address-btn" data-id="{{ $address->id }}"
-                                style="color:#3498db; margin-right:8px;">Cập nhật</a>
+                        
+                        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #f0f4ff; display: flex; align-items: center; justify-content: center; margin-right: 14px;">
+                                <i class='bx bxs-map' style="font-size: 20px; color: #4f46e5;"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0; font-size: 18px; font-weight: 600; color: #111827;">{{ $address->receiver_name }}</h4>
+                                <p style="margin: 4px 0 0; color: #4b5563; font-size: 14px;">{{ $address->receiver_phone }}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="background-color: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                            <div style="display: flex; margin-bottom: 8px;">
+                                <div style="flex-shrink: 0; width: 24px; color: #6b7280; text-align: center;">
+                                    <i class='bx bx-buildings'></i>
+                                </div>
+                                <div style="margin-left: 8px; color: #374151; font-weight: 500;">{{ $address->province }}</div>
+                            </div>
+                            <div style="display: flex; margin-bottom: 8px;">
+                                <div style="flex-shrink: 0; width: 24px; color: #6b7280; text-align: center;">
+                                    <i class='bx bx-map-pin'></i>
+                                </div>
+                                <div style="margin-left: 8px; color: #374151; font-weight: 500;">{{ $address->ward }}</div>
+                            </div>
+                            <div style="display: flex;">
+                                <div style="flex-shrink: 0; width: 24px; color: #6b7280; text-align: center;">
+                                    <i class='bx bx-home-alt'></i>
+                                </div>
+                                <div style="margin-left: 8px; color: #374151; font-weight: 500;">{{ $address->street_address }}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <button type="button" class="edit-address-btn" data-id="{{ $address->id }}"
+                                style="flex-grow: 1; display: inline-flex; align-items: center; justify-content: center; padding: 10px; background-color: #f9fafb; border: none; border-radius: 8px; color: #4b5563; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;">
+                                <i class='bx bx-edit' style="margin-right: 6px; font-size: 18px;"></i> Sửa
+                            </button>
+                            
+                            @if (!$address->is_default)
+                                <form action="{{ route('client.profile.address.setDefault', $address->id) }}" method="POST" 
+                                      class="set-default-address-form" style="flex-grow: 1;">
+                                    @csrf
+                                    <button type="submit"
+                                        style="width: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 10px; background-color: #eef2ff; border: none; border-radius: 8px; color: #4f46e5; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;">
+                                        <i class='bx bx-check-circle' style="margin-right: 6px; font-size: 18px;"></i> Đặt mặc định
+                                    </button>
+                                </form>
+                            @endif
+                            
                             <form action="{{ route('client.profile.address.destroy', $address->id) }}" method="POST"
-                                class="d-inline delete-address-form" style="display:inline;">
+                                class="delete-address-form" style="flex-grow: 1;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    style="color:#e74c3c; background:none; border:none; cursor:pointer;">Xóa</button>
+                                    style="width: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 10px; background-color: #fff1f1; border: none; border-radius: 8px; color: #e11d48; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;">
+                                    <i class='bx bx-trash' style="margin-right: 6px; font-size: 18px;"></i> Xóa
+                                </button>
                             </form>
-                            @if (!$address->is_default)
-                                <form action="{{ route('client.profile.address.setDefault', $address->id) }}"
-                                    method="POST" class="d-inline set-default-address-form" style="display:inline;">
-                                    @csrf
-                                    <button type="submit"
-                                        style="border:1px solid #888; border-radius:3px; padding:2px 8px; background:#fff; cursor:pointer;">Thiết
-                                        lập mặc định</button>
-                                </form>
-                            @endif
                         </div>
                     </div>
                 @empty
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; background-color: #fff; border-radius: 12px; border: 1px dashed #e5e7eb;">
+                        <div style="width: 80px; height: 80px; margin: 0 auto 20px; border-radius: 50%; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center;">
+                            <i class='bx bxs-map' style="font-size: 40px; color: #9ca3af;"></i>
+                        </div>
+                        <h4 style="margin: 0 0 10px; font-size: 18px; font-weight: 600; color: #111827;">Chưa có địa chỉ</h4>
+                        <p style="margin: 0; color: #6b7280; max-width: 400px; margin: 0 auto;">Bạn chưa thêm địa chỉ nào. Vui lòng thêm địa chỉ để tiếp tục mua sắm.</p>
+                    </div>
                 @endforelse
             </div>
 
         </div>
     </div>
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
+        <div class="alert-container" style="margin-top:20px; padding:15px; border-radius:8px; background-color:#fef2f2; border-left:4px solid #ef4444;">
+            <h5 style="margin:0 0 10px; font-size:16px; color:#b91c1c; font-weight:600;">Vui lòng kiểm tra lại thông tin</h5>
+            <ul style="margin:0; padding-left:20px;">
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <li style="margin-bottom:5px; color:#7f1d1d;">{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
     <div id="editAddressModal"
-        style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:9999; align-items:center; justify-content:center;">
+        style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; overflow:auto; padding:40px 0;">
         <div
-            style="background:#fff; padding:32px; border-radius:8px; min-width:350px; max-width:90vw; margin:auto; position:relative;">
-            <h4>Cập nhật địa chỉ</h4>
+            style="background:#fff; padding:30px; border-radius:16px; width:500px; max-width:90vw; margin:auto; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.15); animation:fadeIn 0.3s ease;">
+            
+            <div style="position:absolute; top:15px; right:15px;">
+                <button type="button" id="closeEditModal" style="background:none; border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#6b7280; transition:all 0.2s;" onMouseOver="this.style.backgroundColor='#f3f4f6';" onMouseOut="this.style.backgroundColor='transparent';">
+                    <i class='bx bx-x' style="font-size:24px;"></i>
+                </button>
+            </div>
+            
+            <div style="text-align:center; margin-bottom:30px;">
+                <div style="width:60px; height:60px; background-color:#ff30290d; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                    <i class="bx bx-edit" style="color:#ff3029; font-size:28px;"></i>
+                </div>
+                <h3 style="margin:0; font-size:22px; font-weight:700; color:#111827;">Cập nhật địa chỉ</h3>
+            </div>
+            
             <form id="editAddressForm">
                 @csrf
                 <input type="hidden" id="edit_address_id">
-                <div class="box-field">
-                    <div class="tf-field style-1">
-                        <input class="tf-field-input tf-input" type="text" name="receiver_name"
-                            id="edit_receiver_name" required placeholder=" ">
-                        <label class="tf-field-label fw-4 text_black-2">Họ và tên</label>
+                
+                <div style="margin-bottom:24px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Họ và tên người nhận</label>
+                    <div style="position:relative;">
+                        <i class='bx bx-user' style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px;"></i>
+                        <input type="text" name="receiver_name" id="edit_receiver_name" required 
+                            style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#fff; transition:all 0.2s ease;" 
+                            placeholder="Nhập họ tên người nhận"
+                            onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)';" 
+                            onBlur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                     </div>
                 </div>
-                <div class="box-field">
-                    <div class="tf-field style-1">
-                        <input class="tf-field-input tf-input" type="text" name="receiver_phone"
-                            id="edit_receiver_phone" required placeholder=" ">
-                        <label class="tf-field-label fw-4 text_black-2">Số điện thoại</label>
+                
+                <div style="margin-bottom:24px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Số điện thoại</label>
+                    <div style="position:relative;">
+                        <i class='bx bx-phone' style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px;"></i>
+                        <input type="text" name="receiver_phone" id="edit_receiver_phone" required 
+                            style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#fff; transition:all 0.2s ease;" 
+                            placeholder="Nhập số điện thoại liên hệ"
+                            onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)';" 
+                            onBlur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                     </div>
                 </div>
-                <div class="d-flex gap-3 mb-3">
-                    <div class="box-field w-100">
-                        <div class="tf-field style-1">
-                            <select class="tf-field-input tf-input" name="province_disabled" id="edit_province_disabled"
-                                disabled>
-                                <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
-                            </select>
-                            <label class="tf-field-label fw-4 text_black-2">Tỉnh/Thành phố</label>
+                
+                <div style="margin-bottom:24px;">
+                    <div style="display:flex; gap:16px;">
+                        <div style="flex:1;">
+                            <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Tỉnh/Thành phố</label>
+                            <div style="position:relative;">
+                                <i class='bx bx-buildings' style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px;"></i>
+                                <select name="province_disabled" id="edit_province_disabled" disabled 
+                                    style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#f9fafb; color:#4b5563; appearance:none; cursor:not-allowed;">
+                                    <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
+                                </select>
+                                <i class='bx bx-chevron-down' style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px; pointer-events:none;"></i>
+                                <input type="hidden" name="province" value="Thành phố Hà Nội">
+                            </div>
+                        </div>
+                        
+                        <div style="flex:1;">
+                            <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Phường/Xã</label>
+                            <div style="position:relative;">
+                                <i class='bx bx-map-pin' style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px; z-index:2;"></i>
+                                <input type="text" id="edit_ward_search" placeholder="Tìm kiếm phường/xã..." 
+                                    style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#fff; transition:all 0.2s ease;"
+                                    onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)'; showWardDropdown('edit');" 
+                                    onBlur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'; setTimeout(() => hideWardDropdown('edit'), 150);">
+                                <i class='bx bx-chevron-down' style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:18px; z-index:2; cursor:pointer;" onclick="showWardDropdown('edit')"></i>
+                                <input type="hidden" name="ward" id="edit_ward_hidden" required>
+                                <input type="hidden" name="district" value="Quốc Oai">
+                                
+                                <!-- Dropdown tìm kiếm phường/xã -->
+                                <div id="edit_ward_dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:1000; max-height:200px; overflow-y:auto; margin-top:2px;">
+                                    <div style="padding:8px 12px; border-bottom:1px solid #f3f4f6; color:#6b7280; font-size:13px; font-weight:500;">
+                                        <i class='bx bx-search' style="margin-right:6px;"></i>Gõ để tìm kiếm phường/xã
+                                    </div>
+                                    <div id="edit_ward_options" style="max-height:150px; overflow-y:auto;">
+                                        <!-- Các option sẽ được thêm bằng JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="box-field w-100">
-                        <div class="tf-field style-1">
-                            <select class="tf-field-input tf-input" name="district" id="edit_district" required>
-                                <option value="">-- Quận/Huyện --</option>
-                            </select>
-                            <label class="tf-field-label fw-4 text_black-2">Quận/Huyện</label>
-                        </div>
-                    </div>
-                    <div class="box-field w-100">
-                        <div class="tf-field style-1">
-                            <select class="tf-field-input tf-input" name="ward" id="edit_ward" required>
-                                <option value="">-- Phường/Xã --</option>
-                            </select>
-                            <label class="tf-field-label fw-4 text_black-2">Phường/Xã</label>
-                        </div>
+                </div>
+                
+                <div style="margin-bottom:30px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:500; color:#4b5563; font-size:15px;">Địa chỉ cụ thể</label>
+                    <div style="position:relative;">
+                        <i class='bx bx-home-alt' style="position:absolute; left:12px; top:14px; color:#9ca3af; font-size:18px;"></i>
+                        <textarea name="street_address" id="edit_street_address" required rows="2"
+                            style="width:100%; padding:12px 12px 12px 40px; border:1px solid #e5e7eb; border-radius:8px; font-size:15px; background-color:#fff; transition:all 0.2s ease; resize:none; font-family:inherit;"
+                            placeholder="Nhập số nhà, tên đường hoặc thông tin địa chỉ chi tiết"
+                            onFocus="this.style.borderColor='#ff3029'; this.style.boxShadow='0 0 0 3px rgba(255, 48, 41, 0.1)';" 
+                            onBlur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';"></textarea>
                     </div>
                 </div>
-                <div class="box-field">
-                    <div class="tf-field style-1">
-                        <input class="tf-field-input tf-input" type="text" name="street_address"
-                            id="edit_street_address" required placeholder=" ">
-                        <label class="tf-field-label fw-4 text_black-2">Địa chỉ cụ thể</label>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center justify-content-center gap-20" style="margin-top:16px;">
-                    <button type="submit" class="tf-btn btn-fill animate-hover-btn">Lưu thay đổi</button>
-                    <span class="tf-btn btn-fill animate-hover-btn" id="closeEditModal"
-                        style="cursor:pointer; background:#eee; color:#333;">Hủy</span>
+                
+                <div style="display:flex; gap:16px;">
+                    <button type="button" id="closeEditModal2"
+                            style="flex:1; padding:13px; border-radius:8px; background-color:#f3f4f6; color:#4b5563; border:none; font-weight:600; cursor:pointer; font-size:15px; transition:all 0.2s ease;"
+                            onMouseOver="this.style.backgroundColor='#e5e7eb';"
+                            onMouseOut="this.style.backgroundColor='#f3f4f6';">
+                        Hủy bỏ
+                    </button>
+                    <button type="submit" 
+                            style="flex:1; padding:13px; border-radius:8px; background-color:#ff3029; color:white; border:none; font-weight:600; cursor:pointer; font-size:15px; box-shadow:0 2px 6px rgba(255, 48, 41, 0.2); transition:all 0.2s ease;"
+                            onMouseOver="this.style.backgroundColor='#e31c25';"
+                            onMouseOut="this.style.backgroundColor='#ff3029';">
+                        Lưu thay đổi
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+    
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    
+    <script>
+        document.getElementById('closeEditModal2').onclick = function() {
+            document.getElementById('editAddressModal').style.display = 'none';
+        };
+    </script>
     {{-- Bắt đầu lại các script của bạn, không thay đổi gì --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     <script>
@@ -203,101 +379,275 @@
             document.getElementById('btnShowAddAddress').style.display = 'inline-block';
         };
     </script>
-    <script>
-        // Hàm render dữ liệu cho select
-        function renderData(array, selectId) {
-            let selectElement = document.getElementById(selectId);
-            selectElement.innerHTML = '<option value="">-- Chọn --</option>';
-            array.forEach(element => {
-                let option = document.createElement('option');
-                option.value = element.name;
-                option.textContent = element.name;
-                option.dataset.code = element.code;
-                selectElement.appendChild(option);
+   <script>
+    // Biến lưu trữ dữ liệu địa chỉ
+    let addressData = [];
+    let provinces = [];
+    let wards = {};
+    let allWards = []; // Lưu tất cả phường/xã để tìm kiếm
+    
+    // Hàm hiển thị dropdown tìm kiếm
+    function showWardDropdown(type) {
+        const dropdown = document.getElementById(`${type}_ward_dropdown`);
+        const optionsContainer = document.getElementById(`${type}_ward_options`);
+        
+        // Hiển thị tất cả phường/xã ban đầu
+        renderWardOptions(allWards, optionsContainer, type);
+        dropdown.style.display = 'block';
+    }
+    
+    // Hàm ẩn dropdown tìm kiếm
+    function hideWardDropdown(type) {
+        const dropdown = document.getElementById(`${type}_ward_dropdown`);
+        dropdown.style.display = 'none';
+    }
+    
+    // Hàm render options cho dropdown
+    function renderWardOptions(wards, container, type) {
+        container.innerHTML = '';
+        
+        if (wards.length === 0) {
+            container.innerHTML = '<div style="padding:12px; text-align:center; color:#6b7280; font-size:14px;">Không tìm thấy phường/xã phù hợp</div>';
+            return;
+        }
+        
+        wards.forEach(ward => {
+            const option = document.createElement('div');
+            option.className = 'ward-option';
+            option.style.cssText = 'padding:10px 12px; cursor:pointer; border-bottom:1px solid #f3f4f6; transition:background-color 0.2s; font-size:14px;';
+            option.textContent = ward.tenphuongxa;
+            option.dataset.value = ward.tenphuongxa;
+            
+            option.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#f9fafb';
+            });
+            
+            option.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'transparent';
+            });
+            
+            option.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Ngăn chặn blur event
+                selectWard(ward.tenphuongxa, type);
+            });
+            
+            container.appendChild(option);
+        });
+    }
+    
+    // Hàm chọn phường/xã
+    function selectWard(wardName, type) {
+        console.log('selectWard called:', wardName, type); // Debug
+        
+        const searchInput = document.getElementById(`${type}_ward_search`);
+        const hiddenInput = document.getElementById(`${type}_ward_hidden`);
+        const districtInput = document.querySelector(`form#${type === 'add' ? 'formnewAddress' : 'editAddressForm'} input[name="district"]`);
+        
+        console.log('Elements found:', { searchInput, hiddenInput, districtInput }); // Debug
+        
+        if (searchInput) searchInput.value = wardName;
+        if (hiddenInput) hiddenInput.value = wardName;
+        if (districtInput) {
+            districtInput.value = wardName;
+        }
+        
+       
+        
+        console.log('Values set:', { 
+            searchValue: searchInput?.value, 
+            hiddenValue: hiddenInput?.value, 
+            districtValue: districtInput?.value 
+        }); // Debug
+        
+        hideWardDropdown(type);
+    }
+    
+    // Hàm tìm kiếm phường/xã
+    function searchWards(query, type) {
+        const filteredWards = allWards.filter(ward => 
+            ward.tenphuongxa.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        const optionsContainer = document.getElementById(`${type}_ward_options`);
+        renderWardOptions(filteredWards, optionsContainer, type);
+    }
+
+    // --- Xử lý JSON địa chỉ địa phương ---
+    // Hàm tải dữ liệu địa chỉ từ JSON
+    async function loadAddressData() {
+        try {
+            const response = await fetch('/data/hanoi-districts.json');
+            if (!response.ok) {
+                throw new Error('Không thể tải dữ liệu: ' + response.statusText);
+            }
+            
+            const data = await response.json();
+            
+            // Lưu dữ liệu gốc
+            addressData = data;
+            
+            // Lấy danh sách tỉnh/thành phố
+            if (data && data.length > 0) {
+                provinces = data;
+                
+                // Lấy dữ liệu Hà Nội
+                const hanoiData = data[0];
+                
+                // Lấy danh sách phường/xã của Hà Nội
+                if (hanoiData && hanoiData.phuongxa) {
+                    // Thêm Quốc Oai vào đầu danh sách nếu chưa có
+                    let phuongxaList = [...hanoiData.phuongxa];
+                    const quocOaiExists = phuongxaList.some(px => px.tenphuongxa === "Quốc Oai");
+                    
+                    if (!quocOaiExists) {
+                        phuongxaList.unshift({
+                            maphuongxa: 99999999,
+                            tenphuongxa: "Quốc Oai"
+                        });
+                    }
+                    
+                    // Sắp xếp phường/xã theo bảng chữ cái
+                    phuongxaList.sort((a, b) => {
+                        // Đảm bảo Quốc Oai luôn ở đầu
+                        if (a.tenphuongxa === "Quốc Oai") return -1;
+                        if (b.tenphuongxa === "Quốc Oai") return 1;
+                        return a.tenphuongxa.localeCompare(b.tenphuongxa);
+                    });
+                    
+                    // Lưu danh sách phường/xã
+                    wards["01"] = phuongxaList;
+                    allWards = phuongxaList; // Lưu cho tìm kiếm
+                    
+                    console.log("Đã tải " + phuongxaList.length + " phường/xã");
+                    
+                    // Thiết lập sự kiện tìm kiếm cho cả hai form
+                    setupSearchEvents();
+                } else {
+                    console.error("Không tìm thấy dữ liệu phường/xã trong JSON");
+                }
+            } else {
+                console.error("Dữ liệu JSON không đúng định dạng hoặc rỗng");
+            }
+        } catch (error) {
+            console.error("Lỗi khi tải dữ liệu địa chỉ:", error);
+        }
+    }
+    
+    // Thiết lập sự kiện tìm kiếm
+    function setupSearchEvents() {
+        // Sự kiện cho form thêm mới
+        const addSearchInput = document.getElementById('add_ward_search');
+        if (addSearchInput) {
+            addSearchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                if (query.length > 0) {
+                    searchWards(query, 'add');
+                } else {
+                    const optionsContainer = document.getElementById('add_ward_options');
+                    renderWardOptions(allWards, optionsContainer, 'add');
+                }
             });
         }
-
-        // Hàm lấy danh sách phường/xã theo quận/huyện
-        function getWardsByDistrict(districtCode) {
-            return fetch('/data/hanoi-districts.json')
-                .then(response => response.json())
-                .then(data => {
-                    const district = data.districts.find(d => d.code === districtCode);
-                    return district ? district.wards : [];
-                });
+        
+        // Sự kiện cho form edit
+        const editSearchInput = document.getElementById('edit_ward_search');
+        if (editSearchInput) {
+            editSearchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                if (query.length > 0) {
+                    searchWards(query, 'edit');
+                } else {
+                    const optionsContainer = document.getElementById('edit_ward_options');
+                    renderWardOptions(allWards, optionsContainer, 'edit');
+                }
+            });
         }
+    }
 
-        // Tải quận/huyện cho form THÊM MỚI khi trang load
-        fetch('/data/hanoi-districts.json')
-            .then(response => response.json())
-            .then(data => {
-                renderData(data.districts, "add_district");
-            });
+    // Load dữ liệu khi trang load
+    loadAddressData();
+    
+    // Xử lý click outside để đóng dropdown
+    document.addEventListener('click', function(e) {
+        const addDropdown = document.getElementById('add_ward_dropdown');
+        const editDropdown = document.getElementById('edit_ward_dropdown');
+        const addSearch = document.getElementById('add_ward_search');
+        const editSearch = document.getElementById('edit_ward_search');
+        
+        // Đóng dropdown add nếu click outside
+        if (addDropdown && addSearch && !addDropdown.contains(e.target) && !addSearch.contains(e.target)) {
+            hideWardDropdown('add');
+        }
+        
+        // Đóng dropdown edit nếu click outside
+        if (editDropdown && editSearch && !editDropdown.contains(e.target) && !editSearch.contains(e.target)) {
+            hideWardDropdown('edit');
+        }
+    });
+    
+    // Ngăn chặn sự kiện click trong dropdown để tránh đóng dropdown khi click vào option
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('ward-option')) {
+            e.stopPropagation();
+        }
+    });
 
-        // Khi chọn quận/huyện -> tải phường/xã cho form THÊM MỚI
-        document.getElementById('add_district').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.dataset.code) {
-                getWardsByDistrict(selectedOption.dataset.code)
-                    .then(wards => {
-                        renderData(wards, "add_ward");
-                    });
-            } else {
-                document.getElementById('add_ward').innerHTML = '<option value="">-- Phường/Xã --</option>';
-            }
+    // Xử lý form thêm địa chỉ
+    document.getElementById('formnewAddress').onsubmit = async function(e) {
+        e.preventDefault();
+        let form = this;
+        let formData = new FormData(form);
+        
+        // Lấy giá trị phường/xã đã chọn
+        const wardHidden = document.getElementById('add_ward_hidden');
+        const wardSearch = document.getElementById('add_ward_search');
+        
+        // Kiểm tra xem người dùng đã chọn phường/xã chưa
+        if (!wardHidden.value || wardHidden.value.trim() === '') {
+            alert('Vui lòng chọn phường/xã');
+            wardSearch.focus();
+            return;
+        }
+        
+        const selectedWard = wardHidden.value;
+        
+        // Thiết lập dữ liệu form
+        formData.set('province', 'Thành phố Hà Nội');
+        formData.set('ward', selectedWard);
+        formData.set('district', selectedWard); // Sử dụng giá trị của phường/xã cho district
+
+        // Xóa thông báo lỗi cũ
+        let alertDiv = document.querySelector('.alert.alert-danger');
+        if (alertDiv) alertDiv.remove();
+
+        // Gửi AJAX
+        let response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Accept': 'application/json'
+            },
+            body: formData
         });
 
-        // Khi chọn quận/huyện -> tải phường/xã cho form CẬP NHẬT
-        document.getElementById('edit_district').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption && selectedOption.dataset.code) {
-                getWardsByDistrict(selectedOption.dataset.code)
-                    .then(wards => {
-                        renderData(wards, "edit_ward");
-                    });
-            } else {
-                document.getElementById('edit_ward').innerHTML = '<option value="">-- Phường/Xã --</option>';
-            }
-        });
-
-        document.getElementById('formnewAddress').onsubmit = async function(e) {
-            e.preventDefault();
-            let form = this;
-            let data = new FormData(form);
-
-            // Xóa thông báo lỗi cũ
-            let alertDiv = document.querySelector('.alert.alert-danger');
-            if (alertDiv) alertDiv.remove();
-
-            // Gửi AJAX
-            let response = await fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                    'Accept': 'application/json'
-                },
-                body: data
-            });
-
-            if (response.status === 422) {
-                let result = await response.json();
-                // Hiển thị lỗi
-                let errorHtml = '<div class="alert alert-danger"><ul>';
-                Object.values(result.errors).forEach(function(msgArr) {
-                    msgArr.forEach(function(msg) {
-                        errorHtml += '<li>' + msg + '</li>';
-                    });
+        if (response.status === 422) {
+            let result = await response.json();
+            // Hiển thị lỗi
+            let errorHtml = '<div class="alert alert-danger"><ul>';
+            Object.values(result.errors).forEach(function(msgArr) {
+                msgArr.forEach(function(msg) {
+                    errorHtml += '<li>' + msg + '</li>';
                 });
-                errorHtml += '</ul></div>';
-                form.insertAdjacentHTML('beforebegin', errorHtml);
-                // Giữ lại dữ liệu đã nhập (không cần làm gì thêm, input vẫn giữ nguyên)
-            } else if (response.ok) {
-                // Thành công, có thể reset form, ẩn form, hiện lại danh sách, v.v.
-                alert('Thêm địa chỉ thành công!');
-                location.reload();
-            }
-        };
-    </script>
+            });
+            errorHtml += '</ul></div>';
+            form.insertAdjacentHTML('beforebegin', errorHtml);
+        } else if (response.ok) {
+            alert('Thêm địa chỉ thành công!');
+            location.reload();
+        }
+    };
+</script>
+
     <script>
         document.querySelectorAll('.delete-address-form').forEach(form => {
             form.onsubmit = async function(e) {
@@ -342,36 +692,63 @@
                 let id = this.dataset.id;
                 let url = '{{ route('client.profile.address.edit', ['address' => ':id']) }}'.replace(':id',
                     id);
-                let response = await fetch(url);
-                let addressData = await response.json();
-
-                // Điền thông tin cơ bản
-                document.getElementById('edit_address_id').value = addressData.id;
-                document.getElementById('edit_receiver_name').value = addressData.receiver_name;
-                document.getElementById('edit_receiver_phone').value = addressData.receiver_phone;
-                document.getElementById('edit_street_address').value = addressData.street_address;
-
-                // Xử lý dropdown địa chỉ
-                const editDistrictSelect = document.getElementById('edit_district');
-                const editWardSelect = document.getElementById('edit_ward');
-
-                // Tải danh sách quận/huyện từ JSON local
-                const response = await fetch('/data/hanoi-districts.json');
-                const data = await response.json();
-                renderData(data.districts, 'edit_district');
-                editDistrictSelect.value = addressData.district;
-
-                // Tìm district code dựa vào tên district
-                const selectedDistrict = data.districts.find(d => d.name === addressData.district);
-                if (selectedDistrict) {
-                    // Tải danh sách phường/xã từ district đã chọn
-                    renderData(selectedDistrict.wards, 'edit_ward');
-                    editWardSelect.value = addressData.ward;
+                
+                try {
+                    let response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Không thể tải thông tin địa chỉ');
+                    }
+                    
+                    let addressData = await response.json();
+    
+                    // Điền thông tin cơ bản
+                    document.getElementById('edit_address_id').value = addressData.id;
+                    document.getElementById('edit_receiver_name').value = addressData.receiver_name;
+                    document.getElementById('edit_receiver_phone').value = addressData.receiver_phone;
+                    document.getElementById('edit_street_address').value = addressData.street_address;
+                    
+                    // Cập nhật trường district
+                    const districtInput = document.querySelector('form#editAddressForm input[name="district"]');
+                    if (districtInput) {
+                        districtInput.value = addressData.ward || 'Quốc Oai';
+                    }
+                    
+                    // Đảm bảo danh sách phường/xã đã được tải
+                    if (!wards["01"] || wards["01"].length === 0) {
+                        await loadAddressData();
+                    }
+                    
+                    // Điền giá trị phường/xã vào input tìm kiếm
+                    setTimeout(() => {
+                        const editWardSearch = document.getElementById('edit_ward_search');
+                        const editWardHidden = document.getElementById('edit_ward_hidden');
+                        
+                        if (editWardSearch && addressData.ward) {
+                            editWardSearch.value = addressData.ward;
+                            editWardHidden.value = addressData.ward;
+                        }
+                        
+                        // Nếu địa chỉ là Quốc Oai, đặt giá trị Quốc Oai cho street_address
+                        if (addressData.ward === "Quốc Oai") {
+                            document.getElementById('edit_street_address').value = "Quốc Oai";
+                        }
+                    }, 100);
+    
+                    const modal = document.getElementById('editAddressModal');
+                    modal.style.display = 'flex';
+                    
+                    // Đảm bảo modal hiện lên trên màn hình
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                } catch (error) {
+                    console.error("Lỗi khi tải thông tin địa chỉ:", error);
+                    alert("Không thể tải thông tin địa chỉ. Vui lòng thử lại sau.");
                 }
-
-                document.getElementById('editAddressModal').style.display = 'flex';
             }
         });
+        
         document.getElementById('closeEditModal').onclick = function() {
             document.getElementById('editAddressModal').style.display = 'none';
         };
@@ -379,6 +756,25 @@
             e.preventDefault();
             let id = document.getElementById('edit_address_id').value;
             let formData = new FormData(this);
+            
+            // Lấy giá trị phường/xã đã chọn
+            const wardHidden = document.getElementById('edit_ward_hidden');
+            const wardSearch = document.getElementById('edit_ward_search');
+            
+            // Kiểm tra xem người dùng đã chọn phường/xã chưa
+            if (!wardHidden.value || wardHidden.value.trim() === '') {
+                alert('Vui lòng chọn phường/xã');
+                wardSearch.focus();
+                return;
+            }
+            
+            const selectedWard = wardHidden.value;
+            
+            // Thiết lập dữ liệu form
+            formData.set('province', 'Thành phố Hà Nội');
+            formData.set('ward', selectedWard);
+            formData.set('district', selectedWard); // Sử dụng giá trị của phường/xã cho district
+            
             let url = '{{ route('client.profile.address.update', ['address' => ':id']) }}'.replace(':id', id);
             let res = await fetch(url, {
                 method: 'POST',
@@ -397,47 +793,11 @@
             }
         };
 
-        // --- Thêm JS cho API Tỉnh/Thành ---
-        const host = "https://provinces.open-api.vn/api/";
-        const hanoiCode = 1;
-
-        var renderData = (array, selectId) => {
-            let selectElement = document.getElementById(selectId);
-            selectElement.innerHTML = '<option value="">-- Chọn --</option>';
-            array.forEach(element => {
-                let option = document.createElement("option");
-                option.text = element.name;
-                option.value = element.name;
-                option.setAttribute("data-code", element.code); // ⚠️ BẮT BUỘC
-                selectElement.appendChild(option);
-            });
-        }
-
-
-        // Tải quận/huyện cho form THÊM MỚI khi trang load
-        axios.get(host + "p/" + hanoiCode + "?depth=2").then(res => {
-            renderData(res.data.districts, "add_district");
-        });
-
-        // Khi chọn quận/huyện -> tải phường/xã cho form THÊM MỚI
-        document.getElementById('add_district').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption.dataset.code) {
-                axios.get(host + "d/" + selectedOption.dataset.code + "?depth=2").then(res => {
-                    renderData(res.data.wards, "add_ward");
-                });
-            }
-        });
-
-        // Khi chọn quận/huyện -> tải phường/xã cho form CẬP NHẬT
-        document.getElementById('edit_district').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption.dataset.code) {
-                axios.get(host + "d/" + selectedOption.dataset.code + "?depth=2").then(res => {
-                    renderData(res.data.wards, "edit_ward");
-                });
-            }
-        });
+        // --- Xử lý địa chỉ ---
+        // Các sự kiện đã được xử lý trong setupSearchEvents() và selectWard()
+        
+        // Khởi tạo khi trang load
+        loadAddressData();
     </script>
 @endsection
 
@@ -1168,5 +1528,73 @@
     .form-check-input:checked {
         background-color: #ff3029;
         border-color: #ff3029;
+    }
+    
+    /* CSS cho dropdown tìm kiếm phường/xã */
+    .ward-option:hover {
+        background-color: #f9fafb !important;
+    }
+    
+    .ward-option:last-child {
+        border-bottom: none !important;
+    }
+    
+    /* Tùy chỉnh scrollbar cho dropdown */
+    #add_ward_options::-webkit-scrollbar,
+    #edit_ward_options::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #add_ward_options::-webkit-scrollbar-track,
+    #edit_ward_options::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    #add_ward_options::-webkit-scrollbar-thumb,
+    #edit_ward_options::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    #add_ward_options::-webkit-scrollbar-thumb:hover,
+    #edit_ward_options::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+    
+    /* Animation cho dropdown */
+    #add_ward_dropdown,
+    #edit_ward_dropdown {
+        animation: fadeInDown 0.2s ease-out;
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Hiệu ứng hover cho icon chevron */
+    .bx-chevron-down:hover {
+        color: #ff3029 !important;
+        transform: translateY(-50%) scale(1.1) !important;
+        transition: all 0.2s ease;
+    }
+    
+    /* Tùy chỉnh cho ward-option */
+    .ward-option {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+    
+    .ward-option:active {
+        background-color: #e5e7eb !important;
     }
 </style>
