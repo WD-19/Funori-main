@@ -67,17 +67,102 @@
                                 @if($voucher->usage_limit_per_voucher)
                                     <div class="detail-item">
                                         <i class="fas fa-users text-muted me-2"></i>
-                                        <span class="small">Đã dùng: {{ $voucher->times_used }}/{{ $voucher->usage_limit_per_voucher }}</span>
+                                        <span class="small" title="Tổng số lần voucher này đã được sử dụng bởi tất cả người dùng">
+                                            Tổng lượt dùng: {{ $voucher->times_used }}/{{ $voucher->usage_limit_per_voucher }}
+                                            @php
+                                                $remainingUses = $voucher->usage_limit_per_voucher - $voucher->times_used;
+                                            @endphp
+                                            @if($remainingUses > 0)
+                                                <span class="text-success">(Còn {{ $remainingUses }} lượt)</span>
+                                            @else
+                                                <span class="text-danger">(Hết lượt)</span>
+                                            @endif
+                                        </span>
+                                    </div>
+                                @endif
+                                
+                                @if(Auth::check() && $voucher->usage_limit_per_user)
+                                    <div class="detail-item">
+                                        <i class="fas fa-user text-muted me-2"></i>
+                                        <span class="small" title="Số lần bạn đã sử dụng voucher này">
+                                            @php
+                                                $userUsedCount = $voucher->user_used_count ?? 0;
+                                                $userLimit = $voucher->usage_limit_per_user;
+                                                $userRemainingUses = $userLimit - $userUsedCount;
+                                                
+                                                // Kiểm tra tính hợp lý của dữ liệu
+                                                $isDataValid = $userUsedCount <= $userLimit;
+                                            @endphp
+                                            
+                                            @if($isDataValid)
+                                                <strong>Bạn đã dùng:</strong> {{ $userUsedCount }}/{{ $userLimit }}
+                                                @if($userRemainingUses > 0)
+                                                    <span class="text-success">(Còn {{ $userRemainingUses }} lượt)</span>
+                                                @else
+                                                    <span class="text-danger">(Đã hết)</span>
+                                                @endif
+                                            @else
+                                                <span class="text-warning">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                    Dữ liệu không hợp lệ ({{ $userUsedCount }}/{{ $userLimit }})
+                                                </span>
+                                            @endif
+                                        </span>
                                     </div>
                                 @endif
                             </div>
                         </div>
                         
                         <div class="voucher-action">
-                            <button type="button" class="btn btn-primary btn-sm apply-voucher-btn" data-code="{{ $voucher->code }}">
-                                <i class="fas fa-check me-1"></i>
-                                Chọn
-                            </button>
+                            @php
+                                $canUse = true;
+                                if ($voucher->usage_limit_per_voucher) {
+                                    $remainingUses = $voucher->usage_limit_per_voucher - $voucher->times_used;
+                                    $canUse = $remainingUses > 0;
+                                }
+                            @endphp
+                            
+                            @if($canUse)
+                                @php
+                                    $userCanUse = true;
+                                    if (Auth::check() && $voucher->usage_limit_per_user) {
+                                        $userUsedCount = $voucher->user_used_count ?? 0;
+                                        $userLimit = $voucher->usage_limit_per_user;
+                                        // Kiểm tra tính hợp lý và giới hạn
+                                        $userCanUse = $userUsedCount <= $userLimit && $userUsedCount < $userLimit;
+                                    }
+                                @endphp
+                                
+                                @if($userCanUse)
+                                    <button type="button" class="btn btn-primary btn-sm apply-voucher-btn" data-code="{{ $voucher->code }}">
+                                        <i class="fas fa-check me-1"></i>
+                                        Chọn
+                                    </button>
+                                @else
+                                    @php
+                                        $userUsedCount = $voucher->user_used_count ?? 0;
+                                        $userLimit = $voucher->usage_limit_per_user;
+                                        $isDataValid = $userUsedCount <= $userLimit;
+                                    @endphp
+                                    
+                                    @if($isDataValid)
+                                        <span class="btn btn-warning btn-sm disabled">
+                                            <i class="fas fa-user-times me-1"></i>
+                                            Đã dùng hết lượt
+                                        </span>
+                                    @else
+                                        <span class="btn btn-danger btn-sm disabled">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Dữ liệu lỗi
+                                        </span>
+                                    @endif
+                                @endif
+                            @else
+                                <span class="btn btn-secondary btn-sm disabled">
+                                    <i class="fas fa-times me-1"></i>
+                                    Hết lượt tổng
+                                </span>
+                            @endif
                         </div>
                     </div>
                 </div>

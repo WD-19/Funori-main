@@ -426,6 +426,13 @@ function initDeleteHandlers() {
                     if (data && data.success) {
                         const row = checkbox.closest('tr');
                         if (row) row.remove();
+                        if (data.hasOwnProperty('discount')) {
+                            window.lastDiscountAmount = data.discount || 0;
+                            const discountValueElement = document.querySelector('.discount-value');
+                            if (discountValueElement && !window.lastDiscountAmount) {
+                                discountValueElement.textContent = '-0đ';
+                            }
+                        }
                         updateSelectedTotal();
                     } else {
                         alert(data.message || 'Xóa sản phẩm thất bại!');
@@ -492,6 +499,13 @@ function initDeleteHandlers() {
                 if (data && data.success) {
                     const row = btn.closest('tr');
                     if (row) row.remove();
+                    if (data.hasOwnProperty('discount')) {
+                        window.lastDiscountAmount = data.discount || 0;
+                        const discountValueElement = document.querySelector('.discount-value');
+                        if (discountValueElement && !window.lastDiscountAmount) {
+                            discountValueElement.textContent = '-0đ';
+                        }
+                    }
                     updateSelectedTotal();
                 } else {
                     alert(data.message || 'Xóa sản phẩm thất bại!');
@@ -722,6 +736,14 @@ function updateCart(input) {
                     totalElement.textContent = total.toLocaleString('vi-VN') + 'đ';
                 }
             }
+            // Đồng bộ lại discount từ backend nếu có trả về
+            if (data.hasOwnProperty('discount')) {
+                window.lastDiscountAmount = data.discount || 0;
+                const discountValueElement = document.querySelector('.discount-value');
+                if (discountValueElement && !window.lastDiscountAmount) {
+                    discountValueElement.textContent = '-0đ';
+                }
+            }
             updateSelectedTotal();
         } else {
             alert(data.message || 'Cập nhật số lượng thất bại!');
@@ -805,25 +827,8 @@ function initVoucherHandlers() {
         });
     }
 
-    // Theo dõi thay đổi số lượng
-    document.querySelectorAll('.cart-qty-input').forEach(function(input) {
-        input.addEventListener('change', function() {
-            triggerDiscountUpdate();
-        });
-    });
-    
-    document.querySelectorAll('.btn-quantity').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            triggerDiscountUpdate();
-        });
-    });
-    
-    // Theo dõi thay đổi checkbox chọn sản phẩm
-    document.querySelectorAll('.cart-item-checkbox').forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
-            triggerDiscountUpdate();
-        });
-    });
+    // Không tự động gọi lại applyDiscount khi thay đổi số lượng/checkbox.
+    // Backend đã tự tái tính và trả về discount trong các API update/remove.
 
     function applyDiscount(discountCode, selectedItems, selectedTotal) {
         fetch('/cart/apply-discount', {

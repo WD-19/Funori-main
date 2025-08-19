@@ -100,12 +100,12 @@ class ProductController
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'variants' => 'required|array|min:1',
             'variants.*.name_variant' => 'required|string|max:100',
-            'variants.*.attribute_values' => 'required|array',
+            'variants.*.attribute_values' => 'required|array|min:1', // Đảm bảo có ít nhất 1 chất liệu
             'variants.*.attribute_values.*' => 'required|integer|exists:attribute_values,id',
             'variants.*.size' => 'required|string|max:100',
             'variants.*.price_modifier' => 'required|numeric',
             'variants.*.stock_quantity' => 'required|integer|min:0',
-            'variants.*.image' => 'required|image|mimes:jpeg,png,jpg, gif,svg|max:2048',
+            'variants.*.image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ], [
             'name.required' => 'Tên sản phẩm là bắt buộc.',
             'name.max' => 'Tên sản phẩm không được vượt quá 100 ký tự.',
@@ -124,12 +124,12 @@ class ProductController
             'images.*.max' => 'Ảnh không được vượt quá 2MB.',
             'variants.required' => 'Phải có ít nhất một biến thể.',
             'variants.array' => 'Biến thể không hợp lệ.',
+            'variants.*.attribute_values.required' => 'Vui lòng chọn ít nhất một chất liệu cho biến thể.',
+            'variants.*.attribute_values.array' => 'Thuộc tính biến thể không hợp lệ.',
+            'variants.*.attribute_values.*.required' => 'Vui lòng chọn giá trị chất liệu cho mỗi thuộc tính.',
+            'variants.*.attribute_values.*.exists' => 'Giá trị chất liệu không hợp lệ.',
             'variants.*.name_variant.required' => 'Tên biến thể là bắt buộc.',
             'variants.*.name_variant.max' => 'Tên biến thể không được vượt quá 100 ký tự.',
-            'variants.*.attribute_values.required' => 'Vui lòng chọn thuộc tính cho biến thể.',
-            'variants.*.attribute_values.array' => 'Thuộc tính biến thể không hợp lệ.',
-            'variants.*.attribute_values.*.required' => 'Vui lòng chọn giá trị thuộc tính.',
-            'variants.*.attribute_values.*.exists' => 'Giá trị thuộc tính không hợp lệ.',
             'variants.*.size.required' => 'Kích thước của biến thể là bắt buộc.',
             'variants.*.size.max' => 'Kích thước không được vượt quá 100 ký tự.',
             'variants.*.price_modifier.required' => 'Giá chênh lệch là bắt buộc.',
@@ -154,6 +154,18 @@ class ProductController
             return back()
                 ->withErrors(['name' => 'Tên sản phẩm hoặc đường dẫn (slug) đã tồn tại.'])
                 ->withInput();
+        }
+
+        // Kiểm tra trùng lặp tên giữa các biến thể
+        $variantNames = [];
+        foreach ($request->variants as $index => $variant) {
+            $name = trim($variant['name_variant'] ?? '');
+            if (in_array($name, $variantNames)) {
+                return back()
+                    ->withErrors(['variants.' . $index . '.name_variant' => 'Tên biến thể không được trùng lặp.'])
+                    ->withInput();
+            }
+            $variantNames[] = $name;
         }
 
         $product = Product::create([
@@ -184,7 +196,6 @@ class ProductController
         if ($request->has('variants')) {
             foreach ($request->variants as $index => $variant) {
                 $variantImageId = null;
-                // Sửa lấy file ảnh đúng chuẩn Laravel
                 if ($request->hasFile("variants.$index.image")) {
                     $file = $request->file("variants.$index.image");
                     $fileName = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
@@ -202,7 +213,6 @@ class ProductController
                     'stock_quantity' => $variant['stock_quantity'] ?? 0,
                     'image_id' => $variantImageId,
                 ]);
-                // Lưu thuộc tính cho variant
                 if (isset($variant['attribute_values'])) {
                     foreach ($variant['attribute_values'] as $attribute_id => $value_id) {
                         if ($value_id) {
@@ -215,6 +225,7 @@ class ProductController
 
         return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công!');
     }
+
     public function update(Request $request, $id)
     {
         // Xử lý format giá trước khi validate
@@ -228,7 +239,6 @@ class ProductController
             return back()->with('success', 'Cập nhật trạng thái thành công!');
         }
 
-        // Đếm số ảnh sẽ còn lại sau khi cập nhật
         $keepImages = $request->input('keep_images', []);
         $newImages = $request->file('images', []);
         $totalImages = count($keepImages) + (is_array($newImages) ? count($newImages) : 0);
@@ -289,41 +299,37 @@ class ProductController
 
         $slug = Str::slug($validated['name']);
 
-        // Kiểm tra trùng tên hoặc slug (trừ sản phẩm hiện tại)
-        $exists = Product::where(function($q) use ($validated, $slug, $id) {
-                $q->where('name', $validated['name'])
-                  ->orWhere('slug', $slug);
-            })
-            ->where('id', '!=', $id)
-            ->exists();
+        $exists = Product::where(function ($q) use ($validated, $slug, $id) {
+            $q->where('name', $validated['name'])->orWhere('slug', $slug);
+        })->where('id', '!=', $id)->exists();
 
         if ($exists) {
-            return back()
-                ->withErrors(['name' => 'Tên sản phẩm hoặc đường dẫn (slug) đã tồn tại.'])
-                ->withInput();
+            return back()->withErrors(['name' => 'Tên sản phẩm hoặc đường dẫn (slug) đã tồn tại.'])->withInput();
         }
 
-        // Đếm số ảnh sẽ còn lại sau khi cập nhật
-        $keepImages = $request->input('keep_images', []);
-        $newImages = $request->file('images', []);
-        $totalImages = count($keepImages) + (is_array($newImages) ? count($newImages) : 0);
-
-        // Validate bắt buộc phải còn ít nhất 1 ảnh sau khi cập nhật
         if ($totalImages < 1) {
-            return back()
-                ->withErrors(['images' => 'Sản phẩm phải có ít nhất 1 ảnh.'])
-                ->withInput();
+            return back()->withErrors(['images' => 'Sản phẩm phải có ít nhất 1 ảnh.'])->withInput();
         }
 
-        // Validate biến thể phải có ảnh (cũ hoặc mới)
         $variantErrors = [];
         foreach ($request->variants as $i => $variant) {
-            $hasOld = !empty($variant['id']) && $product->variants->where('id', $variant['id'])->first() && $product->variants->where('id', $variant['id'])->first()->image_id;
+            $hasOld = !empty($variant['id']) && $product->variants->where('id', $variant['id'])->first()?->image_id;
             $hasNew = isset($variant['new_image']) && $variant['new_image'];
             if (!$hasOld && !$hasNew) {
                 $variantErrors["variants.$i.new_image"] = "Ảnh biến thể là bắt buộc.";
             }
         }
+
+        // Kiểm tra trùng lặp tên biến thể
+        $variantKeys = [];
+        foreach ($request->variants as $index => $variant) {
+            $name = trim($variant['name_variant'] ?? '');
+            if (in_array($name, $variantKeys)) {
+                $variantErrors["variants.$index.name_variant"] = 'Tên biến thể không được trùng lặp.';
+            }
+            $variantKeys[] = $name;
+        }
+
         if (!empty($variantErrors)) {
             return back()->withErrors($variantErrors)->withInput();
         }
