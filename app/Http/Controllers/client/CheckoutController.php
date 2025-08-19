@@ -283,7 +283,141 @@ class CheckoutController
         $tax = 0;
         $totalAmount = $subtotal + $shippingFee + $tax - $discount;
 
-        // Xác thực lại giỏ hàng trước khi xử lý
+        // --- Tạo đơn hàng trước khi thanh toán VNPAY ---
+        // Ghép địa chỉ người mua
+        $fullBuyerAddress = implode(', ', array_filter([
+            $validatedData['buyer_address'],
+            $validatedData['buyer_ward'],
+            // $validatedData['buyer_district'],
+            $validatedData['buyer_province'],
+        ]));
+
+        // Xử lý thông tin giao hàng
+        if ($request->filled('ship_to_different_address')) {
+            $shippingName    = $validatedData['shipping_name'];
+            $shippingPhone   = $validatedData['shipping_phone'];
+            $shippingEmail   = $validatedData['shipping_email'];
+            $fullShippingAddress = implode(', ', array_filter([
+                $validatedData['shipping_address'],
+                $validatedData['shipping_ward'],
+                // $validatedData['shipping_district'],
+                $validatedData['shipping_province'],
+            ]));
+        } else {
+            $shippingName    = $validatedData['buyer_name'];
+            $shippingPhone   = $validatedData['buyer_phone'];
+            $shippingEmail   = $validatedData['buyer_email'];
+            $fullShippingAddress = $fullBuyerAddress;
+        }
+
+        $orderData = [
+            'order_code'         => 'ORD-' . strtoupper(uniqid()),
+            'ordered_at'         => now(),
+            'customer_name'      => $validatedData['buyer_name'],
+            'customer_phone'     => $validatedData['buyer_phone'],
+            'customer_email'     => $validatedData['buyer_email'],
+            'buyer_name'         => $validatedData['buyer_name'],
+            'buyer_phone'        => $validatedData['buyer_phone'],
+            'buyer_email'        => $validatedData['buyer_email'],
+            'buyer_address'      => $fullBuyerAddress,
+            'customer_note'      => $validatedData['customer_note'],
+            'payment_method_id'  => $validatedData['payment_method_id'],
+            'shipping_method_id' => $validatedData['shipping_method_id'],
+            'subtotal_amount'    => $subtotal,
+            'tax_amount'         => $tax,
+            'shipping_fee'       => $shippingFee,
+            'discount_amount'    => $discount,
+            'discount_code'      => $cart['discount_code'] ?? null,
+            'total_amount'       => $totalAmount,
+            'order_status'       => 'pending_confirmation',
+            'shipping_name'      => $shippingName,
+            'shipping_phone'     => $shippingPhone,
+            'shipping_email'     => $shippingEmail,
+            'shipping_address'   => $fullShippingAddress,
+            'payment_status'     => 'pending',
+        ];
+        if (Auth::check()) {
+            $orderData['user_id'] = Auth::id();
+        }
+        $order = Order::create($orderData);
+        foreach ($cart['items'] as $item) {
+            OrderItem::create([
+                'order_id'           => $order->id,
+                'product_id'         => $item['product_id'],
+                'product_variant_id' => $item['product_variant_id'],
+                'quantity'           => $item['quantity'],
+                'price'              => $item['price_at_addition'],
+                'subtotal'           => $item['price_at_addition'] * $item['quantity'],
+                'product_name'       => $item['product']['name'],
+            ]);
+            // --- START: Cập nhật kho hàng an toàn (chống race condition) ---
+            if ($item['product_variant_id']) {
+                $updated = ProductVariant::where('id', $item['product_variant_id'])
+                    ->where('stock_quantity', '>=', $item['quantity'])
+                    ->decrement('stock_quantity', $item['quantity']);
+                if (!$updated) {
+                    throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
+                }
+            } else {
+                $updated = Product::where('id', $item['product_id'])
+                    ->where('stock_quantity', '>=', $item['quantity'])
+                    ->decrement('stock_quantity', $item['quantity']);
+                if (!$updated) {
+                    throw new \Exception("Sản phẩm '{$item['product']['name']}' đã hết hàng hoặc không đủ số lượng.");
+                }
+            }
+            // --- END: Cập nhật kho hàng an toàn ---
+        }
+
+        if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'VNPAY') {
+            // Gọi phương thức pay của VnPayController
+            $vnpayController = new \App\Http\Controllers\VnPayController();
+            $vnpayRequest = new Request();
+            $vnpayRequest->replace([
+                'total_vnpay' => $totalAmount,
+                'order_code' => $order->order_code, // truyền đúng mã đơn hàng
+            ]);
+            $vnpResponse = $vnpayController->pay($vnpayRequest);
+            if ($vnpResponse instanceof \Illuminate\Http\RedirectResponse) {
+                return $vnpResponse;
+            }
+            if (is_object($vnpResponse) && method_exists($vnpResponse, 'getData')) {
+                $data = $vnpResponse->getData(true);
+                if (!empty($data['data'])) {
+                    return redirect()->away($data['data']);
+                }
+            }
+            if (is_string($vnpResponse)) {
+                return redirect()->away($vnpResponse);
+            }
+            return back()->with('error', 'Không thể chuyển hướng sang VNPAY!');
+        }
+
+        if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'MOMO') {
+            // Gọi phương thức pay của MomoController
+            $momoController = new \App\Http\Controllers\MomoController();
+            $momoRequest = new Request();
+            $momoRequest->replace([
+                'total_momo' => $totalAmount,
+                'order_code' => $order->order_code, // truyền đúng mã đơn hàng
+            ]);
+            $momoResponse = $momoController->pay($momoRequest);
+            if ($momoResponse instanceof \Illuminate\Http\RedirectResponse) {
+                return $momoResponse;
+            }
+            if (is_object($momoResponse) && method_exists($momoResponse, 'getData')) {
+                $data = $momoResponse->getData(true);
+                if (!empty($data['payUrl'])) {
+                    return redirect()->away($data['payUrl']);
+                }
+            }
+            if (is_string($momoResponse)) {
+                return redirect()->away($momoResponse);
+            }
+            return back()->with('error', 'Không thể chuyển hướng sang MoMo!');
+        }
+        
+        // --- START: Xác thực lại giỏ hàng trước khi xử lý ---
         foreach ($cart['items'] as $key => $item) {
             // Lấy tên sản phẩm từ session một cách an toàn để hiển thị lỗi
             $productName = $item['product']['name'] ?? 'Một sản phẩm';
@@ -310,6 +444,7 @@ class CheckoutController
                 }
             }
         }
+        // --- END: Xác thực lại giỏ hàng ---
 
         DB::beginTransaction();
         try {
@@ -387,79 +522,6 @@ class CheckoutController
                 $orderData['user_id'] = Auth::id();
             }
           
-            // Tạo đơn hàng
-            $order = Order::create($orderData);
-            
-            // Tạo order items
-            foreach ($cart['items'] as $item) {
-                OrderItem::create([
-                    'order_id'           => $order->id,
-                    'product_id'         => $item['product_id'],
-                    'product_variant_id' => $item['product_variant_id'],
-                    'quantity'           => $item['quantity'],
-                    'price'              => $item['price_at_addition'],
-                    'subtotal'           => $item['price_at_addition'] * $item['quantity'],
-                    'product_name'       => $item['product']['name'],
-                ]);
-            }
-            
-            // Tăng số lần sử dụng voucher nếu có
-            if ($discountCode) {
-                $promotion = \App\Models\Promotion::where('code', $discountCode)->first();
-                if ($promotion) {
-                    $promotion->increment('times_used');
-                }
-            }
-
-            // Xử lý thanh toán VNPAY
-            if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'VNPAY') {
-                // Gọi phương thức pay của VnPayController
-                $vnpayController = new \App\Http\Controllers\VnPayController();
-                $vnpayRequest = new Request();
-                $vnpayRequest->replace([
-                    'total_vnpay' => $totalAmount,
-                    'order_code' => $order->order_code,
-                ]);
-                $vnpResponse = $vnpayController->pay($vnpayRequest);
-                if ($vnpResponse instanceof \Illuminate\Http\RedirectResponse) {
-                    return $vnpResponse;
-                }
-                if (is_object($vnpResponse) && method_exists($vnpResponse, 'getData')) {
-                    $data = $vnpResponse->getData(true);
-                    if (!empty($data['data'])) {
-                        return redirect()->away($data['data']);
-                    }
-                }
-                if (is_string($vnpResponse)) {
-                    return redirect()->away($vnpResponse);
-                }
-                return back()->with('error', 'Không thể chuyển hướng sang VNPAY!');
-            }
-
-            // Xử lý thanh toán MOMO
-            if (PaymentMethod::find($validatedData['payment_method_id'])->name === 'MOMO') {
-                // Gọi phương thức pay của MomoController
-                $momoController = new \App\Http\Controllers\MomoController();
-                $momoRequest = new Request();
-                $momoRequest->replace([
-                    'total_momo' => $totalAmount,
-                    'order_code' => $order->order_code,
-                ]);
-                $momoResponse = $momoController->pay($momoRequest);
-                if ($momoResponse instanceof \Illuminate\Http\RedirectResponse) {
-                    return $momoResponse;
-                }
-                if (is_object($momoResponse) && method_exists($momoResponse, 'getData')) {
-                    $data = $momoResponse->getData(true);
-                    if (!empty($data['payUrl'])) {
-                        return redirect()->away($data['payUrl']);
-                    }
-                }
-                if (is_string($momoResponse)) {
-                    return redirect()->away($momoResponse);
-                }
-                return back()->with('error', 'Không thể chuyển hướng sang MoMo!');
-            }
 
             // Xóa dữ liệu checkout khỏi session sau khi hoàn thành
             Session::forget('checkout');
