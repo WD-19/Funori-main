@@ -85,14 +85,27 @@
                                     <div class="detail-item">
                                         <i class="fas fa-user text-muted me-2"></i>
                                         <span class="small" title="Số lần bạn đã sử dụng voucher này">
-                                            Bạn đã dùng: {{ $voucher->user_used_count ?? 0 }}/{{ $voucher->usage_limit_per_user }}
                                             @php
-                                                $userRemainingUses = $voucher->usage_limit_per_user - ($voucher->user_used_count ?? 0);
+                                                $userUsedCount = $voucher->user_used_count ?? 0;
+                                                $userLimit = $voucher->usage_limit_per_user;
+                                                $userRemainingUses = $userLimit - $userUsedCount;
+                                                
+                                                // Kiểm tra tính hợp lý của dữ liệu
+                                                $isDataValid = $userUsedCount <= $userLimit;
                                             @endphp
-                                            @if($userRemainingUses > 0)
-                                                <span class="text-success">(Còn {{ $userRemainingUses }} lượt)</span>
+                                            
+                                            @if($isDataValid)
+                                                <strong>Bạn đã dùng:</strong> {{ $userUsedCount }}/{{ $userLimit }}
+                                                @if($userRemainingUses > 0)
+                                                    <span class="text-success">(Còn {{ $userRemainingUses }} lượt)</span>
+                                                @else
+                                                    <span class="text-danger">(Đã hết)</span>
+                                                @endif
                                             @else
-                                                <span class="text-danger">(Đã hết)</span>
+                                                <span class="text-warning">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                    Dữ liệu không hợp lệ ({{ $userUsedCount }}/{{ $userLimit }})
+                                                </span>
                                             @endif
                                         </span>
                                     </div>
@@ -113,7 +126,10 @@
                                 @php
                                     $userCanUse = true;
                                     if (Auth::check() && $voucher->usage_limit_per_user) {
-                                        $userCanUse = ($voucher->user_used_count ?? 0) < $voucher->usage_limit_per_user;
+                                        $userUsedCount = $voucher->user_used_count ?? 0;
+                                        $userLimit = $voucher->usage_limit_per_user;
+                                        // Kiểm tra tính hợp lý và giới hạn
+                                        $userCanUse = $userUsedCount <= $userLimit && $userUsedCount < $userLimit;
                                     }
                                 @endphp
                                 
@@ -123,15 +139,28 @@
                                         Chọn
                                     </button>
                                 @else
-                                    <span class="btn btn-warning btn-sm disabled">
-                                        <i class="fas fa-user-times me-1"></i>
-                                        Đã dùng
-                                    </span>
+                                    @php
+                                        $userUsedCount = $voucher->user_used_count ?? 0;
+                                        $userLimit = $voucher->usage_limit_per_user;
+                                        $isDataValid = $userUsedCount <= $userLimit;
+                                    @endphp
+                                    
+                                    @if($isDataValid)
+                                        <span class="btn btn-warning btn-sm disabled">
+                                            <i class="fas fa-user-times me-1"></i>
+                                            Đã dùng hết lượt
+                                        </span>
+                                    @else
+                                        <span class="btn btn-danger btn-sm disabled">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Dữ liệu lỗi
+                                        </span>
+                                    @endif
                                 @endif
                             @else
                                 <span class="btn btn-secondary btn-sm disabled">
                                     <i class="fas fa-times me-1"></i>
-                                    Hết lượt
+                                    Hết lượt tổng
                                 </span>
                             @endif
                         </div>
