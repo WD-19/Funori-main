@@ -10,9 +10,19 @@ use App\Models\Address;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Order; // Add this at the top if not already imported
 use App\Models\Promotion;
+use App\Models\Refund;
+use Illuminate\Support\Facades\Log; // Added for debug logging
+use App\Services\RefundService; // Thêm import
 
 class ProfileController
 {
+    protected $refundService;
+
+    public function __construct(RefundService $refundService)
+    {
+        $this->refundService = $refundService;
+    }
+
     public function dashboard()
     {
         return view('client.profile.dashboard', [
@@ -21,26 +31,26 @@ class ProfileController
     }
 
     public function order(Request $request)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    // Lọc trạng thái nếu có
-    $status = $request->query('order_status', 'all');
+        // Lọc trạng thái nếu có
+        $status = $request->query('order_status', 'all');
 
-    $ordersQuery = $user->orders()->latest(); // orderBy created_at DESC
+        $ordersQuery = $user->orders()->latest(); // orderBy created_at DESC
 
-    // Lọc theo trạng thái đơn hàng
-    if ($status !== 'all') {
-        $ordersQuery->where('order_status', $status);
+        // Lọc theo trạng thái đơn hàng
+        if ($status !== 'all') {
+            $ordersQuery->where('order_status', $status);
+        }
+
+        $orders = $ordersQuery->with(['refunds', 'paymentMethod'])->get();
+
+        return view('client.profile.order', [
+            'pageTitle' => 'My Orders',
+            'orders' => $orders // <-- chỉ truyền 1 danh sách, không groupBy nữa
+        ]);
     }
-
-    $orders = $ordersQuery->get();
-
-    return view('client.profile.order', [
-        'pageTitle' => 'My Orders',
-        'orders' => $orders // <-- chỉ truyền 1 danh sách, không groupBy nữa
-    ]);
-}
 
     public function detailOrder($orderId)
     {
@@ -278,37 +288,84 @@ class ProfileController
      */
     public function cancelOrder(Request $request, Order $order)
     {
-        // Nếu là request JSON (AJAX), merge dữ liệu vào $request
-        if ($request->isJson()) {
-            $request->merge($request->json()->all());
+        try {
+            // ✅ Merge JSON body nếu request là JSON
+            if ($request->isJson()) {
+                $request->merge($request->json()->all());
+            }
+
+            // Thêm debug log
+            Log::info('Cancel order request', [
+                'request_data' => $request->all(),
+                'order_id' => $order->id,
+                'order_status' => $order->order_status,
+                'user_id' => auth()->id(),
+                'order_user_id' => $order->user_id
+            ]);
+
+            $request->validate([
+                'cancellation_reason' => 'required|string|max:255',
+                'cancel_reason_other' => 'nullable|string|max:255',
+            ]);
+
+            // Quyền
+            if ($order->user_id !== auth()->id()) {
+                Log::warning('Unauthorized cancel attempt', [
+                    'user_id' => auth()->id(),
+                    'order_user_id' => $order->user_id
+                ]);
+                return response()->json(['success' => false, 'message' => 'Không có quyền hủy đơn hàng này!'], 403);
+            }
+
+            // Trạng thái cho phép - mở rộng danh sách trạng thái
+            $allowedStatuses = ['pending_confirmation', 'processing', 'confirmed', 'paid'];
+            if (!in_array($order->order_status, $allowedStatuses)) {
+                Log::warning('Invalid order status for cancellation', [
+                    'order_status' => $order->order_status,
+                    'allowed_statuses' => $allowedStatuses
+                ]);
+                return response()->json(['success' => false, 'message' => 'Đơn hàng không thể hủy ở trạng thái hiện tại!'], 400);
+            }
+
+            $reason = $request->cancellation_reason === 'other'
+                ? ($request->cancel_reason_other ?: 'Khách hủy - lý do khác')
+                : $request->cancellation_reason;
+
+            // Gọi RefundService
+            $result = $this->refundService->processRefund($order, $reason);
+
+            Log::info('Refund service result', [
+                'order_id' => $order->id,
+                'result' => $result
+            ]);
+
+            if ($result['success'] ?? false) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'] ?? 'Hủy đơn hàng thành công',
+                    'type' => $result['type'] ?? 'cancellation',
+                    'refund_id' => $result['refund_id'] ?? null
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'] ?? 'Hủy đơn hàng thất bại'
+            ], 400);
+
+        } catch (\Exception $e) {
+            Log::error('Cancel order error', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
         }
-
-        $request->validate([
-            'cancellation_reason' => 'required|string|max:255',
-            'cancel_reason_other' => 'nullable|string|max:255',
-        ]);
-
-        // Kiểm tra quyền và trạng thái đơn hàng
-        if ($order->user_id !== auth()->id()) {
-            return response()->json(['success' => false, 'message' => 'Không có quyền hủy đơn hàng này!'], 403);
-        }
-
-        if (!in_array($order->order_status, ['pending_confirmation', 'processing'])) {
-            return response()->json(['success' => false, 'message' => 'Đơn hàng không thể hủy ở trạng thái hiện tại!'], 400);
-        }
-
-        $reason = $request->cancellation_reason === 'other'
-            ? $request->cancel_reason_other
-            : $request->cancellation_reason;
-
-        $order->order_status = 'cancelled';
-        $order->cancelled_at = now();
-        $order->cancellation_reason = $reason;
-        $order->save();
-
-        return response()->json(['success' => true]);
     }
-
     public function repeatOrder($id)
     {
         $order = Order::with('items')->findOrFail($id);
@@ -423,23 +480,23 @@ class ProfileController
     }
 
     public function ajaxOrderList(Request $request)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $status = $request->query('order_status', 'all');
+        $status = $request->query('order_status', 'all');
 
-    $ordersQuery = $user->orders()->latest(); // orderBy created_at DESC
+        $ordersQuery = $user->orders()->latest(); // orderBy created_at DESC
 
-    if ($status !== 'all') {
-        $ordersQuery->where('order_status', $status);
+        if ($status !== 'all') {
+            $ordersQuery->where('order_status', $status);
+        }
+
+        $orders = $ordersQuery->get();
+
+        return view('client.profile.order_list', [
+            'orders' => $orders // <-- truyền 1 danh sách
+        ])->render();
     }
-
-    $orders = $ordersQuery->get();
-
-    return view('client.profile.order_list', [
-        'orders' => $orders // <-- truyền 1 danh sách
-    ])->render();
-}
 
     public function markDelivered($orderId)
     {
@@ -461,5 +518,25 @@ class ProfileController
         }
         // Redirect về trang đơn hàng (hoặc trang trước đó)
         return redirect()->back();
+    }
+
+    /**
+     * Hiển thị trang thông tin hoàn tiền
+     */
+    public function refunds()
+    {
+        $user = Auth::user();
+
+        $refunds = Refund::with('order')
+            ->whereHas('order', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('client.profile.refund-info', [
+            'pageTitle' => 'Thông tin hoàn tiền',
+            'refunds' => $refunds
+        ]);
     }
 }

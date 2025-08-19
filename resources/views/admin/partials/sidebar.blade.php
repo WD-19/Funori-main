@@ -249,6 +249,17 @@
                             </li>
                         </ul>
                     </li>
+                    <!-- Hoàn Tiền -->
+                    <li class="menu-item {{ request()->routeIs('admin.refunds.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.refunds.index') }}">
+                            <div class="icon">
+                                <svg width="24" height="24" fill="none">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </div>
+                            <div class="text">Hoàn Tiền</div>
+                        </a>
+                    </li>
                     <!-- Shipper -->
                     <li class="menu-item has-children {{ request()->routeIs('admin.shippers.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">

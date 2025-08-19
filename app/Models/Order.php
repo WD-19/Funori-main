@@ -12,6 +12,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'order_code',
+        'transaction_id',        // ✅ Thêm vào
         'customer_name',
         'customer_email',
         'customer_phone',
@@ -36,6 +37,9 @@ class Order extends Model
         'customer_note',
         'admin_note',
         'ordered_at',
+        'processing_at',
+        'shipped_at',
+        'returned_at',
         'received_at',
         'in_delivery_at',
         'delivered_at',
@@ -63,6 +67,9 @@ class Order extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'ordered_at' => 'datetime',
+        'processing_at' => 'datetime',    // ✅ Thêm vào
+        'shipped_at' => 'datetime',       // ✅ Thêm vào
+        'returned_at' => 'datetime',      // ✅ Thêm vào
         'payment_details' => 'array',
         'received_at' => 'datetime',
         'in_delivery_at' => 'datetime',
@@ -70,8 +77,8 @@ class Order extends Model
         'failed_at' => 'datetime',
         'cancelled_at' => 'datetime',
         'delivery_images' => 'array',
-        'payment_status' => 'string', // Enum
-        'order_status' => 'string', // Enum
+        'payment_status' => 'string',
+        'order_status' => 'string',
     ];
 
     public function user()
@@ -97,6 +104,16 @@ class Order extends Model
     public function promotions()
     {
         return $this->belongsToMany(Promotion::class, 'order_promotion')->withPivot('discount_applied');
+    }
+
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
+    }
+
+    public function latestRefund()
+    {
+        return $this->hasOne(Refund::class)->latest();
     }
       public function status_histories()
     {
