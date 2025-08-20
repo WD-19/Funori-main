@@ -224,7 +224,7 @@
                     </div>
 
                     <!-- Step 6: Giao hàng thất bại -->
-                    <div class="timeline-item" x-show="status === 'failed'" style="display: none;">
+                    <div class="timeline-item failed" x-show="status === 'failed'" style="display: none;">
                         <div class="timeline-icon failed">
                             <i class="bi bi-x-circle-fill"></i>
                         </div>
@@ -236,8 +236,8 @@
                     </div>
 
                     <!-- Step 7: Đã hủy (hiển thị khi đơn hàng bị hủy trước khi giao) -->
-                    <div class="timeline-item" :class="{ 'completed': ['cancelled', 'returned'].includes(status) }" x-show="['cancelled', 'returned'].includes(status)" style="display: none;">
-                        <div class="timeline-icon cancelled">
+                    <div class="timeline-item" :class="{ 'completed': ['cancelled', 'returned'].includes(status), 'cancelled': status === 'cancelled', 'returned': status === 'returned' }" x-show="['cancelled', 'returned'].includes(status)" style="display: none;">
+                        <div class="timeline-icon" :class="{ 'cancelled': status === 'cancelled', 'returned': status === 'returned' }">
                             <i class="bi bi-x-circle-fill"></i>
                         </div>
                         <div class="timeline-content">
@@ -783,22 +783,25 @@
         animation: pulse 2s infinite;
     }
 
-    .timeline-item.cancelled .timeline-icon {
-        background: #dc3545;
-        color: white;
-        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2);
+    .timeline-item.cancelled .timeline-icon,
+    .timeline-icon.cancelled {
+        background: #dc3545 !important;
+        color: white !important;
+        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2) !important;
     }
 
-    .timeline-item.failed .timeline-icon {
-        background: #dc3545;
-        color: white;
-        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2);
+    .timeline-item.failed .timeline-icon,
+    .timeline-icon.failed {
+        background: #dc3545 !important;
+        color: white !important;
+        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.2) !important;
     }
 
-    .timeline-item.returned .timeline-icon {
-        background: #6c757d;
-        color: white;
-        box-shadow: 0 0 0 4px rgba(108, 117, 125, 0.2);
+    .timeline-item.returned .timeline-icon,
+    .timeline-icon.returned {
+        background: #6c757d !important;
+        color: white !important;
+        box-shadow: 0 0 0 4px rgba(108, 117, 125, 0.2) !important;
     }
 
     .timeline-icon i {

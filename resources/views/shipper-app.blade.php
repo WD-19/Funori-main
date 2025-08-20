@@ -75,6 +75,20 @@
     <div id="shipper-app"></div>
     
     <script>
+        // WebSocket Environment Variables
+        window.MIX_REVERB_APP_KEY = '{{ config("broadcasting.connections.reverb.key") }}';
+        window.MIX_REVERB_HOST = '{{ config("broadcasting.connections.reverb.options.host") }}';
+        window.MIX_REVERB_PORT = '{{ config("broadcasting.connections.reverb.options.port") }}';
+        window.MIX_REVERB_SCHEME = '{{ config("broadcasting.connections.reverb.options.scheme") }}';
+        
+        // Debug: Log environment variables
+        console.log('Environment variables:', {
+            key: window.MIX_REVERB_APP_KEY,
+            host: window.MIX_REVERB_HOST,
+            port: window.MIX_REVERB_PORT,
+            scheme: window.MIX_REVERB_SCHEME
+        });
+        
         // Simple app ready handler
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {

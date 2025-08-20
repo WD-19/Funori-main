@@ -12,10 +12,16 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        // Example:
-        // 'App\Events\UserRegistered' => [
-        //     'App\Listeners\SendWelcomeEmail',
-        // ],
+        // Order events
+        'App\Events\OrderStatusUpdated' => [
+            // Có thể thêm listeners ở đây nếu cần
+        ],
+        'App\Events\OrderLocationUpdated' => [
+            // Có thể thêm listeners ở đây nếu cần
+        ],
+        'App\Events\NewOrderCreated' => [
+            // Có thể thêm listeners ở đây nếu cần
+        ],
     ];
 
     /**

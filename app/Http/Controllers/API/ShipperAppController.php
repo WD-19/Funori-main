@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\RateLimiter;
 
 class ShipperAppController extends Controller
 {
@@ -310,7 +311,7 @@ class ShipperAppController extends Controller
             $shipper = Auth::user();
             
             $request->validate([
-                'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled,returned',
+                'status' => 'required|in:pending,confirmed,processing,shipped,delivered,failed,cancelled,returned',
                 'notes' => 'nullable|string|max:500',
                 'location' => 'nullable|array',
                 'location.lat' => 'nullable|numeric',
@@ -337,11 +338,14 @@ class ShipperAppController extends Controller
                 'status' => $request->status
             ]);
 
+            $oldStatus = $order->order_status;
+
             // Cập nhật trạng thái
             $order->update([
                 'order_status' => $request->status,
                 'delivery_notes' => $request->notes,
-                'delivered_at' => $request->status === 'delivered' ? now() : null
+                'delivered_at' => $request->status === 'delivered' ? now() : null,
+                'failed_at' => $request->status === 'failed' ? now() : null
             ]);
 
             // Xử lý hoàn trả về kho
@@ -356,6 +360,15 @@ class ShipperAppController extends Controller
                     'delivery_lat' => $request->location['lat'],
                     'delivery_lng' => $request->location['lng']
                 ]);
+                
+                // Dispatch location update event
+                event(new \App\Events\OrderLocationUpdated(
+                    $order, 
+                    $request->location['lat'], 
+                    $request->location['lng'], 
+                    null, 
+                    'shipper'
+                ));
             }
 
             // Xử lý upload ảnh
@@ -396,6 +409,11 @@ class ShipperAppController extends Controller
 
             // Tạo thông báo cho khách hàng
             $this->createOrderNotification($order, $request->status, $request->notes);
+
+            // Dispatch WebSocket event for realtime updates
+            if ($oldStatus !== $request->status) {
+                event(new \App\Events\OrderStatusUpdated($order, $oldStatus, $request->status, 'shipper'));
+            }
 
             return response()->json([
                 'success' => true,
@@ -604,22 +622,73 @@ class ShipperAppController extends Controller
             $shipper = Auth::user();
             
             $request->validate([
-                'lat' => 'required|numeric',
-                'lng' => 'required|numeric',
-                'accuracy' => 'nullable|numeric',
-                'speed' => 'nullable|numeric',
-                'heading' => 'nullable|numeric',
+                'latitude' => 'required|numeric|between:-90,90',
+                'longitude' => 'required|numeric|between:-180,180',
+                'address' => 'nullable|string|max:500',
+                'order_id' => 'nullable|exists:orders,id',
             ]);
 
+            // Rate limiting: tối đa 10 location updates mỗi phút
+            $key = 'location_update_' . $shipper->id;
+            if (RateLimiter::tooManyAttempts($key, 10)) {
+                $seconds = RateLimiter::availableIn($key);
+                return response()->json([
+                    'success' => false,
+                    'message' => "Quá nhiều cập nhật vị trí. Vui lòng thử lại sau {$seconds} giây.",
+                    'retry_after' => $seconds
+                ], 429);
+            }
+
+            // Hit rate limiter
+            RateLimiter::hit($key, 60); // 1 phút
+
+            // Cập nhật vị trí shipper
             $shipper->update([
-                'current_lat' => $request->lat,
-                'current_lng' => $request->lng,
-                'location_updated_at' => now()
+                'current_lat' => $request->latitude,
+                'current_lng' => $request->longitude,
+                'last_location_update' => now(),
             ]);
+
+            // Nếu có order_id, cập nhật vị trí đơn hàng
+            if ($request->order_id) {
+                $order = Order::where('id', $request->order_id)
+                    ->where('shipper_id', $shipper->id)
+                    ->first();
+
+                if ($order) {
+                    $order->update([
+                        'delivery_lat' => $request->latitude,
+                        'delivery_lng' => $request->longitude,
+                        'delivery_address' => $request->address,
+                    ]);
+
+                    // Dispatch location update event
+                    event(new \App\Events\OrderLocationUpdated(
+                        $order, 
+                        $request->latitude, 
+                        $request->longitude, 
+                        $request->address, 
+                        'shipper'
+                    ));
+
+                    Log::info('Shipper location updated for order', [
+                        'shipper_id' => $shipper->id,
+                        'order_id' => $order->id,
+                        'latitude' => $request->latitude,
+                        'longitude' => $request->longitude,
+                    ]);
+                }
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cập nhật vị trí thành công'
+                'message' => 'Cập nhật vị trí thành công',
+                'data' => [
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
+                    'address' => $request->address,
+                    'timestamp' => now()->toISOString(),
+                ]
             ]);
 
         } catch (ValidationException $e) {
@@ -629,10 +698,16 @@ class ShipperAppController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            Log::error('Update location error: ' . $e->getMessage());
+            Log::error('Shipper location update error: ' . $e->getMessage(), [
+                'shipper_id' => $shipper->id ?? null,
+                'request_data' => $request->all(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi cập nhật vị trí'
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage()
             ], 500);
         }
     }

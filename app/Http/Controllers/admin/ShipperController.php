@@ -186,30 +186,106 @@ class ShipperController extends Controller
      */
     public function processAssignOrders(Request $request)
     {
+        // Debug: Log incoming request
+        \Log::info('🚀 processAssignOrders called', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'all_data' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        // Debug: Log incoming request
+        \Log::info('🚀 processAssignOrders called', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'all_data' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        // Validate request - chỉ cần có assignments array
         $request->validate([
             'assignments' => 'required|array',
-            'assignments.*.order_id' => 'required|exists:orders,id',
-            'assignments.*.shipper_id' => 'required|exists:shippers,id',
         ]);
 
         $assignedCount = 0;
+        $skippedCount = 0;
+        $errors = [];
 
         foreach ($request->assignments as $assignment) {
+            // Kiểm tra xem có order_id và shipper_id không
+            if (!isset($assignment['order_id']) || !isset($assignment['shipper_id'])) {
+                continue; // Bỏ qua nếu thiếu dữ liệu
+            }
+
             $order = Order::find($assignment['order_id']);
             $shipper = Shipper::find($assignment['shipper_id']);
 
-            if ($order && $shipper && !$order->shipper_id) {
-                $order->update([
-                    'shipper_id' => $shipper->id,
-                    // Không sử dụng trạng thái "assigned" để tránh khoá cập nhật bên admin
-                    'order_status' => 'processing'
+            // Validate order và shipper
+            if (!$order) {
+                \Log::warning("Order not found", ['order_id' => $assignment['order_id']]);
+                continue;
+            }
+
+            if (!$shipper) {
+                \Log::warning("Shipper not found", ['shipper_id' => $assignment['shipper_id']]);
+                continue;
+            }
+
+            // Kiểm tra xem đơn hàng đã có shipper chưa
+            if ($order->shipper_id) {
+                \Log::info("Order already has shipper", [
+                    'order_id' => $order->id,
+                    'order_code' => $order->order_code,
+                    'current_shipper_id' => $order->shipper_id
                 ]);
+                continue;
+            }
+
+            try {
+                // Update order với shipper - đơn giản
+                $order->shipper_id = $shipper->id;
+                $order->save();
+
                 $assignedCount++;
+                
+                // Log thành công
+                \Log::info("✅ Order assigned successfully", [
+                    'order_id' => $order->id,
+                    'order_code' => $order->order_code,
+                    'shipper_id' => $shipper->id,
+                    'shipper_name' => $shipper->name
+                ]);
+
+            } catch (\Exception $e) {
+                \Log::error("❌ Error assigning order", [
+                    'order_id' => $order->id,
+                    'shipper_id' => $shipper->id,
+                    'error' => $e->getMessage()
+                ]);
             }
         }
 
-        return redirect()->route('admin.shippers.assign-orders')
-            ->with('success', "Đã phân chia {$assignedCount} đơn hàng thành công!");
+        // Response message đơn giản
+        if ($assignedCount > 0) {
+            $message = "✅ Đã phân chia {$assignedCount} đơn hàng thành công!";
+            
+            \Log::info("🎯 Assignment completed successfully", [
+                'assigned_count' => $assignedCount,
+                'request_data' => $request->all()
+            ]);
+            
+            return redirect()->route('admin.shippers.assign-orders')
+                ->with('success', $message);
+        } else {
+            $message = "❌ Không có đơn hàng nào được phân chia thành công!";
+            
+            \Log::warning("⚠️ No orders assigned", [
+                'request_data' => $request->all()
+            ]);
+            
+            return redirect()->route('admin.shippers.assign-orders')
+                ->with('error', $message);
+        }
     }
 
     /**

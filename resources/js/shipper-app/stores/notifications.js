@@ -104,7 +104,7 @@ export const useNotificationStore = defineStore('notifications', () => {
     
     // Poll for notifications every 30 seconds
     pollingInterval = setInterval(async () => {
-      if (!isWebSocketConnected.value) {
+      if (!window.isWebSocketConnected?.value) {
         try {
           await fetchNotifications()
         } catch (error) {
