@@ -462,6 +462,12 @@
                             updateCartCountBadge(data.cartCount);
                         }
                         updateMiniCartContent();
+                        if (data.hasOwnProperty('discount')) {
+                            window.lastDiscountAmount = data.discount || 0;
+                            if (typeof window.updateSelectedTotal === 'function') {
+                                window.updateSelectedTotal();
+                            }
+                        }
                         alert('Đã xóa sản phẩm khỏi giỏ hàng!');
                     } else {
                         alert(data.message || 'Có lỗi xảy ra!');

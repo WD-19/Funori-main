@@ -15,9 +15,8 @@ class PageController
     {
         $posts = Page::with('author')
             ->where('status', 'published')
-            ->where('page_type', 'blog_post')
             ->orderByDesc('published_at')
-            ->paginate(15); // Thay get() bằng paginate(15)
+            ->paginate(15);
 
         return view('client.page.page', compact('posts'));
     }
@@ -26,21 +25,19 @@ class PageController
     {
         $post = Page::with('author')
             ->where('status', 'published')
-            ->where('page_type', 'blog_post')
             ->where('slug', $slug)
             ->firstOrFail();
 
         // Lấy 4 bài viết khác ngẫu nhiên (trừ bài hiện tại)
-    $otherPosts = Page::where('status', 'published')
-        ->where('page_type', 'blog_post')
-        ->where('id', '!=', $post->id)
-        ->inRandomOrder()
-        ->limit(4)
-        ->get();
+        $otherPosts = Page::where('status', 'published')
+            ->where('id', '!=', $post->id)
+            ->inRandomOrder()
+            ->limit(4)
+            ->get();
 
-    // Lấy 4 sản phẩm ngẫu nhiên
-    $suggestedProducts = Product::inRandomOrder()->limit(4)->get();
+        // Lấy 4 sản phẩm ngẫu nhiên
+        $suggestedProducts = Product::inRandomOrder()->limit(4)->get();
 
-    return view('client.page.show', compact('post', 'otherPosts', 'suggestedProducts'));
+        return view('client.page.show', compact('post', 'otherPosts', 'suggestedProducts'));
     }
 }

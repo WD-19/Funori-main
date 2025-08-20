@@ -51,6 +51,25 @@
                             </li>
                         </ul>
                     </li>
+                    <!-- Tin Nhắn Nhanh -->
+                    <li class="menu-item has-children {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon">
+                                <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7l-5 4V6a2 2 0 0 1 2-2z"
+                                        stroke="#111" stroke-width="2" fill="none" />
+                                </svg>
+                            </div>
+                            <div class="text">Tin Nhắn Nhanh</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.messages.index') }}">
+                                    <div class="text">Tất cả đoạn tin nhắn</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <!-- Thương Hiệu -->
                     <li class="menu-item has-children {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
@@ -81,8 +100,10 @@
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
                                     <rect x="4" y="6" width="16" height="2" rx="1" fill="#111" />
-                                    <rect x="4" y="11" width="16" height="2" rx="1" fill="#111" />
-                                    <rect x="4" y="16" width="16" height="2" rx="1" fill="#111" />
+                                    <rect x="4" y="11" width="16" height="2" rx="1"
+                                        fill="#111" />
+                                    <rect x="4" y="16" width="16" height="2" rx="1"
+                                        fill="#111" />
                                 </svg>
                             </div>
                             <div class="text">Danh mục</div>
@@ -127,7 +148,8 @@
                         </ul>
                     </li>
                     <!-- Phương Thức -->
-                    <li class="menu-item has-children {{ request()->routeIs('admin.payment_methods.*', 'admin.shipping_methods.*') ? 'active' : '' }}">
+                    <li
+                        class="menu-item has-children {{ request()->routeIs('admin.payment_methods.*', 'admin.shipping_methods.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
                             <div class="icon">
                                 <svg width="24" height="24" fill="none">
@@ -227,6 +249,36 @@
                             </li>
                         </ul>
                     </li>
+                    
+                    <!-- Shipper -->
+                    <li class="menu-item has-children {{ request()->routeIs('admin.shippers.*') ? 'active' : '' }}">
+                        <a href="javascript:void(0);" class="menu-item-button">
+                            <div class="icon">
+                                <svg width="24" height="24" fill="none">
+                                    <path d="M7 17l-4-4 4-4M17 7l4 4-4 4" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M13 6h-2a4 4 0 0 0 0 8h2" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="text">Shipper</div>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.shippers.index') }}">
+                                    <div class="text">Danh sách shipper</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.shippers.create') }}">
+                                    <div class="text">Thêm mới shipper</div>
+                                </a>
+                            </li>
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.shippers.assign-orders') }}">
+                                    <div class="text">Phân chia đơn hàng</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <!-- Người Dùng -->
                     <li class="menu-item has-children {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">
@@ -321,20 +373,6 @@
                             </li>
                         </ul>
                     </li>
-                    <!-- Report -->
-                    {{-- <li class="menu-item">
-                        <a href="report.html">
-                            <div class="icon">
-                                <svg width="24" height="24" fill="none">
-                                    <rect x="4" y="4" width="16" height="16" rx="2" stroke="#111"
-                                        stroke-width="2" />
-                                    <path d="M8 16v-4M12 16v-8M16 16v-2" stroke="#111" stroke-width="2"
-                                        stroke-linecap="round" />
-                                </svg>
-                            </div>
-                            <div class="text">Report</div>
-                        </a>
-                    </li> --}}
                 </ul>
             </div>
         </div>
@@ -342,10 +380,10 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const currentRoute = window.location.pathname;
         const menuItems = document.querySelectorAll('.menu-item a');
-        
+
         menuItems.forEach(item => {
             const href = item.getAttribute('href');
             if (href && currentRoute.includes(href.replace(/^\//, ''))) {
@@ -356,13 +394,15 @@
 </script>
 
 <style>
-    .menu-item.active > a {
+    .menu-item.active>a {
         background-color: #f8f9fa;
         color: #007bff;
     }
-    .menu-item.active > a .icon svg {
+
+    .menu-item.active>a .icon svg {
         fill: #007bff;
     }
+
     .menu-item.active .text {
         color: #007bff;
     }

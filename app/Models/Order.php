@@ -2,8 +2,14 @@
 
 namespace App\Models;
 
+use App\Events\NewOrderCreated;
+use App\Events\OrderStatusUpdated;
+use App\Events\OrderLocationUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Order extends Model
 {
@@ -12,6 +18,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'order_code',
+        'transaction_id',        // ✅ Thêm vào
         'customer_name',
         'customer_email',
         'customer_phone',
@@ -36,10 +43,28 @@ class Order extends Model
         'customer_note',
         'admin_note',
         'ordered_at',
+        'processing_at',
+        'shipped_at',
+        'returned_at',
+        'received_at',
+        'in_delivery_at',
         'delivered_at',
+        'failed_at',
         'cancelled_at',
         'cancellation_reason',
         'discount_code',
+        'shipper_id',
+        'delivery_notes',
+        'failure_reason',
+        'delivery_images',
+        'shipping_lat',
+        'shipping_lng',
+        'delivery_lat',
+        'delivery_lng',
+        'delivery_started_at',
+        'delivery_completed_at',
+        'delivery_address',
+        'pending_refund',        
     ];
 
     protected $casts = [
@@ -49,44 +74,74 @@ class Order extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'ordered_at' => 'datetime',
+        'processing_at' => 'datetime',    
+        'shipped_at' => 'datetime',       
+        'returned_at' => 'datetime',      
         'payment_details' => 'array',
+        'received_at' => 'datetime',
+        'in_delivery_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'failed_at' => 'datetime',
         'cancelled_at' => 'datetime',
-        'payment_status' => 'string', // Enum
-        'order_status' => 'string', // Enum
+        'delivery_images' => 'array',
+        'payment_status' => 'string',
+        'order_status' => 'string',
     ];
 
-    public function user()
+    protected $dispatchesEvents = [
+        'created' => NewOrderCreated::class,
+    ];
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function paymentMethod()
+    public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);
     }
 
-    public function shippingMethod()
+    public function shippingMethod(): BelongsTo
     {
         return $this->belongsTo(ShippingMethod::class);
     }
 
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    public function promotions()
+    public function promotions(): BelongsToMany
     {
         return $this->belongsToMany(Promotion::class, 'order_promotion')->withPivot('discount_applied');
     }
-      public function status_histories()
+
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
+    }
+
+    public function latestRefund()
+    {
+        return $this->hasOne(Refund::class)->latest();
+    }
+    public function status_histories(): HasMany
     {
         return $this->hasMany(OrderStatusHistory::class);
     }
-     public function orderItems()
+
+    public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Get the shipper assigned to this order
+     */
+    public function shipper(): BelongsTo
+    {
+        return $this->belongsTo(Shipper::class);
     }
 
     public static function getAllowedStatusTransitions(): array
@@ -94,10 +149,42 @@ class Order extends Model
         return [
             'pending_confirmation' => ['processing', 'cancelled'],
             'processing'           => ['shipped', 'cancelled'],
-            'shipped'              => ['delivered', 'cancelled'],
+            'shipped'              => ['delivered', 'returned'],
             'delivered'            => ['returned'],
             'returned'             => [],
             'cancelled'            => [],
         ];
+    }
+
+    /**
+     * Update order status and dispatch event
+     */
+    public function updateStatus($newStatus, $updatedBy = null)
+    {
+        $previousStatus = $this->order_status;
+        
+        $this->update(['order_status' => $newStatus]);
+        
+        // Dispatch event for realtime updates
+        event(new OrderStatusUpdated($this, $previousStatus, $newStatus, $updatedBy));
+        
+        return $this;
+    }
+
+    /**
+     * Update order location and dispatch event
+     */
+    public function updateLocation($latitude, $longitude, $address = null, $updatedBy = null)
+    {
+        $this->update([
+            'delivery_lat' => $latitude,
+            'delivery_lng' => $longitude,
+            'delivery_address' => $address,
+        ]);
+        
+        // Dispatch event for realtime updates
+        event(new OrderLocationUpdated($this, $latitude, $longitude, $address, $updatedBy));
+        
+        return $this;
     }
 }

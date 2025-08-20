@@ -8,30 +8,32 @@
     <div class="voucher-container">
         @forelse($vouchers as $voucher)
             @php
-                // Xác định trạng thái của voucher
+                $endDate = $voucher->end_date ? \Carbon\Carbon::parse($voucher->end_date) : null;
+                $isExpired = $endDate && $endDate->isPast();
+                $isUsed = in_array($voucher->id, $usedVoucherIds);
+
                 $statusClass = 'available';
                 $statusText = 'Còn hiệu lực';
-                $isDisabled = false;
+                $bannerClass = 'banner-available';
 
-                $endDate = null;
-                if ($voucher->end_date) {
-                    $endDate = \Carbon\Carbon::parse($voucher->end_date);
-                    if ($endDate->isPast()) {
-                        $statusClass = 'expired';
-                        $statusText = 'Hết hạn';
-                        $isDisabled = true;
-                    }
+                if ($isExpired) {
+                    $statusClass = 'expired';
+                    $statusText = 'Hết hạn';
+                    $bannerClass = 'banner-expired';
+                } elseif ($isUsed) {
+                    $statusClass = 'used';
+                    $statusText = 'Đã dùng';
+                    $bannerClass = 'banner-used';
                 }
 
-              
-
+                $canUse = !$isExpired && !$isUsed;
             @endphp
 
             <div class="voucher-card {{ $statusClass }}">
-                <div class="voucher-banner">
+                <div class="voucher-banner {{ $bannerClass }}">
                     <span class="discount-value">
                         @if ($voucher->discount_type == 'percentage')
-                            {{ $voucher->discount_value }}%
+                            {{ rtrim(rtrim($voucher->discount_value, '0'), '.') }}%
                         @else
                             {{ number_format($voucher->discount_value, 0, ',', '.') }}đ
                         @endif
@@ -40,20 +42,29 @@
                 </div>
                 <div class="voucher-details">
                     <div class="voucher-code-wrapper">
-                        <span class="voucher-label">Mã Voucher:</span>
+                        <span class="voucher-label">Mã:</span>
                         <strong class="voucher-code">{{ $voucher->code }}</strong>
                         <button class="copy-code-btn" data-code="{{ $voucher->code }}" title="Sao chép mã">
                             <i class="fas fa-copy"></i>
                         </button>
                     </div>
                     <p class="voucher-description">
-                        {{-- Đây có thể là mô tả chi tiết từ database nếu có --}}
-                        Áp dụng cho đơn hàng tối thiểu {{ number_format($voucher->min_order_value ?? 0, 0, ',', '.') }}đ
-                        {{-- Ví dụ mô tả chi tiết hơn --}}
-                        {{ $voucher->description ?? '' }}
+                        Đơn tối thiểu {{ number_format($voucher->min_order_value ?? 0, 0, ',', '.') }}đ.
+                        @if ($voucher->max_discount_value)
+                            Giảm tối đa {{ number_format($voucher->max_discount_value, 0, ',', '.') }}đ.
+                        @endif
+                    </p>
+                     <p class="voucher-scope">
+                        @if ($voucher->brands->isNotEmpty())
+                            <i class="fas fa-tag"></i> Áp dụng cho thương hiệu: {{ $voucher->brands->pluck('name')->join(', ') }}
+                        @elseif($voucher->categories->isNotEmpty())
+                           <i class="fas fa-tag"></i> Áp dụng cho danh mục: {{ $voucher->categories->pluck('name')->join(', ') }}
+                        @else
+                           <i class="fas fa-check-circle"></i> Áp dụng cho tất cả sản phẩm
+                        @endif
                     </p>
                     <p class="voucher-expiry">
-                        <i class="far fa-calendar-alt"></i> Hạn sử dụng:
+                        <i class="far fa-calendar-alt"></i> HSD:
                         @if ($endDate)
                             {{ $endDate->format('d/m/Y') }}
                         @else
@@ -61,10 +72,13 @@
                         @endif
                     </p>
                     <div class="voucher-actions">
-                        <span class="voucher-status {{ $statusClass }}">{{ $statusText }}</span>
-                        <button class="btn btn-primary btn-use-voucher" {{ $isDisabled ? 'disabled' : '' }}>
-                            Sử Dụng Ngay
-                        </button>
+                        @if ($canUse)
+                            <a href="{{ route('client.view-cart') }}?voucher_code={{ $voucher->code }}" class="btn btn-primary btn-use-voucher">
+                                Áp dụng ngay
+                            </a>
+                        @else
+                             <span class="voucher-status-text {{ $statusClass }}">{{ $statusText }}</span>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -96,12 +110,8 @@
 
     .voucher-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-        /* 2 cột trên màn hình lớn */
-        gap: 25px;
-        /* Khoảng cách giữa các voucher card */
-        padding: 10px;
-        /* Padding tổng thể cho lưới voucher */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
 
     /* Base Voucher Card Styling */
@@ -125,8 +135,8 @@
     .voucher-banner {
         flex-shrink: 0;
         /* Không co lại */
-        width: 120px;
-        /* Chiều rộng của phần banner */
+        width: 136px;
+        /* Tăng chiều rộng của phần banner */
         background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
         /* Blue gradient */
         color: white;
@@ -134,7 +144,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 15px 5px;
+        padding: 8px 5px;
         position: relative;
         font-weight: bold;
         text-align: center;
@@ -155,38 +165,42 @@
     }
 
     .voucher-banner .discount-value {
-        font-size: 2.8em;
+        font-size: 1.6em;
         line-height: 1;
-        margin-bottom: 5px;
+        margin-bottom: 2px;
+        word-break: break-word;
+        text-align: center;
+        max-width: 100%;
     }
 
     .voucher-banner .voucher-type {
-        font-size: 0.85em;
+        font-size: 0.7em;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.2px;
         opacity: 0.9;
+        text-align: center;
     }
 
     /* Right Details of Voucher Card */
     .voucher-details {
         flex-grow: 1;
         /* Chiếm hết phần không gian còn lại */
-        padding: 20px 25px;
+        padding: 15px 20px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
 
     .voucher-details p {
-        margin: 5px 0;
+        margin: 4px 0;
         color: #555;
-        font-size: 0.95em;
+        font-size: 0.9em;
     }
 
     .voucher-details .voucher-code-wrapper {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .voucher-details .voucher-label {
@@ -222,18 +236,18 @@
     }
 
     .voucher-details .voucher-description {
-        font-size: 0.9em;
+        font-size: 0.85em;
         color: #666;
-        line-height: 1.5;
-        margin-bottom: 15px;
+        line-height: 1.4;
+        margin-bottom: 12px;
     }
 
     .voucher-details .voucher-expiry {
-        font-size: 0.85em;
+        font-size: 0.8em;
         color: #777;
         display: flex;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
 
     .voucher-details .voucher-expiry i {
@@ -245,7 +259,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-top: 15px;
+        padding-top: 12px;
         border-top: 1px dashed #eee;
     }
 
@@ -274,16 +288,52 @@
         /* Red */
     }
 
+    .voucher-status-text {
+        font-weight: bold;
+        padding: 6px 12px;
+        border-radius: 20px;
+        color: white;
+    }
+    .voucher-status-text.available {
+        background-color: #28a745; /* Green */
+    }
+    .voucher-status-text.used {
+        background-color: #6c757d; /* Gray */
+    }
+    .voucher-status-text.expired {
+        background-color: #dc3545; /* Red */
+    }
+
+    .banner-available {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); /* Blue */
+    }
+    .banner-used {
+        background: linear-gradient(135deg, #a0a0a0 0%, #707070 100%); /* Gray */
+    }
+    .banner-expired {
+        background: linear-gradient(135deg, #d4a3a8 0%, #a3595f 100%); /* Red-ish */
+    }
+
+    .voucher-card.used .voucher-details,
+    .voucher-card.expired .voucher-details {
+        opacity: 0.7;
+    }
+
+    .voucher-scope i {
+        margin-right: 5px;
+        color: #555;
+    }
+
     /* Button style */
     .btn-use-voucher {
-        padding: 10px 20px;
+        padding: 8px 16px;
         background-color: #007bff;
         /* Blue */
         color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 6px;
         cursor: pointer;
-        font-size: 0.95em;
+        font-size: 0.9em;
         font-weight: 600;
         transition: background-color 0.2s ease, transform 0.1s ease;
     }
@@ -356,7 +406,7 @@
     /* Responsive adjustments */
     @media (max-width: 1200px) {
         .voucher-container {
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             /* Giảm kích thước minmax */
         }
     }
@@ -376,8 +426,8 @@
 
         .voucher-banner {
             width: 100%;
-            height: 100px;
-            /* Chiều cao cố định cho banner trên mobile */
+            height: 70px;
+            /* Giảm chiều cao cho banner trên mobile */
             flex-direction: row;
             /* Để banner ngang */
             justify-content: center;
@@ -386,8 +436,8 @@
         }
 
         .voucher-banner .discount-value {
-            font-size: 2.2em;
-            margin-right: 15px;
+            font-size: 1.6em;
+            margin-right: 10px;
             margin-bottom: 0;
         }
 
@@ -401,7 +451,7 @@
         }
 
         .voucher-details {
-            padding: 15px;
+            padding: 12px;
             align-items: center;
             /* Căn giữa nội dung */
             text-align: center;

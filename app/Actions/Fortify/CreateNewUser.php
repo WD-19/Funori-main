@@ -1,3 +1,4 @@
+syntax error, unexpected single-quoted string "success", expecting "]"
 <?php
 
 namespace App\Actions\Fortify;

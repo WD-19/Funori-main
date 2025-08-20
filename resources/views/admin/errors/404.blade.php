@@ -28,7 +28,7 @@
                 <h1>404</h1>
             </div>
             <h2>chúng tôi xin lỗi, nhưng trang bạn yêu cầu không được tìm thấy</h2>
-            <a href="{{ route('admin.home') }}" class="home-btn">Trang Chủ</a>
+            <a href="{{ route('admin.dashboard') }}" class="home-btn">Trang Chủ</a>
             {{-- <a href="#" class="contact-btn">Contact us</a> --}}
             <div class="notfound-social">
                 <a href="#"><i class="fa fa-facebook"></i></a>

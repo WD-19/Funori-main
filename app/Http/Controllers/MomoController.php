@@ -15,10 +15,18 @@ use Illuminate\Support\Facades\Auth;
 
 class MomoController
 {
-    private $partnerCode = 'MOMOBKUN20180529';
-    private $accessKey = 'klm05TvNBzhg7h7j';
-    private $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
-    private $endpoint = 'https://test-payment.momo.vn/v2/gateway/api/create';
+    private $partnerCode;
+    private $accessKey;
+    private $secretKey;
+    private $endpoint;
+
+    public function __construct()
+    {
+        $this->partnerCode = config('payment.momo.partner_code');
+        $this->accessKey = config('payment.momo.access_key');
+        $this->secretKey = config('payment.momo.secret_key');
+        $this->endpoint = config('payment.momo.url');
+    }
 
     /**
      * Khởi tạo thanh toán MoMo (redirect sang MoMo).
@@ -107,7 +115,6 @@ class MomoController
 
         // 3. Lưu lại toàn bộ dữ liệu MoMo trả về để đối soát
         $order->payment_details = $inputData;
-
         // 4. Xử lý kết quả từ MoMo
         if ($resultCode == 0) {
             // Giao dịch THÀNH CÔNG
@@ -115,6 +122,7 @@ class MomoController
             try {
                 $order->payment_status = 'paid';
                 $order->order_status = 'processing';
+                $order->transaction_id = $transId; // Lưu transId từ MoMo
                 $order->save();
 
                 // Xóa giỏ hàng và dữ liệu checkout trong session
@@ -206,5 +214,87 @@ class MomoController
 
         curl_close($ch);
         return $result;
+    }
+
+
+    public function refund(Request $request, $orderId)
+    {
+        try {
+            $order = Order::findOrFail($orderId);
+
+            if ($order->payment_status !== 'paid') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đơn hàng chưa được thanh toán, không thể hoàn tiền'
+                ], 400);
+            }
+
+            $partnerCode = $this->partnerCode;
+            $accessKey   = $this->accessKey;
+            $secretKey   = $this->secretKey;
+            $endpoint    = 'https://test-payment.momo.vn/v2/gateway/api/refund';
+
+            $requestId   = uniqid("refund_");
+            $orderId     = $order->order_code;
+            $amount      = $order->total_amount;
+            $transId     = $order->momo_trans_id; // cần lưu khi thanh toán thành công trong DB
+
+            if (!$transId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy transaction MoMo để hoàn tiền'
+                ], 400);
+            }
+
+            $requestType = "refundMoMoWallet";
+            $description = "Refund order " . $orderId;
+
+            $rawHash = "accessKey={$accessKey}&amount={$amount}&description={$description}&orderId={$orderId}&partnerCode={$partnerCode}&requestId={$requestId}&transId={$transId}";
+            $signature = hash_hmac("sha256", $rawHash, $secretKey);
+
+            $data = [
+                "partnerCode" => $partnerCode,
+                "requestId"   => $requestId,
+                "orderId"     => $orderId,
+                "amount"      => $amount,
+                "transId"     => $transId,
+                "lang"        => "vi",
+                "description" => $description,
+                "signature"   => $signature,
+            ];
+
+            Log::info('MoMo Refund Request:', $data);
+
+            $result = $this->execPostRequest($endpoint, json_encode($data));
+            $jsonResult = json_decode($result, true);
+
+            Log::info('MoMo Refund Response:', $jsonResult);
+
+            if (isset($jsonResult['resultCode']) && $jsonResult['resultCode'] == 0) {
+                $order->update([
+                    'order_status'   => 'cancelled',
+                    'payment_status' => 'refunded'
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Hoàn tiền MoMo thành công',
+                    'data'    => $jsonResult
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $jsonResult['message'] ?? 'Hoàn tiền MoMo thất bại',
+                'data'    => $jsonResult
+            ], 400);
+        } catch (\Exception $e) {
+            Log::error('MoMo Refund Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

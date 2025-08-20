@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Services\RefundService;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
@@ -12,6 +13,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrderController
 {
+    protected $refundService;
+
+    public function __construct(RefundService $refundService)
+    {
+        $this->refundService = $refundService;
+    }
     // (1) index: danh sách đơn hàng
     public function index(Request $request)
     {
@@ -64,7 +71,8 @@ class OrderController
         }
         //
         // Lấy danh sách đơn hàng, sắp xếp mới nhất lên đầu, phân trang 20 bản ghi/trang
-        $orders = $query->orderByDesc('created_at')
+        $orders = $query->with(['shipper', 'paymentMethod', 'shippingMethod'])
+            ->orderByDesc('created_at')
             ->paginate(20)
             ->appends($request->all());
 
@@ -148,10 +156,31 @@ class OrderController
     public function show($id)
     {
         // Lấy đơn hàng theo id, kèm các quan hệ liên quan
-        $order = Order::with(['paymentMethod', 'shippingMethod', 'user', 'items.product.images', 'items.productVariant.attributeValues.attribute'])
+        $order = Order::with(['paymentMethod', 'shippingMethod', 'user', 'shipper', 'items.product.images', 'items.productVariant.attributeValues.attribute'])
             ->findOrFail($id);
         // Trả về view chi tiết đơn hàng
         return view('admin.orders.show', compact('order'));
+    }
+
+    /**
+     * Lấy thông tin delivery cho modal
+     */
+    public function getDeliveryInfo($id)
+    {
+        $order = Order::with(['user', 'shipper'])->findOrFail($id);
+        
+        $deliveryInfo = [
+            'order_code' => $order->order_code,
+            'received_at' => $order->received_at ? $order->received_at->format('d/m/Y H:i') : null,
+            'in_delivery_at' => $order->in_delivery_at ? $order->in_delivery_at->format('d/m/Y H:i') : null,
+            'delivered_at' => $order->delivered_at ? $order->delivered_at->format('d/m/Y H:i') : null,
+            'failed_at' => $order->failed_at ? $order->failed_at->format('d/m/Y H:i') : null,
+            'delivery_notes' => $order->delivery_notes,
+            'failure_reason' => $order->failure_reason,
+            'delivery_images' => $order->delivery_images,
+        ];
+        
+        return response()->json($deliveryInfo);
     }
 
     // (3) edit: hiển thị form sửa đơn hàng
@@ -183,7 +212,8 @@ class OrderController
             'payment_method_id'  => 'required|exists:payment_methods,id',
             'payment_status'     => 'required|in:pending,paid,failed,refunded',
             'shipping_method_id' => 'required|exists:shipping_methods,id',
-            'order_status'       => 'required|in:pending_confirmation,processing,shipped,delivered,cancelled,returned',
+            // Admin chỉ có quyền chỉnh ở các trạng thái trước giao hàng
+            'order_status'       => 'required|in:pending_confirmation,processing,cancelled,returned',
             'customer_note'      => 'nullable|string',
             'admin_note'         => 'nullable|string',
             'ordered_at'         => 'nullable|date',
@@ -249,7 +279,8 @@ class OrderController
 
         // Validate dữ liệu đầu vào
         $request->validate([
-            'order_status'        => 'required|in:pending_confirmation,processing,shipped,delivered,cancelled,returned',
+            // Chỉ cho phép cập nhật sang trạng thái thuộc quyền Admin
+            'order_status'        => 'required|in:pending_confirmation,processing,cancelled,returned',
             'admin_note'          => 'nullable|string',
             'cancellation_reason' => 'nullable|string|max:500',
         ]);
@@ -272,6 +303,11 @@ class OrderController
 
         // Cho phép chuyển đổi tự do giữa các trạng thái để test
 
+        // Nếu cố gắng set sang trạng thái của shipper (shipped/delivered) thì chặn
+        if (in_array($newStatus, ['shipped', 'delivered'])) {
+            return redirect()->back()->with('error', 'Trạng thái này thuộc luồng shipper. Admin chỉ xử lý đến Đang xử lý.');
+        }
+
         // Gán trạng thái mới cho đơn hàng
         $order->order_status = $newStatus;
 
@@ -291,6 +327,9 @@ class OrderController
                 if ($request->filled('cancellation_reason')) {
                     $order->cancellation_reason = $request->input('cancellation_reason');
                 }
+                
+                // Trả lại số lượng tồn kho cho từng sản phẩm/biến thể trong đơn hàng
+                $this->returnItemsToStock($order);
             }
             if ($newStatus === 'returned' && !$order->returned_at) {
                 $order->returned_at = now();
@@ -325,6 +364,11 @@ class OrderController
             }
         }
 
+        // Dispatch WebSocket event for realtime updates
+        if ($oldStatus !== $newStatus) {
+            event(new \App\Events\OrderStatusUpdated($order, $oldStatus, $newStatus, 'admin'));
+        }
+
         // Chuyển hướng về trang tracking trạng thái đơn hàng kèm thông báo thành công
         return redirect()
             ->route('admin.orders.tracking', $order->id)
@@ -338,6 +382,24 @@ class OrderController
         $order = Order::findOrFail($id);
         // Trả về view tracking trạng thái đơn hàng
         return view('admin.orders.tracking', compact('order'));
+    }
+
+    /**
+     * Trả lại sản phẩm về kho khi hủy đơn hàng
+     */
+    private function returnItemsToStock($order)
+    {
+        foreach ($order->items as $item) {
+            if ($item->product_variant_id) {
+                $variant = \App\Models\ProductVariant::find($item->product_variant_id);
+                if ($variant) {
+                    $variant->increment('stock_quantity', $item->quantity);
+                }
+            } elseif ($item->product) {
+                // Chỉ tăng kho cho sản phẩm gốc nếu không có biến thể
+                $item->product->increment('stock_quantity', $item->quantity);
+            }
+        }
     }
 
     // (7) processCancel: xử lý yêu cầu hủy từ khách
@@ -385,18 +447,7 @@ class OrderController
             }
 
             // Trả lại số lượng tồn kho cho từng sản phẩm/biến thể trong đơn hàng
-            // Sửa lỗi: Cần trả kho cho cả biến thể và sản phẩm, và đúng cột `stock_quantity`
-            foreach ($order->items as $item) {
-                if ($item->product_variant_id) {
-                    $variant = \App\Models\ProductVariant::find($item->product_variant_id);
-                    if ($variant) {
-                        $variant->increment('stock_quantity', $item->quantity);
-                    }
-                } elseif ($item->product) {
-                    // Chỉ tăng kho cho sản phẩm gốc nếu không có biến thể
-                    $item->product->increment('stock_quantity', $item->quantity);
-                }
-            }
+            $this->returnItemsToStock($order);
 
             // Lưu đơn hàng
             $order->save();
@@ -536,5 +587,122 @@ class OrderController
             'chartAmounts',
             'latestOrder'
         ));
+    }
+
+    /**
+     * Gán shipper cho đơn hàng
+     */
+    public function assignShipper(Request $request, Order $order)
+    {
+        $request->validate([
+            'shipper_id' => 'required|exists:shippers,id'
+        ]);
+
+        try {
+            $shipper = \App\Models\Shipper::findOrFail($request->shipper_id);
+            
+            // Kiểm tra shipper có đang hoạt động không
+            if ($shipper->status !== 'active') {
+                return redirect()->back()->with('error', 'Shipper này hiện đang tạm ngưng hoạt động!');
+            }
+
+            // Gán shipper cho đơn hàng
+            $order->update([
+                'shipper_id' => $shipper->id,
+                'order_status' => 'processing' // Chuyển sang đang xử lý
+            ]);
+
+            return redirect()->back()->with('success', "Đã phân chia đơn hàng #{$order->order_code} cho shipper {$shipper->name}!");
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi phân chia shipper: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Đổi shipper cho đơn hàng
+     */
+    public function changeShipper(Request $request, Order $order)
+    {
+        $request->validate([
+            'shipper_id' => 'required|exists:shippers,id',
+            'change_reason' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $oldShipper = $order->shipper;
+            $newShipper = \App\Models\Shipper::findOrFail($request->shipper_id);
+            
+            // Kiểm tra shipper mới có đang hoạt động không
+            if ($newShipper->status !== 'active') {
+                return redirect()->back()->with('error', 'Shipper mới này hiện đang tạm ngưng hoạt động!');
+            }
+
+            // Kiểm tra không đổi sang chính shipper hiện tại
+            if ($order->shipper_id == $request->shipper_id) {
+                return redirect()->back()->with('error', 'Shipper mới không thể trùng với shipper hiện tại!');
+            }
+
+            // Cập nhật shipper
+            $order->update([
+                'shipper_id' => $newShipper->id
+            ]);
+
+            // Log lý do đổi shipper (có thể lưu vào bảng order_logs sau này)
+            if ($request->change_reason) {
+                // TODO: Lưu log đổi shipper
+            }
+
+            $message = "Đã đổi shipper cho đơn hàng #{$order->order_code}";
+            if ($oldShipper) {
+                $message .= " từ {$oldShipper->name} sang {$newShipper->name}";
+            } else {
+                $message .= " thành {$newShipper->name}";
+            }
+
+            return redirect()->back()->with('success', $message . '!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi đổi shipper: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Hiển thị danh sách đơn hàng chờ hoàn tiền
+     */
+    public function pendingRefunds()
+    {
+        $orders = $this->refundService->getOrdersPendingRefund();
+        
+        return view('admin.orders.pending-refunds', compact('orders'));
+    }
+
+    /**
+     * Admin xử lý hoàn tiền cho đơn hàng
+     */
+    public function processRefund(Request $request, Order $order)
+    {
+        try {
+            $request->validate([
+                'admin_note' => 'nullable|string|max:500'
+            ]);
+
+            // Kiểm tra xem có thể hoàn tiền không
+            $canRefund = $this->refundService->canProcessRefund($order);
+            if (!$canRefund['can_refund']) {
+                return redirect()->back()->with('error', $canRefund['reason']);
+            }
+
+            $result = $this->refundService->processRefundByAdmin($order, $request->admin_note);
+
+            if ($result['success']) {
+                return redirect()->back()->with('success', $result['message']);
+            } else {
+                return redirect()->back()->with('error', $result['message']);
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+        }
     }
 }

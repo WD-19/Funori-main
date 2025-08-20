@@ -2,15 +2,13 @@
 
 namespace App\Providers;
 
-use App\Models\Cart;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Pagination\Paginator as PaginationPaginator;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
-use App\Models\Product;
-use App\Models\Wishlist;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\DB;
+use App\Events\OrderStatusUpdated;
+use App\Events\OrderLocationUpdated;
+use App\Events\NewOrderCreated;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,54 +25,174 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('client.partials.header', function ($view) {
-            if (Auth::check()) {
-                $cart = Cart::where('user_id', Auth::id())->first();
-                $cartCount = $cart ? $cart->items()->count() : 0;
-            } else {
-                $cart = session('cart', []);
-                $globalCartItems = collect($cart)->map(function ($item) {
-                    if (!isset($item['product_id'])) {
-                        return null; // hoặc return []; hoặc bỏ qua tuỳ logic
-                    }
-                    $product = Product::with([
-                        'images',
-                        'variants.image',
-                        'variants.attributeValues.attribute'
-                    ])->find($item['product_id']);
-                    $variant = $product?->variants?->firstWhere('id', $item['product_variant_id'] ?? null);
+        // WebSocket Event Logging
+        $this->setupWebSocketEventLogging();
+        
+        // Database Query Logging (chỉ trong development)
+        if (config('app.debug')) {
+            $this->setupDatabaseLogging();
+        }
+        
+        // Performance Monitoring
+        $this->setupPerformanceMonitoring();
+    }
 
-                    return [
-                        'id' => $item['product_id'] . '-' . ($item['product_variant_id'] ?? 'null'),
-                        'product' => $product ? $product->toArray() : null,
-                        'variant' => $variant ? $variant->toArray() : null,
-                        'variant_attributes' => $variant?->attributeValues->map(function ($attrVal) {
-                            return $attrVal->attribute->name . ': ' . $attrVal->value;
-                        })->all() ?? [],
-                        'quantity' => $item['quantity'],
-                        'price_at_addition' => $item['price'] ?? null,
-                        'image_url' => $variant->image->image_url ?? ($product->images[0]->image_url ?? null),
-                    ];
-                })->filter()->values()->all();
-
-                $cartCount = count($globalCartItems);
-            }
-            $view->with('cartCount', $cartCount);
+    /**
+     * Setup WebSocket event logging
+     */
+    private function setupWebSocketEventLogging()
+    {
+        // Log OrderStatusUpdated events
+        Event::listen(OrderStatusUpdated::class, function ($event) {
+            Log::info('WebSocket: OrderStatusUpdated event dispatched', [
+                'order_id' => $event->order->id,
+                'order_code' => $event->order->order_code,
+                'previous_status' => $event->previousStatus,
+                'new_status' => $event->newStatus,
+                'updated_by' => $event->updatedBy,
+                'timestamp' => $event->timestamp->toISOString(),
+                'channels' => [
+                    'admin.orders',
+                    'client.orders.' . $event->order->user_id,
+                    'shipper.orders',
+                    'orders.' . $event->order->id,
+                ],
+                'memory_usage' => memory_get_usage(true),
+                'peak_memory' => memory_get_peak_usage(true),
+            ]);
         });
 
-
-        PaginationPaginator::useBootstrapFive();
-        View::composer('*', function ($view) {
-            $wishlistCount = 0;
-            $wishlistItems = collect();
-            if (Auth::check()) {
-                $wishlist = Auth::user()->wishlist;
-                if ($wishlist) {
-                    $wishlistItems = $wishlist->items()->with('product.images')->get();
-                    $wishlistCount = $wishlistItems->count();
-                }
-            }
-            $view->with('headerWishlistCount', $wishlistCount)->with('headerWishlistItems', $wishlistItems);
+        // Log OrderLocationUpdated events
+        Event::listen(OrderLocationUpdated::class, function ($event) {
+            Log::info('WebSocket: OrderLocationUpdated event dispatched', [
+                'order_id' => $event->order->id,
+                'order_code' => $event->order->order_code,
+                'latitude' => $event->latitude,
+                'longitude' => $event->longitude,
+                'address' => $event->address,
+                'updated_by' => $event->updatedBy,
+                'timestamp' => $event->timestamp->toISOString(),
+                'channels' => [
+                    'admin.orders',
+                    'client.orders.' . $event->order->user_id,
+                    'shipper.orders',
+                    'orders.' . $event->order->id . '.location',
+                ],
+                'memory_usage' => memory_get_usage(true),
+                'peak_memory' => memory_get_peak_usage(true),
+            ]);
         });
+
+        // Log NewOrderCreated events
+        Event::listen(NewOrderCreated::class, function ($event) {
+            Log::info('WebSocket: NewOrderCreated event dispatched', [
+                'order_id' => $event->order->id,
+                'order_code' => $event->order->order_code,
+                'order_status' => $event->order->order_status,
+                'total_amount' => $event->order->total_amount,
+                'user_id' => $event->order->user_id,
+                'timestamp' => $event->order->created_at->toISOString(),
+                'channels' => [
+                    'admin.orders',
+                    'shipper.orders',
+                    'orders.new',
+                ],
+                'memory_usage' => memory_get_usage(true),
+                'peak_memory' => memory_get_peak_usage(true),
+            ]);
+        });
+
+        // Log failed events
+        Event::listen('Illuminate\Broadcasting\Events\BroadcastExceptionOccurred', function ($event) {
+            Log::error('WebSocket: Broadcast exception occurred', [
+                'exception' => $event->exception->getMessage(),
+                'exception_class' => get_class($event->exception),
+                'trace' => $event->exception->getTraceAsString(),
+                'event_class' => get_class($event->event),
+                'timestamp' => now()->toISOString(),
+            ]);
+        });
+
+        // Log successful broadcasts
+        Event::listen('Illuminate\Broadcasting\Events\BroadcastStarted', function ($event) {
+            Log::info('WebSocket: Broadcast started', [
+                'event_class' => get_class($event->event),
+                'channels' => $event->channels,
+                'timestamp' => now()->toISOString(),
+            ]);
+        });
+
+        Event::listen('Illuminate\Broadcasting\Events\BroadcastCompleted', function ($event) {
+            Log::info('WebSocket: Broadcast completed', [
+                'event_class' => get_class($event->event),
+                'channels' => $event->channels,
+                'timestamp' => now()->toISOString(),
+            ]);
+        });
+    }
+
+    /**
+     * Setup database query logging
+     */
+    private function setupDatabaseLogging()
+    {
+        DB::listen(function ($query) {
+            $sql = $query->sql;
+            $bindings = $query->bindings;
+            $time = $query->time;
+
+            // Log slow queries (> 100ms)
+            if ($time > 100) {
+                Log::warning('Slow database query detected', [
+                    'sql' => $sql,
+                    'bindings' => $bindings,
+                    'time_ms' => $time,
+                    'connection' => $query->connection->getName(),
+                    'timestamp' => now()->toISOString(),
+                ]);
+            }
+
+            // Log all queries in debug mode
+            if (config('app.debug')) {
+                Log::debug('Database query executed', [
+                    'sql' => $sql,
+                    'bindings' => $bindings,
+                    'time_ms' => $time,
+                    'connection' => $query->connection->getName(),
+                ]);
+            }
+        });
+    }
+
+    /**
+     * Setup performance monitoring
+     */
+    private function setupPerformanceMonitoring()
+    {
+        // Monitor memory usage
+        if (function_exists('memory_get_usage')) {
+            $memoryUsage = memory_get_usage(true);
+            $peakMemory = memory_get_peak_usage(true);
+            
+            if ($memoryUsage > 100 * 1024 * 1024) { // > 100MB
+                Log::warning('High memory usage detected', [
+                    'current_memory_mb' => round($memoryUsage / 1024 / 1024, 2),
+                    'peak_memory_mb' => round($peakMemory / 1024 / 1024, 2),
+                    'memory_limit' => ini_get('memory_limit'),
+                    'timestamp' => now()->toISOString(),
+                ]);
+            }
+        }
+
+        // Monitor execution time
+        $executionTime = microtime(true) - LARAVEL_START;
+        if ($executionTime > 5) { // > 5 seconds
+            Log::warning('Slow execution time detected', [
+                'execution_time_seconds' => round($executionTime, 2),
+                'request_uri' => request()->getRequestUri(),
+                'method' => request()->getMethod(),
+                'timestamp' => now()->toISOString(),
+            ]);
+        }
     }
 }

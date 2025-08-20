@@ -78,9 +78,10 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    // Đặt tiếng Việt là ngôn ngữ mặc định cho ứng dụng
+    'locale' => env('APP_LOCALE', 'vi'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'vi'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
@@ -159,7 +160,7 @@ return [
     */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class, // Bật nếu cần dùng broadcasting
+        // App\Providers\BroadcastServiceProvider::class, // Laravel 11 dùng routes/channels.php
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 

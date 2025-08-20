@@ -56,13 +56,13 @@
                 <span class="text-label">Yêu thích</span>
             </a>
         </li>
-        {{-- <li>
-          Kho Voucher
+        <li>
+          
             <a href="{{ route('client.profile.voucher') }}" class="my-account-nav-item">
                 <i class="bx bxs-discount icon"></i>
                 <span class="text-label">Kho Voucher</span>
             </a>
-        </li> --}}
+        </li>
         {{-- <li>
             Ví
             <a href="#" class="my-account-nav-item">
