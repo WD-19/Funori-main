@@ -160,7 +160,7 @@ return [
     */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class, // disabled broadcasting
+        // App\Providers\BroadcastServiceProvider::class, // Laravel 11 dùng routes/channels.php
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 

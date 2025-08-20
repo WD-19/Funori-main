@@ -2,7 +2,6 @@
 
 namespace Illuminate\Console\Scheduling;
 
-use Exception;
 use Illuminate\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Console\Events\ScheduledTaskFailed;
@@ -86,6 +85,8 @@ class ScheduleRunCommand extends Command
 
     /**
      * Create a new command instance.
+     *
+     * @return void
      */
     public function __construct()
     {
@@ -198,10 +199,6 @@ class ScheduleRunCommand extends Command
                 ));
 
                 $this->eventsRan = true;
-
-                if ($event->exitCode != 0 && ! $event->runInBackground) {
-                    throw new Exception("Scheduled command [{$event->command}] failed with exit code [{$event->exitCode}].");
-                }
             } catch (Throwable $e) {
                 $this->dispatcher->dispatch(new ScheduledTaskFailed($event, $e));
 

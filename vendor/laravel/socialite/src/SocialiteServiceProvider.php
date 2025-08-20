@@ -5,7 +5,6 @@ namespace Laravel\Socialite;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Socialite\Contracts\Factory;
-use Illuminate\Filesystem\Filesystem;
 
 class SocialiteServiceProvider extends ServiceProvider implements DeferrableProvider
 {
