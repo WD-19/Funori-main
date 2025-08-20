@@ -2,8 +2,14 @@
 
 namespace App\Models;
 
+use App\Events\NewOrderCreated;
+use App\Events\OrderStatusUpdated;
+use App\Events\OrderLocationUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Order extends Model
 {
@@ -74,35 +80,41 @@ class Order extends Model
         'order_status' => 'string', // Enum
     ];
 
-    public function user()
+    protected $dispatchesEvents = [
+        'created' => NewOrderCreated::class,
+    ];
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function paymentMethod()
+    public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);
     }
 
-    public function shippingMethod()
+    public function shippingMethod(): BelongsTo
     {
         return $this->belongsTo(ShippingMethod::class);
     }
 
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    public function promotions()
+    public function promotions(): BelongsToMany
     {
         return $this->belongsToMany(Promotion::class, 'order_promotion')->withPivot('discount_applied');
     }
-      public function status_histories()
+
+    public function status_histories(): HasMany
     {
         return $this->hasMany(OrderStatusHistory::class);
     }
-     public function orderItems()
+
+    public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
@@ -110,7 +122,7 @@ class Order extends Model
     /**
      * Get the shipper assigned to this order
      */
-    public function shipper()
+    public function shipper(): BelongsTo
     {
         return $this->belongsTo(Shipper::class);
     }
@@ -125,5 +137,37 @@ class Order extends Model
             'returned'             => [],
             'cancelled'            => [],
         ];
+    }
+
+    /**
+     * Update order status and dispatch event
+     */
+    public function updateStatus($newStatus, $updatedBy = null)
+    {
+        $previousStatus = $this->order_status;
+        
+        $this->update(['order_status' => $newStatus]);
+        
+        // Dispatch event for realtime updates
+        event(new OrderStatusUpdated($this, $previousStatus, $newStatus, $updatedBy));
+        
+        return $this;
+    }
+
+    /**
+     * Update order location and dispatch event
+     */
+    public function updateLocation($latitude, $longitude, $address = null, $updatedBy = null)
+    {
+        $this->update([
+            'delivery_lat' => $latitude,
+            'delivery_lng' => $longitude,
+            'delivery_address' => $address,
+        ]);
+        
+        // Dispatch event for realtime updates
+        event(new OrderLocationUpdated($this, $latitude, $longitude, $address, $updatedBy));
+        
+        return $this;
     }
 }

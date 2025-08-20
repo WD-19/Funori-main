@@ -258,9 +258,9 @@
             Giao hàng thất bại
           </button>
 
-          <!-- Nút xác nhận hoàn về kho - chỉ hiển thị khi đơn hàng đã bị hủy/thất bại -->
+          <!-- Nút xác nhận hoàn về kho - chỉ hiển thị khi shipper giao hàng thất bại (admin hủy đã tự hoàn vào kho) -->
           <button 
-            v-if="['cancelled', 'failed'].includes(order.order_status)"
+            v-if="order.order_status === 'failed'"
             @click="showReturnToWarehouseModal = true"
             :disabled="actionLoading"
             class="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 disabled:opacity-50"
@@ -414,7 +414,7 @@
     <!-- Return to Warehouse Modal -->
     <div v-if="showReturnToWarehouseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-lg max-w-md w-full p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Xác nhận hoàn về kho</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Xác nhận hoàn hàng về kho (Giao thất bại)</h3>
         
         <div class="mb-4">
           <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
@@ -425,7 +425,7 @@
               <span class="text-sm font-medium text-orange-800">Thông báo quan trọng</span>
             </div>
             <p class="text-sm text-orange-700 mt-1">
-              Khi xác nhận hoàn về kho, tất cả sản phẩm trong đơn hàng sẽ được cộng lại vào kho và đơn hàng sẽ được đánh dấu là "Đã hoàn về kho".
+              Đơn hàng này đã được giao thất bại. Khi xác nhận hoàn về kho, tất cả sản phẩm sẽ được cộng lại vào kho và đơn hàng sẽ được đánh dấu là "Đã hoàn về kho".
             </p>
           </div>
           
@@ -459,7 +459,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useOrderStore } from '../stores/orders'
 
@@ -472,7 +472,7 @@ const actionLoading = ref(false)
 const showCompleteModal = ref(false)
 const showFailedModal = ref(false)
 const showStartDeliveryModal = ref(false)
-const showReturnToWarehouseModal = ref(false) // New modal for returning to warehouse
+const showReturnToWarehouseModal = ref(false) // Modal for returning failed delivery to warehouse (admin cancelled orders auto-return to warehouse)
 const completeNotes = ref('')
 const failedReason = ref('')
 const startDeliveryNotes = ref('')
@@ -485,6 +485,37 @@ const startDeliveryImagePreview = ref('')
 
 const order = computed(() => orderStore.currentOrder)
 
+// Simple 5s polling for realtime updates
+const POLL_INTERVAL_MS = 5000
+let pollTimer = null
+let pollInFlight = false
+
+function isFinalStatus(status) {
+  return ['delivered', 'cancelled', 'failed'].includes(status)
+}
+
+function startPolling() {
+  if (pollTimer) return
+  pollTimer = setInterval(async () => {
+    if (pollInFlight) return
+    pollInFlight = true
+    try {
+      if (route.params.id) {
+        await orderStore.fetchOrder(route.params.id)
+        // Dừng polling nếu đơn hàng đã hoàn thành
+        if (order.value && isFinalStatus(order.value.order_status)) {
+          clearInterval(pollTimer)
+          pollTimer = null
+        }
+      }
+    } catch (e) {
+      console.error('Polling error:', e)
+    } finally {
+      pollInFlight = false
+    }
+  }, POLL_INTERVAL_MS)
+}
+
 onMounted(async () => {
   if (route.params.id) {
     loading.value = true
@@ -496,6 +527,15 @@ onMounted(async () => {
       loading.value = false
     }
   }
+  // Bắt đầu realtime updates mỗi 5 giây
+  startPolling()
+})
+
+onUnmounted(() => {
+  if (pollTimer) {
+    clearInterval(pollTimer)
+    pollTimer = null
+  }
 })
 
 const getStatusText = (status) => {
@@ -506,7 +546,7 @@ const getStatusText = (status) => {
     'shipped': 'Đang giao hàng',
     'delivered': 'Đã giao hàng',
     'cancelled': 'Đã hủy',
-    'failed': 'Giao hàng thất bại' // Added 'failed' status
+    'failed': 'Giao hàng thất bại' // Đơn hàng đã được giao nhưng thất bại
   }
   return statusMap[status] || status
 }
@@ -645,7 +685,9 @@ const completeDelivery = async () => {
 const failedDelivery = async () => {
   actionLoading.value = true
   try {
-    await orderStore.updateOrderStatusWithImage(order.value.id, 'cancelled', failedReason.value, failedImage.value)
+    // Khi shipper giao hàng thất bại, set trạng thái thành 'failed'
+    // (khác với admin hủy đơn = 'cancelled' + tự động hoàn vào kho)
+    await orderStore.updateOrderStatusWithImage(order.value.id, 'failed', failedReason.value, failedImage.value)
     await orderStore.fetchOrder(order.value.id)
     showFailedModal.value = false
     failedReason.value = ''
@@ -661,7 +703,8 @@ const failedDelivery = async () => {
 const returnToWarehouse = async () => {
   actionLoading.value = true
   try {
-    await orderStore.returnToWarehouse(order.value.id, 'Đã hoàn trả hàng về kho')
+    // Chỉ cho phép hoàn về kho khi shipper giao hàng thất bại (admin hủy đã tự hoàn vào kho)
+    await orderStore.returnToWarehouse(order.value.id, 'Đã hoàn trả hàng về kho do giao thất bại')
     await orderStore.fetchOrder(order.value.id)
     showReturnToWarehouseModal.value = false
   } catch (error) {

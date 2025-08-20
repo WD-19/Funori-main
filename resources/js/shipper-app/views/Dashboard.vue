@@ -41,9 +41,27 @@
         </div>
         <div class="text-right">
           <div class="text-sm text-gray-500">Trạng thái</div>
-          <div class="flex items-center mt-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-            <span class="text-sm font-medium text-green-600">Đang hoạt động</span>
+          <div class="flex items-center mt-1 space-x-3">
+            <div class="flex items-center">
+              <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+              <span class="text-sm font-medium text-green-600">Đang hoạt động</span>
+            </div>
+            <!-- WebSocket Status -->
+            <div class="flex items-center">
+              <div :class="[
+                'w-2 h-2 rounded-full mr-2',
+                websocketStatus === 'connected' ? 'bg-green-500' : 
+                websocketStatus === 'connecting' ? 'bg-yellow-500' : 'bg-red-500'
+              ]"></div>
+              <span :class="[
+                'text-sm font-medium',
+                websocketStatus === 'connected' ? 'text-green-600' : 
+                websocketStatus === 'connecting' ? 'text-yellow-600' : 'text-red-600'
+              ]">
+                {{ websocketStatus === 'connected' ? 'Realtime' : 
+                   websocketStatus === 'connecting' ? 'Đang kết nối' : 'Mất kết nối' }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -358,6 +376,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useOrderStore } from '../stores/orders'
 import { useNotificationStore } from '../stores/notifications'
+import webSocketService from '../services/websocket'
 
 // Stores
 const authStore = useAuthStore()
@@ -374,6 +393,7 @@ const customDateRange = ref({ start: '', end: '' })
 const areaFilter = ref('')
 const areas = ref([])
 const showFilterSheet = ref(false)
+const websocketStatus = ref('disconnected')
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -386,6 +406,9 @@ const notifications = computed(() => notificationStore.notifications)
 
 const filteredOrders = computed(() => {
   let filtered = orders.value
+
+  // Chỉ hiển thị đơn hàng đã được phân cho shipper
+  filtered = filtered.filter(order => order.shipper_id)
 
   // Filter by search query
   if (searchQuery.value) {
@@ -481,7 +504,7 @@ const getStatusText = (status) => {
     'processing': 'Đang xử lý',
     'shipped': 'Đang giao',
     'delivered': 'Thành công',
-    'failed': 'Thất bại',
+    'failed': 'Giao thất bại',
     'cancelled': 'Đã hủy',
     'returned': 'Hoàn trả'
   }
@@ -523,7 +546,7 @@ const refreshOrders = async () => {
 const statusOptions = [
   { value: 'shipped', label: 'Đang giao', activeClass: 'bg-blue-100 text-blue-800', dotClass: 'bg-blue-500' },
   { value: 'delivered', label: 'Thành công', activeClass: 'bg-green-100 text-green-800', dotClass: 'bg-green-500' },
-  { value: 'failed', label: 'Thất bại', activeClass: 'bg-orange-100 text-orange-800', dotClass: 'bg-orange-500' }
+  { value: 'failed', label: 'Giao thất bại', activeClass: 'bg-orange-100 text-orange-800', dotClass: 'bg-orange-500' }
 ]
 
 const dateOptions = [
@@ -625,40 +648,233 @@ const getVisiblePages = () => {
   return pages
 }
 
+// WebSocket handlers
+const handleWebSocketEvent = (eventType, data) => {
+    console.log(`WebSocket event received: ${eventType}`, data)
+    console.log('Event data structure:', JSON.stringify(data, null, 2))
+    
+    switch (eventType) {
+        case 'status_updated':
+            console.log('Handling status update:', data)
+            handleOrderStatusUpdate(data)
+            break
+        case 'new_order':
+            console.log('Handling new order:', data)
+            handleNewOrder(data)
+            break
+        case 'location_updated':
+            console.log('Handling location update:', data)
+            handleLocationUpdate(data)
+            break
+        default:
+            console.log('Unknown event type:', eventType, data)
+    }
+}
+
+const handleOrderStatusUpdate = (data) => {
+    console.log('Updating order status in store:', data)
+    
+    // Validate data before processing
+    if (!data || !data.order_id) {
+        console.error('Invalid status update data:', data)
+        return
+    }
+    
+    // Create order object from WebSocket data if needed
+    let orderData = data.order
+    if (!orderData && data.order_id) {
+        orderData = {
+            id: data.order_id,
+            order_status: data.new_status || data.order_status
+        }
+    }
+    
+    // Update order in store
+    if (orderData) {
+        orderStore.updateOrder(orderData)
+    }
+    
+    // Show notification (with safe access)
+    const orderCode = data.order_code || data.order?.order_code || 'N/A'
+    const newStatus = data.new_status || data.order?.order_status || data.order_status || 'N/A'
+    showNotification(`Đơn hàng #${orderCode} đã cập nhật trạng thái: ${getStatusText(newStatus)}`)
+    
+    // Refresh stats if needed
+    if (['delivered', 'failed', 'cancelled'].includes(newStatus)) {
+        orderStore.fetchStats()
+    }
+    
+    // Force refresh orders list to show real-time updates
+    orderStore.fetchOrders()
+}
+
+const handleNewOrder = (data) => {
+    // Validate data before processing
+    if (!data || !data.order_id) {+
+        console.error('Invalid new order data:', data)
+        return
+    }
+    
+    // Create order object from WebSocket data
+    const orderData = {
+        id: data.order_id,
+        order_code: data.order_code,
+        order_status: data.order_status,
+        total_amount: data.total_amount,
+        shipping_address: data.shipping_address,
+        shipping_phone: data.shipping_phone,
+        created_at: data.created_at,
+        user: data.user
+    }
+    
+    // Add new order to store
+    orderStore.addOrder(orderData)
+    
+    // Show notification (with safe access)
+    const orderCode = data.order_code || 'N/A'
+    const userName = data.user?.name || 'Khách hàng'
+    showNotification(`Đơn hàng mới #${orderCode} từ ${userName}`)
+    
+    // Refresh stats
+    orderStore.fetchStats()
+}
+
+const handleLocationUpdate = (data) => {
+    // Validate data before processing
+    if (!data || !data.order_id) {
+        console.error('Invalid location update data:', data)
+        return
+    }
+    
+    // Update order location in store
+    orderStore.updateOrderLocation(data.order_id, {
+        latitude: data.latitude || data.lat,
+        longitude: data.longitude || data.lng,
+        address: data.address || data.shipping_address
+    })
+}
+
+const showNotification = (message) => {
+    // Create a simple notification
+    const notification = {
+        id: Date.now(),
+        message,
+        created_at: new Date().toISOString(),
+        type: 'info'
+    }
+    
+    notificationStore.addNotification(notification)
+}
+
 // Watchers
 watch([searchQuery, statusFilter, dateFilter, () => customDateRange.value.start, () => customDateRange.value.end, areaFilter], () => {
   currentPage.value = 1 // Reset to first page when filters change
 })
 
-// Lifecycle
-onMounted(async () => {
-  try {
-    loading.value = true
-    await Promise.all([
-      orderStore.fetchOrders(),
-      notificationStore.fetchNotifications()
-    ])
-    // Load areas from static data if available
+// Simple polling backup for orders list (5s interval)
+const POLL_INTERVAL_MS = 5000
+let pollTimer = null
+let pollInFlight = false
+
+function startPolling() {
+  if (pollTimer) return
+  pollTimer = setInterval(async () => {
+    if (pollInFlight) return
+    pollInFlight = true
     try {
-      const res = await fetch('/data/hanoi-districts.json')
-      if (res.ok) {
-        const data = await res.json()
-        const names = Array.isArray(data)
-          ? data.map(d => d.name)
-          : (data?.districts || []).map(d => d.name)
-        areas.value = Array.from(new Set(names.filter(Boolean)))
+      // Chỉ polling khi WebSocket bị ngắt kết nối
+      if (websocketStatus.value !== 'connected') {
+        await orderStore.fetchOrders()
+        await orderStore.fetchStats()
       }
     } catch (e) {
-      // ignore if not available
+      console.error('Dashboard polling error:', e)
+    } finally {
+      pollInFlight = false
     }
-  } catch (error) {
-    console.error('Dashboard initialization error:', error)
-  } finally {
-    loading.value = false
-  }
+  }, POLL_INTERVAL_MS)
+}
+
+// Lifecycle
+onMounted(async () => {
+    try {
+        loading.value = true
+        await Promise.all([
+            orderStore.fetchOrders(),
+            notificationStore.fetchNotifications()
+        ])
+        
+        // Initialize WebSocket
+        if (authStore.token) {
+            webSocketService.init(authStore.token)
+            websocketStatus.value = 'connecting'
+            
+            // Listen to shipper orders channel
+            webSocketService.listenToShipperOrders(handleWebSocketEvent)
+            
+            // Update status when connected
+            webSocketService.echo.connector.pusher.connection.bind('connected', () => {
+                websocketStatus.value = 'connected'
+                console.log('WebSocket connected successfully')
+                
+                // Refresh orders after connection to ensure real-time data
+                orderStore.fetchOrders()
+            })
+            
+            webSocketService.echo.connector.pusher.connection.bind('disconnected', () => {
+                websocketStatus.value = 'disconnected'
+                console.log('WebSocket disconnected')
+            })
+            
+            webSocketService.echo.connector.pusher.connection.bind('error', (error) => {
+                // Bỏ qua format error
+                if (error.type === 'PusherError' && error.data?.code === 4200) {
+                    return
+                }
+                websocketStatus.value = 'error'
+                console.error('WebSocket connection error:', error)
+                
+                // Auto reconnect after error
+                setTimeout(() => {
+                    if (websocketStatus.value === 'error') {
+                        websocketStatus.value = 'connecting'
+                        webSocketService.init(authStore.token)
+                    }
+                }, 5000)
+            })
+        }
+        
+        // Bắt đầu polling backup cho đơn hàng mới
+        startPolling()
+        
+        // Load areas from static data if available
+        try {
+            const res = await fetch('/data/hanoi-districts.json')
+            if (res.ok) {
+                const data = await res.json()
+                const names = Array.isArray(data)
+                    ? data.map(d => d.name)
+                    : (data?.districts || []).map(d => d.name)
+                areas.value = Array.from(new Set(names.filter(Boolean)))
+            }
+        } catch (e) {
+            // ignore if not available
+        }
+    } catch (error) {
+        console.error('Dashboard initialization error:', error)
+    } finally {
+        loading.value = false
+    }
 })
 
 onUnmounted(() => {
-  // Cleanup if needed
+    // Cleanup WebSocket
+    webSocketService.disconnect()
+    
+    // Cleanup polling timer
+    if (pollTimer) {
+        clearInterval(pollTimer)
+        pollTimer = null
+    }
 })
 </script> 

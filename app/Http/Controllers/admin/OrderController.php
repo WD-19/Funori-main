@@ -320,6 +320,9 @@ class OrderController
                 if ($request->filled('cancellation_reason')) {
                     $order->cancellation_reason = $request->input('cancellation_reason');
                 }
+                
+                // Trả lại số lượng tồn kho cho từng sản phẩm/biến thể trong đơn hàng
+                $this->returnItemsToStock($order);
             }
             if ($newStatus === 'returned' && !$order->returned_at) {
                 $order->returned_at = now();
@@ -354,6 +357,11 @@ class OrderController
             }
         }
 
+        // Dispatch WebSocket event for realtime updates
+        if ($oldStatus !== $newStatus) {
+            event(new \App\Events\OrderStatusUpdated($order, $oldStatus, $newStatus, 'admin'));
+        }
+
         // Chuyển hướng về trang tracking trạng thái đơn hàng kèm thông báo thành công
         return redirect()
             ->route('admin.orders.tracking', $order->id)
@@ -367,6 +375,24 @@ class OrderController
         $order = Order::findOrFail($id);
         // Trả về view tracking trạng thái đơn hàng
         return view('admin.orders.tracking', compact('order'));
+    }
+
+    /**
+     * Trả lại sản phẩm về kho khi hủy đơn hàng
+     */
+    private function returnItemsToStock($order)
+    {
+        foreach ($order->items as $item) {
+            if ($item->product_variant_id) {
+                $variant = \App\Models\ProductVariant::find($item->product_variant_id);
+                if ($variant) {
+                    $variant->increment('stock_quantity', $item->quantity);
+                }
+            } elseif ($item->product) {
+                // Chỉ tăng kho cho sản phẩm gốc nếu không có biến thể
+                $item->product->increment('stock_quantity', $item->quantity);
+            }
+        }
     }
 
     // (7) processCancel: xử lý yêu cầu hủy từ khách
@@ -414,18 +440,7 @@ class OrderController
             }
 
             // Trả lại số lượng tồn kho cho từng sản phẩm/biến thể trong đơn hàng
-            // Sửa lỗi: Cần trả kho cho cả biến thể và sản phẩm, và đúng cột `stock_quantity`
-            foreach ($order->items as $item) {
-                if ($item->product_variant_id) {
-                    $variant = \App\Models\ProductVariant::find($item->product_variant_id);
-                    if ($variant) {
-                        $variant->increment('stock_quantity', $item->quantity);
-                    }
-                } elseif ($item->product) {
-                    // Chỉ tăng kho cho sản phẩm gốc nếu không có biến thể
-                    $item->product->increment('stock_quantity', $item->quantity);
-                }
-            }
+            $this->returnItemsToStock($order);
 
             // Lưu đơn hàng
             $order->save();
