@@ -106,13 +106,7 @@
                             </div>
                             @endif
                             
-                            @if($refund->status === 'pending')
-                            <div class="text-center mt-3">
-                                <button class="btn btn-outline-info btn-sm" onclick="checkRefundStatus({{ $refund->id }})">
-                                    <i class="fas fa-sync-alt me-1"></i>Kiểm tra trạng thái
-                                </button>
-                            </div>
-                            @endif
+                          
                         @else
                             <div class="alert alert-secondary text-center rounded-lg">
                                 <i class="fas fa-info-circle me-2"></i>Đơn hàng chưa thanh toán, không cần hoàn tiền.

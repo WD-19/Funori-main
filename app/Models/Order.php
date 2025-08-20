@@ -58,6 +58,7 @@ class Order extends Model
         'delivery_started_at',
         'delivery_completed_at',
         'delivery_address',
+        'pending_refund',        // ✅ Thêm trạng thái chờ hoàn tiền
     ];
 
     protected $casts = [

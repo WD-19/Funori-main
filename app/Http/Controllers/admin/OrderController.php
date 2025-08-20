@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Services\RefundService;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
@@ -12,6 +13,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrderController
 {
+    protected $refundService;
+
+    public function __construct(RefundService $refundService)
+    {
+        $this->refundService = $refundService;
+    }
     // (1) index: danh sách đơn hàng
     public function index(Request $request)
     {
@@ -642,6 +649,45 @@ class OrderController
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Có lỗi xảy ra khi đổi shipper: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Hiển thị danh sách đơn hàng chờ hoàn tiền
+     */
+    public function pendingRefunds()
+    {
+        $orders = $this->refundService->getOrdersPendingRefund();
+        
+        return view('admin.orders.pending-refunds', compact('orders'));
+    }
+
+    /**
+     * Admin xử lý hoàn tiền cho đơn hàng
+     */
+    public function processRefund(Request $request, Order $order)
+    {
+        try {
+            $request->validate([
+                'admin_note' => 'nullable|string|max:500'
+            ]);
+
+            // Kiểm tra xem có thể hoàn tiền không
+            $canRefund = $this->refundService->canProcessRefund($order);
+            if (!$canRefund['can_refund']) {
+                return redirect()->back()->with('error', $canRefund['reason']);
+            }
+
+            $result = $this->refundService->processRefundByAdmin($order, $request->admin_note);
+
+            if ($result['success']) {
+                return redirect()->back()->with('success', $result['message']);
+            } else {
+                return redirect()->back()->with('error', $result['message']);
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
 }

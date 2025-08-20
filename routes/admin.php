@@ -105,6 +105,10 @@ Route::prefix('admin')->name('admin.')
         Route::get('refunds/{refund}', [RefundController::class, 'show'])->name('refunds.show');
         Route::post('refunds/{refund}/mark-success', [RefundController::class, 'markAsSuccess'])->name('refunds.mark-success');
         Route::post('refunds/{refund}/mark-failed', [RefundController::class, 'markAsFailed'])->name('refunds.mark-failed');
+        
+        // Xử lý hoàn tiền cho đơn hàng đã hủy
+        Route::get('orders/pending-refunds', [OrderController::class, 'pendingRefunds'])->name('orders.pending-refunds');
+        Route::post('orders/{order}/process-refund', [OrderController::class, 'processRefund'])->name('orders.process-refund');
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])
             ->name('orders.updateStatus');
         // (6.1) Trang tracking trạng thái đơn hàng (form cập nhật trạng thái riêng)

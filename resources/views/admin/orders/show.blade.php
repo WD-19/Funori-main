@@ -200,7 +200,16 @@
                                 @elseif($order->order_status === 'shipped')
                                     <span class="block-pending bg-1 fw-7">Đang giao</span>
                                 @elseif($order->order_status === 'cancelled')
-                                    <span class="block-pending bg-1 fw-7" style="background:#f87171">Đã hủy</span>
+                                    @php
+                                        $successRefund = $order->refunds()->where('status', 'success')->first();
+                                    @endphp
+                                    @if($order->pending_refund)
+                                        <span class="block-pending bg-1 fw-7" style="background:#f59e0b">Đã hủy - Chờ hoàn tiền</span>
+                                    @elseif($successRefund)
+                                        <span class="block-pending bg-1 fw-7" style="background:#8fffda">Đã hủy - Đã hoàn tiền</span>
+                                    @else
+                                        <span class="block-pending bg-1 fw-7" style="background:#f87171">Đã hủy</span>
+                                    @endif
                                 @elseif($order->order_status === 'returned')
                                     <span class="block-pending bg-1 fw-7">Đã trả hàng</span>
                                 @else
@@ -347,42 +356,179 @@
                                 Xác nhận hủy đơn
                             </button>
                         @endif
+                        
+                        @if ($order->order_status === 'cancelled' && $order->pending_refund)
+                            <button type="button" class="tf-button w-full style-1 mt-2" data-bs-toggle="modal"
+                                data-bs-target="#modalProcessRefund">
+                                <i class="icon-dollar-sign"></i>
+                                Xử lý hoàn tiền
+                            </button>
+                        @elseif ($order->order_status === 'cancelled' && !$order->pending_refund)
+                            @php
+                                $successRefund = $order->refunds()->where('status', 'success')->first();
+                            @endphp
+                            @if ($successRefund)
+                                <div class="alert alert-success mt-2" style="background: #d1fae5; border: 1px solid #a7f3d0; color: #065f46; border-radius: 8px; padding: 12px; text-align: center; font-size: 15px;">
+                                    <i class="icon-check-circle" style="margin-right: 8px;"></i>
+                                    <strong>Đã hoàn tiền thành công</strong><br>
+                                    <small>Ngày: {{ $successRefund->refunded_at ? $successRefund->refunded_at->format('d/m/Y H:i') : 'N/A' }}</small>
+                                </div>
+                            @else
+                                <div class="alert alert-info mt-2" style="background: #dbeafe; border: 1px solid #93c5fd; color: #1e40af; border-radius: 8px; padding: 12px; text-align: center;">
+                                    <i class="icon-info" style="margin-right: 8px;"></i>
+                                    <strong>Đơn hàng đã được hủy</strong><br>
+                                    <small>Không cần hoàn tiền</small>
+                                </div>
+                            @endif
+                        @endif
                     </div>
                 </div>
             </div>
             <!-- /Chi tiết đơn hàng -->
         </div>
     </div>
+    
+    <!-- Modal xử lý hoàn tiền -->
+    @if ($order->order_status === 'cancelled' && $order->pending_refund)
+        <div class="modal fade" id="modalProcessRefund" tabindex="-1" aria-labelledby="modalProcessRefundLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <form method="POST" action="{{ route('admin.orders.process-refund', $order->id) }}">
+                    @csrf
+                    <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 12px 12px 0 0; border: none;">
+                            <h5 class="modal-title" id="modalProcessRefundLabel" style="display: flex; align-items: center; font-weight: 600; font-size: 20px;">
+                                <i class="icon-dollar-sign" style="margin-right: 12px; font-size: 22px;"></i>
+                                Xử lý hoàn tiền đơn hàng #{{ $order->order_code }}
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        </div>
+                        <div class="modal-body" style="padding: 24px;">
+                            <div class="alert alert-info" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 8px; padding: 16px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                                    <i class="icon-info" style="margin-right: 8px; font-size: 18px;"></i>
+                                    <strong style="font-size: 17px;">Thông tin hoàn tiền</strong>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 15px;">
+                                    <div>
+                                        <strong>Khách hàng:</strong> {{ $order->customer_name }}
+                                    </div>
+                                    <div>
+                                        <strong>Số tiền:</strong> <span style="color: #059669; font-weight: 600;">{{ number_format($order->total_amount) }} VNĐ</span>
+                                    </div>
+                                    <div>
+                                        <strong>Phương thức:</strong> {{ $order->paymentMethod->name ?? 'N/A' }}
+                                    </div>
+                                    <div>
+                                        <strong>Ngày hủy:</strong> {{ $order->cancelled_at ? $order->cancelled_at->format('d/m/Y H:i') : 'N/A' }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label for="admin_note" style="font-weight: 600; color: #374151; margin-bottom: 8px; display: block; font-size: 16px;">
+                                    <i class="icon-edit-3" style="margin-right: 6px;"></i>
+                                    Ghi chú (không bắt buộc):
+                                </label>
+                                <textarea name="admin_note" id="admin_note" class="form-control" rows="3" 
+                                          placeholder="Ghi chú về việc hoàn tiền..." 
+                                          style="border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; resize: vertical; font-size: 15px;"></textarea>
+                            </div>
+
+                            <div class="alert alert-warning" style="background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; border-radius: 8px; padding: 16px; font-size: 15px;">
+                                <div style="display: flex; align-items: flex-start;">
+                                    <i class="icon-alert-triangle" style="margin-right: 8px; font-size: 18px; margin-top: 2px;"></i>
+                                    <div>
+                                        <strong>Lưu ý quan trọng:</strong><br>
+                                        Hệ thống sẽ gọi API VNPay để thực hiện hoàn tiền. 
+                                        Vui lòng đảm bảo cấu hình VNPay đã chính xác trước khi thực hiện.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="background: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; padding: 16px 24px;">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 10px 20px; font-size: 16px;">
+                                <i class="icon-x" style="margin-right: 6px;"></i> Hủy
+                            </button>
+                            <button type="submit" class="btn btn-success" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 8px; padding: 10px 20px; font-weight: 600; font-size: 16px;">
+                                <i class="icon-check" style="margin-right: 6px;"></i> Xác nhận hoàn tiền
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+    
     <!-- Modal xác nhận hủy đơn -->
     @if ($order->order_status === 'pending_cancellation')
         <div class="modal fade" id="modalCancelOrder" tabindex="-1" aria-labelledby="modalCancelOrderLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <form method="POST" action="{{ route('admin.orders.processCancel', $order->id) }}">
                     @csrf
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalCancelOrderLabel">Xác nhận hủy đơn hàng
-                                #{{ $order->order_code }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 12px 12px 0 0; border: none;">
+                            <h5 class="modal-title" id="modalCancelOrderLabel" style="display: flex; align-items: center; font-weight: 600;">
+                                <i class="icon-alert-triangle" style="margin-right: 12px; font-size: 1.2em;"></i>
+                                Xác nhận hủy đơn hàng #{{ $order->order_code }}
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
                         </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="cancellation_reason" class="form-label">Lý do hủy đơn (bắt buộc):</label>
-                                <textarea name="cancellation_reason" id="cancellation_reason" class="form-control" required rows="2">{{ old('cancellation_reason', $order->cancellation_reason) }}</textarea>
+                        <div class="modal-body" style="padding: 24px;">
+                            <div class="alert alert-warning" style="background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                                <div style="display: flex; align-items: flex-start;">
+                                    <i class="icon-alert-triangle" style="margin-right: 8px; font-size: 1.1em; margin-top: 2px;"></i>
+                                    <div>
+                                        <strong>Lưu ý quan trọng:</strong><br>
+                                        Việc hủy đơn hàng sẽ ảnh hưởng đến tồn kho và có thể gây mất mát doanh thu. 
+                                        Vui lòng xem xét kỹ lưỡng trước khi thực hiện.
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="admin_note_cancel" class="form-label">Ghi chú của quản trị viên (không bắt
-                                    buộc):</label>
-                                <textarea name="admin_note_cancel" id="admin_note_cancel" class="form-control" rows="2">{{ old('admin_note_cancel') }}</textarea>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label for="cancellation_reason" style="font-weight: 600; color: #374151; margin-bottom: 8px; display: block;">
+                                    <i class="icon-edit-3" style="margin-right: 6px;"></i>
+                                    Lý do hủy đơn <span style="color: #ef4444;">*</span>
+                                </label>
+                                <textarea name="cancellation_reason" id="cancellation_reason" class="form-control" required rows="3" 
+                                          placeholder="Nhập lý do hủy đơn hàng..." 
+                                          style="border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; resize: vertical;">{{ old('cancellation_reason', $order->cancellation_reason) }}</textarea>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label for="admin_note_cancel" style="font-weight: 600; color: #374151; margin-bottom: 8px; display: block;">
+                                    <i class="icon-message-square" style="margin-right: 6px;"></i>
+                                    Ghi chú của quản trị viên (không bắt buộc):
+                                </label>
+                                <textarea name="admin_note_cancel" id="admin_note_cancel" class="form-control" rows="3" 
+                                          placeholder="Ghi chú nội bộ về việc hủy đơn..."
+                                          style="border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; resize: vertical;">{{ old('admin_note_cancel') }}</textarea>
+                            </div>
+
+                            <div class="alert alert-info" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 8px; padding: 16px;">
+                                <div style="display: flex; align-items: center;">
+                                    <i class="icon-info" style="margin-right: 8px; font-size: 1.1em;"></i>
+                                    <div>
+                                        <strong>Thông tin bổ sung:</strong><br>
+                                        • Hệ thống sẽ tự động cập nhật tồn kho khi hủy đơn<br>
+                                        • Khách hàng sẽ nhận được thông báo về việc hủy đơn<br>
+                                        • Nếu đơn hàng đã thanh toán, sẽ được đánh dấu chờ hoàn tiền
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="submit" name="action" value="approve" class="btn btn-danger">Duyệt hủy & trả
-                                tồn kho</button>
-                            <button type="submit" name="action" value="reject" class="btn btn-secondary">Từ chối
-                                hủy</button>
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Đóng</button>
+                        <div class="modal-footer" style="background: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; padding: 16px 24px;">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 10px 20px;">
+                                <i class="icon-x" style="margin-right: 6px;"></i> Đóng
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-warning" style="border-radius: 8px; padding: 10px 20px; font-weight: 600;">
+                                <i class="icon-x-circle" style="margin-right: 6px;"></i> Từ chối hủy
+                            </button>
+                            <button type="submit" name="action" value="approve" class="btn btn-danger" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; border-radius: 8px; padding: 10px 20px; font-weight: 600;">
+                                <i class="icon-check" style="margin-right: 6px;"></i> Duyệt hủy & trả tồn kho
+                            </button>
                         </div>
                     </div>
                 </form>

@@ -289,19 +289,9 @@ class ProfileController
     public function cancelOrder(Request $request, Order $order)
     {
         try {
-            // ✅ Merge JSON body nếu request là JSON
             if ($request->isJson()) {
                 $request->merge($request->json()->all());
             }
-
-            // Thêm debug log
-            Log::info('Cancel order request', [
-                'request_data' => $request->all(),
-                'order_id' => $order->id,
-                'order_status' => $order->order_status,
-                'user_id' => auth()->id(),
-                'order_user_id' => $order->user_id
-            ]);
 
             $request->validate([
                 'cancellation_reason' => 'required|string|max:255',
@@ -310,20 +300,12 @@ class ProfileController
 
             // Quyền
             if ($order->user_id !== auth()->id()) {
-                Log::warning('Unauthorized cancel attempt', [
-                    'user_id' => auth()->id(),
-                    'order_user_id' => $order->user_id
-                ]);
                 return response()->json(['success' => false, 'message' => 'Không có quyền hủy đơn hàng này!'], 403);
             }
 
             // Trạng thái cho phép - mở rộng danh sách trạng thái
             $allowedStatuses = ['pending_confirmation', 'processing', 'confirmed', 'paid'];
             if (!in_array($order->order_status, $allowedStatuses)) {
-                Log::warning('Invalid order status for cancellation', [
-                    'order_status' => $order->order_status,
-                    'allowed_statuses' => $allowedStatuses
-                ]);
                 return response()->json(['success' => false, 'message' => 'Đơn hàng không thể hủy ở trạng thái hiện tại!'], 400);
             }
 
@@ -333,11 +315,6 @@ class ProfileController
 
             // Gọi RefundService
             $result = $this->refundService->processRefund($order, $reason);
-
-            Log::info('Refund service result', [
-                'order_id' => $order->id,
-                'result' => $result
-            ]);
 
             if ($result['success'] ?? false) {
                 return response()->json([
@@ -354,12 +331,7 @@ class ProfileController
             ], 400);
 
         } catch (\Exception $e) {
-            Log::error('Cancel order error', [
-                'order_id' => $order->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
+          
             return response()->json([
                 'success' => false,
                 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
