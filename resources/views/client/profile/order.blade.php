@@ -390,10 +390,7 @@
                 console.log('Response:', result); // Debug log
                 
                 if (result.success) {
-                    // Hiển thị thông báo thành công
-                    alert(result.message || 'Hủy đơn hàng thành công!');
                     
-                    // ✅ Luôn chuyển hướng đến trang chi tiết hủy đơn hàng
                     if (result.redirect_url) {
                         window.location.href = result.redirect_url;
                     } else {

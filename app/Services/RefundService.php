@@ -282,7 +282,7 @@ class RefundService
     private function refundVNPay(Refund $refund, Order $order)
     {
         try {
-
+            
 
             $tmnCode = config('payment.vnpay.tmn_code');
             $hashSecret = config('payment.vnpay.hash_secret');
@@ -347,7 +347,7 @@ class RefundService
 
             $data['vnp_SecureHash'] = hash_hmac('sha512', $rawData, $hashSecret);
 
-
+           
             // ✅ Gọi API với JSON đúng chuẩn
             $response = Http::timeout(30)
                 ->withHeaders(['Content-Type' => 'application/json'])
@@ -426,6 +426,10 @@ class RefundService
 
             // Kiểm tra transId có tồn tại không
             if (empty($transId)) {
+                Log::error('MoMo refund error: Missing transaction_id', [
+                    'order_id'   => $order->id,
+                    'order_code' => $order->order_code
+                ]);
                 return [
                     'success' => false,
                     'error'   => 'Không tìm thấy mã giao dịch MoMo để hoàn tiền'
@@ -485,8 +489,8 @@ class RefundService
                             ];
                         }
 
-                        return [
-                            'success' => false,
+                    return [
+                        'success' => false,
                             'error'   => 'Đơn hàng này đã được xử lý hoàn tiền trước đó'
                         ];
                     }
@@ -511,6 +515,60 @@ class RefundService
         }
     }
 
+
+    /**
+     * Tạo chữ ký VNPay
+     */
+    private function createVNPaySignature($data)
+    {
+        // Loại bỏ vnp_SecureHash khỏi dữ liệu trước khi tạo chữ ký
+        unset($data['vnp_SecureHash']);
+
+        // Sắp xếp theo thứ tự alphabet
+        ksort($data);
+
+        // Tạo chuỗi query string
+        $queryString = '';
+        foreach ($data as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $queryString .= $key . '=' . $value . '&';
+            }
+        }
+        $queryString = rtrim($queryString, '&');
+
+        Log::info('VNPay signature data', [
+            'query_string' => $queryString,
+            'hash_secret' => config('payment.vnpay.hash_secret') ? '***' : 'empty'
+        ]);
+
+        // Tạo chữ ký SHA512
+        return hash_hmac('sha512', $queryString, config('payment.vnpay.hash_secret'));
+    }
+
+    /**
+     * Tạo chữ ký MoMo
+     */
+    private function createMoMoSignature($data)
+    {
+        // Loại bỏ signature khỏi dữ liệu trước khi tạo chữ ký
+        unset($data['signature']);
+
+        ksort($data);
+        $queryString = '';
+        foreach ($data as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $queryString .= $key . '=' . $value . '&';
+            }
+        }
+        $queryString = rtrim($queryString, '&');
+
+        Log::info('MoMo signature data', [
+            'query_string' => $queryString,
+            'secret_key' => config('payment.momo.secret_key') ? '***' : 'empty'
+        ]);
+
+        return hash_hmac('sha256', $queryString, config('payment.momo.secret_key'));
+    }
 
     /**
      * Kiểm tra trạng thái hoàn tiền
@@ -557,99 +615,99 @@ class RefundService
     /**
      * Test kết nối đến VNPay
      */
-    // public function testVNPayConnection()
-    // {
-    //     try {
-    //         $vnpayUrl = config('payment.vnpay.refund_url', 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction');
-    //         $tmnCode = config('payment.vnpay.tmn_code');
-    //         $hashSecret = config('payment.vnpay.hash_secret');
+    public function testVNPayConnection()
+    {
+        try {
+            $vnpayUrl = config('payment.vnpay.refund_url', 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction');
+            $tmnCode = config('payment.vnpay.tmn_code');
+            $hashSecret = config('payment.vnpay.hash_secret');
 
-    //         if (empty($tmnCode) || empty($hashSecret)) {
-    //             return [
-    //                 'status' => 'error',
-    //                 'message' => 'Cấu hình VNPay không đầy đủ'
-    //             ];
-    //         }
+            if (empty($tmnCode) || empty($hashSecret)) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Cấu hình VNPay không đầy đủ'
+                ];
+            }
 
-    //         // Test data đơn giản
-    //         $testData = [
-    //             'vnp_Version' => '2.1.0',
-    //             'vnp_Command' => 'refund',
-    //             'vnp_TmnCode' => $tmnCode,
-    //             'vnp_RequestId' => 'TEST_' . time(),
-    //             'vnp_TransactionType' => '02',
-    //             'vnp_TxnRef' => 'TEST_ORDER',
-    //             'vnp_TransactionNo' => '123456789',
-    //             'vnp_Amount' => 1000000, // 10,000 VND
-    //             'vnp_OrderInfo' => 'Test connection',
-    //             'vnp_CreateDate' => now()->format('YmdHis'),
-    //             'vnp_IpAddr' => '127.0.0.1',
-    //         ];
+            // Test data đơn giản
+            $testData = [
+                'vnp_Version' => '2.1.0',
+                'vnp_Command' => 'refund',
+                'vnp_TmnCode' => $tmnCode,
+                'vnp_RequestId' => 'TEST_' . time(),
+                'vnp_TransactionType' => '02',
+                'vnp_TxnRef' => 'TEST_ORDER',
+                'vnp_TransactionNo' => '123456789',
+                'vnp_Amount' => 1000000, // 10,000 VND
+                'vnp_OrderInfo' => 'Test connection',
+                'vnp_CreateDate' => now()->format('YmdHis'),
+                'vnp_IpAddr' => '127.0.0.1',
+            ];
 
-    //         // Tạo chữ ký
-    //         ksort($testData);
-    //         $queryString = http_build_query($testData);
-    //         $testData['vnp_SecureHash'] = hash_hmac('sha512', $queryString, $hashSecret);
+            // Tạo chữ ký
+            ksort($testData);
+            $queryString = http_build_query($testData);
+            $testData['vnp_SecureHash'] = hash_hmac('sha512', $queryString, $hashSecret);
 
-    //         $response = Http::timeout(10)
-    //             ->withHeaders([
-    //                 'Content-Type' => 'application/x-www-form-urlencoded',
-    //                 'User-Agent' => 'Laravel/10.0',
-    //             ])
-    //             ->asForm()
-    //             ->post($vnpayUrl, $testData);
+            $response = Http::timeout(10)
+                ->withHeaders([
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'User-Agent' => 'Laravel/10.0',
+                ])
+                ->asForm()
+                ->post($vnpayUrl, $testData);
 
-    //         return [
-    //             'status' => $response->successful() ? 'success' : 'error',
-    //             'http_status' => $response->status(),
-    //             'response' => $response->body(),
-    //             'url' => $vnpayUrl
-    //         ];
-    //     } catch (\Exception $e) {
-    //         return [
-    //             'status' => 'error',
-    //             'message' => $e->getMessage()
-    //         ];
-    //     }
-    // }
+            return [
+                'status' => $response->successful() ? 'success' : 'error',
+                'http_status' => $response->status(),
+                'response' => $response->body(),
+                'url' => $vnpayUrl
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
+        }
+    }
 
     /**
      * Xử lý refund thủ công (khi không thể kết nối gateway)
      */
-    // public function processManualRefund(Refund $refund, $adminNote = null)
-    // {
-    //     try {
-    //         $refund->update([
-    //             'status' => 'success',
-    //             'refunded_at' => now(),
-    //             'gateway_response' => array_merge($refund->gateway_response ?? [], [
-    //                 'manual_processed' => true,
-    //                 'processed_by' => auth()->id(),
-    //                 'processed_at' => now()->toISOString(),
-    //                 'admin_note' => $adminNote
-    //             ])
-    //         ]);
+    public function processManualRefund(Refund $refund, $adminNote = null)
+    {
+        try {
+            $refund->update([
+                'status' => 'success',
+                'refunded_at' => now(),
+                'gateway_response' => array_merge($refund->gateway_response ?? [], [
+                    'manual_processed' => true,
+                    'processed_by' => auth()->id(),
+                    'processed_at' => now()->toISOString(),
+                    'admin_note' => $adminNote
+                ])
+            ]);
 
-    //         // Cập nhật trạng thái đơn hàng
-    //         $refund->order->update(['order_status' => 'cancelled']);
+            // Cập nhật trạng thái đơn hàng
+            $refund->order->update(['order_status' => 'cancelled']);
 
 
-    //         return [
-    //             'success' => true,
-    //             'message' => 'Xử lý hoàn tiền thủ công thành công'
-    //         ];
-    //     } catch (\Exception $e) {
-    //         Log::error('Manual refund processing failed', [
-    //             'refund_id' => $refund->id,
-    //             'error' => $e->getMessage()
-    //         ]);
+            return [
+                'success' => true,
+                'message' => 'Xử lý hoàn tiền thủ công thành công'
+            ];
+        } catch (\Exception $e) {
+            Log::error('Manual refund processing failed', [
+                'refund_id' => $refund->id,
+                'error' => $e->getMessage()
+            ]);
 
-    //         return [
-    //             'success' => false,
-    //             'message' => 'Xử lý hoàn tiền thủ công thất bại: ' . $e->getMessage()
-    //         ];
-    //     }
-    // }
+            return [
+                'success' => false,
+                'message' => 'Xử lý hoàn tiền thủ công thất bại: ' . $e->getMessage()
+            ];
+        }
+    }
 
     /**
      * Admin xử lý hoàn tiền cho đơn hàng đã hủy
@@ -729,7 +787,7 @@ class RefundService
                         'error' => $result['error'] ?? 'Unknown error'
                     ])
                 ]);
-
+             
 
                 return [
                     'success' => false,
@@ -738,7 +796,7 @@ class RefundService
                 ];
             }
         } catch (\Exception $e) {
-
+           
 
             return [
                 'success' => false,
@@ -747,7 +805,17 @@ class RefundService
         }
     }
 
-  
+    /**
+     * Lấy danh sách refund cần xử lý thủ công
+     */
+    public function getPendingRefunds()
+    {
+        return Refund::where('status', 'pending')
+            ->with(['order.user', 'order.paymentMethod'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
     /**
      * Kiểm tra xem đơn hàng có thể hoàn tiền được không
      */
@@ -799,11 +867,11 @@ class RefundService
         ];
     }
 
+  
+
     /**
-     * Lấy danh sách đơn hàng chờ hoàn tiền
+     * Kiểm tra trạng thái refund của đơn hàng
      */
-    
-   
     public function checkOrderRefundStatus(Order $order)
     {
         $refunds = $order->refunds()->orderBy('created_at', 'desc')->get();

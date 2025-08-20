@@ -58,7 +58,7 @@ class Order extends Model
         'delivery_started_at',
         'delivery_completed_at',
         'delivery_address',
-        'pending_refund',        // ✅ Thêm trạng thái chờ hoàn tiền
+        'pending_refund',        
     ];
 
     protected $casts = [
@@ -68,9 +68,9 @@ class Order extends Model
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'ordered_at' => 'datetime',
-        'processing_at' => 'datetime',    // ✅ Thêm vào
-        'shipped_at' => 'datetime',       // ✅ Thêm vào
-        'returned_at' => 'datetime',      // ✅ Thêm vào
+        'processing_at' => 'datetime',    
+        'shipped_at' => 'datetime',       
+        'returned_at' => 'datetime',      
         'payment_details' => 'array',
         'received_at' => 'datetime',
         'in_delivery_at' => 'datetime',
