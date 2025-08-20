@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="test-token">
+    <title>Test Cart</title>
+</head>
+<body>
+    <h1>Test Cart Functionality</h1>
+    
+    <button onclick="testAddToCart()">Test Add to Cart</button>
+    <button onclick="testRemoveFromCart()">Test Remove from Cart</button>
+    <button onclick="testUpdateCart()">Test Update Cart</button>
+    <button onclick="testClearCart()">Test Clear Cart</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        function testAddToCart() {
+            const formData = new FormData();
+            formData.append('product_id', '1');
+            formData.append('quantity', '1');
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            
+            fetch('/cart/add', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = '<p>Add to Cart Response: ' + JSON.stringify(data) + '</p>';
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = '<p>Error: ' + error.message + '</p>';
+            });
+        }
+        
+        function testRemoveFromCart() {
+            fetch('/cart/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ item_id: '1_null' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = '<p>Remove from Cart Response: ' + JSON.stringify(data) + '</p>';
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = '<p>Error: ' + error.message + '</p>';
+            });
+        }
+        
+        function testUpdateCart() {
+            fetch('/cart/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-HTTP-Method-Override': 'PUT'
+                },
+                body: JSON.stringify({ item_id: '1_null', quantity: 2 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = '<p>Update Cart Response: ' + JSON.stringify(data) + '</p>';
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = '<p>Error: ' + error.message + '</p>';
+            });
+        }
+        
+        function testClearCart() {
+            fetch('/cart/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = '<p>Clear Cart Response: ' + JSON.stringify(data) + '</p>';
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = '<p>Error: ' + error.message + '</p>';
+            });
+        }
+    </script>
+</body>
+</html>
