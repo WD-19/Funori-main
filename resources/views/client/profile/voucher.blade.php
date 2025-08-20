@@ -35,7 +35,7 @@
                         @if ($voucher->discount_type == 'percentage')
                             {{ rtrim(rtrim($voucher->discount_value, '0'), '.') }}%
                         @else
-                            {{ number_format($voucher->discount_value, 0, ',', '.') }}k
+                            {{ number_format($voucher->discount_value, 0, ',', '.') }}đ
                         @endif
                     </span>
                     <span class="voucher-type">GIẢM GIÁ</span>
@@ -111,7 +111,7 @@
     .voucher-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
+        gap: 16px;
     }
 
     /* Base Voucher Card Styling */
@@ -135,8 +135,8 @@
     .voucher-banner {
         flex-shrink: 0;
         /* Không co lại */
-        width: 120px;
-        /* Chiều rộng của phần banner */
+        width: 136px;
+        /* Tăng chiều rộng của phần banner */
         background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
         /* Blue gradient */
         color: white;
@@ -144,7 +144,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 15px 5px;
+        padding: 8px 5px;
         position: relative;
         font-weight: bold;
         text-align: center;
@@ -165,38 +165,42 @@
     }
 
     .voucher-banner .discount-value {
-        font-size: 2.8em;
+        font-size: 1.6em;
         line-height: 1;
-        margin-bottom: 5px;
+        margin-bottom: 2px;
+        word-break: break-word;
+        text-align: center;
+        max-width: 100%;
     }
 
     .voucher-banner .voucher-type {
-        font-size: 0.85em;
+        font-size: 0.7em;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.2px;
         opacity: 0.9;
+        text-align: center;
     }
 
     /* Right Details of Voucher Card */
     .voucher-details {
         flex-grow: 1;
         /* Chiếm hết phần không gian còn lại */
-        padding: 20px 25px;
+        padding: 15px 20px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
 
     .voucher-details p {
-        margin: 5px 0;
+        margin: 4px 0;
         color: #555;
-        font-size: 0.95em;
+        font-size: 0.9em;
     }
 
     .voucher-details .voucher-code-wrapper {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .voucher-details .voucher-label {
@@ -232,18 +236,18 @@
     }
 
     .voucher-details .voucher-description {
-        font-size: 0.9em;
+        font-size: 0.85em;
         color: #666;
-        line-height: 1.5;
-        margin-bottom: 15px;
+        line-height: 1.4;
+        margin-bottom: 12px;
     }
 
     .voucher-details .voucher-expiry {
-        font-size: 0.85em;
+        font-size: 0.8em;
         color: #777;
         display: flex;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
 
     .voucher-details .voucher-expiry i {
@@ -255,7 +259,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-top: 15px;
+        padding-top: 12px;
         border-top: 1px dashed #eee;
     }
 
@@ -322,14 +326,14 @@
 
     /* Button style */
     .btn-use-voucher {
-        padding: 10px 20px;
+        padding: 8px 16px;
         background-color: #007bff;
         /* Blue */
         color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 6px;
         cursor: pointer;
-        font-size: 0.95em;
+        font-size: 0.9em;
         font-weight: 600;
         transition: background-color 0.2s ease, transform 0.1s ease;
     }
@@ -402,7 +406,7 @@
     /* Responsive adjustments */
     @media (max-width: 1200px) {
         .voucher-container {
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             /* Giảm kích thước minmax */
         }
     }
@@ -422,8 +426,8 @@
 
         .voucher-banner {
             width: 100%;
-            height: 100px;
-            /* Chiều cao cố định cho banner trên mobile */
+            height: 70px;
+            /* Giảm chiều cao cho banner trên mobile */
             flex-direction: row;
             /* Để banner ngang */
             justify-content: center;
@@ -432,8 +436,8 @@
         }
 
         .voucher-banner .discount-value {
-            font-size: 2.2em;
-            margin-right: 15px;
+            font-size: 1.6em;
+            margin-right: 10px;
             margin-bottom: 0;
         }
 
@@ -447,7 +451,7 @@
         }
 
         .voucher-details {
-            padding: 15px;
+            padding: 12px;
             align-items: center;
             /* Căn giữa nội dung */
             text-align: center;

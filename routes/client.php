@@ -17,6 +17,7 @@ use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\client\Auth\ForgotPasswordController;
 use App\Http\Controllers\client\Auth\ResetPasswordController;
 use App\Http\Controllers\Client\MessageController as ClientMessageController;
+use App\Http\Controllers\client\OrderController;
 // Middleware
 use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use App\Http\Middleware\CheckClientLogin;
@@ -131,10 +132,17 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/order/detail/{id}', [ProfileController::class, 'detailOrder'])->name('my_account.orderdetail');
         Route::post('/order/{order}/cancel', [ProfileController::class, 'cancelOrder'])->name('my_account.order.cancel');
 
+        // Routes cho hủy đơn hàng với hoàn tiền
+        Route::post('/order/{orderId}/cancel-with-refund', [OrderController::class, 'cancelOrder'])->name('order.cancel-with-refund');
+        Route::get('/order/{orderId}/refund-info', [OrderController::class, 'getRefundInfo'])->name('order.refund-info');
+        Route::get('/order/{orderId}/cancellation-detail', [OrderController::class, 'showCancellationDetail'])->name('order.cancellation-detail');
+        Route::get('/refund/{refundId}/status', [OrderController::class, 'checkRefundStatus'])->name('refund.status');
+
         Route::post('/order/{id}/repeat', [ProfileController::class, 'repeatOrder'])->name('order.repeat');
         Route::get('/voucher', [ProfileController::class, 'vouchers'])->name('voucher');
+        Route::get('/refunds', [ProfileController::class, 'refunds'])->name('refunds');
         Route::post('/order/{id}/mark-delivered', [ProfileController::class, 'markDelivered'])->name('order.markDelivered');
-        
+
         // Order tracking endpoint
         Route::get('/order/{orderId}/tracking', [ProfileController::class, 'getOrderTracking'])->name('order.tracking');
 
@@ -154,6 +162,6 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/password/edit', [ProfileController::class, 'editPassword'])->name('password.edit');
         Route::post('/password/edit', [ProfileController::class, 'updatePassword'])->name('password.update');
     });
-    
+
     Route::get('/{slug}', [ClientProductController::class, 'show'])->name('product.show');
 });

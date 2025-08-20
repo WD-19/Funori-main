@@ -344,13 +344,7 @@
                                                 </div>
                                             </div>
                                         @endif
-                                        @if ($order->order_status === 'cancelled' && $order->items && count($order->items) > 0)
-                                            <a href="{{ route('client.product.show', ['slug' => $order->items[0]->product->slug ?? '']) }}"
-                                                class="btn btn-primary btn-repeat-order"
-                                                data-order-id="{{ $order->id }}">
-                                                <i class="bi bi-cart-plus me-2"></i>Mua lại
-                                            </a>
-                                        @endif
+                                        
                                     </div>
                                 </div>
                             </div>

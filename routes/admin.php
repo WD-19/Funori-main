@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\admin\MessageController;
 use App\Http\Controllers\Admin\ShipperController;
+use App\Http\Controllers\admin\RefundController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Route;
@@ -98,6 +99,16 @@ Route::prefix('admin')->name('admin.')
         Route::delete('orders/{order}', [OrderController::class, 'destroy'])
             ->name('orders.destroy');
         // (6) Cập nhật trạng thái riêng (VD: processing → shipped → delivered → cancelled → returned)
+
+        // Quản lý refund
+        Route::get('refunds', [RefundController::class, 'index'])->name('refunds.index');
+        Route::get('refunds/{refund}', [RefundController::class, 'show'])->name('refunds.show');
+        Route::post('refunds/{refund}/mark-success', [RefundController::class, 'markAsSuccess'])->name('refunds.mark-success');
+        Route::post('refunds/{refund}/mark-failed', [RefundController::class, 'markAsFailed'])->name('refunds.mark-failed');
+        
+        // Xử lý hoàn tiền cho đơn hàng đã hủy
+        Route::get('orders/pending-refunds', [OrderController::class, 'pendingRefunds'])->name('orders.pending-refunds');
+        Route::post('orders/{order}/process-refund', [OrderController::class, 'processRefund'])->name('orders.process-refund');
         Route::post('orders/{order}/update-status', [OrderController::class, 'updateStatus'])
             ->name('orders.updateStatus');
         // (6.1) Trang tracking trạng thái đơn hàng (form cập nhật trạng thái riêng)
@@ -156,6 +167,8 @@ Route::prefix('admin')->name('admin.')
         Route::resource('reviews', ReviewController::class);
         Route::resource('banners', BannerController::class);
         Route::resource('brands', BrandController::class);
+
+    
 
         Route::fallback(function () {
             return response()->view('admin.errors.404', [], 404);

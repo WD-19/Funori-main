@@ -9,6 +9,11 @@
         </div>
     @endif
     <div class="my-account-content account-order">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>{{ $pageTitle }}</h2>
+            
+            <!-- ✅ Đã xóa nút test kết nối VNPay -->
+        </div>
         <div class="wrap-account-order">
             <div class="order-history-header">
                 <h3 class="fw-6">Đơn Hàng Của Tôi</h3>
@@ -151,16 +156,26 @@
                                         <span class="amount">{{ number_format($order->total_amount, 0, ',', '.') }}₫</span>
                                     </div>
                                     <div class="order-actions">
-                                        <a href="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}"
-                                            class="btn btn-outline-success">
-                                            <span>Xem chi tiết</span>
-                                        </a>
-                                        @if (Str::slug($order->order_status, '_') === 'pending_confirmation')
+                                        @if (Str::slug($order->order_status, '_') !== 'cancelled')
+                                            <a href="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}"
+                                                class="btn btn-outline-success">
+                                                <span>Xem chi tiết</span>
+                                            </a>
+                                        @endif
+                                        @if (Str::slug($order->order_status, '_') === 'pending_confirmation' || Str::slug($order->order_status, '_') === 'processing')
                                             <!-- Nút hủy -->
                                             <button type="button" class="btn btn-outline-danger"
                                                 onclick="openCancelModal({{ $order->id }})">
                                                 Huỷ đơn hàng
                                             </button>
+                                            
+                                            <!-- ✅ Đã xóa nút test hoàn tiền -->
+                                        @endif
+                                        @if (Str::slug($order->order_status, '_') === 'cancelled' || ($order->refunds && ($order->refunds->where('status', 'success')->count() > 0 || $order->refunds->where('status', 'cancelled')->count() > 0)))
+                                            <a href="{{ route('client.profile.order.cancellation-detail', $order->id) }}" 
+                                               class="btn btn-outline-info">
+                                                <i class="fas fa-info-circle"></i> Chi tiết hủy
+                                            </a>
                                         @endif
                                         @if (Str::slug($order->order_status, '_') === 'shipped')
                                             <form action="{{ route('client.profile.order.markDelivered', $order->id) }}"
@@ -304,7 +319,7 @@
         // Hàm mở modal và set action động
         function openCancelModal(orderId) {
             const form = document.getElementById('cancelOrderForm');
-            form.action = '{{ route('client.profile.my_account.order.cancel', ':order') }}'.replace(':order', orderId);
+            form.action = '{{ route('client.profile.order.cancel-with-refund', ':orderId') }}'.replace(':orderId', orderId);
             form.reset();
             document.getElementById('order_cancelReasonOtherText').classList.add('d-none');
             document.getElementById('order_cancelReasonOtherText').required = false;
@@ -345,32 +360,57 @@
                 return;
             }
 
-            // Lấy orderId từ action của form (hoặc truyền qua biến JS khi mở modal)
-            const action = this.action;
-            // Gửi dữ liệu
-            var data = {
-                cancellation_reason: reason,
-                cancel_reason_other: reason === 'other' ? otherReason : '',
-                _token: '{{ csrf_token() }}'
-            };
+            // Hiển thị loading
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Đang xử lý...';
+            submitBtn.disabled = true;
 
-            fetch(action, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': data._token
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.success) {
-                        location.reload();
+            // ✅ Sửa format dữ liệu để tránh lỗi 400
+            var formData = new FormData();
+            formData.append('cancellation_reason', reason);
+            formData.append('cancel_reason_other', reason === 'other' ? otherReason : '');
+            formData.append('_token', '{{ csrf_token() }}');
+
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: formData // ✅ Sử dụng FormData thay vì JSON
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('Response:', result); // Debug log
+                
+                if (result.success) {
+                    
+                    if (result.redirect_url) {
+                        window.location.href = result.redirect_url;
                     } else {
-                        alert(res.message || 'Có lỗi xảy ra!');
+                        // Fallback: reload trang
+                        location.reload();
                     }
-                })
-                .catch(() => alert('Có lỗi xảy ra!'));
+                } else {
+                    // Hiển thị lỗi
+                    alert('Lỗi: ' + (result.message || 'Không thể hủy đơn hàng'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error); // Debug log
+                alert('Có lỗi xảy ra khi gửi yêu cầu: ' + error.message);
+            })
+            .finally(() => {
+                // Khôi phục button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
         });
     </script>
 @endpush
