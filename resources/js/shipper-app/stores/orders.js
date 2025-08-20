@@ -68,6 +68,58 @@ export const useOrderStore = defineStore('orders', () => {
       loading.value = false
     }
   }
+  
+  const addOrder = (order) => {
+    // Validate order data
+    if (!order || !order.id) {
+      console.error('Invalid order data in addOrder:', order)
+      return
+    }
+    
+    // Check if order already exists
+    const existingOrderIndex = orders.value.findIndex(o => o.id === order.id)
+    
+    if (existingOrderIndex >= 0) {
+      // Update existing order
+      orders.value[existingOrderIndex] = { ...orders.value[existingOrderIndex], ...order }
+    } else {
+      // Add new order to the beginning of the list
+      orders.value.unshift(order)
+    }
+    
+    // Update stats
+    stats.value.totalOrders = orders.value.length
+    stats.value.todayOrders = orders.value.filter(o => {
+      const orderDate = new Date(o.created_at).toDateString()
+      const today = new Date().toDateString()
+      return orderDate === today
+    }).length
+  }
+  
+  const updateOrder = (order) => {
+    // Validate order data
+    if (!order || !order.id) {
+      console.error('Invalid order data in updateOrder:', order)
+      return
+    }
+    
+    const existingOrderIndex = orders.value.findIndex(o => o.id === order.id)
+    
+    if (existingOrderIndex >= 0) {
+      orders.value[existingOrderIndex] = { ...orders.value[existingOrderIndex], ...order }
+    }
+  }
+  
+  const updateOrderLocation = (orderId, location) => {
+    const existingOrderIndex = orders.value.findIndex(o => o.id === orderId)
+    
+    if (existingOrderIndex >= 0) {
+      orders.value[existingOrderIndex] = { 
+        ...orders.value[existingOrderIndex], 
+        location: location 
+      }
+    }
+  }
 
   const updateOrderStatus = async (orderId, status, notes = '', location = null) => {
     try {
@@ -321,6 +373,9 @@ export const useOrderStore = defineStore('orders', () => {
     // Actions
     fetchOrders,
     fetchOrder,
+    addOrder,
+    updateOrder,
+    updateOrderLocation,
     updateOrderStatus,
     updateOrderStatusWithImage,
     acceptOrder,
