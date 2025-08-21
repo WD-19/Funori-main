@@ -4,7 +4,6 @@ import { useAuthStore } from '../stores/auth'
 // Views
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
-import Orders from '../views/Orders.vue'
 import OrderDetail from '../views/OrderDetail.vue'
 import Map from '../views/Map.vue'
 import Profile from '../views/Profile.vue'
@@ -21,12 +20,6 @@ const routes = [
     path: '/',
     name: 'Dashboard',
     component: Dashboard,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/orders',
-    name: 'Orders',
-    component: Orders,
     meta: { requiresAuth: true }
   },
   {

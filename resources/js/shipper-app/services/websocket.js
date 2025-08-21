@@ -16,7 +16,20 @@ class WebSocketService {
         this.connectionTimeout = 10000 // 10 giây timeout
         this.autoReconnect = true
         this.connectionStartTime = null
-
+        
+        // Simple hybrid polling configuration
+        this.pollingConfig = {
+            enabled: true,
+            baseInterval: 2000, // 5 giây
+            maxInterval: 15000, // 30 giây
+            currentInterval: 2000,
+            consecutiveFailures: 0,
+            maxFailures: 3
+        }
+        
+        // Simple offline queue
+        this.offlineQueue = []
+        this.maxQueueSize = 50
     }
 
     /**
@@ -29,33 +42,20 @@ class WebSocketService {
 
         // Configure Pusher
         window.Pusher = Pusher
-
-        // Debug: Log credentials
-        console.log('WebSocket credentials:', {
-            key: window.MIX_REVERB_APP_KEY,
-            host: window.MIX_REVERB_HOST,
-            port: window.MIX_REVERB_PORT,
-            scheme: window.MIX_REVERB_SCHEME,
-            hasKey: !!window.MIX_REVERB_APP_KEY,
-            hasHost: !!window.MIX_REVERB_HOST
-        })
         
         this.echo = new Echo({
-            broadcaster: 'pusher', // Pusher.js connector cho Reverb backend
+            broadcaster: 'pusher',
             key: window.MIX_REVERB_APP_KEY || '4qhu27f54vnhivpck8bk',
             cluster: 'mt1',
-            forceTLS: false, // Local Reverb không cần TLS
+            forceTLS: false,
             wsHost: window.MIX_REVERB_HOST || 'localhost',
             wsPort: window.MIX_REVERB_PORT || 8080,
             wssPort: window.MIX_REVERB_PORT || 8080,
-            encrypted: false, // Local Reverb không encrypt
+            encrypted: false,
             disableStats: true,
-            // Quan trọng: Tắt hoàn toàn Pusher.com
             enableStats: false,
             enableLogging: false,
-            // Tắt Pusher.com stats
             statsHost: 'localhost',
-            // Auth endpoint
             authEndpoint: '/broadcasting/auth',
             auth: {
                 headers: {
@@ -64,7 +64,6 @@ class WebSocketService {
                     'Content-Type': 'application/json',
                 },
             },
-            // Timeout settings
             activityTimeout: 30000,
             pongTimeout: 15000,
             maxReconnectionAttempts: this.maxReconnectAttempts,
@@ -75,6 +74,152 @@ class WebSocketService {
         this.startConnectionMonitoring()
         this.isConnected = true
         this.connectionStartTime = Date.now()
+        
+        // Start hybrid polling
+        this.startHybridPolling()
+    }
+
+    /**
+     * Start hybrid polling system
+     */
+    startHybridPolling() {
+        this.pollingConfig.currentInterval = this.pollingConfig.baseInterval
+        this.pollingConfig.consecutiveFailures = 0
+        
+        // Start polling with current interval
+        this.startPolling()
+    }
+
+    /**
+     * Start polling
+     */
+    startPolling() {
+        if (this.pollingTimer) {
+            clearTimeout(this.pollingTimer)
+        }
+        
+        this.pollingTimer = setTimeout(() => {
+            this.executePolling()
+        }, this.pollingConfig.currentInterval)
+    }
+
+    /**
+     * Execute polling with hybrid logic
+     */
+    async executePolling() {
+        // Only poll if WebSocket is not connected or unstable
+        if (this.isConnected && this.reconnectAttempts === 0) {
+            // WebSocket is stable, reduce polling frequency
+            this.adjustPollingInterval('success')
+            this.startPolling()
+            return
+        }
+
+        try {
+            // Execute actual polling logic
+            await this.performPolling()
+            
+            // Success - reduce polling frequency
+            this.adjustPollingInterval('success')
+        } catch (error) {
+            console.error('Polling failed:', error)
+            
+            // Failure - increase polling frequency
+            this.adjustPollingInterval('failure')
+        } finally {
+            // Continue polling with adjusted interval
+            this.startPolling()
+        }
+    }
+
+    /**
+     * Perform actual polling operations
+     */
+    async performPolling() {
+        // This method will be called by components to perform their specific polling
+        return new Promise((resolve) => {
+            // Default implementation - just resolve
+            setTimeout(resolve, 100)
+        })
+    }
+
+    /**
+     * Adjust polling interval based on success/failure
+     */
+    adjustPollingInterval(result) {
+        if (result === 'success') {
+            this.pollingConfig.consecutiveFailures = 0
+            
+            // Gradually increase interval (backoff)
+            this.pollingConfig.currentInterval = Math.min(
+                this.pollingConfig.currentInterval * 1.5,
+                this.pollingConfig.maxInterval
+            )
+        } else {
+            this.pollingConfig.consecutiveFailures++
+            
+            // Reset to base interval on failure
+            this.pollingConfig.currentInterval = this.pollingConfig.baseInterval
+            
+            // If too many failures, increase interval temporarily
+            if (this.pollingConfig.consecutiveFailures >= this.pollingConfig.maxFailures) {
+                this.pollingConfig.currentInterval = Math.min(
+                    this.pollingConfig.currentInterval * 2,
+                    this.pollingConfig.maxInterval
+                )
+            }
+        }
+    }
+
+    /**
+     * Add event to offline queue
+     */
+    addToOfflineQueue(eventType, data) {
+        if (this.offlineQueue.length >= this.maxQueueSize) {
+            // Remove oldest event
+            this.offlineQueue.shift()
+        }
+        
+        this.offlineQueue.push({
+            type: eventType,
+            data,
+            timestamp: Date.now(),
+            attempts: 0
+        })
+    }
+
+    /**
+     * Process offline queue when connection is restored
+     */
+    async processOfflineQueue() {
+        if (this.offlineQueue.length === 0) return
+        
+        const eventsToProcess = [...this.offlineQueue]
+        this.offlineQueue = []
+        
+        for (const event of eventsToProcess) {
+            try {
+                // Attempt to process the event
+                await this.processOfflineEvent(event)
+                event.attempts++
+            } catch (error) {
+                // Re-queue if max attempts not reached
+                if (event.attempts < 3) {
+                    this.offlineQueue.push(event)
+                }
+            }
+        }
+    }
+
+    /**
+     * Process a single offline event
+     */
+    async processOfflineEvent(event) {
+        // This method should be implemented by components
+        console.log('Processing offline event:', event)
+        
+        // Simulate processing time
+        await new Promise(resolve => setTimeout(resolve, 100))
     }
 
     /**
@@ -88,7 +233,12 @@ class WebSocketService {
             this.lastHeartbeat = Date.now()
             this.startHeartbeat()
             
-            this.dispatchConnectionEvent('connected')
+            // Process offline queue
+            this.processOfflineQueue()
+            
+            // Reset polling to base interval
+            this.pollingConfig.currentInterval = this.pollingConfig.baseInterval
+            this.pollingConfig.consecutiveFailures = 0
         })
 
         this.echo.connector.pusher.connection.bind('disconnected', () => {
@@ -96,11 +246,12 @@ class WebSocketService {
             this.isConnected = false
             this.stopHeartbeat()
             
-            this.dispatchConnectionEvent('disconnected')
+            // Increase polling frequency when disconnected
+            this.pollingConfig.currentInterval = this.pollingConfig.baseInterval
+            this.pollingConfig.consecutiveFailures = 0
             
             // Auto reconnect
             if (this.autoReconnect) {
-                console.log('Auto reconnect triggered due to disconnect...')
                 this.handleReconnect()
             }
         })
@@ -108,28 +259,17 @@ class WebSocketService {
         this.echo.connector.pusher.connection.bind('connecting', () => {
             console.log('WebSocket connecting...')
             this.isConnected = false
-            
-            // Dispatch custom event
-            this.dispatchConnectionEvent('connecting')
         })
 
         this.echo.connector.pusher.connection.bind('error', (error) => {
             console.error('WebSocket error:', error)
             
             this.isConnected = false
-            this.dispatchConnectionEvent('error', error)
             
             // Auto reconnect cho tất cả lỗi
             if (this.autoReconnect) {
-                console.log('Auto reconnect triggered due to error...')
                 this.handleReconnect()
             }
-        })
-
-        // Connection state change
-        this.echo.connector.pusher.connection.bind('state_change', (states) => {
-            console.log('WebSocket state change:', states)
-            this.dispatchConnectionEvent('state_change', states)
         })
     }
 
@@ -141,11 +281,6 @@ class WebSocketService {
         this.connectionCheckInterval = setInterval(() => {
             this.checkConnectionHealth()
         }, 30000)
-        
-        // Monitor connection stability
-        this.stabilityInterval = setInterval(() => {
-            this.monitorConnectionStability()
-        }, 10000) // Every 10 seconds
     }
 
     /**
@@ -165,29 +300,6 @@ class WebSocketService {
             this.handleReconnect()
         }
     }
-    
-        /**
-     * Monitor connection stability
-     */
-    monitorConnectionStability() {
-        if (!this.echo || !this.isConnected) {
-            return
-        }
-        
-        const connectionState = this.echo.connector.pusher.connection.state
-        console.log('Connection stability check:', {
-            state: connectionState,
-            isConnected: this.isConnected,
-            timestamp: new Date().toISOString()
-        })
-        
-        // If connection is unstable, log warning
-        if (connectionState !== 'connected') {
-            console.warn('Connection state unstable:', connectionState)
-        }
-    }
-    
-
 
     /**
      * Start heartbeat monitoring
@@ -214,7 +326,6 @@ class WebSocketService {
     sendHeartbeat() {
         if (this.echo && this.isConnected) {
             try {
-                // Send a ping to keep connection alive
                 this.echo.connector.pusher.connection.send_event('heartbeat', {
                     timestamp: Date.now(),
                     client_id: this.getClientId()
@@ -239,7 +350,6 @@ class WebSocketService {
     handleReconnect() {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
             console.error('Max reconnection attempts reached')
-            this.dispatchConnectionEvent('max_reconnect_reached')
             return
         }
 
@@ -255,10 +365,8 @@ class WebSocketService {
             if (this.echo && this.autoReconnect) {
                 try {
                     console.log('Reconnecting...')
-                    // Force disconnect trước khi reconnect
                     this.echo.connector.pusher.disconnect()
                     
-                    // Reconnect sau 1 giây
                     setTimeout(() => {
                         console.log('Attempting to connect...')
                         this.echo.connector.pusher.connect()
@@ -270,21 +378,6 @@ class WebSocketService {
                 }
             }
         }, delay)
-    }
-
-    /**
-     * Dispatch connection event to listeners
-     */
-    dispatchConnectionEvent(eventType, data = null) {
-        const event = new CustomEvent('websocket-connection', {
-            detail: {
-                type: eventType,
-                data: data,
-                timestamp: Date.now(),
-                connectionDuration: this.connectionStartTime ? Date.now() - this.connectionStartTime : 0
-            }
-        })
-        window.dispatchEvent(event)
     }
 
     /**
@@ -404,12 +497,10 @@ class WebSocketService {
             this.connectionCheckInterval = null
         }
         
-        if (this.stabilityInterval) {
-            clearInterval(this.stabilityInterval)
-            this.stabilityInterval = null
+        if (this.pollingTimer) {
+            clearTimeout(this.pollingTimer)
+            this.pollingTimer = null
         }
-
-        this.dispatchConnectionEvent('disconnected')
     }
 
     /**
@@ -422,7 +513,9 @@ class WebSocketService {
             maxReconnectAttempts: this.maxReconnectAttempts,
             connectionDuration: this.connectionStartTime ? Date.now() - this.connectionStartTime : 0,
             lastHeartbeat: this.lastHeartbeat,
-            clientId: this.getClientId()
+            clientId: this.getClientId(),
+            pollingConfig: this.pollingConfig,
+            offlineQueueSize: this.offlineQueue.length
         }
     }
 
@@ -431,7 +524,8 @@ class WebSocketService {
      */
     sendMessage(channel, event, data) {
         if (!this.echo || !this.isConnected) {
-            console.error('WebSocket not connected')
+            // Queue message for later if offline
+            this.addToOfflineQueue(event, { channel, data })
             return false
         }
 
@@ -440,6 +534,8 @@ class WebSocketService {
             return true
         } catch (error) {
             console.error('Error sending message:', error)
+            // Queue message for later
+            this.addToOfflineQueue(event, { channel, data })
             return false
         }
     }
@@ -461,6 +557,17 @@ class WebSocketService {
             this.echo.connector.pusher.disconnect()
             this.handleReconnect()
         }
+    }
+
+    /**
+     * Set custom polling configuration
+     */
+    setPollingConfig(config) {
+        this.pollingConfig = {
+            ...this.pollingConfig,
+            ...config
+        }
+        console.log('Polling configuration updated:', this.pollingConfig)
     }
 }
 
