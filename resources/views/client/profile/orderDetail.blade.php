@@ -250,21 +250,7 @@
                         </div>
                     </div>
 
-                    <!-- Step 8: Đánh giá (chỉ hiển thị khi đã giao) -->
-                    <div class="timeline-item" x-show="status === 'delivered'" style="display: none;">
-                        <div class="timeline-icon">
-                            <i class="bi bi-star-fill"></i>
-                        </div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Đánh giá sản phẩm</div>
-                            <div class="timeline-desc">Hãy đánh giá sản phẩm để giúp chúng tôi cải thiện dịch vụ</div>
-                            <div class="timeline-time">
-                                <a href="#" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-star me-1"></i>Đánh giá ngay
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
@@ -333,14 +319,13 @@
                                                 Giá tiền: {{ number_format($item->subtotal ?? 0, 0, ',', '.') }}₫
                                             </div>
                                         </div>
-                                        @if ($orderStatusVN == 'Đã giao')
+                                        @if ($orderStatusVN == 'Đã giao hàng')
                                             <div class="d-flex flex-column justify-content-end" style="height: 100%;">
                                                 <div class="d-flex gap-2 align-items-center" style="height: 100%;">
                                                     <a href="{{ route('client.product.show', ['slug' => $item->product->slug ?? '']) }}#product-reviews"
-                                                        class="btn btn-outline-primary">
+                                                        class="btn btn-outline-primary btn-sm">
                                                         <i class="bi bi-star-fill me-1"></i>Đánh giá
                                                     </a>
-
                                                 </div>
                                             </div>
                                         @endif
@@ -360,9 +345,9 @@
 
 
             <div class="d-grid gap-2 col-6 mx-auto">
-                <a href="" class="btn btn-outline-warning">
+                <!-- <a href="" class="btn btn-outline-warning">
                     <i class="bi bi-headset me-2"></i>Liên hệ hỗ trợ
-                </a>
+                </a> -->
                 <a href="{{ route('client.profile.my_account.order') }}" class="btn btn-outline-dark">
                     <i class="bi bi-list-ul me-2"></i>Quay lại danh sách đơn hàng
                 </a>
