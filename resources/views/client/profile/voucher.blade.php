@@ -66,7 +66,7 @@
                     <p class="voucher-expiry">
                         <i class="far fa-calendar-alt"></i> HSD:
                         @if ($endDate)
-                            {{ $endDate->format('d/m/Y') }}
+                            {{ $endDate ? $endDate->format('d/m/Y') : 'Không giới hạn' }}
                         @else
                             Không giới hạn
                         @endif

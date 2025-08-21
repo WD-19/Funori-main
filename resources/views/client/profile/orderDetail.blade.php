@@ -16,7 +16,7 @@
         $orderStatusKey = \Illuminate\Support\Str::slug($order->order_status ?? 'unknown_status', '_');
         $orderStatusVN = $statusMap[$orderStatusKey] ?? ($order->order_status ?? 'Trạng thái không xác định');
     @endphp
-    <div class="container my-5" x-data="orderTracking({ orderId: {{ $order->id }}, initialStatus: '{{ $order->order_status }}', initialCreatedAt: '{{ $order->created_at?->format('c') }}', initialUpdatedAt: '{{ $order->updated_at?->format('c') }}' })" x-init="init()">
+    <div class="container my-5" x-data="orderTracking({ orderId: {{ $order->id }}, initialStatus: '{{ $order->order_status }}', initialCreatedAt: '{{ $order->created_at ? $order->created_at->format('c') : '' }}', initialUpdatedAt: '{{ $order->updated_at ? $order->updated_at->format('c') : '' }}' })" x-init="init()">
         <div class="order-detail-card"> {{-- Added padding, rounded corners, and shadow --}}
             <div class="text-center mb-4">
                 <h2 style="font-size: 50px"  class="fw-bold text-uppercase mb-2"> {{-- Increased bottom margin for heading --}}
@@ -115,7 +115,7 @@
                         <div class="timeline-content">
                             <div class="timeline-title">Đơn hàng đã được đặt</div>
                             <div class="timeline-desc">Đơn hàng đã được tạo thành công</div>
-                            <div class="timeline-time">{{ $order->created_at?->format('d/m/Y H:i') }}</div>
+                            <div class="timeline-time">{{ $order->created_at ? $order->created_at->format('d/m/Y H:i') : 'N/A' }}</div>
                         </div>
                     </div>
 
@@ -1218,13 +1218,16 @@
         // Xử lý nút đánh giá - smooth scroll đến phần đánh giá
         document.querySelectorAll('a[href*="#product-reviews"]').forEach(function(link) {
             link.addEventListener('click', function(e) {
+                e.preventDefault(); // Ngăn chặn hành vi mặc định
+                
                 // Lưu thông tin để chuyển đến trang chi tiết sản phẩm
                 const href = this.getAttribute('href');
                 const url = href.split('#')[0]; // Lấy URL không có anchor
                 const anchor = href.split('#')[1]; // Lấy anchor
 
-                // Lưu anchor vào sessionStorage để sử dụng ở trang chi tiết sản phẩm
+                // Lưu thông tin vào sessionStorage
                 sessionStorage.setItem('scrollToReviews', anchor);
+                sessionStorage.setItem('fromOrderDetail', 'true');
 
                 // Chuyển đến trang chi tiết sản phẩm
                 window.location.href = url;

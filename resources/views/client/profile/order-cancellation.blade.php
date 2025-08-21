@@ -25,7 +25,7 @@
                             </li>
                             <li class="d-flex justify-content-between py-2 border-bottom">
                                 <span><strong>Ngày đặt:</strong></span>
-                                <span>{{ $order->created_at->format('d/m/Y H:i') }}</span>
+                                <span>{{ $order->created_at ? $order->created_at->format('d/m/Y H:i') : 'N/A' }}</span>
                             </li>
                             <li class="d-flex justify-content-between py-2 border-bottom">
                                 <span><strong>Tổng tiền:</strong></span>
@@ -93,7 +93,7 @@
                                     @if($refund->refunded_at)
                                     <li class="list-group-item d-flex justify-content-between">
                                         <strong>Ngày hoàn tiền:</strong>
-                                        <span>{{ $refund->refunded_at->format('d/m/Y H:i') }}</span>
+                                        <span>{{ $refund->refunded_at ? $refund->refunded_at->format('d/m/Y H:i') : 'N/A' }}</span>
                                     </li>
                                     @endif
                                 </ul>
