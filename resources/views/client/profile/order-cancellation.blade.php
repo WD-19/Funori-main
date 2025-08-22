@@ -6,11 +6,12 @@
 <div class="container py-4">
     <div class="card shadow-sm border-0 rounded-lg">
         {{-- Header --}}
-        <div class="card-header bg-danger text-white rounded-top-lg">
-            <h4 class="mb-0 fw-bold d-flex align-items-center">
-                <i class="fas fa-times-circle me-2"></i>Đơn hàng đã hủy
-            </h4>
-        </div>
+        <div class="card-header bg-warning bg-opacity-10 text-warning rounded-top-lg border border-warning-subtle">
+    <h4 class="mb-0 fw-semibold d-flex align-items-center">
+        <i class="fas fa-times-circle me-2"></i>Đơn hàng đã hủy
+    </h4>
+
+</div>
 
         <div class="card-body p-4" style="font-family: 'Roboto', sans-serif;">
             <div class="row g-4">

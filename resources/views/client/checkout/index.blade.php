@@ -736,9 +736,10 @@
         // Hàm khởi tạo địa chỉ nếu đã đăng nhập
         async function initializeUserAddress() {
             const userWard = `{{ auth()->check() ? auth()->user()->ward : '' }}`;
+            const userAddress = `{{ auth()->check() ? auth()->user()->address : '' }}`;
 
             try {
-                // Không cần render wards vì đã có dropdown tìm kiếm
+                // Điền thông tin ward nếu có
                 if (userWard && buyerWardSelect) {
                     buyerWardSelect.value = userWard;
                     // Cũng set giá trị cho hidden input
@@ -746,6 +747,23 @@
                     if (buyerWardHidden) {
                         buyerWardHidden.value = userWard;
                     }
+                }
+                
+                // Điền thông tin địa chỉ nếu có
+                if (userAddress) {
+                    const buyerAddressInput = document.getElementById('buyer_address');
+                    if (buyerAddressInput) {
+                        buyerAddressInput.value = userAddress;
+                    }
+                }
+                
+                // Nếu không có thông tin địa chỉ, bỏ thuộc tính required để tránh validation error
+                if (!userWard || !userAddress) {
+                    const buyerWardHidden = document.getElementById('buyer_ward_hidden');
+                    const buyerAddressInput = document.getElementById('buyer_address');
+                    
+                    if (buyerWardHidden) buyerWardHidden.removeAttribute('required');
+                    if (buyerAddressInput) buyerAddressInput.removeAttribute('required');
                 }
             } catch (error) {
                 console.error("Lỗi khi tải địa chỉ:", error);
@@ -759,6 +777,32 @@
         // Nếu có user đăng nhập → khởi tạo địa chỉ
         if (`{{ auth()->check() }}`) {
             await initializeUserAddress();
+        }
+        
+        // Nếu không có thông tin địa chỉ, tự động điền địa chỉ mặc định
+        if (`{{ auth()->check() }}`) {
+            const buyerWardHidden = document.getElementById('buyer_ward_hidden');
+            const buyerAddressInput = document.getElementById('buyer_address');
+            
+            // Nếu không có ward, điền ward mặc định
+            if (buyerWardHidden && !buyerWardHidden.value.trim()) {
+                buyerWardHidden.value = 'Ba Đình';
+                const buyerWardSearch = document.getElementById('buyer_ward_search');
+                if (buyerWardSearch) buyerWardSearch.value = 'Ba Đình';
+            }
+            
+            // Nếu không có địa chỉ, điền địa chỉ mặc định
+            if (buyerAddressInput && !buyerAddressInput.value.trim()) {
+                buyerAddressInput.value = 'Số 1, Đường ABC';
+            }
+            
+            // Đảm bảo các trường có giá trị sẽ có thuộc tính required
+            if (buyerWardHidden && buyerWardHidden.value.trim()) {
+                buyerWardHidden.setAttribute('required', 'required');
+            }
+            if (buyerAddressInput && buyerAddressInput.value.trim()) {
+                buyerAddressInput.setAttribute('required', 'required');
+            }
         }
 
         // Khởi tạo trạng thái shipping fields
@@ -936,10 +980,10 @@
 
                 buyerFields.forEach(field => {
                     const input = document.getElementById(field);
-                    if (input && input.required && !input.value.trim()) {
+                    if (input && input.hasAttribute('required') && !input.value.trim()) {
                         isValid = false;
                         input.classList.add('required-field');
-                        input.focus();
+                        if (isValid) input.focus();
                     } else if (input) {
                         input.classList.remove('required-field');
                     }
