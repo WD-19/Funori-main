@@ -78,6 +78,7 @@ class MessageController
         $message->content = $request->input('content') ?? '';
         $message->is_admin = true;
         $message->sender_id = Auth::id();
+        $message->admin_id = Auth::id(); // Thêm dòng này
         $message->save();
 
         // Lưu file vào public/chat_files
@@ -120,5 +121,49 @@ class MessageController
             return response()->json(['success' => true, 'message' => $message]);
         }
         return response()->json(['success' => false], 400);
+    }
+
+    public function getNotifications(Request $request)
+    {
+        $conversations = Conversation::with(['user', 'messages' => function ($query) {
+            $query->orderBy('created_at', 'desc')->take(1);
+        }])
+            ->whereHas('messages', function ($query) {
+                $query->where('is_admin', false);
+            })
+            ->orderBy('last_message_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Format dữ liệu để trả về
+        $formattedConversations = $conversations->map(function ($conversation) {
+            $lastMessage = $conversation->messages->first();
+            return [
+                'id' => $conversation->id,
+                'user' => [
+                    'id' => $conversation->user->id,
+                    'name' => $conversation->user->full_name ?? $conversation->user->name ?? $conversation->user->email,
+                    'email' => $conversation->user->email,
+                    'avatar_url' => $conversation->user->avatar_url
+                        ? asset('storage/' . $conversation->user->avatar_url)
+                        : asset('images/images.jpg')
+                ],
+                'last_message' => $lastMessage ? [
+                    'content' => \Illuminate\Support\Str::limit($lastMessage->content, 30),
+                    'created_at' => $lastMessage->created_at->format('H:i d/m')
+                ] : null,
+                'last_message_at' => $conversation->last_message_at ?
+                    \Carbon\Carbon::parse($conversation->last_message_at)->format('H:i d/m') : null
+            ];
+        });
+
+        $newMessageCount = Conversation::whereHas('messages', function ($query) {
+            $query->where('is_admin', false)->where('is_read', false);
+        })->count();
+
+        return response()->json([
+            'conversations' => $formattedConversations,
+            'count' => $newMessageCount
+        ]);
     }
 }
