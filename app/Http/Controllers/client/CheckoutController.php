@@ -29,16 +29,15 @@ class CheckoutController
     public function prepareCheckout(Request $request)
     {
         $selectedItemIds = $request->input('selected_items', []);
-
         if (empty($selectedItemIds)) {
             return redirect()->route('client.view-cart')->with('error', 'Vui lòng chọn sản phẩm để thanh toán.');
         }
-
-        // Lấy giỏ hàng từ database thay vì session
         $cart = null;
         $selectedItems = [];
         $newTotal = 0;
-
+        $invalidStatusProducts = [];
+        $outOfStockProducts = [];
+        $invalidItemKeys = [];
         if (Auth::check()) {
             $cart = Cart::where('user_id', Auth::id())->first();
             if ($cart) {
@@ -47,19 +46,29 @@ class CheckoutController
                     'productVariant.image',
                     'productVariant.attributeValues.attribute'
                 ])->where('cart_id', $cart->id)->get();
-
                 foreach ($cartItems as $item) {
                     $itemId = $item->product_id . '_' . ($item->product_variant_id ?? 'null');
                     if (in_array($itemId, $selectedItemIds)) {
                         $product = $item->product;
                         $variant = $item->productVariant;
-
+                        // Kiểm tra trạng thái sản phẩm
+                        if (!$product || in_array($product->status, ['archived', 'draft'])) {
+                            $invalidStatusProducts[] = $product ? $product->name : 'Sản phẩm không xác định';
+                            $invalidItemKeys[] = ['product_id' => $item->product_id, 'product_variant_id' => $item->product_variant_id];
+                            continue;
+                        }
+                        // Kiểm tra số lượng tồn kho
+                        $stockQuantity = $variant ? $variant->stock_quantity : $product->stock_quantity;
+                        if ($item->quantity > $stockQuantity) {
+                            $outOfStockProducts[] = $product->name;
+                            $invalidItemKeys[] = ['product_id' => $item->product_id, 'product_variant_id' => $item->product_variant_id];
+                            continue;
+                        }
                         $imageUrl = null;
                         $variantImage = null;
                         if ($variant && $variant->image && $variant->image->image_url) {
                             $variantImage = $variant->image->image_url;
                         }
-
                         if ($variantImage) {
                             $imageUrl = $variantImage;
                         } elseif ($product && $product->images && $product->images->first()) {
@@ -67,13 +76,11 @@ class CheckoutController
                         } else {
                             $imageUrl = 'images/products/no-image.png';
                         }
-
                         $variantAttributes = $variant && $variant->attributeValues
                             ? $variant->attributeValues->map(function ($v) {
                                 return (optional($v->attribute)->name ?? '') . ': ' . ($v->value ?? '');
                             })->filter()->toArray()
                             : [];
-
                         $selectedItems[] = [
                             'id' => $itemId,
                             'product_id' => $product->id,
@@ -90,24 +97,77 @@ class CheckoutController
                 }
             }
         } else {
-            // Fallback cho guest users - vẫn dùng session
             $fullCartItems = Session::get('cart.items', []);
             if (empty($fullCartItems)) {
                 return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống.');
             }
-
             foreach ($fullCartItems as $item) {
+                $product = isset($item['product']) ? (object)$item['product'] : Product::find($item['product_id']);
+                $variant = isset($item['variant']) ? (object)$item['variant'] : ($item['product_variant_id'] ? ProductVariant::find($item['product_variant_id']) : null);
                 if (in_array($item['id'], $selectedItemIds)) {
+                    if (!$product || in_array($product->status, ['archived', 'draft'])) {
+                        $invalidStatusProducts[] = $product ? $product->name : 'Sản phẩm không xác định';
+                        $invalidItemKeys[] = ['product_id' => $item['product_id'], 'product_variant_id' => $item['product_variant_id'] ?? null];
+                        continue;
+                    }
+                    $stockQuantity = $variant ? $variant->stock_quantity : ($product ? $product->stock_quantity : 0);
+                    if ($item['quantity'] > $stockQuantity) {
+                        $outOfStockProducts[] = ($product ? $product->name : 'Sản phẩm không xác định');
+                        $invalidItemKeys[] = ['product_id' => $item['product_id'], 'product_variant_id' => $item['product_variant_id'] ?? null];
+                        continue;
+                    }
                     $selectedItems[] = $item;
                     $newTotal += $item['quantity'] * $item['price_at_addition'];
                 }
             }
         }
-
+        $messages = [];
+        if (!empty($outOfStockProducts)) {
+            $msg = "Các sản phẩm được chọn đã bị xóa khỏi giỏ hàng do hết hàng hoặc không đủ số lượng: ";
+            foreach ($outOfStockProducts as $name) {
+                $msg .=  e($name) ;
+            }
+            $msg .= "";
+            $messages[] = $msg;
+        }
+        if (!empty($invalidStatusProducts)) {
+            $msg = "Các sản phẩm được chọn đã bị xóa khỏi giỏ hàng do ngừng kinh doanh hoặc không còn khả dụng: ";
+            foreach ($invalidStatusProducts as $name) {
+                $msg .=  e($name) ;
+            }
+            $msg .= "";
+            $messages[] = $msg;
+        }
+        if (!empty($messages)) {
+            // Xóa sản phẩm không hợp lệ khỏi giỏ hàng
+            if (Auth::check() && $cart) {
+                foreach ($invalidItemKeys as $key) {
+                    $cart->items()->where('product_id', $key['product_id'])
+                        ->where('product_variant_id', $key['product_variant_id'])->delete();
+                }
+            } else {
+                $cartItems = Session::get('cart.items', []);
+                $filteredCartItems = [];
+                foreach ($cartItems as $item) {
+                    $isInvalid = false;
+                    foreach ($invalidItemKeys as $key) {
+                        if ($item['product_id'] == $key['product_id'] && ($item['product_variant_id'] ?? null) == $key['product_variant_id']) {
+                            $isInvalid = true;
+                            break;
+                        }
+                    }
+                    if (!$isInvalid) {
+                        $filteredCartItems[] = $item;
+                    }
+                }
+                Session::put('cart.items', $filteredCartItems);
+            }
+            // Trả về nhiều thông báo nối nhau
+            return redirect()->route('client.view-cart')->with('error', implode('<br>', $messages));
+        }
         if (empty($selectedItems)) {
             return redirect()->route('client.view-cart')->with('error', 'Sản phẩm bạn chọn không hợp lệ.');
         }
-
         // Lưu selected items vào session cho checkout process
         Session::put('checkout.items', $selectedItems);
         Session::put('checkout.total', $newTotal);

@@ -66,6 +66,12 @@
             <div class="heading text-center">@yield('page_title', 'Giỏ Hàng')</div>
         </div>
     </div>
+    @if(session('error'))
+        <div class="alert alert-danger" style="margin-top: 16px;">{{ session('error') }}</div>
+    @endif
+    @if(session('success'))
+        <div class="alert alert-success" style="margin-top: 16px;">{{ session('success') }}</div>
+    @endif
 
     <div style="max-width: 66vw; margin: 60px auto 0 auto; padding: 0 16px;">
         <div class="cart-checkout-progress"
@@ -186,7 +192,7 @@
                                                             <div style="color:red;font-weight:bold;">Sản phẩm đã ngừng kinh
                                                                 doanh</div>
                                                         @elseif ($isArchived)
-                                                            <div style="color:red;font-weight:bold;">Sản phẩm đã được ẩn</div>
+                                                            <div style="color:red;font-weight:bold;">Sản phẩm này không còn khả dụng</div>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -343,6 +349,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Khởi tạo cart
     initCart();
+    
+    // Ngăn chuyển trang chi tiết với sản phẩm bị disabled
+    document.querySelectorAll('.cart-item-checkbox:disabled').forEach(function(checkbox) {
+        const row = checkbox.closest('tr');
+        if (row) {
+            const link = row.querySelector('.cart-title.link');
+            if (link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+                link.style.pointerEvents = 'none';
+                link.style.color = '#b0b0b0';
+                link.style.textDecoration = 'none';
+            }
+        }
+    });
 });
 
 function initCart() {
@@ -370,11 +393,12 @@ function initCheckboxHandlers() {
         selectAllCheckbox.addEventListener('change', function() {
             console.log('Select all changed:', this.checked);
             const isChecked = this.checked;
-            
             document.querySelectorAll('.cart-item-checkbox').forEach(checkbox => {
-                checkbox.checked = isChecked;
+                // Chỉ chọn nếu không bị disabled
+                if (!checkbox.disabled) {
+                    checkbox.checked = isChecked;
+                }
             });
-            
             updateSelectedTotal();
         });
     }

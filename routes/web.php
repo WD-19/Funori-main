@@ -102,6 +102,9 @@ Route::get('/wishlist/mini-list', [WishlistController::class, 'miniList'])->name
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'show'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
+// Đặt hàng kiểm tra trạng thái sản phẩm
+Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
+
 //=================================Client=================================
 require __DIR__ . '/client.php';
 //=================================Client=================================

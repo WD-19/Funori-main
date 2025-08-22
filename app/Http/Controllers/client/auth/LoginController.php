@@ -25,7 +25,11 @@ class LoginController
             ],
             'password' => 'required|min:6'
         ], [
-            'email.regex' => 'Chỉ chấp nhận địa chỉ Gmail (@gmail.com).'
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không đúng định dạng.',
+            'email.regex' => 'Chỉ chấp nhận địa chỉ Gmail (@gmail.com).',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.'
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -53,7 +57,7 @@ class LoginController
             return redirect()->route('home');
         }
 
-        return back()->withErrors(['login' => 'Email hoặc mật khẩu không đúng'])->withInput();
+        return back()->withErrors(['login' => 'Tài khoản hoặc mật khẩu không đúng'])->withInput($request->only('email'));
     }
 
     // Đăng xuất

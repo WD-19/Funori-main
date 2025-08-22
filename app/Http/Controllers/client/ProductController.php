@@ -68,9 +68,8 @@ class ProductController
             'category',
             'variants.attributeValues.attribute',
         ])->where('slug', $slug)->first();
-
-        if (!$product) {
-            // Trả về view 404 nếu không tìm thấy sản phẩm
+        if (!$product || $product->status === 'archived') {
+            // Trả về view 404 nếu không tìm thấy sản phẩm hoặc sản phẩm bị ẩn
             return response()->view('client.errors.404', [], 404);
         }
 
