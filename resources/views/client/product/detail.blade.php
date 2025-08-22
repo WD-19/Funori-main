@@ -958,7 +958,7 @@
                                             <div class="form-content">
                                                 <fieldset class="box-field">
                                                     <label class="label">Nội dung đánh giá</label>
-                                                    <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây" tabindex="2" required></textarea>
+                                                    <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây" tabindex="2"></textarea>
                                                 </fieldset>
                                                 {{-- <div class="box-check">
                                                     <input type="checkbox" name="availability" class="tf-check"
