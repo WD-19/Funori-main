@@ -19,9 +19,9 @@
     <div class="container my-5" x-data="orderTracking({ orderId: {{ $order->id }}, initialStatus: '{{ $order->order_status }}', initialCreatedAt: '{{ $order->created_at?->format('c') }}', initialUpdatedAt: '{{ $order->updated_at?->format('c') }}' })" x-init="init()">
         <div class="order-detail-card"> {{-- Added padding, rounded corners, and shadow --}}
             <div class="text-center mb-4">
-                <h2 style="font-size: 50px"  class="fw-bold text-uppercase mb-2"> {{-- Increased bottom margin for heading --}}
-                    <i class="bi bi-receipt-cutoff me-2 text-primary"></i>
-                    Đơn hàng #{{ $order->order_code ?? 'N/A' }}
+                <h2 class="fw-bold text-uppercase mb-2 fs-1">
+                 <i class="bi bi-receipt-cutoff me-2 text-primary"></i>
+                  Đơn hàng #{{ $order->order_code ?? 'N/A' }}
                 </h2>
                 <span class="order-status-badge status-{{ $orderStatusKey }}">
                     {{ $orderStatusVN }}
