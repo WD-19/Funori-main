@@ -176,29 +176,10 @@ export const useOrderStore = defineStore('orders', () => {
       formData.append('status', status)
       formData.append('notes', notes)
       
-      console.log('Debug: Starting image upload process')
-      console.log('Debug: Image object:', image)
-      console.log('Debug: Image type:', typeof image)
-      console.log('Debug: Image instanceof File:', image instanceof File)
-      
-      if (image) {
+      // Chỉ thêm ảnh vào formData nếu image là instance của File
+      if (image && image instanceof File) {
         formData.append('image', image)
-        console.log('Debug: Image added to FormData', image)
-        console.log('Debug: FormData entries:')
-        for (let [key, value] of formData.entries()) {
-          console.log('Debug:', key, value)
-        }
-      } else {
-        console.log('Debug: No image provided')
       }
-      
-      // Log the request details
-      console.log('Debug: Making request to:', `/shipper-app/orders/${orderId}/status`)
-      console.log('Debug: Request payload:', {
-        status,
-        notes,
-        hasImage: !!image
-      })
       
       const response = await api.post(`/shipper-app/orders/${orderId}/status`, formData)
       
@@ -223,7 +204,6 @@ export const useOrderStore = defineStore('orders', () => {
       }
     } catch (error) {
       console.error('Error updating order status with image:', error)
-      console.error('Error response:', error.response?.data)
       
       if (error.response?.data?.message) {
         return { success: false, message: error.response.data.message }
@@ -249,9 +229,12 @@ export const useOrderStore = defineStore('orders', () => {
       const formData = new FormData();
       formData.append('status', 'shipped');
       formData.append('notes', notes || 'Đang giao hàng');
-      if (image) {
+      
+      // Chỉ thêm ảnh vào formData nếu image là instance của File
+      if (image && image instanceof File) {
         formData.append('image', image);
       }
+      
       if (location) {
         formData.append('location[lat]', location.lat);
         formData.append('location[lng]', location.lng);

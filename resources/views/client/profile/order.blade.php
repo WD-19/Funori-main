@@ -177,15 +177,7 @@
                                                 <i class="fas fa-info-circle"></i> Chi tiết hủy
                                             </a>
                                         @endif
-                                        @if (Str::slug($order->order_status, '_') === 'shipped')
-                                            <form action="{{ route('client.profile.order.markDelivered', $order->id) }}"
-                                                method="POST" style="display:inline;">
-                                                @csrf
-                                                <button type="submit" class="btn btn-outline-success">
-                                                    Đã nhận hàng
-                                                </button>
-                                            </form>
-                                        @endif
+                                        {{-- Đã xóa nút "Đã nhận hàng" theo yêu cầu --}}
                                         @if (Str::slug($order->order_status, '_') === 'delivered')
                                             @php
                                                 $canReturn = false;
