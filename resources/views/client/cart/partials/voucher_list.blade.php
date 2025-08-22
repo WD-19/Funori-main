@@ -61,7 +61,7 @@
                                 
                                 <div class="detail-item">
                                     <i class="fas fa-calendar-alt text-muted me-2"></i>
-                                    <span class="small">Hạn sử dụng: {{ \Carbon\Carbon::parse($voucher->end_date)->format('d/m/Y') }}</span>
+                                    <span class="small">Hạn sử dụng: {{ $voucher->end_date ? \Carbon\Carbon::parse($voucher->end_date)->format('d/m/Y') : 'Không giới hạn' }}</span>
                                 </div>
                                 
                                 @if($voucher->usage_limit_per_voucher)
