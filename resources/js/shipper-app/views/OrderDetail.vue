@@ -508,8 +508,8 @@ const startDeliveryImageInput = ref(null)
 
 const order = computed(() => orderStore.currentOrder)
 
-// Simple 5s polling for realtime updates
-const POLL_INTERVAL_MS = 5000
+// Balanced 3s polling for realtime updates
+const POLL_INTERVAL_MS = 3000
 let pollTimer = null
 let pollInFlight = false
 
@@ -519,6 +519,8 @@ function isFinalStatus(status) {
 
 function startPolling() {
   if (pollTimer) return
+  
+  // Chạy polling ngay lập tức và sau đó lặp lại mỗi 1 giây
   pollTimer = setInterval(async () => {
     if (pollInFlight) return
     pollInFlight = true
@@ -533,6 +535,7 @@ function startPolling() {
       }
     } catch (e) {
       console.error('Polling error:', e)
+      // Tiếp tục polling ngay cả khi có lỗi để đảm bảo cập nhật liên tục
     } finally {
       pollInFlight = false
     }
@@ -550,7 +553,7 @@ onMounted(async () => {
       loading.value = false
     }
   }
-  // Bắt đầu realtime updates mỗi 5 giây
+  // Bắt đầu realtime updates mỗi 3 giây (chạy song song với WebSocket để đảm bảo cập nhật ngay cả khi WebSocket đang reconnect)
   startPolling()
 })
 

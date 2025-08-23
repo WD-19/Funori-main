@@ -23,6 +23,7 @@ class CartController
         $cartItems = [];
         $total = 0;
         $cartCount = 0;
+        $removedItems = [];
 
         Log::info('Loading cart page. Initial cartItems:', ['cartItems' => $cartItems]);
 
@@ -38,8 +39,40 @@ class CartController
                     'productVariant.attributeValues.attribute'
                 ])->where('cart_id', $cart->id)->get();
 
+                // Kiểm tra và xóa sản phẩm không hợp lệ
                 foreach ($cartItemsRaw as $item) {
                     $product = $item->product;
+                    
+                    // Kiểm tra sản phẩm tồn tại và có trạng thái hợp lệ
+                    if (!$product || ($product->status !== 'active' && $product->status !== 'published')) {
+                        // Lưu tên sản phẩm đã bị xóa để thông báo
+                        $removedItems[] = $product ? $product->name : 'Sản phẩm không xác định';
+                        
+                        // Xóa sản phẩm khỏi giỏ hàng
+                        $item->delete();
+                        continue;
+                    }
+                    
+                    // Kiểm tra số lượng tồn kho
+                    $variant = $item->productVariant;
+                    $inStock = true;
+                    
+                    if ($variant) {
+                        if ($variant->stock_quantity < $item->quantity) {
+                            $inStock = false;
+                        }
+                    } else {
+                        if ($product->stock_quantity < $item->quantity) {
+                            $inStock = false;
+                        }
+                    }
+                    
+                    if (!$inStock) {
+                        $removedItems[] = $product->name . ' (Hết hàng)';
+                        $item->delete();
+                        continue;
+                    }
+                    
                     $variant = $item->productVariant;
 
                     $imageUrl = null;
@@ -78,6 +111,7 @@ class CartController
         } else {
             // Guest cart from session
             $sessionCart = Session::get('cart', []);
+            $updatedSessionCart = [];
 
             foreach ($sessionCart as $item) {
                 // Sửa lỗi: Lấy giá trực tiếp từ session, không tính toán lại
@@ -91,6 +125,38 @@ class CartController
                 } else {
                     continue; // Bỏ qua item không hợp lệ
                 }
+                
+                // Kiểm tra sản phẩm tồn tại và có trạng thái hợp lệ
+                if (!$product || ($product->status !== 'active' && $product->status !== 'published')) {
+                    // Lưu tên sản phẩm đã bị xóa để thông báo
+                    $productName = isset($item['product']['name']) ? $item['product']['name'] : 
+                                  ($product ? $product->name : 'Sản phẩm không xác định');
+                    $removedItems[] = $productName;
+                    continue;
+                }
+                
+                // Kiểm tra số lượng tồn kho
+                $inStock = true;
+                
+                if (!empty($item['product_variant_id'])) {
+                    $variant = ProductVariant::find($item['product_variant_id']);
+                    if (!$variant || $variant->stock_quantity < $item['quantity']) {
+                        $inStock = false;
+                    }
+                } else {
+                    if ($product->stock_quantity < $item['quantity']) {
+                        $inStock = false;
+                    }
+                }
+                
+                if (!$inStock) {
+                    $productName = isset($item['product']['name']) ? $item['product']['name'] : $product->name;
+                    $removedItems[] = $productName . ' (Hết hàng)';
+                    continue;
+                }
+                
+                // Sản phẩm hợp lệ, thêm vào giỏ hàng cập nhật
+                $updatedSessionCart[] = $item;
 
                 // Lấy thông tin biến thể nếu có
                 $variant = !empty($item['product_variant_id'])
@@ -120,6 +186,9 @@ class CartController
                     'variant' => $variant ? $variant->toArray() : null,
                 ];
             }
+            
+            // Cập nhật lại session cart sau khi lọc
+            Session::put('cart.items', $updatedSessionCart);
         }
 
         $total = array_sum(array_map(fn($item) => $item['quantity'] * $item['price_at_addition'], $cartItems));
@@ -151,7 +220,40 @@ class CartController
             ->take(8)
             ->get();
 
-        return view('client.cart.cart', compact('cartItems', 'total', 'cartCount', 'newestProducts'));
+        // Phân loại sản phẩm bị xóa để hiển thị thông báo chi tiết
+        $discontinuedItems = [];
+        $outOfStockItems = [];
+        $errorMessages = [];
+        
+        foreach ($removedItems as $item) {
+            // Phân biệt lý do xóa nếu có thông tin
+            if (strpos($item, '(Hết hàng)') !== false) {
+                $outOfStockItems[] = str_replace(' (Hết hàng)', '', $item);
+            } else {
+                $discontinuedItems[] = $item;
+            }
+        }
+        
+        // Hiển thị thông báo phân loại theo lý do
+        if (!empty($discontinuedItems)) {
+            $message = count($discontinuedItems) > 1 
+                ? "Các sản phẩm: " . implode(", ", $discontinuedItems) . " đã được xóa khỏi giỏ hàng do ngừng kinh doanh." 
+                : "Sản phẩm " . $discontinuedItems[0] . " đã được xóa khỏi giỏ hàng do ngừng kinh doanh.";
+            
+            Session::flash('error_discontinued', $message);
+            $errorMessages['discontinued'] = $message;
+        }
+        
+        if (!empty($outOfStockItems)) {
+            $message = count($outOfStockItems) > 1 
+                ? "Các sản phẩm: " . implode(", ", $outOfStockItems) . " đã được xóa khỏi giỏ hàng do hết hàng." 
+                : "Sản phẩm " . $outOfStockItems[0] . " đã được xóa khỏi giỏ hàng do hết hàng.";
+            
+            Session::flash('error_outofstock', $message);
+            $errorMessages['outofstock'] = $message;
+        }
+
+        return view('client.cart.cart', compact('cartItems', 'total', 'cartCount', 'newestProducts', 'errorMessages'));
     }
     
       public function applyDiscount(Request $request)

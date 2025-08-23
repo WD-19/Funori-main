@@ -68,6 +68,32 @@
     </div>
 
     <div style="max-width: 66vw; margin: 60px auto 0 auto; padding: 0 16px;">
+        @if(session('error_discontinued'))
+        <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; border: 1px solid #f5c6cb;">
+            <strong>Sản phẩm ngừng kinh doanh!</strong> {{ session('error_discontinued') }}
+        </div>
+        @elseif(isset($errorMessages['discontinued']))
+        <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; border: 1px solid #f5c6cb;">
+            <strong>Sản phẩm ngừng kinh doanh!</strong> {{ $errorMessages['discontinued'] }}
+        </div>
+        @endif
+        
+        @if(session('error_outofstock'))
+        <div class="alert alert-warning" style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; border: 1px solid #ffeeba;">
+            <strong>Sản phẩm hết hàng!</strong> {{ session('error_outofstock') }}
+        </div>
+        @elseif(isset($errorMessages['outofstock']))
+        <div class="alert alert-warning" style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; border: 1px solid #ffeeba;">
+            <strong>Sản phẩm hết hàng!</strong> {{ $errorMessages['outofstock'] }}
+        </div>
+        @endif
+        
+        @if(session('error'))
+        <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 16px; border: 1px solid #f5c6cb;">
+            <strong></strong> {{ session('error') }}
+        </div>
+        @endif
+        
         <div class="cart-checkout-progress"
             style="background: #fff; padding: 32px 16px 24px 16px; border-radius: 10px; margin-bottom: 16px;">
             <div style="display: flex; align-items: flex-start; justify-content: space-between;">
@@ -209,6 +235,8 @@
                                                     <span class="btn-quantity plus-btn"
                                                         data-item-id="{{ $cartItem['id'] }}">+</span>
                                                 </div>
+                                                
+                                              
                                             </div>
                                         </td>
                                         <td class="cart-total-col" style="text-align: right; vertical-align: middle;">
