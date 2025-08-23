@@ -95,6 +95,20 @@
         box-shadow: 0 0 0 0.15rem rgba(255, 48, 41, 0.25) !important;
     }
 
+    /* Ward search input error styling */
+    #buyer_ward_search.required-field,
+    #shipping_ward_search.required-field {
+        border-color: #ff3029 !important;
+        background-color: #fff5f5 !important;
+        box-shadow: 0 0 0 0.15rem rgba(255, 48, 41, 0.15) !important;
+    }
+
+    #buyer_ward_search.required-field:focus,
+    #shipping_ward_search.required-field:focus {
+        border-color: #ff3029 !important;
+        box-shadow: 0 0 0 0.15rem rgba(255, 48, 41, 0.25) !important;
+    }
+
     .order-summary {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         padding: 32px;
@@ -983,9 +997,30 @@
                     if (input && input.hasAttribute('required') && !input.value.trim()) {
                         isValid = false;
                         input.classList.add('required-field');
+                        
+                        // Highlight the search input if ward is missing
+                        if (field === 'buyer_ward_hidden') {
+                            const wardSearch = document.getElementById('buyer_ward_search');
+                            if (wardSearch) {
+                                wardSearch.classList.add('required-field');
+                                wardSearch.style.borderColor = '#ff3029';
+                                wardSearch.style.backgroundColor = '#fff5f5';
+                            }
+                        }
+                        
                         if (isValid) input.focus();
                     } else if (input) {
                         input.classList.remove('required-field');
+                        
+                        // Remove highlight from search input if ward is filled
+                        if (field === 'buyer_ward_hidden') {
+                            const wardSearch = document.getElementById('buyer_ward_search');
+                            if (wardSearch) {
+                                wardSearch.classList.remove('required-field');
+                                wardSearch.style.borderColor = '';
+                                wardSearch.style.backgroundColor = '';
+                            }
+                        }
                     }
                 });
 
@@ -1019,16 +1054,51 @@
                         if (input && input.hasAttribute('required') && !input.value.trim()) {
                             isValid = false;
                             input.classList.add('required-field');
+                            
+                            // Highlight the search input if ward is missing
+                            if (field === 'shipping_ward_hidden') {
+                                const wardSearch = document.getElementById('shipping_ward_search');
+                                if (wardSearch) {
+                                    wardSearch.classList.add('required-field');
+                                    wardSearch.style.borderColor = '#ff3029';
+                                    wardSearch.style.backgroundColor = '#fff5f5';
+                                }
+                            }
+                            
                             if (isValid) input.focus();
                         } else if (input) {
                             input.classList.remove('required-field');
+                            
+                            // Remove highlight from search input if ward is filled
+                            if (field === 'shipping_ward_hidden') {
+                                const wardSearch = document.getElementById('shipping_ward_search');
+                                if (wardSearch) {
+                                    wardSearch.classList.remove('required-field');
+                                    wardSearch.style.borderColor = '';
+                                    wardSearch.style.backgroundColor = '';
+                                }
+                            }
                         }
                     });
                 }
 
                 if (!isValid) {
                     e.preventDefault();
-                    alert('Vui lòng điền đầy đủ thông tin bắt buộc.');
+                    
+                    // Kiểm tra xem có phường/xã nào chưa được chọn không
+                    const buyerWardHidden = document.getElementById('buyer_ward_hidden');
+                    const shippingWardHidden = document.getElementById('shipping_ward_hidden');
+                    const shipToDifferentAddress = document.getElementById('ship_to_different_address');
+                    
+                    let errorMessage = 'Vui lòng điền đầy đủ thông tin bắt buộc.';
+                    
+                    if (buyerWardHidden && !buyerWardHidden.value.trim()) {
+                        errorMessage = 'Vui lòng chọn phường/xã cho địa chỉ thanh toán.';
+                    } else if (shipToDifferentAddress && shipToDifferentAddress.checked && shippingWardHidden && !shippingWardHidden.value.trim()) {
+                        errorMessage = 'Vui lòng chọn phường/xã cho địa chỉ giao hàng.';
+                    }
+                    
+                    alert(errorMessage);
                     return false;
                 }
             });
@@ -1101,7 +1171,13 @@
         const searchInput = document.getElementById(`${type}_ward_search`);
         const hiddenInput = document.getElementById(`${type}_ward_hidden`);
         
-        if (searchInput) searchInput.value = wardName;
+        if (searchInput) {
+            searchInput.value = wardName;
+            // Clear validation error styling
+            searchInput.classList.remove('required-field');
+            searchInput.style.borderColor = '';
+            searchInput.style.backgroundColor = '';
+        }
         if (hiddenInput) hiddenInput.value = wardName;
         
         hideWardDropdown(type);

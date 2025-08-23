@@ -435,7 +435,7 @@
                                           style="border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; resize: vertical; font-size: 15px;"></textarea>
                             </div>
 
-                            <div class="alert alert-warning" style="background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; border-radius: 8px; padding: 16px; font-size: 15px;">
+                            {{-- <div class="alert alert-warning" style="background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; border-radius: 8px; padding: 16px; font-size: 15px;">
                                 <div style="display: flex; align-items: flex-start;">
                                     <i class="icon-alert-triangle" style="margin-right: 8px; font-size: 18px; margin-top: 2px;"></i>
                                     <div>
@@ -444,7 +444,7 @@
                                         Vui lòng đảm bảo cấu hình VNPay đã chính xác trước khi thực hiện.
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="modal-footer" style="background: #f9fafb; border-top: 1px solid #e5e7eb; border-radius: 0 0 12px 12px; padding: 16px 24px;">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px; padding: 10px 20px; font-size: 16px;">

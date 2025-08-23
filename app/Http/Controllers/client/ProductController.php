@@ -103,38 +103,68 @@ class ProductController
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:1000',
+        ], [
+            'rating.required' => 'Vui lòng chọn số sao đánh giá.',
+            'rating.integer' => 'Số sao phải là số nguyên.',
+            'rating.min' => 'Số sao tối thiểu là 1.',
+            'rating.max' => 'Số sao tối đa là 5.',
+            'comment.max' => 'Nội dung đánh giá không được quá 1000 ký tự.',
         ]);
 
-        // Kiểm tra user đã từng mua sản phẩm này chưa
-        $orderItem = OrderItem::where('product_id', $productId)
+        // Kiểm tra user đã từng mua sản phẩm này chưa (chỉ đơn hàng đã giao thành công)
+        $orderItems = OrderItem::where('product_id', $productId)
             ->whereHas('order', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
+                $query->where('user_id', $userId)
+                      ->where('order_status', 'delivered');
             })
-            ->first();
+            ->get();
 
-        if (!$orderItem) {
-            return back()->with('error', 'Bạn chỉ có thể đánh giá sản phẩm đã mua.');
+        if ($orderItems->isEmpty()) {
+            return back()->with('error', 'Bạn chỉ có thể đánh giá sản phẩm đã mua.')->with('toastr_error', 'Bạn chỉ có thể đánh giá sản phẩm đã mua.');
         }
 
-        // OPTIONAL: Kiểm tra đã đánh giá rồi chưa (1 lần duy nhất)
-        $alreadyReviewed = Review::where('user_id', $userId)
+        // Kiểm tra số lần đã đánh giá
+        $existingReviews = Review::where('user_id', $userId)
             ->where('product_id', $productId)
-            ->exists();
+            ->count();
 
-        if ($alreadyReviewed) {
-            return back()->with('error', 'Bạn đã đánh giá sản phẩm này rồi.');
+        // Nếu đã đánh giá nhiều lần hơn số lần mua, hiển thị thông báo
+        if ($existingReviews >= $orderItems->count()) {
+            return back()->with('error', 'Bạn đã đánh giá đủ số lần cho sản phẩm này. Vui lòng mua thêm sản phẩm để có thể đánh giá lại.')->with('toastr_warning', 'Bạn đã đánh giá đủ số lần cho sản phẩm này. Vui lòng mua thêm sản phẩm để có thể đánh giá lại.');
+        }
+
+        // Kiểm tra xem có đang đánh giá cùng lúc không (trong vòng 30 giây)
+        $recentReview = Review::where('user_id', $userId)
+            ->where('product_id', $productId)
+            ->where('created_at', '>=', now()->subSeconds(30))
+            ->first();
+
+        if ($recentReview) {
+            return back()->with('error', 'Bạn vừa đánh giá sản phẩm này. Vui lòng đợi một chút trước khi đánh giá lại.')->with('toastr_warning', 'Bạn vừa đánh giá sản phẩm này. Vui lòng đợi một chút trước khi đánh giá lại.');
+        }
+      
+        // Lấy order item chưa được đánh giá
+        $unreviewedOrderItem = $orderItems->first(function ($item) use ($userId, $productId) {
+            return !Review::where('user_id', $userId)
+                ->where('product_id', $productId)
+                ->where('order_item_id', $item->id)
+                ->exists();
+        });
+
+        if (!$unreviewedOrderItem) {
+            return back()->with('error', 'Tất cả đơn hàng của bạn đã được đánh giá.')->with('toastr_warning', 'Tất cả đơn hàng của bạn đã được đánh giá.');
         }
 
         // Tạo đánh giá
         Review::create([
             'user_id' => $userId,
             'product_id' => $productId,
-            'order_item_id' => $orderItem->id,
+            'order_item_id' => $unreviewedOrderItem->id,
             'rating' => $request->rating,
             'comment' => $request->comment,
             'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Gửi đánh giá thành công! Đánh giá của bạn sẽ được duyệt sớm.');
+        return back()->with('success', 'Gửi đánh giá thành công! Đánh giá của bạn sẽ được duyệt sớm.')->with('toastr_success', 'Gửi đánh giá thành công! Đánh giá của bạn sẽ được duyệt sớm.');
     }
 }

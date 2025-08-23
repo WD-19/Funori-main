@@ -25,8 +25,8 @@ class VnPayController
 
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
         $vnp_Returnurl = route('vnpay.return'); // Route trả về sau thanh toán
-        $vnp_TmnCode = "I7RJJOXP"; // Mã website tại VNPAY (bỏ dấu cách thừa)
-        $vnp_HashSecret = "XWLM4D1JIH7YPSP3UC2V1261SUG95CI2"; // Chuỗi bí mật
+        $vnp_TmnCode = "KUSIX1J4"; // Mã website tại VNPAY (bỏ dấu cách thừa)
+        $vnp_HashSecret = "6N70NXD29CZ3D8CAQJ8ER5AHZZQX5VZW"; // Chuỗi bí mật
 
         // Lấy đúng mã đơn hàng từ request để truyền sang VNPAY
         $vnp_TxnRef = $data['order_code']; // lấy đúng order_code đã tạo
@@ -105,7 +105,7 @@ class VnPayController
     public function vnpayReturn(Request $request)
     {
         // TODO: Nên đưa các cấu hình này vào file .env và config/services.php
-        $vnp_HashSecret = "XWLM4D1JIH7YPSP3UC2V1261SUG95CI2";
+        $vnp_HashSecret = "6N70NXD29CZ3D8CAQJ8ER5AHZZQX5VZW";
 
         $inputData = $request->all();
         $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
