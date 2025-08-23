@@ -186,6 +186,9 @@
             <input id="chat-input" type="text" class="form-control" placeholder="Nhập tin nhắn..."
                 style="flex:1; min-width:0;">
             <div id="chatImagePreview" style="display:flex; gap:8px; align-items:center;"></div>
+            <label for="chatImageInput" style="margin-left:8px;cursor:pointer;display:flex;align-items:center;">
+                <i class="fa fa-paperclip" style="font-size:22px;"></i>
+            </label>
             <button type="button" id="chatEmojiBtn"
                 style="background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:22px; padding:0; transition:transform 0.2s;"
                 onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">

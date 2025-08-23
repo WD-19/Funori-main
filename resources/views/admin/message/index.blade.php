@@ -402,6 +402,9 @@
             <form id="chatForm" class="chat-input-form" onsubmit="sendMessage(event)" enctype="multipart/form-data">
                 <input id="chatInput" type="text" placeholder="Nhập tin nhắn..." autocomplete="off">
                 <button type="button" id="emojiBtn" style="background:none;border:none;font-size:22px;margin-left:6px;cursor:pointer;">😊</button>
+                <label for="chatFile" style="margin-left:8px;cursor:pointer;display:flex;align-items:center;">
+                    <i class="fa fa-paperclip" style="font-size:22px;"></i>
+                </label>
                 <div id="chatImagePreview" style="display:flex; gap:8px; align-items:center;"></div>
                 <input id="chatFile" type="file" style="display:none;" multiple accept="image/*">
                 <script>
