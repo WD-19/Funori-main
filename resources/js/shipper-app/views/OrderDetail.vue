@@ -225,37 +225,41 @@
       <div class="bg-white rounded-lg shadow-sm border p-4">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Thao tác</h3>
         <div class="grid grid-cols-2 gap-3">
+          <!-- Khi có 2 nút cùng xuất hiện, sắp xếp 2 cột -->
+          <template v-if="order.order_status === 'shipped'">
+            <button 
+              @click="showCompleteModal = true"
+              :disabled="actionLoading"
+              class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+            >
+              Hoàn thành giao hàng
+            </button>
+            <button 
+              @click="showFailedModal = true"
+              :disabled="actionLoading"
+              class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
+            >
+              Giao hàng thất bại
+            </button>
+          </template>
+
+          <!-- Các nút đứng một mình sẽ căn giữa -->
           <button 
             v-if="order.order_status === 'pending'"
             @click="acceptOrder"
             :disabled="actionLoading"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 col-span-2 w-full"
           >
             Nhận đơn hàng
           </button>
+
           <button 
             v-if="order.order_status === 'processing'"
             @click="showStartDeliveryModal = true"
             :disabled="actionLoading"
-            class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 col-span-2 w-full"
           >
             Bắt đầu giao hàng
-          </button>
-          <button 
-            v-if="order.order_status === 'shipped'"
-            @click="showCompleteModal = true"
-            :disabled="actionLoading"
-            class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
-          >
-            Hoàn thành giao hàng
-          </button>
-          <button 
-            v-if="order.order_status === 'shipped'"
-            @click="showFailedModal = true"
-            :disabled="actionLoading"
-            class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
-          >
-            Giao hàng thất bại
           </button>
 
           <!-- Nút xác nhận hoàn về kho - chỉ hiển thị khi shipper giao hàng thất bại (admin hủy đã tự hoàn vào kho) -->
@@ -263,7 +267,7 @@
             v-if="order.order_status === 'failed'"
             @click="showReturnToWarehouseModal = true"
             :disabled="actionLoading"
-            class="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 disabled:opacity-50"
+            class="bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 disabled:opacity-50 col-span-2 w-full"
           >
             Xác nhận đã hoàn về kho
           </button>
@@ -287,13 +291,18 @@
             ></textarea>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh hiện trạng (tùy chọn)</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh hiện trạng <span class="text-red-600">*</span></label>
             <input 
+              ref="startDeliveryImageInput"
               type="file" 
               @change="handleStartDeliveryImageUpload"
               accept="image/*"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
             />
+            <div v-if="!startDeliveryImage && !startDeliveryImagePreview" class="mt-1 text-red-600 text-xs">
+              Vui lòng tải lên ảnh hiện trạng đơn hàng trước khi giao
+            </div>
             <div v-if="startDeliveryImagePreview" class="mt-2">
               <img :src="startDeliveryImagePreview" alt="Preview" class="w-20 h-20 object-cover rounded-lg">
               <button @click="removeStartDeliveryImage" class="mt-1 text-red-600 text-sm">Xóa ảnh</button>
@@ -308,7 +317,7 @@
             </button>
             <button 
               @click="startDelivery"
-              :disabled="actionLoading"
+              :disabled="actionLoading || !startDeliveryImage"
               class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
             >
               Bắt đầu giao
@@ -333,13 +342,18 @@
             ></textarea>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh chứng minh (tùy chọn)</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh chứng minh <span class="text-red-600">*</span></label>
             <input 
+              ref="completeImageInput"
               type="file" 
               @change="handleCompleteImageUpload"
               accept="image/*"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
             />
+            <div v-if="!completeImage && !completeImagePreview" class="mt-1 text-red-600 text-xs">
+              Vui lòng tải lên ảnh chứng minh việc giao hàng thành công
+            </div>
             <div v-if="completeImagePreview" class="mt-2">
               <img :src="completeImagePreview" alt="Preview" class="w-20 h-20 object-cover rounded-lg">
               <button @click="removeCompleteImage" class="mt-1 text-red-600 text-sm">Xóa ảnh</button>
@@ -354,7 +368,7 @@
             </button>
             <button 
               @click="completeDelivery"
-              :disabled="actionLoading"
+              :disabled="actionLoading || !completeImage"
               class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
             >
               Hoàn thành
@@ -380,13 +394,18 @@
             ></textarea>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh chứng minh (tùy chọn)</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Ảnh chứng minh <span class="text-red-600">*</span></label>
             <input 
+              ref="failedImageInput"
               type="file" 
               @change="handleFailedImageUpload"
               accept="image/*"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
             />
+            <div v-if="!failedImage && !failedImagePreview" class="mt-1 text-red-600 text-xs">
+              Vui lòng tải lên ảnh chứng minh việc giao hàng thất bại
+            </div>
             <div v-if="failedImagePreview" class="mt-2">
               <img :src="failedImagePreview" alt="Preview" class="w-20 h-20 object-cover rounded-lg">
               <button @click="removeFailedImage" class="mt-1 text-red-600 text-sm">Xóa ảnh</button>
@@ -401,7 +420,7 @@
             </button>
             <button 
               @click="failedDelivery"
-              :disabled="actionLoading || !failedReason.trim()"
+              :disabled="actionLoading || !failedReason.trim() || !failedImage"
               class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
             >
               Xác nhận thất bại
@@ -482,6 +501,10 @@ const startDeliveryImage = ref(null)
 const completeImagePreview = ref('')
 const failedImagePreview = ref('')
 const startDeliveryImagePreview = ref('')
+// Thêm refs cho các input file
+const completeImageInput = ref(null)
+const failedImageInput = ref(null)
+const startDeliveryImageInput = ref(null)
 
 const order = computed(() => orderStore.currentOrder)
 
@@ -632,6 +655,12 @@ const getCurrentPosition = () => {
 }
 
 const startDelivery = async () => {
+  // Validate trước khi tiếp tục
+  if (!startDeliveryImage.value) {
+    alert('Vui lòng tải lên ảnh hiện trạng đơn hàng!');
+    return;
+  }
+  
   actionLoading.value = true
   try {
     // Lấy vị trí hiện tại
@@ -641,8 +670,14 @@ const startDelivery = async () => {
       lng: position.coords.longitude
     }
     
+    // Kiểm tra image có phải là file hợp lệ không
+    const imageToUpload = startDeliveryImage.value instanceof File ? startDeliveryImage.value : null;
+    if (!imageToUpload) {
+      throw new Error('Vui lòng tải lên ảnh hiện trạng đơn hàng!');
+    }
+    
     // Gọi API với location data và ảnh
-    await orderStore.startDeliveryWithImage(order.value.id, startDeliveryNotes.value, startDeliveryImage.value, location)
+    await orderStore.startDeliveryWithImage(order.value.id, startDeliveryNotes.value, imageToUpload, location)
     await orderStore.fetchOrder(order.value.id)
     showStartDeliveryModal.value = false
     startDeliveryNotes.value = ''
@@ -652,7 +687,12 @@ const startDelivery = async () => {
     console.error('Error starting delivery:', error)
     // Nếu không lấy được vị trí, vẫn cập nhật status với ảnh
     try {
-      await orderStore.startDeliveryWithImage(order.value.id, startDeliveryNotes.value, startDeliveryImage.value)
+      // Kiểm tra lại một lần nữa
+      const imageToUpload = startDeliveryImage.value instanceof File ? startDeliveryImage.value : null;
+      if (!imageToUpload) {
+        throw new Error('Vui lòng tải lên ảnh hiện trạng đơn hàng!');
+      }
+      await orderStore.startDeliveryWithImage(order.value.id, startDeliveryNotes.value, imageToUpload)
       await orderStore.fetchOrder(order.value.id)
       showStartDeliveryModal.value = false
       startDeliveryNotes.value = ''
@@ -667,9 +707,21 @@ const startDelivery = async () => {
 }
 
 const completeDelivery = async () => {
+  // Validate trước khi tiếp tục
+  if (!completeImage.value) {
+    alert('Vui lòng tải lên ảnh chứng minh giao hàng thành công!');
+    return;
+  }
+  
   actionLoading.value = true
   try {
-    await orderStore.updateOrderStatusWithImage(order.value.id, 'delivered', completeNotes.value, completeImage.value)
+    // Kiểm tra image có phải là file hợp lệ không
+    const imageToUpload = completeImage.value instanceof File ? completeImage.value : null;
+    if (!imageToUpload) {
+      throw new Error('Vui lòng tải lên ảnh chứng minh giao hàng thành công!');
+    }
+    
+    await orderStore.updateOrderStatusWithImage(order.value.id, 'delivered', completeNotes.value, imageToUpload)
     await orderStore.fetchOrder(order.value.id)
     showCompleteModal.value = false
     completeNotes.value = ''
@@ -677,17 +729,35 @@ const completeDelivery = async () => {
     completeImagePreview.value = null
   } catch (error) {
     console.error('Error completing delivery:', error)
+    alert('Đã xảy ra lỗi khi hoàn thành giao hàng. Vui lòng thử lại.')
   } finally {
     actionLoading.value = false
   }
 }
 
 const failedDelivery = async () => {
+  // Validate trước khi tiếp tục
+  if (!failedReason.value.trim()) {
+    alert('Vui lòng nhập lý do giao hàng thất bại!');
+    return;
+  }
+  
+  if (!failedImage.value) {
+    alert('Vui lòng tải lên ảnh chứng minh giao hàng thất bại!');
+    return;
+  }
+  
   actionLoading.value = true
   try {
+    // Kiểm tra image có phải là file hợp lệ không
+    const imageToUpload = failedImage.value instanceof File ? failedImage.value : null;
+    if (!imageToUpload) {
+      throw new Error('Vui lòng tải lên ảnh chứng minh giao hàng thất bại!');
+    }
+    
     // Khi shipper giao hàng thất bại, set trạng thái thành 'failed'
     // (khác với admin hủy đơn = 'cancelled' + tự động hoàn vào kho)
-    await orderStore.updateOrderStatusWithImage(order.value.id, 'failed', failedReason.value, failedImage.value)
+    await orderStore.updateOrderStatusWithImage(order.value.id, 'failed', failedReason.value, imageToUpload)
     await orderStore.fetchOrder(order.value.id)
     showFailedModal.value = false
     failedReason.value = ''
@@ -695,6 +765,7 @@ const failedDelivery = async () => {
     failedImagePreview.value = null
   } catch (error) {
     console.error('Error marking delivery as failed:', error)
+    alert('Đã xảy ra lỗi khi xác nhận giao hàng thất bại. Vui lòng thử lại.')
   } finally {
     actionLoading.value = false
   }
@@ -730,6 +801,10 @@ const handleCompleteImageUpload = (event) => {
 const removeCompleteImage = () => {
   completeImage.value = null
   completeImagePreview.value = null
+  // Reset input file để có thể chọn lại cùng một file
+  if (completeImageInput.value) {
+    completeImageInput.value.value = ''
+  }
 }
 
 const handleFailedImageUpload = (event) => {
@@ -747,6 +822,10 @@ const handleFailedImageUpload = (event) => {
 const removeFailedImage = () => {
   failedImage.value = null
   failedImagePreview.value = null
+  // Reset input file để có thể chọn lại cùng một file
+  if (failedImageInput.value) {
+    failedImageInput.value.value = ''
+  }
 }
 
 const handleStartDeliveryImageUpload = (event) => {
@@ -764,6 +843,10 @@ const handleStartDeliveryImageUpload = (event) => {
 const removeStartDeliveryImage = () => {
   startDeliveryImage.value = null
   startDeliveryImagePreview.value = null
+  // Reset input file để có thể chọn lại cùng một file
+  if (startDeliveryImageInput.value) {
+    startDeliveryImageInput.value.value = ''
+  }
 }
 
 const getPaymentMethodDisplay = () => {

@@ -378,6 +378,28 @@
         $steps = [['label' => 'Giỏ hàng', 'key' => 'cart'], ['label' => 'Thanh toán', 'key' => 'checkout']];
         $currentStep = 'checkout';
     @endphp
+
+    {{-- Hiển thị thông báo lỗi và cảnh báo --}}
+    @if(session('error'))
+        <div class="alert alert-danger" style="max-width: 1200px; margin: 20px auto; padding: 16px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; color: #721c24;">
+            <i class="bx bx-error-circle" style="margin-right: 8px;"></i>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="alert alert-warning" style="max-width: 1200px; margin: 20px auto; padding: 16px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; color: #856404;">
+            <i class="bx bx-info-circle" style="margin-right: 8px;"></i>
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="alert alert-success" style="max-width: 1200px; margin: 20px auto; padding: 16px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724;">
+            <i class="bx bx-check-circle" style="margin-right: 8px;"></i>
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="tf-page-title">
         <div class="container-full">
             <div class="heading text-center">@yield('page_title', 'Thanh Toán')</div>

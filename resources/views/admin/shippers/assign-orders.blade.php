@@ -617,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Status Badges */
 .status-badge {
-    padding: 6px 12px;
+    padding: 10px 2px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 500;
