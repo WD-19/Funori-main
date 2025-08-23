@@ -108,6 +108,42 @@ class CheckoutController
             return redirect()->route('client.view-cart')->with('error', 'Sản phẩm bạn chọn không hợp lệ.');
         }
 
+        // Kiểm tra trạng thái kinh doanh của sản phẩm trước khi cho phép thanh toán
+        foreach ($selectedItems as $key => $item) {
+            $productId = $item['product_id'];
+            $product = Product::find($productId);
+            
+            if (!$product) {
+                return redirect()->route('client.view-cart')->with('error', 'Một sản phẩm trong giỏ hàng không còn tồn tại.');
+            }
+            
+            // Kiểm tra trạng thái kinh doanh
+            if ($product->status !== 'active' && $product->status !== 'published') {
+                $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                $this->removeInvalidProductFromCart($item['id']);
+                return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' hiện đã ngừng kinh doanh và đã được xóa khỏi giỏ hàng.");
+            }
+            
+            // Kiểm tra số lượng tồn kho
+            if (!empty($item['product_variant_id'])) {
+                $variant = ProductVariant::find($item['product_variant_id']);
+                if (!$variant) {
+                    return redirect()->route('client.view-cart')->with('error', 'Biến thể sản phẩm không còn tồn tại.');
+                }
+                if ($variant->stock_quantity < $item['quantity']) {
+                    $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                    $this->removeInvalidProductFromCart($item['id']);
+                    return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' không đủ số lượng trong kho và đã được xóa khỏi giỏ hàng.");
+                }
+            } else {
+                if ($product->stock_quantity < $item['quantity']) {
+                    $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                    $this->removeInvalidProductFromCart($item['id']);
+                    return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' không đủ số lượng trong kho và đã được xóa khỏi giỏ hàng.");
+                }
+            }
+        }
+
         // Lưu selected items vào session cho checkout process
         Session::put('checkout.items', $selectedItems);
         Session::put('checkout.total', $newTotal);
@@ -159,10 +195,44 @@ class CheckoutController
             'discount_code' => Session::get('checkout.discount_code', null),
         ];
         
-
-
         if (empty($cart['items'])) {
             return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng trống hoặc chưa chọn sản phẩm để thanh toán!');
+        }
+        
+        // Kiểm tra lại trạng thái sản phẩm trước khi hiển thị trang thanh toán
+        foreach ($cart['items'] as $item) {
+            $productId = $item['product_id'];
+            $product = Product::find($productId);
+            
+            if (!$product) {
+                return redirect()->route('client.view-cart')->with('error', 'Một sản phẩm trong giỏ hàng không còn tồn tại.');
+            }
+            
+            // Kiểm tra trạng thái kinh doanh
+            if ($product->status !== 'active' && $product->status !== 'published') {
+                $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                $this->removeInvalidProductFromCart($item['id']);
+                return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' hiện đã ngừng kinh doanh và đã được xóa khỏi giỏ hàng.");
+            }
+            
+            // Kiểm tra số lượng tồn kho
+            if (!empty($item['product_variant_id'])) {
+                $variant = ProductVariant::find($item['product_variant_id']);
+                if (!$variant) {
+                    return redirect()->route('client.view-cart')->with('error', 'Biến thể sản phẩm không còn tồn tại.');
+                }
+                if ($variant->stock_quantity < $item['quantity']) {
+                    $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                    $this->removeInvalidProductFromCart($item['id']);
+                    return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' không đủ số lượng trong kho và đã được xóa khỏi giỏ hàng.");
+                }
+            } else {
+                if ($product->stock_quantity < $item['quantity']) {
+                    $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                    $this->removeInvalidProductFromCart($item['id']);
+                    return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' không đủ số lượng trong kho và đã được xóa khỏi giỏ hàng.");
+                }
+            }
         }
 
         // Lấy thông tin cần thiết cho trang checkout
@@ -270,6 +340,43 @@ class CheckoutController
         if (empty($cart['items'])) {
             return redirect()->route('client.view-cart')->with('error', 'Giỏ hàng của bạn đã trống!');
         }
+
+        // Kiểm tra lại trạng thái và tồn kho của sản phẩm trước khi xử lý đơn hàng
+        foreach ($cart['items'] as $item) {
+            $productId = $item['product_id'];
+            $product = Product::find($productId);
+            
+            if (!$product) {
+                return redirect()->route('client.view-cart')->with('error', 'Một sản phẩm trong giỏ hàng không còn tồn tại.');
+            }
+            
+            // Kiểm tra trạng thái kinh doanh
+            if ($product->status !== 'active' && $product->status !== 'published') {
+                $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                $this->removeInvalidProductFromCart($item['id']);
+                return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' hiện đã ngừng kinh doanh và đã được xóa khỏi giỏ hàng.");
+            }
+            
+            // Kiểm tra số lượng tồn kho
+            if (!empty($item['product_variant_id'])) {
+                $variant = ProductVariant::find($item['product_variant_id']);
+                if (!$variant) {
+                    return redirect()->route('client.view-cart')->with('error', 'Biến thể sản phẩm không còn tồn tại.');
+                }
+                if ($variant->stock_quantity < $item['quantity']) {
+                    $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                    $this->removeInvalidProductFromCart($item['id']);
+                    return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' không đủ số lượng trong kho và đã được xóa khỏi giỏ hàng.");
+                }
+            } else {
+                if ($product->stock_quantity < $item['quantity']) {
+                    $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
+                    $this->removeInvalidProductFromCart($item['id']);
+                    return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' không đủ số lượng trong kho và đã được xóa khỏi giỏ hàng.");
+                }
+            }
+        }
+        
         // Lưu dữ liệu checkout vào session
         Session::put('checkout_data', $validatedData);
         // Kiểm tra phương thức thanh toán
@@ -603,5 +710,50 @@ class CheckoutController
             'success' => true,
             'message' => 'Discount updated successfully'
         ]);
+    }
+
+    /**
+     * Xóa sản phẩm không hợp lệ khỏi giỏ hàng
+     */
+    protected function removeInvalidProductFromCart($cartItemId)
+    {
+        if (Auth::check()) {
+            // Xóa sản phẩm khỏi giỏ hàng cho người dùng đã đăng nhập
+            $cart = \App\Models\Cart::where('user_id', Auth::id())->first();
+            
+            if ($cart) {
+                // Phân tách product_id và variant_id từ cartItemId (ví dụ: "11_10")
+                $parts = explode('_', $cartItemId);
+                $productId = $parts[0];
+                $variantId = isset($parts[1]) && $parts[1] !== 'null' ? $parts[1] : null;
+                
+                // Xóa cart item dựa trên product_id và product_variant_id
+                \App\Models\CartItem::where('cart_id', $cart->id)
+                    ->where('product_id', $productId)
+                    ->where(function($query) use ($variantId) {
+                        if ($variantId) {
+                            $query->where('product_variant_id', $variantId);
+                        } else {
+                            $query->whereNull('product_variant_id');
+                        }
+                    })
+                    ->delete();
+            }
+        } else {
+            // Xóa sản phẩm khỏi giỏ hàng cho khách
+            $cartItems = Session::get('cart.items', []);
+            $updatedItems = array_filter($cartItems, function($item) use ($cartItemId) {
+                return $item['id'] != $cartItemId;
+            });
+            
+            Session::put('cart.items', array_values($updatedItems));
+            
+            // Cập nhật tổng giỏ hàng
+            $total = 0;
+            foreach ($updatedItems as $item) {
+                $total += $item['quantity'] * $item['price_at_addition'];
+            }
+            Session::put('cart.total', $total);
+        }
     }
 }
