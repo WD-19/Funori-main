@@ -75,7 +75,7 @@
                     </fieldset>
                     <fieldset>
                         <div class="body-title mb-10">Ngày tạo</div>
-                        <input type="text" class="form-control" value="{{ $review->created_at->format('d-m-Y H:i') }}"
+                        <input type="text" class="form-control" value="{{ $review->created_at ? $review->created_at->format('d-m-Y H:i') : 'N/A' }}"
                             readonly>
                     </fieldset>
                 </div>

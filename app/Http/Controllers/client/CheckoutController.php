@@ -139,7 +139,7 @@ class CheckoutController
                 if ($product->stock_quantity < $item['quantity']) {
                     $productName = isset($item['product']['name']) ? $item['product']['name'] : 'Một sản phẩm';
                     $this->removeInvalidProductFromCart($item['id']);
-                    return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' không đủ số lượng trong kho và đã được xóa khỏi giỏ hàng.");
+                    return redirect()->route('client.view-cart')->with('error', "Sản phẩm '{$productName}' hết hàng và đã được xóa khỏi giỏ hàng.");
                 }
             }
         }

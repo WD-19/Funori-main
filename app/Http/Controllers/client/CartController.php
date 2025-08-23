@@ -951,4 +951,61 @@ class CartController
             'message' => 'Đã xóa mã giảm giá!'
         ]);
     }
+
+    /**
+     * Validate cart items before checkout
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function validateCart(Request $request)
+    {
+        try {
+            $cartItems = $request->input('cart_items', []);
+            
+            if (empty($cartItems)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Giỏ hàng trống'
+                ], 400);
+            }
+
+            // Validate cart items
+            $cartValidationService = new CartValidationService();
+            $validationResult = $cartValidationService->validateCartItems($cartItems);
+
+            if ($validationResult['has_invalid_items']) {
+                // Remove invalid items from cart
+                $cartValidationService->removeInvalidItems($validationResult['invalid_items']);
+                
+                // Create error message
+                $errorMessage = $cartValidationService->createErrorMessage($validationResult['invalid_items']);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                    'data' => [
+                        'invalid_items' => $validationResult['invalid_items'],
+                        'valid_items' => $validationResult['valid_items'],
+                        'has_invalid_items' => true
+                    ]
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tất cả sản phẩm trong giỏ hàng đều hợp lệ',
+                'data' => [
+                    'valid_items' => $validationResult['valid_items'],
+                    'has_invalid_items' => false
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi kiểm tra giỏ hàng: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

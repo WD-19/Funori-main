@@ -169,7 +169,7 @@
                                                             <i class="fa-solid fa-calendar-days me-2 text-primary"></i>
                                                             <strong>Ngày tạo:</strong>
                                                             <span
-                                                                class="text-dark ms-1 fs-5">{{ $value->created_at->format('d-m-Y H:i') }}</span>
+                                                                class="text-dark ms-1 fs-5">{{ $value->created_at ? $value->created_at->format('d-m-Y H:i') : 'N/A' }}</span>
                                                         </div>
                                                     </div>
                                                 </div>

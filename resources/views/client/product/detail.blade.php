@@ -11,8 +11,33 @@
     <!-- Kiểm tra xem người dùng đã đăng nhập và có danh sách yêu thích -->
     @php
         $wishlistProductIds = [];
+        $canReview = false;
+
         if (Auth::check() && Auth::user()->wishlist) {
             $wishlistProductIds = Auth::user()->wishlist->items->pluck('product_id')->toArray();
+        }
+
+        // Kiểm tra xem khách hàng đã mua sản phẩm này và đơn hàng đã giao thành công chưa
+        if (Auth::check()) {
+            $user = Auth::user();
+            $deliveredOrderItems = $user
+                ->orders()
+                ->where('order_status', 'delivered')
+                ->whereHas('items', function ($query) use ($product) {
+                    $query->where('product_id', $product->id);
+                })
+                ->with('items')
+                ->get()
+                ->flatMap(function ($order) use ($product) {
+                    return $order->items->where('product_id', $product->id);
+                });
+
+            $reviewedCount = \App\Models\Review::where('user_id', $user->id)
+                ->where('product_id', $product->id)
+                ->count();
+
+            $canReview = $deliveredOrderItems->count() > $reviewedCount;
+            $remainingReviews = $deliveredOrderItems->count() - $reviewedCount;
         }
     @endphp
     <!-- breadcrumb -->
@@ -30,6 +55,27 @@
         </div>
     </div>
     <!-- /breadcrumb -->
+
+    <!-- Hiển thị thông báo session -->
+    @if(session('success'))
+        <div class="container mt-3">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="container mt-3">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
 
     <!-- Sản phẩm -->
     <section class="flat-spacing-4 pt_0">
@@ -53,7 +99,7 @@
                                             </div>
                                         @endforeach
                                     </div>
-<div class="swiper-scrollbar"></div>
+                                    <div class="swiper-scrollbar"></div>
                                 </div>
                                 <style>
                                     #thumbs-swiper {
@@ -104,7 +150,7 @@
                                     <div class="swiper-wrapper">
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide">
-<img style="width: 100%;" class="tf-image-zoom lazyload"
+                                                <img style="width: 100%;" class="tf-image-zoom lazyload"
                                                     data-zoom="{{ asset($image->image_url) }}"
                                                     data-src="{{ asset($image->image_url) }}"
                                                     src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
@@ -148,7 +194,7 @@
                                             }
                                         });
                                         window.gallerySwiper = gallerySwiper; // <-- Thêm dòng này
-// Responsive thumbs direction on resize
+                                        // Responsive thumbs direction on resize
                                         window.addEventListener('resize', function() {
                                             let dir = window.innerWidth > 768 ? 'vertical' : 'horizontal';
                                             thumbsSwiper.changeDirection(dir);
@@ -206,7 +252,7 @@
 
                                     #thumbs-swiper .swiper-slide {
                                         display: flex;
-justify-content: center;
+                                        justify-content: center;
                                         align-items: center;
                                         height: 70px !important;
                                         width: 70px !important;
@@ -262,7 +308,7 @@ justify-content: center;
                                 </style>
                             </div>
                             <div class="mt-3 product-description-wrap" style="position: relative;">
-<div class="product-description-shadow product-description-content"
+                                <div class="product-description-shadow product-description-content"
                                     id="product-description-content">
                                     {!! nl2br(e($product->description)) !!}
                                 </div>
@@ -315,7 +361,7 @@ justify-content: center;
                                     if (descContent.scrollHeight > maxHeight) {
                                         btnShowMore.style.display = 'flex';
                                         btnShowMore.addEventListener('click', function() {
-if (!descWrap.classList.contains('expanded')) {
+                                            if (!descWrap.classList.contains('expanded')) {
                                                 // Mở rộng: set max-height đúng chiều cao thật
                                                 descContent.style.maxHeight = descContent.scrollHeight + 'px';
                                                 descWrap.classList.add('expanded');
@@ -358,7 +404,7 @@ if (!descWrap.classList.contains('expanded')) {
                                     <div class="badges text-uppercase">
                                         {{ $reviewCount }} Lượt đánh giá |
                                         <span class="ms-2">
-@for ($i = 1; $i <= 5; $i++)
+                                            @for ($i = 1; $i <= 5; $i++)
                                                 <i
                                                     class="fa{{ $i <= ($reviewCount > 0 ? round($averageRate) : 5) ? 's' : 'r' }} fa-star"></i>
                                             @endfor
@@ -403,7 +449,7 @@ if (!descWrap.classList.contains('expanded')) {
                                                         foreach ($variant->attributeValues as $attrVal) {
                                                             if (
                                                                 isset($attrVal->attribute) &&
-(strtolower($attrVal->attribute->name) ===
+                                                                (strtolower($attrVal->attribute->name) ===
                                                                     'chất liệu' ||
                                                                     strtolower($attrVal->attribute->slug) ===
                                                                         'chat-lieu')
@@ -441,7 +487,7 @@ if (!descWrap.classList.contains('expanded')) {
                                     </div>
                                 @endif
                                 <div class="tf-product-info-quantity">
-<div class="quantity-title fw-6 d-flex">Số lượng
+                                    <div class="quantity-title fw-6 d-flex">Số lượng
                                     </div>
                                     <div class="wg-quantity">
                                         <span class="btn-quantity btn-decrease">-</span>
@@ -479,7 +525,7 @@ if (!descWrap.classList.contains('expanded')) {
                                                 vertical-align: middle;
                                                 margin: 0 !important;
                                                 transition: color 0.2s;
-width: 22px;
+                                                width: 22px;
                                                 text-align: center;
                                                 display: inline-block;
                                             }
@@ -503,7 +549,7 @@ width: 22px;
                                             </svg>
                                         </div>
                                         <div class="text fw-6">Giao hàng & Đổi trả</div>
-</a>
+                                    </a>
                                     <a href="#share_social" data-bs-toggle="modal" class="tf-product-extra-icon">
                                         <div class="icon">
                                             <i class="icon-share"></i>
@@ -553,7 +599,7 @@ width: 22px;
                 priceEl.textContent = price.toLocaleString('vi-VN') + 'đ';
                 if (totalPriceEl) totalPriceEl.textContent = (price * qty).toLocaleString('vi-VN') + 'đ';
                 if (materialLabel) {
-materialLabel.textContent = selected && selected.dataset.material ? selected.dataset.material :
+                    materialLabel.textContent = selected && selected.dataset.material ? selected.dataset.material :
                         '';
                 }
                 if (variantTitle) {
@@ -608,7 +654,7 @@ materialLabel.textContent = selected && selected.dataset.material ? selected.dat
                     }
                     updateAll();
                 });
-});
+            });
 
             updateAll();
         });
@@ -661,7 +707,7 @@ materialLabel.textContent = selected && selected.dataset.material ? selected.dat
                                             <h3 class="fs-16 fw-5">Hướng dẫn bảo quản</h3>
                                             <div class="d-flex gap-10 mb_15 align-items-center">
                                                 <div class="icon">
-<i class="icon-machine"></i>
+                                                    <i class="icon-machine"></i>
                                                 </div>
                                                 <span>Dùng khăn mềm ẩm lau bề mặt định kỳ</span>
                                             </div>
@@ -705,10 +751,10 @@ materialLabel.textContent = selected && selected.dataset.material ? selected.dat
                                 }
                             @endphp
                             <div class="widget-content-inner">
-                                <div class="tab-reviews write-cancel-review-wrap">
+                                <div class="tab-reviews write-cancel-review-wrap" id="product-reviews">
                                     <div class="tab-reviews-heading">
                                         <div class="top">
-<div class="text-center">
+                                            <div class="text-center">
                                                 <h1 class="number fw-6">{{ $averageRate }}</h1>
                                                 <div class="list-star">
                                                     @for ($i = 1; $i <= 5; $i++)
@@ -740,13 +786,30 @@ materialLabel.textContent = selected && selected.dataset.material ? selected.dat
                                         <div>
                                             <div class="tf-btn btn-outline-dark fw-6 btn-comment-review btn-cancel-review">
                                                 Hủy đánh giá</div>
-                                            <div class="tf-btn btn-outline-dark fw-6 btn-comment-review btn-write-review">
-                                                Viết đánh giá</div>
+                                            @if ($canReview)
+                                                <div
+                                                    class="tf-btn btn-outline-dark fw-6 btn-comment-review btn-write-review">
+                                                    @if(isset($remainingReviews) && $remainingReviews > 0)
+                                                        Viết đánh giá ({{ $remainingReviews }} lần còn lại)
+                                                    @else
+                                                        Viết đánh giá
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <div class="tf-btn btn-outline-secondary fw-6"
+                                                    style="cursor: not-allowed; opacity: 0.6; padding: 8px 20px;">
+                                                    @if(isset($remainingReviews) && $remainingReviews == 0)
+                                                        Đã đánh giá đủ
+                                                    @else
+                                                        Chưa mua sản phẩm
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="reply-comment cancel-review-wrap">
                                         <div
-class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap">
+                                            class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap">
                                             <h5 class="">{{ $reviewCount }} Bình luận</h5>
                                             <form method="GET" id="review-sort-form">
                                                 <select name="sort" id="sort-select"
@@ -769,99 +832,11 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                                                     <div class="reply-comment-item">
                                                         <div class="user">
                                                             <div class="image">
-                                                                <img src="{{ asset('client/ecomus/images/collections/collection-circle-9.jpg') }}"
-                                                                    alt="">
-                                                            </div>
-                                                            <div>
-                                                                <h6>
-                                                                    <a href="#" class="link">
-                                                                        @php
-                                                                            $name =
-                                                                                $review->user->full_name ?? 'Ẩn danh';
-                                                                            if (
-                                                                                $name !== 'Ẩn danh' &&
-                                                                                mb_strlen($name) > 6
-) {
-                                                                                $first = mb_substr($name, 0, 3);
-                                                                                $last = mb_substr($name, -3);
-                                                                                $masked =
-                                                                                    $first .
-                                                                                    str_repeat(
-                                                                                        '*',
-                                                                                        mb_strlen($name) - 6,
-                                                                                    ) .
-                                                                                    $last;
-                                                                                echo $masked;
-                                                                            } else {
-                                                                                echo $name;
-                                                                            }
-                                                                        @endphp
-                                                                    </a>
-                                                                </h6>
-                                                                <div class="day text_black-3">
-                                                                    {{ $review->created_at->diffForHumans() }}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="list-star mb-1">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <i
-                                                                    class="icon icon-star{{ $i <= $review->rating ? '' : '-o' }}"></i>
-                                                            @endfor
-                                                        </div>
-                                                        <p class="text_black-3">{{ $review->comment }}</p>
-                                                    </div>
-                                                    @if ($review->admin_reply)
-                                                        <div class="reply-comment-item type-reply">
-                                                            <div class="user">
-                                                                <div class="image">
-<img src="{{ asset('client/ecomus/images/collections/collection-circle-10.jpg') }}"
-                                                                        alt="">
-                                                                </div>
-                                                                <div>
-                                                                    <h6>
-                                                                        <a href="#" class="link">
-                                                                            @php
-                                                                                // Nếu có admin, lấy tên admin, còn không thì hiển thị mặc định
-                                                                                $adminName =
-                                                                                    $review->admin->full_name ??
-                                                                                    'Admin';
-                                                                                if (mb_strlen($adminName) > 6) {
-                                                                                    $first = mb_substr(
-                                                                                        $adminName,
-                                                                                        0,
-                                                                                        3,
-                                                                                    );
-                                                                                    $last = mb_substr($adminName, -3);
-                                                                                    $masked =
-                                                                                        $first .
-                                                                                        str_repeat(
-                                                                                            '*',
-                                                                                            mb_strlen($adminName) - 6,
-                                                                                        ) .
-                                                                                        $last;
-                                                                                    echo $masked;
-                                                                                } else {
-                                                                                    echo $adminName;
-                                                                                }
-                                                                            @endphp
-                                                                        </a>
-</h6>
-                                                                    <div class="day text_black-3">
-                                                                        {{ $review->admin_reply_created_at ? \Carbon\Carbon::parse($review->admin_reply_created_at)->diffForHumans() : '' }}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <p class="text_black-3">{{ $review->admin_reply }}</p>
-                                                        </div>
-                                                    @endif
-                                                @elseif ($review->status === 'pending' && auth()->check() && auth()->id() === $review->user_id)
-                                                    {{-- Làm mờ và chỉ user đánh giá thấy --}}
-                                                    <div class="reply-comment-item" style="opacity: 0.5;">
-                                                        <div class="user">
-                                                            <div class="image">
-                                                                <img src="{{ asset('client/ecomus/images/collections/collection-circle-9.jpg') }}"
-                                                                    alt="">
+                                                                <img src="{{ $review->user && $review->user->avatar_url ? asset('storage/' . $review->user->avatar_url) : asset('client/ecomus/images/collections/collection-circle-9.jpg') }}"
+                                                                     alt="{{ $review->user->full_name ?? 'User' }}"
+                                                                     data-avatar-url="{{ $review->user->avatar_url ?? '' }}"
+                                                                     onerror="this.src='{{ asset('client/ecomus/images/collections/collection-circle-9.jpg') }}'"
+                                                                     style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                                                             </div>
                                                             <div>
                                                                 <h6>
@@ -878,7 +853,7 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                                                                                 $masked =
                                                                                     $first .
                                                                                     str_repeat(
-'*',
+                                                                                        '*',
                                                                                         mb_strlen($name) - 6,
                                                                                     ) .
                                                                                     $last;
@@ -889,15 +864,88 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                                                                         @endphp
                                                                     </a>
                                                                 </h6>
-                                                                <div class="day text_black-3">
-                                                                    {{ $review->created_at->diffForHumans() }}
+                                                                <div class="day text_black-3" style="font-size: 11px; color: #666;">
+                                                                    {{ $review->created_at->format('d/m/Y H:i') }} ({{ $review->created_at->diffForHumans() }})
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="list-star mb-1">
                                                             @for ($i = 1; $i <= 5; $i++)
                                                                 <i
-                                                                    class="icon icon-star{{ $i <= $review->rating ? '' : '-o' }}"></i>
+                                                                    class="icon icon-star{{ $i <= $review->rating ? '' : '-o' }}"
+                                                                    style="color: {{ $i <= $review->rating ? '#ffb321' : '#ccc' }};"></i>
+                                                            @endfor
+                                                        </div>
+                                                        <p class="text_black-3">{{ $review->comment }}</p>
+                                                    </div>
+                                                    @if ($review->admin_reply)
+                                                        <div class="reply-comment-item type-reply">
+                                                            <div class="user">
+                                                                <div class="image">
+                                                                                                                                        <img src="{{ asset('client/ecomus/images/collections/collection-circle-10.jpg') }}"
+                                                                        alt="Admin Avatar">
+                                                                </div>
+                                                                <div>
+                                                                    <h6>
+                                                                        <a href="#" class="link">
+                                                                            Admin Funori
+                                                                        </a>
+                                                                    </h6>
+                                                                                                                                         <div class="day text_black-3" style="font-size: 11px; color: #666;">
+                                                                     {{ $review->admin_reply_created_at ? \Carbon\Carbon::parse($review->admin_reply_created_at)->format('d/m/Y H:i') . ' (' . \Carbon\Carbon::parse($review->admin_reply_created_at)->diffForHumans() . ')' : '' }}
+                                                                     </div>
+                                                                </div>
+                                                            </div>
+                                                            <p class="text_black-3">{{ $review->admin_reply }}</p>
+                                                        </div>
+                                                    @endif
+                                                @elseif ($review->status === 'pending' && auth()->check() && auth()->id() === $review->user_id)
+                                                    {{-- Làm mờ và chỉ user đánh giá thấy --}}
+                                                    <div class="reply-comment-item" style="opacity: 0.5;">
+                                                        <div class="user">
+                                                            <div class="image">
+                                                                <img src="{{ $review->user && $review->user->avatar_url ? asset('storage/' . $review->user->avatar_url) : asset('client/ecomus/images/collections/collection-circle-9.jpg') }}"
+                                                                     alt="{{ $review->user->full_name ?? 'User' }}"
+                                                                     data-avatar-url="{{ $review->user->avatar_url ?? '' }}"
+                                                                     onerror="this.src='{{ asset('client/ecomus/images/collections/collection-circle-9.jpg') }}'"
+                                                                     style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                                            </div>
+                                                            <div>
+                                                                <h6>
+                                                                    <a href="#" class="link">
+                                                                        @php
+                                                                            $name =
+                                                                                $review->user->full_name ?? 'Ẩn danh';
+                                                                            if (
+                                                                                $name !== 'Ẩn danh' &&
+                                                                                mb_strlen($name) > 6
+                                                                            ) {
+                                                                                $first = mb_substr($name, 0, 3);
+                                                                                $last = mb_substr($name, -3);
+                                                                                $masked =
+                                                                                    $first .
+                                                                                    str_repeat(
+                                                                                        '*',
+                                                                                        mb_strlen($name) - 6,
+                                                                                    ) .
+                                                                                    $last;
+                                                                                echo $masked;
+                                                                            } else {
+                                                                                echo $name;
+                                                                            }
+                                                                        @endphp
+                                                                    </a>
+                                                                </h6>
+                                                                                                                                 <div class="day text_black-3" style="font-size: 11px; color: #666;">
+                                                                     {{ $review->created_at ? $review->created_at->format('d/m/Y H:i') . ' (' . $review->created_at->diffForHumans() . ')' : '' }}
+                                                                 </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="list-star mb-1">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <i
+                                                                    class="icon icon-star{{ $i <= $review->rating ? '' : '-o' }}"
+                                                                    style="color: {{ $i <= $review->rating ? '#FFD700' : '#ccc' }};"></i>
                                                             @endfor
                                                         </div>
                                                         <p class="text_black-3"><em>Đánh giá của bạn đang chờ
@@ -907,45 +955,64 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                                             @endforeach
                                         </div>
                                     </div>
-                                    {{-- ...form viết đánh giá giữ nguyên... --}}
-                                    <form class="form-write-review write-review-wrap" method="POST"
-                                        action="{{ route('client.reviews.store', $product->id) }}">
-                                        @csrf
-                                        <div class="heading">
-                                            <h5>Viết đánh giá:</h5>
-                                            <div class="list-rating-check">
-                                                <input type="radio" id="star5" name="rating" value="5" />
-<label for="star5" title="text"></label>
-                                                <input type="radio" id="star4" name="rating" value="4" />
-                                                <label for="star4" title="text"></label>
-                                                <input type="radio" id="star3" name="rating" value="3" />
-                                                <label for="star3" title="text"></label>
-                                                <input type="radio" id="star2" name="rating" value="2" />
-                                                <label for="star2" title="text"></label>
-                                                <input type="radio" id="star1" name="rating" value="1"
-                                                    checked />
-                                                <label for="star1" title="text"></label>
+                                    {{-- Form viết đánh giá - chỉ hiển thị cho khách hàng đã mua sản phẩm --}}
+                                    @if ($canReview)
+                                        <form class="form-write-review write-review-wrap" method="POST"
+                                            action="{{ route('client.reviews.store', $product->id) }}">
+                                            @csrf
+                                            <div class="heading">
+                                                <h5>Viết đánh giá:</h5>
+                                                <div class="list-rating-check">
+                                                    <input type="radio" id="star5" name="rating" value="5"
+                                                        checked />
+                                                    <label for="star5" title="text"></label>
+                                                    <input type="radio" id="star4" name="rating"
+                                                        value="4" />
+                                                    <label for="star4" title="text"></label>
+                                                    <input type="radio" id="star3" name="rating"
+                                                        value="3" />
+                                                    <label for="star3" title="text"></label>
+                                                    <input type="radio" id="star2" name="rating"
+                                                        value="2" />
+                                                    <label for="star2" title="text"></label>
+                                                    <input type="radio" id="star1" name="rating"
+                                                        value="1" />
+                                                    <label for="star1" title="text"></label>
+                                                </div>
+                                            </div>
+                                            <div class="form-content">
+                                                <fieldset class="box-field">
+                                                    <label class="label">Nội dung đánh giá <small class="text-muted">(không bắt buộc)</small></label>
+                                                    <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây (không bắt buộc)" tabindex="2"></textarea>
+                                                </fieldset>
+                                                {{-- <div class="box-check">
+                                                    <input type="checkbox" name="availability" class="tf-check"
+                                                        id="check1" {{ old('availability') ? 'checked' : '' }}>
+                                                    <label class="text_black-3" for="check1">
+                                                        Tôi Đồng Ý Tuân Thủ Quy Tắc Cộng Đồng Và Tôn Trọng Mọi Người.
+                                                    </label>
+                                                </div> --}}
+                                            </div>
+                                            <div class="button-submit">
+                                                <button type="submit" class="tf-btn btn-fill animate-hover-btn">
+                                                    Gửi đánh giá
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @else
+                                        <div class="text-center py-4">
+                                            <div class="alert alert-info" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px;">
+                                                <i class="bi bi-info-circle me-2" style="color: #0dcaf0;"></i>
+                                                @if(isset($remainingReviews) && $remainingReviews > 0)
+                                                    <strong>Thông báo:</strong> Bạn còn {{ $remainingReviews }} lần đánh giá cho sản phẩm này.
+                                                    <br><small class="text-muted mt-2 d-block">Bạn có thể đánh giá lại khi mua thêm sản phẩm này.</small>
+                                                @else
+                                                    <strong>Thông báo:</strong> Chỉ khách hàng đã mua và nhận hàng thành công mới có thể đánh giá sản phẩm này.
+                                                    <br><small class="text-muted mt-2 d-block">Đánh giá của bạn sẽ giúp khách hàng khác đưa ra quyết định mua hàng tốt hơn.</small>
+                                                @endif
                                             </div>
                                         </div>
-                                        <div class="form-content">
-                                            <fieldset class="box-field">
-                                                <label class="label">Nội dung đánh giá</label>
-                                                <textarea rows="4" name="comment" placeholder="Viết bình luận của bạn tại đây" tabindex="2" required></textarea>
-                                            </fieldset>
-                                            {{-- <div class="box-check">
-                                                <input type="checkbox" name="availability" class="tf-check"
-                                                    id="check1" {{ old('availability') ? 'checked' : '' }}>
-                                                <label class="text_black-3" for="check1">
-                                                    Tôi Đồng Ý Tuân Thủ Quy Tắc Cộng Đồng Và Tôn Trọng Mọi Người.
-                                                </label>
-                                            </div> --}}
-                                        </div>
-                                        <div class="button-submit">
-                                            <button type="submit" class="tf-btn btn-fill animate-hover-btn">
-                                                Gửi đánh giá
-                                            </button>
-                                        </div>
-                                    </form>
+                                    @endif
                                 </div>
                             </div>
                             {{-- /đánh giá --}}
@@ -994,7 +1061,7 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                                     </p>
                                     <p>
                                         📞 Hotline: <strong>1900 1234</strong> (8h00 – 20h00)<br>
-📧 Email: <a href="mailto:support@funori.vn">support@funori.vn</a>
+                                        📧 Email: <a href="mailto:support@funori.vn">support@funori.vn</a>
                                     </p>
                                 </div>
                             </div>
@@ -1049,7 +1116,7 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                 <div class="see-deals">
                     <a href="{{ route('shop') }}">
                         Xem tất cả sản phẩm
-<i class="fa-solid fa-arrow-right"></i>
+                        <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
@@ -1098,7 +1165,7 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                     </div>
                 @endforeach
             </div>
-{{-- @if (count($relatedProducts) > 3)
+            {{-- @if (count($relatedProducts) > 3)
                 <div class="text-center mt-3">
                     <button id="show-more-related" class="btn btn-outline-dark px-4 py-2">Xem thêm sản phẩm</button>
                 </div>
@@ -1153,7 +1220,7 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                     </div>
 
                     <!-- Liên hệ hỗ trợ -->
-<div class="tf-product-popup-delivery">
+                    <div class="tf-product-popup-delivery">
                         <div class="title">Hỗ trợ</div>
                         <p class="text-paragraph">Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
                         <p class="text-paragraph">Email: <a href="mailto:support@funori.vn">support@funori.vn</a></p>
@@ -1206,7 +1273,7 @@ class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap"
                         <div class="button-submit">
                             <button id="copy-btn" type="button"
                                 class="tf-btn btn-sm radius-3 btn-fill btn-icon animate-hover-btn"
-onclick="copyShareLink()">
+                                onclick="copyShareLink()">
                                 Sao chép liên kết
                             </button>
                         </div>
@@ -1271,7 +1338,7 @@ onclick="copyShareLink()">
                 }
 
                 fetch('{{ route('client.cart.add') }}', {
-method: 'POST',
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -1286,7 +1353,7 @@ method: 'POST',
                     .then(data => {
                         if (data.success) {
                             toastr.success('Đã thêm vào giỏ hàng!');
-                            
+
                             // Cập nhật số lượng sản phẩm trong giỏ hàng
                             if (data.cart_count !== undefined) {
                                 // Sử dụng function có sẵn từ header để cập nhật badge
@@ -1300,7 +1367,7 @@ method: 'POST',
                                         cartBadge.style.display = data.cart_count > 0 ? 'flex' : 'none';
                                     }
                                 }
-                                
+
                                 // Cập nhật mini cart nếu có
                                 if (typeof updateMiniCartContent === 'function') {
                                     updateMiniCartContent();
@@ -1309,12 +1376,14 @@ method: 'POST',
                                     fetch('{{ route('client.cart.miniList') }}')
                                         .then(response => response.text())
                                         .then(html => {
-                                            const cartPopupContent = document.getElementById('cart-popup-content');
+                                            const cartPopupContent = document.getElementById(
+                                                'cart-popup-content');
                                             if (cartPopupContent) {
                                                 cartPopupContent.innerHTML = html;
                                             }
                                         })
-                                        .catch(error => console.error('Error updating mini cart:', error));
+                                        .catch(error => console.error('Error updating mini cart:',
+                                            error));
                                 }
                             }
                         } else {
@@ -1323,7 +1392,7 @@ method: 'POST',
                     })
                     .catch(error => {
                         toastr.error('Có lỗi xảy ra!');
-console.error(error);
+                        console.error(error);
                     });
             });
         });
@@ -1375,9 +1444,11 @@ console.error(error);
         document.addEventListener("DOMContentLoaded", function() {
             toastr.options = {
                 "positionClass": "toast-top-right",
-                "timeOut": "1000",
+                "timeOut": "3000",
                 "closeButton": true,
-                "progressBar": true
+                "progressBar": true,
+                "preventDuplicates": true,
+                "newestOnTop": true
             };
             let wishlistProcessing = false;
             document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
@@ -1388,7 +1459,7 @@ console.error(error);
                         return;
                     }
                     wishlistProcessing = true;
-var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+                    var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
                     if (!isLoggedIn) {
                         toastr.error('Bạn cần đăng nhập!');
                         wishlistProcessing = false;
@@ -1438,7 +1509,7 @@ var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
                                         var span = document.createElement('span');
                                         span.className = 'wishlist-badge';
                                         span.style =
-'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
+                                            'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
                                         span.textContent = '1';
                                         heartIcon.parentNode.appendChild(span);
                                     }
@@ -1485,7 +1556,7 @@ var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
                         .catch(error => {
                             toastr.error('Lỗi xảy ra!');
                             console.error(error);
-})
+                        })
                         .finally(() => {
                             setTimeout(function() {
                                 wishlistProcessing = false;
@@ -1493,6 +1564,356 @@ var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
                         });
                 });
             });
+        });
+    </script>
+
+    <style>
+        @keyframes flash {
+            0% {
+                box-shadow: 0 0 0 rgba(0, 123, 255, 0);
+                background-color: rgba(0, 123, 255, 0.05);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(0, 123, 255, 0.35);
+                background-color: rgba(0, 123, 255, 0.12);
+            }
+
+            100% {
+                box-shadow: 0 0 0 rgba(0, 123, 255, 0);
+                background-color: rgba(0, 123, 255, 0.05);
+            }
+        }
+
+        .flash-twice {
+            animation: flash 0.8s ease-in-out 2;
+            border-radius: 8px;
+        }
+
+        /* Toastr custom styles */
+        #toast-container > .toast-top-right {
+            top: 20px;
+            right: 20px;
+        }
+
+        .toast-success {
+            background-color: #28a745;
+            border-color: #1e7e34;
+        }
+
+        .toast-error {
+            background-color: #dc3545;
+            border-color: #bd2130;
+        }
+
+        .toast-warning {
+            background-color: #ffc107;
+            border-color: #e0a800;
+            color: #212529;
+        }
+
+        .toast-info {
+            background-color: #17a2b8;
+            border-color: #117a8b;
+        }
+
+        .toast {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Avatar styles - đồng bộ với header */
+        .reply-comment-item .user .image img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255, 48, 41, 0.15);
+            display: block;
+            vertical-align: middle;
+        }
+
+        .reply-comment-item .user .image img:hover {
+            border-color: rgba(255, 48, 41, 0.3);
+            transition: border-color 0.3s ease;
+        }
+
+        /* Star rating styles */
+        .list-star .icon {
+            font-size: 16px;
+            margin-right: 2px;
+            transition: color 0.3s ease;
+        }
+
+        .list-star .icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Review date styles */
+        .reply-comment-item .day {
+            font-size: 13px !important;
+            color: #666 !important;
+            margin-top: 2px;
+        }
+    </style>
+
+    <!-- Script xử lý scroll tự động đến phần đánh giá -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kiểm tra xem có phải chuyển từ trang orderDetail không
+            const fromOrderDetail = sessionStorage.getItem('fromOrderDetail');
+            const scrollToReviews = sessionStorage.getItem('scrollToReviews');
+
+            if (fromOrderDetail === 'true' && scrollToReviews === 'product-reviews') {
+                // Xóa dữ liệu sessionStorage
+                sessionStorage.removeItem('fromOrderDetail');
+                sessionStorage.removeItem('scrollToReviews');
+
+                // Đợi trang load hoàn toàn rồi chuyển tab và scroll
+                setTimeout(function() {
+                    // Tự động chuyển sang tab "Đánh giá"
+                    const tabItems = document.querySelectorAll('.widget-menu-tab .item-title');
+                    if (tabItems.length >= 2) {
+                        // Sử dụng đúng cách mà JavaScript tab đã được thiết lập
+                        const tabContents = document.querySelectorAll(
+                            '.widget-content-tab .widget-content-inner');
+
+                        // Xóa active class từ tất cả tab và content
+                        tabItems.forEach(t => t.classList.remove('active'));
+                        tabContents.forEach(c => c.classList.remove('active'));
+
+                        // Thêm active class vào tab "Đánh giá" (index 1) và content tương ứng
+                        tabItems[1].classList.add('active');
+                        tabContents[1].classList.add('active');
+
+                        // Đợi tab chuyển xong rồi mới scroll
+                        setTimeout(function() {
+                            console.log('Bắt đầu tìm phần đánh giá...');
+
+                            // Tìm phần đánh giá sau khi đã chuyển tab
+                            let reviewsSection = document.getElementById('product-reviews');
+
+                            if (!reviewsSection) {
+                                console.log('Không tìm thấy #product-reviews, tìm .tab-reviews');
+                                reviewsSection = document.querySelector('.tab-reviews');
+                            }
+
+                            if (!reviewsSection) {
+                                console.log(
+                                    'Không tìm thấy .tab-reviews, tìm .widget-content-inner');
+                                reviewsSection = document.querySelector('.widget-content-inner');
+                            }
+
+                            // Tìm tất cả các element có thể là phần đánh giá
+                            const allPossibleElements = document.querySelectorAll(
+                                '.tab-reviews, .widget-content-inner, [id*="review"], [class*="review"]'
+                            );
+                            console.log('Tất cả element có thể:', allPossibleElements);
+
+                            // Tìm element có offsetTop lớn nhất (ở xa đầu trang nhất)
+                            let bestElement = reviewsSection;
+                            let maxOffsetTop = reviewsSection ? reviewsSection.offsetTop : 0;
+
+                            allPossibleElements.forEach(element => {
+                                console.log('Element:', element, 'offsetTop:', element
+                                    .offsetTop);
+                                if (element.offsetTop > maxOffsetTop) {
+                                    maxOffsetTop = element.offsetTop;
+                                    bestElement = element;
+                                }
+                            });
+
+                            reviewsSection = bestElement;
+                            console.log('Chọn element tốt nhất:', reviewsSection, 'offsetTop:',
+                                maxOffsetTop);
+
+                            if (reviewsSection) {
+                                console.log('Bắt đầu scroll...');
+
+                                // Scroll mượt mà đến phần đánh giá
+                                const headerHeight = document.querySelector('header') ? document
+                                    .querySelector('header').offsetHeight : 80;
+                                const elementTop = reviewsSection.offsetTop - headerHeight - 20;
+
+                                console.log('Header height:', headerHeight);
+                                console.log('Element offsetTop:', reviewsSection.offsetTop);
+                                console.log('Scroll to position:', elementTop);
+
+                                // Tăng scroll position để scroll xa hơn
+                                const scrollPosition = Math.max(0, elementTop + 550);
+                                console.log('Final scroll position:', scrollPosition);
+
+                                // Scroll với animation chậm hơn để thấy rõ
+                                window.scrollTo({
+                                    top: scrollPosition,
+                                    behavior: 'smooth'
+                                });
+
+                                console.log('Đã thực hiện scroll');
+
+                                // Thêm class để nháy (flash) rõ ràng hơn
+                                setTimeout(function() {
+                                    reviewsSection.classList.add('flash-twice');
+                                    // tự gỡ class sau khi chạy xong để lần sau còn hiệu ứng
+                                    setTimeout(function() {
+                                        reviewsSection.classList.remove(
+                                            'flash-twice');
+                                    }, 1600);
+                                }, 300);
+
+                                // Thêm hiệu ứng highlight cho phần đánh giá
+                                reviewsSection.style.transition = 'all 0.3s ease';
+                                reviewsSection.style.boxShadow = '0 0 20px rgba(0, 123, 255, 0.3)';
+                                reviewsSection.style.borderRadius = '8px';
+                                reviewsSection.style.backgroundColor = 'rgba(0, 123, 255, 0.05)';
+
+                                // Xóa hiệu ứng sau 2 giây
+                                setTimeout(function() {
+                                    reviewsSection.style.boxShadow = '';
+                                    reviewsSection.style.borderRadius = '';
+                                    reviewsSection.style.backgroundColor = '';
+                                }, 2000);
+                            } else {
+                                console.log('Không tìm thấy phần đánh giá!');
+                                // Thử scroll đến vị trí gần cuối trang
+                                window.scrollTo({
+                                    top: document.body.scrollHeight - window.innerHeight,
+                                    behavior: 'smooth'
+                                });
+                            }
+                        }, 200); // Tăng thời gian chờ lên 200ms
+
+                        // Hiển thị thông báo
+                        if (typeof toastr !== 'undefined') {
+                            toastr.info('Bạn có thể đánh giá sản phẩm này!', 'Đánh giá sản phẩm', {
+                                timeOut: 3000,
+                                progressBar: true
+                            });
+                        }
+
+                        // Sau đó mở form đánh giá
+                        setTimeout(function() {
+                            const writeReviewBtn = document.querySelector('.btn-write-review');
+                            if (writeReviewBtn) {
+                                writeReviewBtn.click();
+                            }
+                        }, 800); // Tăng thời gian chờ để đảm bảo scroll xong
+                    }
+                }, 500);
+            }
+        });
+
+        // Hiển thị toastr từ session messages
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kiểm tra và hiển thị toastr từ session
+            @if(session('toastr_success'))
+                toastr.success("{{ session('toastr_success') }}", "Thành công");
+            @endif
+            
+            @if(session('toastr_error'))
+                toastr.error("{{ session('toastr_error') }}", "Lỗi");
+            @endif
+            
+            @if(session('toastr_warning'))
+                toastr.warning("{{ session('toastr_warning') }}", "Cảnh báo");
+            @endif
+            
+            @if(session('toastr_info'))
+                toastr.info("{{ session('toastr_info') }}", "Thông tin");
+            @endif
+
+            // Xử lý hiển thị avatar
+            handleAvatarDisplay();
+        });
+
+        // Function xử lý hiển thị avatar (đơn giản hóa)
+        function handleAvatarDisplay() {
+            const avatarImages = document.querySelectorAll('.reply-comment-item .user .image img[data-avatar-url]');
+            
+            avatarImages.forEach(function(img) {
+                const avatarUrl = img.getAttribute('data-avatar-url');
+                console.log('Avatar URL:', avatarUrl); // Debug log
+                
+                // Kiểm tra xem ảnh có load thành công không
+                img.addEventListener('load', function() {
+                    console.log('Avatar loaded successfully:', this.src); // Debug log
+                });
+
+                img.addEventListener('error', function() {
+                    console.log('Avatar failed to load:', this.src); // Debug log
+                });
+            });
+        }
+
+        // Xử lý ngăn chặn đánh giá nhiều lần cùng lúc và validate form
+        document.addEventListener('DOMContentLoaded', function() {
+            const reviewForm = document.querySelector('.form-write-review');
+            if (reviewForm) {
+                let isSubmitting = false;
+                
+                reviewForm.addEventListener('submit', function(e) {
+                    // Validate form trước khi submit
+                    const rating = reviewForm.querySelector('input[name="rating"]:checked');
+                    const comment = reviewForm.querySelector('textarea[name="comment"]').value.trim();
+                    
+                    if (!rating) {
+                        e.preventDefault();
+                        toastr.error('Vui lòng chọn số sao đánh giá!');
+                        return false;
+                    }
+                    
+                    // Comment không bắt buộc, nhưng nếu có thì phải đủ 10 ký tự
+                    if (comment && comment.length < 10) {
+                        e.preventDefault();
+                        toastr.error('Nội dung đánh giá phải có ít nhất 10 ký tự!');
+                        reviewForm.querySelector('textarea[name="comment"]').focus();
+                        return false;
+                    }
+                    
+                    if (isSubmitting) {
+                        e.preventDefault();
+                        toastr.warning('Bạn vừa gửi đánh giá. Vui lòng đợi một chút trước khi gửi lại!');
+                        return false;
+                    }
+                    
+                    isSubmitting = true;
+                    
+                    // Disable nút submit
+                    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+                        submitBtn.disabled = true;
+                        
+                        // Re-enable sau 30 giây nếu có lỗi
+                        setTimeout(function() {
+                            isSubmitting = false;
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        }, 30000);
+                    }
+                });
+                
+                // Thêm validation real-time cho textarea (comment không bắt buộc)
+                const commentTextarea = reviewForm.querySelector('textarea[name="comment"]');
+                if (commentTextarea) {
+                    commentTextarea.addEventListener('input', function() {
+                        const value = this.value.trim();
+                        const minLength = 10;
+                        
+                        // Chỉ hiển thị cảnh báo nếu có nội dung nhưng chưa đủ 10 ký tự
+                        if (value.length > 0 && value.length < minLength) {
+                            this.style.borderColor = '#ffc107'; // Màu vàng cảnh báo thay vì đỏ
+                            this.title = `Nếu viết nội dung thì cần ít nhất ${minLength} ký tự (hiện tại: ${value.length})`;
+                        } else {
+                            this.style.borderColor = '';
+                            this.title = '';
+                        }
+                    });
+                }
+            }
         });
     </script>
 @endsection
