@@ -87,7 +87,7 @@
           <div v-for="item in order.items" :key="item.id" class="flex items-center space-x-4">
             <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
               <img v-if="item.product && item.product.images && item.product.images.length > 0" 
-                   :src="getImageUrl(item.product.images[0].image_url)" 
+                   :src="'../../' + (typeof item.product.images[0] === 'object' ? item.product.images[0].image_url : item.product.images[0])" 
                    :alt="item.product.name"
                    class="w-full h-full object-cover">
               <svg v-else class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -274,7 +274,7 @@
             <script>
                 let isSearching = false;
 
-                document.getElementById('chatSearchInput').addEventListener('input', function() {
+                document.getElementById('chatSearchInput').addEventListener('input', function () {
                     const keyword = this.value.toLowerCase();
                     isSearching = !!keyword; // Đang tìm kiếm nếu có từ khóa
                     let found = false;
@@ -304,7 +304,8 @@
             <ul id="chatList">
                 @foreach ($conversations as $conv)
                     <li class="chat-item {{ $conv->id == $activeId ? 'active' : '' }}" data-id="{{ $conv->id }}">
-                        <img class="avatar" src="{{ $conv->user->avatar_url ?? asset('images/avatar/user-1.png') }}"
+                        <img class="avatar"
+                            src="{{ $conv->user->avatar_url ? asset('storage/' . $conv->user->avatar_url) : asset('images/avatar/user-1.png') }}"
                             alt="avatar">
                         <div class="info">
                             <strong>{{ $conv->user->full_name ?? 'Không xác định' }}</strong>
@@ -361,7 +362,8 @@
         <!-- Vùng chat -->
         <div class="chat-area">
             <div id="chatHeader" class="chat-area-header">
-                <img class="avatar" src="{{ $activeConversation?->user?->avatar_url ?? asset('images/avatar/user-1.png') }}"
+                <img class="avatar"
+                    src="{{ $activeConversation?->user?->avatar_url ? asset('storage/' . $activeConversation?->user?->avatar_url) : asset('images/avatar/user-1.png') }}"
                     alt="avatar">
                 <span>{{ $activeConversation?->user?->full_name ?? 'Không xác định' }}</span>
             </div>
@@ -371,11 +373,10 @@
                         <div class="chat-message{{ $msg->is_admin ? ' me' : '' }}">
                             <div class="bubble">
                                 @if ($msg->content === '/strong')
-                                    <svg width="26" height="26" viewBox="0 0 24 24" fill="#0084ff"
-                                        style="vertical-align:middle;">
+                                    <svg width="26" height="26" viewBox="0 0 24 24" fill="#0084ff" style="vertical-align:middle;">
                                         <path d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2
-                                                                                7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09
-                                                                                l-.01-.01L22 10z" />
+                                                                                                7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09
+                                                                                                l-.01-.01L22 10z" />
                                     </svg>
                                 @else
                                     {{ $msg->content }}
@@ -399,14 +400,15 @@
                 @endif
             </div>
             <form id="chatForm" class="chat-input-form" onsubmit="sendMessage(event)" enctype="multipart/form-data">
-                <input id="chatInput" type="text" placeholder="Nhập tin nhắn...">
+                <input id="chatInput" type="text" placeholder="Nhập tin nhắn..." autocomplete="off">
+                <button type="button" id="emojiBtn" style="background:none;border:none;font-size:22px;margin-left:6px;cursor:pointer;">😊</button>
                 <div id="chatImagePreview" style="display:flex; gap:8px; align-items:center;"></div>
                 <input id="chatFile" type="file" style="display:none;" multiple accept="image/*">
                 <script>
                     let pastedImageFile = null;
 
                     // Paste ảnh từ clipboard
-                    chatInput.addEventListener('paste', function(e) {
+                    chatInput.addEventListener('paste', function (e) {
                         const items = (e.clipboardData || window.clipboardData).items;
                         for (let i = 0; i < items.length; i++) {
                             if (items[i].type.indexOf('image') !== -1) {
@@ -419,7 +421,7 @@
                     });
 
                     // Chọn file từ máy
-                    document.getElementById('chatFile').addEventListener('change', function(e) {
+                    document.getElementById('chatFile').addEventListener('change', function (e) {
                         const files = Array.from(e.target.files);
                         if (files.length > 0) {
                             pastedImageFile = files[0];
@@ -434,15 +436,15 @@
                         preview.innerHTML = '';
                         if (pastedImageFile) {
                             const reader = new FileReader();
-                            reader.onload = function(evt) {
+                            reader.onload = function (evt) {
                                 const div = document.createElement('div');
                                 div.style.position = 'relative';
                                 div.style.display = 'inline-block';
                                 div.innerHTML = `
-                <img src="${evt.target.result}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;">
-                <span style="position:absolute;top:2px;right:2px;background:#222b;padding:2px 6px;border-radius:50%;color:#fff;cursor:pointer;font-size:16px;">×</span>
-            `;
-                                div.querySelector('span').onclick = function() {
+                    <img src="${evt.target.result}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;">
+                    <span style="position:absolute;top:2px;right:2px;background:#222b;padding:2px 6px;border-radius:50%;color:#fff;cursor:pointer;font-size:16px;">×</span>
+                `;
+                                div.querySelector('span').onclick = function () {
                                     pastedImageFile = null;
                                     updateImagePreview();
                                 };
@@ -471,14 +473,14 @@
                             data: formData,
                             processData: false,
                             contentType: false,
-                            success: function() {
+                            success: function () {
                                 chatInput.value = '';
                                 pastedImageFile = null;
                                 updateImagePreview();
                                 loadMessages(true);
                                 loadConversations();
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
                                 alert('Gửi ảnh thất bại: ' + xhr.status + ' - ' + xhr.responseText);
                                 pastedImageFile = null;
                                 updateImagePreview();
@@ -502,27 +504,120 @@
                             data: formData,
                             processData: false,
                             contentType: false,
-                            success: function() {
+                            success: function () {
                                 pastedImageFile = null;
                                 updateImagePreview();
                                 loadMessages(true);
                                 loadConversations();
                             },
-                            error: function(xhr) {
+                            error: function (xhr) {
                                 alert('Gửi ảnh thất bại: ' + xhr.status + ' - ' + xhr.responseText);
                             }
                         });
                     }
                 </script>
-                <!-- Nút like -->
-                <button type="button" id="chatLikeBtn"
-                    style="margin-left:8px; background:none; border:none; cursor:pointer;">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="#0084ff">
-                        <path
-                            d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09l-.01-.01L22 10z" />
-                    </svg>
-                </button>
+
                 <button type="submit">Gửi</button>
+            </form>
+            <!-- Emoji Picker -->
+            <div id="emojiPicker" style="display:none; position:absolute; bottom:80px; right:40px; background:#fff; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.15); padding:15px; width:340px; max-height:320px; overflow-y:auto; z-index:99999;">
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px;">
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😀</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😃</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😄</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😁</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😆</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😅</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤣</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😂</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😊</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🙂</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😍</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🥰</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😘</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😗</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😙</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😚</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😛</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😝</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😜</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤪</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😎</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤩</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤭</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🥳</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🙄</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😏</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🥺</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😔</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😢</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😭</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😞</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😓</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😱</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😤</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤔</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤫</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😴</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤐</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">😷</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤒</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">👍</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">👎</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">👏</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🙏</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🤝</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">👌</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">✌️</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">👊</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">❤️</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🧡</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">💛</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">💚</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">💙</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">💜</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🖤</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">💕</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🌸</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🌺</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🌹</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🌈</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">☀️</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🌙</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">⭐</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">✨</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🍕</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🍔</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🍦</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🍰</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🧁</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🍷</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🍻</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">☕</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">⚽</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🏀</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🎮</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🎯</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🏆</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🎵</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🎬</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🎁</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🔥</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">✅</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">❌</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">⚠️</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">💯</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">🎉</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">💢</span>
+                    <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;">💤</span>
+                </div>
+            </div>
+    <style>
+        #emojiPicker .emoji-btn:hover {
+            background: #f3f3f3;
+            transform: scale(1.2);
+        }
+    </style>
             </form>
         </div>
     </div>
@@ -533,6 +628,37 @@
             style="max-width:90vw;max-height:90vh;border-radius:16px;box-shadow:0 4px 32px #0008;">
     </div>
     <script>
+        // Emoji picker logic
+        document.addEventListener('DOMContentLoaded', function () {
+            const emojiBtn = document.getElementById('emojiBtn');
+            const emojiPicker = document.getElementById('emojiPicker');
+            const chatInput = document.getElementById('chatInput');
+            // Toggle emoji picker
+            emojiBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+            });
+            // Insert emoji
+            emojiPicker.querySelectorAll('.emoji-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const emoji = this.textContent;
+                    // Insert at cursor position
+                    const start = chatInput.selectionStart;
+                    const end = chatInput.selectionEnd;
+                    const value = chatInput.value;
+                    chatInput.value = value.substring(0, start) + emoji + value.substring(end);
+                    chatInput.focus();
+                    chatInput.selectionStart = chatInput.selectionEnd = start + emoji.length;
+                    emojiPicker.style.display = 'none';
+                });
+            });
+            // Hide emoji picker when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+                    emojiPicker.style.display = 'none';
+                }
+            });
+        });
         let activeId = '{{ $activeId }}';
         let chatInterval = null;
         let isSwitchingChat = false;
@@ -568,10 +694,10 @@
                         }
                         if (content === '/strong') {
                             content = `<svg width="36" height="36" viewBox="0 0 24 24" style="vertical-align:middle;">
-            <path fill="#f9d4b7" d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2
-                7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09
-                l-.01-.01L22 10z"/>
-        </svg>`;
+                <path fill="#f9d4b7" d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2
+                    7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09
+                    l-.01-.01L22 10z"/>
+            </svg>`;
                         } else if (/^https?:\/\/\S+$/i.test(content)) {
                             content =
                                 `<a href="${content}" target="_blank" style="color: #fff;text-decoration:underline;">${content}</a>`;
@@ -580,8 +706,8 @@
                         let bubbleClass = "bubble";
                         if (msg.is_admin && !hasImage) bubbleClass += " me";
                         chatMessages.innerHTML += `<div class="chat-message${msg.is_admin ? ' me' : ''}">
-        <div class="${bubbleClass}" style="${hasImage ? 'background:transparent;border:none;box-shadow:none;padding:0;' : ''}">${content}</div>
-    </div>`;
+            <div class="${bubbleClass}" style="${hasImage ? 'background:transparent;border:none;box-shadow:none;padding:0;' : ''}">${content}</div>
+        </div>`;
                     });
                     if (isSwitchingChat) {
                         chatMessages.classList.add('fade-in');
@@ -610,43 +736,47 @@
                 .then(data => {
                     chatList.innerHTML = '';
                     data.conversations.forEach(conv => {
-                        let avatar = conv.user_avatar ?? '{{ asset('images/avatar/user-1.png') }}';
+                        let avatar = conv.user_avatar
+                            ? (/^https?:\/\//.test(conv.user_avatar)
+                                ? conv.user_avatar
+                                : '/storage/' + conv.user_avatar.replace(/^\/+/, ''))
+                            : '{{ asset('images/avatar/user-1.png') }}'; 
                         let latestMsg = conv.latest_message ?? 'Chưa có tin nhắn';
                         if (latestMsg.length > 15) {
                             latestMsg = latestMsg.substring(0, 15) + '...';
                         }
                         chatList.innerHTML += `
-<li class="chat-item${conv.id == activeId ? ' active' : ''}" data-id="${conv.id}">
-    <img class="avatar" src="${avatar}" alt="avatar">
-    <div class="info">
-        <strong>${conv.user_name}</strong>
-        <span class="latest">${latestMsg}</span>
-    </div>
-    <div class="dropdown ms-auto">
-        <button class="btn btn-link p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span style="font-size: 24px;">&#8230;</span>
-        </button>
-        <ul class="dropdown-menu">
-            <li>
-                <a class="dropdown-item" style="font-size: 16px;" href="/admin/users/${conv.user_id}" target="_blank">
-                    Xem người dùng
-                </a>
-            </li>
-            <li>
-                <button class="dropdown-item text-danger btn-delete-chat" style="font-size: 16px;" data-id="${conv.id}" type="button">
-                    Xóa đoạn chat
-                </button>
-            </li>
-        </ul>
-    </div>
-</li>
-                        `;
+    <li class="chat-item${conv.id == activeId ? ' active' : ''}" data-id="${conv.id}">
+        <img class="avatar" src="${avatar}" alt="avatar">
+        <div class="info">
+            <strong>${conv.user_name}</strong>
+            <span class="latest">${latestMsg}</span>
+        </div>
+        <div class="dropdown ms-auto">
+            <button class="btn btn-link p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span style="font-size: 24px;">&#8230;</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" style="font-size: 16px;" href="/admin/users/${conv.user_id}" target="_blank">
+                        Xem người dùng
+                    </a>
+                </li>
+                <li>
+                    <button class="dropdown-item text-danger btn-delete-chat" style="font-size: 16px;" data-id="${conv.id}" type="button">
+                        Xóa đoạn chat
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </li>
+                            `;
 
                     });
 
                     // Gán lại sự kiện click cho các item mới
                     document.querySelectorAll('.chat-item').forEach(item => {
-                        item.addEventListener('click', function(e) {
+                        item.addEventListener('click', function (e) {
                             // Nếu click vào dropdown hoặc bên trong dropdown thì không chuyển đoạn chat
                             if (
                                 e.target.closest('.dropdown') ||
@@ -713,14 +843,14 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function() {
+                success: function () {
                     chatInput.value = '';
                     pastedImageFile = null;
                     updateImagePreview();
                     loadMessages(true);
                     loadConversations();
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     alert('Gửi ảnh thất bại: ' + xhr.status + ' - ' + xhr.responseText);
                     pastedImageFile = null;
                     updateImagePreview();
@@ -728,7 +858,7 @@
             });
         }
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (e.target.classList.contains('btn-delete-chat')) {
                 const chatId = e.target.getAttribute('data-id');
                 if (!confirm('Bạn có chắc muốn xóa đoạn chat này?')) return;
@@ -736,11 +866,11 @@
                     needSwitchToFirst = true;
                 }
                 fetch(`/admin/messages/${chatId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
                     .then(res => {
                         if (res.ok) {
                             loadConversations();
@@ -749,22 +879,6 @@
             }
         });
 
-        document.getElementById('chatLikeBtn').addEventListener('click', function() {
-            fetch(`/admin/message/messages/${activeId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    content: '/strong'
-                })
-            }).then(() => {
-                chatInput.value = '';
-                loadMessages(true);
-                loadConversations();
-            });
-        });
 
         // Tải tin nhắn lần đầu
         loadMessages(true);
@@ -776,7 +890,7 @@
         }, 2000);
 
         // Mở ảnh lớn khi click vào ảnh trong tin nhắn
-        document.getElementById('chatMessages').addEventListener('click', function(e) {
+        document.getElementById('chatMessages').addEventListener('click', function (e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.bubble')) {
                 const imgSrc = e.target.src;
                 const modal = document.getElementById('chatImageModal');
@@ -785,13 +899,13 @@
                 modal.style.display = 'flex';
 
                 // Đóng modal khi click vào ảnh lớn
-                modal.onclick = function() {
+                modal.onclick = function () {
                     modal.style.display = 'none';
                 };
             }
         });
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             // Nếu click vào ảnh trong chat
             if (e.target.matches('.chat-messages img')) {
                 const modal = document.getElementById('chatImageModal');
