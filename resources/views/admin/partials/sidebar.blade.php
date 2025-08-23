@@ -69,6 +69,13 @@
                                 </a>
                             </li>
                         </ul>
+                        <ul class="sub-menu">
+                            <li class="sub-menu-item">
+                                <a href="{{ route('admin.chat-suggestions.index') }}">
+                                    <div class="text">Gợi ý tin nhắn</div>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <!-- Thương Hiệu -->
                     <li class="menu-item has-children {{ request()->routeIs('admin.brands.*') ? 'active' : '' }}">
@@ -249,6 +256,7 @@
                             </li>
                         </ul>
                     </li>
+                    
                     <!-- Shipper -->
                     <li class="menu-item has-children {{ request()->routeIs('admin.shippers.*') ? 'active' : '' }}">
                         <a href="javascript:void(0);" class="menu-item-button">

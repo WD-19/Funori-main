@@ -109,3 +109,6 @@ require __DIR__ . '/client.php';
 Route::fallback(function () {
     return response()->view('client.errors.404', [], 404);
 });
+
+// VNPay refund webhook
+Route::post('/vnpay/refund-webhook', [VnPayController::class, 'refundWebhook'])->name('vnpay.refund-webhook');

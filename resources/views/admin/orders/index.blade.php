@@ -216,8 +216,13 @@
                                             style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:6px;">Chờ
                                             hủy</span>
                                     @elseif($order->order_status === 'cancelled')
-                                        <span class="block-pending bg-1 fw-7"
-                                            style="background:#f87171;padding:2px 8px;border-radius:6px;">Đã hủy</span>
+                                        @if($order->pending_refund)
+                                            <span class="block-pending bg-1 fw-7"
+                                                style="background:#f59e0b;color:#fff;padding:2px 8px;border-radius:6px;">Đã hủy - Chờ hoàn tiền</span>
+                                        @else
+                                            <span class="block-pending bg-1 fw-7"
+                                                style="background:#f87171;padding:2px 8px;border-radius:6px;">Đã hủy</span>
+                                        @endif
                                     @elseif($order->order_status === 'processing')
                                         <span class="block-pending bg-1 fw-7"
                                             style="padding:2px 8px;border-radius:6px;">Đang xử lý</span>

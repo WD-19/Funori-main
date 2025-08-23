@@ -21,7 +21,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Ví dụ chạy lệnh mỗi phút
-        $schedule->command('orders:update-status')->everyMinute();
+        // ✅ Thay đổi từ 30 phút thành 1 phút để test nhanh
+        $schedule->command('refunds:process-pending')
+            ->everyMinute()  // Chạy mỗi phút thay vì 30 phút
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 }

@@ -53,7 +53,7 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                    <div class="swiper-scrollbar"></div>
+<div class="swiper-scrollbar"></div>
                                 </div>
                                 <style>
                                     #thumbs-swiper {
@@ -104,7 +104,7 @@
                                     <div class="swiper-wrapper">
                                         @foreach ($product->images as $image)
                                             <div class="swiper-slide">
-                                                <img style="width: 100%;" class="tf-image-zoom lazyload"
+<img style="width: 100%;" class="tf-image-zoom lazyload"
                                                     data-zoom="{{ asset($image->image_url) }}"
                                                     data-src="{{ asset($image->image_url) }}"
                                                     src="{{ asset($image->image_url) }}" alt="{{ $product->name }}">
@@ -148,8 +148,7 @@
                                             }
                                         });
                                         window.gallerySwiper = gallerySwiper; // <-- Thêm dòng này
-
-                                        // Responsive thumbs direction on resize
+// Responsive thumbs direction on resize
                                         window.addEventListener('resize', function() {
                                             let dir = window.innerWidth > 768 ? 'vertical' : 'horizontal';
                                             thumbsSwiper.changeDirection(dir);
@@ -207,7 +206,7 @@
 
                                     #thumbs-swiper .swiper-slide {
                                         display: flex;
-                                        justify-content: center;
+justify-content: center;
                                         align-items: center;
                                         height: 70px !important;
                                         width: 70px !important;
@@ -263,7 +262,7 @@
                                 </style>
                             </div>
                             <div class="mt-3 product-description-wrap" style="position: relative;">
-                                <div class="product-description-shadow product-description-content"
+<div class="product-description-shadow product-description-content"
                                     id="product-description-content">
                                     {!! nl2br(e($product->description)) !!}
                                 </div>
@@ -316,7 +315,7 @@
                                     if (descContent.scrollHeight > maxHeight) {
                                         btnShowMore.style.display = 'flex';
                                         btnShowMore.addEventListener('click', function() {
-                                            if (!descWrap.classList.contains('expanded')) {
+if (!descWrap.classList.contains('expanded')) {
                                                 // Mở rộng: set max-height đúng chiều cao thật
                                                 descContent.style.maxHeight = descContent.scrollHeight + 'px';
                                                 descWrap.classList.add('expanded');
@@ -359,7 +358,7 @@
                                     <div class="badges text-uppercase">
                                         {{ $reviewCount }} Lượt đánh giá |
                                         <span class="ms-2">
-                                            @for ($i = 1; $i <= 5; $i++)
+@for ($i = 1; $i <= 5; $i++)
                                                 <i
                                                     class="fa{{ $i <= ($reviewCount > 0 ? round($averageRate) : 5) ? 's' : 'r' }} fa-star"></i>
                                             @endfor
@@ -404,7 +403,7 @@
                                                         foreach ($variant->attributeValues as $attrVal) {
                                                             if (
                                                                 isset($attrVal->attribute) &&
-                                                                (strtolower($attrVal->attribute->name) ===
+(strtolower($attrVal->attribute->name) ===
                                                                     'chất liệu' ||
                                                                     strtolower($attrVal->attribute->slug) ===
                                                                         'chat-lieu')
@@ -442,7 +441,7 @@
                                     </div>
                                 @endif
                                 <div class="tf-product-info-quantity">
-                                    <div class="quantity-title fw-6 d-flex">Số lượng
+<div class="quantity-title fw-6 d-flex">Số lượng
                                     </div>
                                     <div class="wg-quantity">
                                         <span class="btn-quantity btn-decrease">-</span>
@@ -480,7 +479,7 @@
                                                 vertical-align: middle;
                                                 margin: 0 !important;
                                                 transition: color 0.2s;
-                                                width: 22px;
+width: 22px;
                                                 text-align: center;
                                                 display: inline-block;
                                             }
@@ -504,7 +503,7 @@
                                             </svg>
                                         </div>
                                         <div class="text fw-6">Giao hàng & Đổi trả</div>
-                                    </a>
+</a>
                                     <a href="#share_social" data-bs-toggle="modal" class="tf-product-extra-icon">
                                         <div class="icon">
                                             <i class="icon-share"></i>
@@ -554,7 +553,7 @@
                 priceEl.textContent = price.toLocaleString('vi-VN') + 'đ';
                 if (totalPriceEl) totalPriceEl.textContent = (price * qty).toLocaleString('vi-VN') + 'đ';
                 if (materialLabel) {
-                    materialLabel.textContent = selected && selected.dataset.material ? selected.dataset.material :
+materialLabel.textContent = selected && selected.dataset.material ? selected.dataset.material :
                         '';
                 }
                 if (variantTitle) {
@@ -609,7 +608,7 @@
                     }
                     updateAll();
                 });
-            });
+});
 
             updateAll();
         });
@@ -662,7 +661,7 @@
                                             <h3 class="fs-16 fw-5">Hướng dẫn bảo quản</h3>
                                             <div class="d-flex gap-10 mb_15 align-items-center">
                                                 <div class="icon">
-                                                    <i class="icon-machine"></i>
+<i class="icon-machine"></i>
                                                 </div>
                                                 <span>Dùng khăn mềm ẩm lau bề mặt định kỳ</span>
                                             </div>
@@ -709,7 +708,7 @@
                                 <div class="tab-reviews write-cancel-review-wrap">
                                     <div class="tab-reviews-heading">
                                         <div class="top">
-                                            <div class="text-center">
+<div class="text-center">
                                                 <h1 class="number fw-6">{{ $averageRate }}</h1>
                                                 <div class="list-star">
                                                     @for ($i = 1; $i <= 5; $i++)
@@ -747,7 +746,7 @@
                                     </div>
                                     <div class="reply-comment cancel-review-wrap">
                                         <div
-                                            class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap">
+class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap">
                                             <h5 class="">{{ $reviewCount }} Bình luận</h5>
                                             <form method="GET" id="review-sort-form">
                                                 <select name="sort" id="sort-select"
@@ -782,7 +781,7 @@
                                                                             if (
                                                                                 $name !== 'Ẩn danh' &&
                                                                                 mb_strlen($name) > 6
-                                                                            ) {
+) {
                                                                                 $first = mb_substr($name, 0, 3);
                                                                                 $last = mb_substr($name, -3);
                                                                                 $masked =
@@ -816,7 +815,7 @@
                                                         <div class="reply-comment-item type-reply">
                                                             <div class="user">
                                                                 <div class="image">
-                                                                    <img src="{{ asset('client/ecomus/images/collections/collection-circle-10.jpg') }}"
+<img src="{{ asset('client/ecomus/images/collections/collection-circle-10.jpg') }}"
                                                                         alt="">
                                                                 </div>
                                                                 <div>
@@ -847,7 +846,7 @@
                                                                                 }
                                                                             @endphp
                                                                         </a>
-                                                                    </h6>
+</h6>
                                                                     <div class="day text_black-3">
                                                                         {{ $review->admin_reply_created_at ? \Carbon\Carbon::parse($review->admin_reply_created_at)->diffForHumans() : '' }}
                                                                     </div>
@@ -879,7 +878,7 @@
                                                                                 $masked =
                                                                                     $first .
                                                                                     str_repeat(
-                                                                                        '*',
+'*',
                                                                                         mb_strlen($name) - 6,
                                                                                     ) .
                                                                                     $last;
@@ -916,7 +915,7 @@
                                             <h5>Viết đánh giá:</h5>
                                             <div class="list-rating-check">
                                                 <input type="radio" id="star5" name="rating" value="5" />
-                                                <label for="star5" title="text"></label>
+<label for="star5" title="text"></label>
                                                 <input type="radio" id="star4" name="rating" value="4" />
                                                 <label for="star4" title="text"></label>
                                                 <input type="radio" id="star3" name="rating" value="3" />
@@ -955,8 +954,7 @@
                             <div class="widget-content-inner">
                                 <div class="tf-page-privacy-policy">
                                     <div class="title">Chính sách Vận chuyển</div>
-
-                                    <p>Funori Furniture cam kết giao hàng đến tay khách hàng một cách nhanh chóng, an toàn
+<p>Funori Furniture cam kết giao hàng đến tay khách hàng một cách nhanh chóng, an toàn
                                         và đúng hẹn. Chính sách vận chuyển áp dụng cho tất cả đơn hàng được đặt trên website
                                         <strong>funori.vn</strong> và các kênh bán hàng chính thức của chúng tôi.
                                     </p>
@@ -996,7 +994,7 @@
                                     </p>
                                     <p>
                                         📞 Hotline: <strong>1900 1234</strong> (8h00 – 20h00)<br>
-                                        📧 Email: <a href="mailto:support@funori.vn">support@funori.vn</a>
+📧 Email: <a href="mailto:support@funori.vn">support@funori.vn</a>
                                     </p>
                                 </div>
                             </div>
@@ -1051,7 +1049,7 @@
                 <div class="see-deals">
                     <a href="{{ route('shop') }}">
                         Xem tất cả sản phẩm
-                        <i class="fa-solid fa-arrow-right"></i>
+<i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
@@ -1100,7 +1098,7 @@
                     </div>
                 @endforeach
             </div>
-            {{-- @if (count($relatedProducts) > 3)
+{{-- @if (count($relatedProducts) > 3)
                 <div class="text-center mt-3">
                     <button id="show-more-related" class="btn btn-outline-dark px-4 py-2">Xem thêm sản phẩm</button>
                 </div>
@@ -1155,7 +1153,7 @@
                     </div>
 
                     <!-- Liên hệ hỗ trợ -->
-                    <div class="tf-product-popup-delivery">
+<div class="tf-product-popup-delivery">
                         <div class="title">Hỗ trợ</div>
                         <p class="text-paragraph">Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
                         <p class="text-paragraph">Email: <a href="mailto:support@funori.vn">support@funori.vn</a></p>
@@ -1208,7 +1206,7 @@
                         <div class="button-submit">
                             <button id="copy-btn" type="button"
                                 class="tf-btn btn-sm radius-3 btn-fill btn-icon animate-hover-btn"
-                                onclick="copyShareLink()">
+onclick="copyShareLink()">
                                 Sao chép liên kết
                             </button>
                         </div>
@@ -1273,7 +1271,7 @@
                 }
 
                 fetch('{{ route('client.cart.add') }}', {
-                        method: 'POST',
+method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -1288,13 +1286,44 @@
                     .then(data => {
                         if (data.success) {
                             toastr.success('Đã thêm vào giỏ hàng!');
+                            
+                            // Cập nhật số lượng sản phẩm trong giỏ hàng
+                            if (data.cart_count !== undefined) {
+                                // Sử dụng function có sẵn từ header để cập nhật badge
+                                if (typeof updateCartCountBadge === 'function') {
+                                    updateCartCountBadge(data.cart_count);
+                                } else {
+                                    // Fallback: cập nhật trực tiếp badge
+                                    const cartBadge = document.getElementById('cart-count-badge');
+                                    if (cartBadge) {
+                                        cartBadge.textContent = data.cart_count;
+                                        cartBadge.style.display = data.cart_count > 0 ? 'flex' : 'none';
+                                    }
+                                }
+                                
+                                // Cập nhật mini cart nếu có
+                                if (typeof updateMiniCartContent === 'function') {
+                                    updateMiniCartContent();
+                                } else {
+                                    // Fallback: load lại mini cart
+                                    fetch('{{ route('client.cart.miniList') }}')
+                                        .then(response => response.text())
+                                        .then(html => {
+                                            const cartPopupContent = document.getElementById('cart-popup-content');
+                                            if (cartPopupContent) {
+                                                cartPopupContent.innerHTML = html;
+                                            }
+                                        })
+                                        .catch(error => console.error('Error updating mini cart:', error));
+                                }
+                            }
                         } else {
                             toastr.error(data.message || 'Có lỗi xảy ra!');
                         }
                     })
                     .catch(error => {
                         toastr.error('Có lỗi xảy ra!');
-                        console.error(error);
+console.error(error);
                     });
             });
         });
@@ -1359,7 +1388,7 @@
                         return;
                     }
                     wishlistProcessing = true;
-                    var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
+var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
                     if (!isLoggedIn) {
                         toastr.error('Bạn cần đăng nhập!');
                         wishlistProcessing = false;
@@ -1409,7 +1438,7 @@
                                         var span = document.createElement('span');
                                         span.className = 'wishlist-badge';
                                         span.style =
-                                            'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
+'position:absolute;top:-6px;right:-10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:#fcad02;color:#fff;font-size:11px;padding:0 4px;border-radius:50%;font-weight:bold;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:2;';
                                         span.textContent = '1';
                                         heartIcon.parentNode.appendChild(span);
                                     }
@@ -1456,7 +1485,7 @@
                         .catch(error => {
                             toastr.error('Lỗi xảy ra!');
                             console.error(error);
-                        })
+})
                         .finally(() => {
                             setTimeout(function() {
                                 wishlistProcessing = false;

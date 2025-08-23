@@ -147,7 +147,7 @@
 
     <!-- Fade-out effect on load -->
     <script>
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             const preload = document.getElementById('preload');
             preload.classList.add('fade-out');
         });
@@ -166,21 +166,30 @@
         style="position:fixed;bottom:90px;right:30px;width:420px;max-width:98vw;background:#fff;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,0.2);display:none;flex-direction:column;z-index:9999;">
         <div
             style="background:#007bff;color:#fff;padding:12px 16px;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:20px;"><i class="fas fa-user-circle"></i> Hỗ trợ khách hàng</span>
+            <span style="font-size:20px;">
+                <i class="fas fa-user-circle"></i>
+                <span>Nhắn tin với chúng tôi</span>
+            </span>
         </div>
         <div id="chat-body" style="padding:12px;height:440px;overflow-y:auto;font-size:15px;">
             <div style="color:#888;">Xin chào! Bạn cần hỗ trợ gì?</div>
+        </div>
+        <div id="chat-suggestions" style="padding:8px 12px 0 12px; display:flex; flex-wrap:wrap; gap:8px;">
+            @foreach(\App\Models\ChatSuggestion::all() as $suggestion)
+                <button type="button" class="btn btn-light btn-sm chat-suggestion-btn"
+                    style="border-radius:18px; background:#f1f1f1; color:#222; font-size:15px; padding:6px 18px; margin-bottom:4px; box-shadow:0 1px 4px #0001; border:none;">
+                    {{ $suggestion->content }}
+                </button>
+            @endforeach
         </div>
         <div style="padding:8px 12px; border-top:1px solid #eee; display:flex; gap:8px; align-items:center;">
             <input id="chat-input" type="text" class="form-control" placeholder="Nhập tin nhắn..."
                 style="flex:1; min-width:0;">
             <div id="chatImagePreview" style="display:flex; gap:8px; align-items:center;"></div>
-            <button type="button" id="chatLikeBtn"
-                style="background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="#0084ff">
-                    <path
-                        d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09l-.01-.01L22 10z" />
-                </svg>
+            <button type="button" id="chatEmojiBtn"
+                style="background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:22px; padding:0; transition:transform 0.2s;"
+                onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                <i class="far fa-smile"></i>
             </button>
             <button id="chat-send" class="btn btn-primary" type="button"
                 style="display:flex; align-items:center; justify-content:center;">Gửi</button>
@@ -195,6 +204,120 @@
         <img id="clientChatImageModalImg" src=""
             style="max-width:90vw;max-height:90vh;border-radius:16px;box-shadow:0 4px 32px #0008;">
     </div>
+
+<div id="emojiPicker" style="display:none; position:absolute; bottom:80px; right:20px; background:#fff; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.15); padding:15px; width:340px; max-height:320px; overflow-y:auto; z-index:99999;">
+    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px;">
+        <!-- Mặt cười cơ bản -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😀</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😃</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😄</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😁</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😆</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😅</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤣</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😂</span>
+        
+        <!-- Tình yêu -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😊</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🙂</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😍</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🥰</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😘</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😗</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😙</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😚</span>
+        
+        <!-- Vui vẻ -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😛</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😝</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😜</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤪</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😎</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤩</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤭</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🥳</span>
+        
+        <!-- Buồn bã -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🙄</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😏</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🥺</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😔</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😢</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😭</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😞</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😓</span>
+        
+        <!-- Khác -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😱</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😤</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤔</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤫</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😴</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤐</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😷</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤒</span>
+        
+        <!-- Cử chỉ -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">👍</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">👎</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">👏</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🙏</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🤝</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">👌</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">✌️</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">👊</span>
+        
+        <!-- Trái tim -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">❤️</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🧡</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">💛</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">💚</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">💙</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">💜</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🖤</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">💕</span>
+        
+        <!-- Thiên nhiên và động vật -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🌸</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🌺</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🌹</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🌈</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">☀️</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🌙</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">⭐</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">✨</span>
+        
+        <!-- Đồ ăn -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🍕</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🍔</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🍦</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🍰</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🧁</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🍷</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🍻</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">☕</span>
+        
+        <!-- Hoạt động -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">⚽</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🏀</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🎮</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🎯</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🏆</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🎵</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🎬</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🎁</span>
+        
+        <!-- Biểu tượng -->
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🔥</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">✅</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">❌</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">⚠️</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">💯</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🎉</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">💢</span>
+        <span class="emoji-btn" style="cursor:pointer; font-size:24px; padding:6px; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">💤</span>
+    </div>
+</div>
 </body>
 
 <!--End of Tawk.to Script-->
@@ -212,7 +335,7 @@
 <script src="{{ asset('client/ecomus/js/wow.min.js') }}"></script>
 <script src="{{ asset('client/ecomus/js/multiple-modal.js') }}"></script>
 <script src="{{ asset('client/ecomus/js/main.js') }}"></script>
-    <script type="text/javascript" src="js/rangle-slider.js"></script>
+<script type="text/javascript" src="js/rangle-slider.js"></script>
 
 <!-- Toastr JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -222,7 +345,7 @@
     const preload = document.getElementById('preload');
 
     // 1. Xử lý khi load lại do back/forward
-    window.addEventListener('pageshow', function(event) {
+    window.addEventListener('pageshow', function (event) {
         // Nếu trình duyệt load từ cache (bfcache) hoặc là dạng "back_forward"
         const isBack = event.persisted || performance.getEntriesByType("navigation")[0]?.type ===
             "back_forward";
@@ -246,7 +369,7 @@
     });
 
     // 2. Khi trang load bình thường
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
         const forceReload = sessionStorage.getItem('forceReload');
 
         if (forceReload === 'yes') {
@@ -281,7 +404,7 @@
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const chatToggle = document.getElementById('chat-toggle');
         const chatBox = document.getElementById('chat-box');
         const chatClose = document.getElementById('chat-close');
@@ -292,7 +415,7 @@
         const chatImagePreview = document.getElementById('chatImagePreview');
         let loading = false;
 
-        chatToggle.onclick = function() {
+        chatToggle.onclick = function () {
             if (chatBox.style.display === 'flex') {
                 chatBox.style.display = 'none';
             } else {
@@ -304,30 +427,15 @@
         };
 
         chatSend.onclick = sendMessage;
-        chatInput.addEventListener('keydown', function(e) {
+        chatInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') sendMessage();
         });
 
-        document.getElementById('chatLikeBtn').addEventListener('click', function() {
-            fetch('/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    content: '/strong'
-                })
-            }).then(() => {
-                chatInput.value = '';
-                loadMessages(true);
-            });
-        });
 
         let pastedImageFile = null;
 
         // Dán ảnh từ clipboard
-        chatInput.addEventListener('paste', function(e) {
+        chatInput.addEventListener('paste', function (e) {
             const items = (e.clipboardData || window.clipboardData).items;
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
@@ -340,7 +448,7 @@
         });
 
         // Chọn file từ máy
-        chatImageInput.addEventListener('change', function(e) {
+        chatImageInput.addEventListener('change', function (e) {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
                 pastedImageFile = files[0];
@@ -355,7 +463,7 @@
             preview.innerHTML = '';
             if (pastedImageFile) {
                 const reader = new FileReader();
-                reader.onload = function(evt) {
+                reader.onload = function (evt) {
                     const div = document.createElement('div');
                     div.style.position = 'relative';
                     div.style.display = 'inline-block';
@@ -363,7 +471,7 @@
                 <img src="${evt.target.result}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;">
                 <span style="position:absolute;top:2px;right:2px;background:#222b;padding:2px 6px;border-radius:50%;color:#fff;cursor:pointer;font-size:16px;">×</span>
             `;
-                    div.querySelector('span').onclick = function() {
+                    div.querySelector('span').onclick = function () {
                         pastedImageFile = null;
                         updateImagePreview();
                     };
@@ -373,12 +481,12 @@
             }
         }
 
-        chatImageInput.addEventListener('change', function() {
+        chatImageInput.addEventListener('change', function () {
             const files = Array.from(chatImageInput.files);
             chatImagePreview.innerHTML = '';
             files.forEach(file => {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.style.maxWidth = '220px';
@@ -389,14 +497,14 @@
                     chatImagePreview.appendChild(img);
 
                     // Thêm sự kiện click vào ảnh để mở modal
-                    img.addEventListener('click', function() {
+                    img.addEventListener('click', function () {
                         const modal = document.getElementById(
                             'clientChatImageModal');
                         const modalImg = document.getElementById(
                             'clientChatImageModalImg');
                         modalImg.src = img.src;
                         modal.style.display = 'flex';
-                        modal.onclick = function() {
+                        modal.onclick = function () {
                             modal.style.display = 'none';
                             modalImg.src = '';
                         };
@@ -429,16 +537,16 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                success: function(res) {
+                success: function (res) {
                     chatInput.value = '';
                     pastedImageFile = null;
                     updateImagePreview();
                     loadMessages(true);
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     alert('Lỗi gửi tin nhắn: ' + xhr.responseText);
                 },
-                complete: function() {
+                complete: function () {
                     loading = false;
                 }
             });
@@ -449,11 +557,17 @@
             fetch('/messages')
                 .then(res => res.json())
                 .then(data => {
+
                     chatBody.innerHTML = '';
-                    if (data.length === 0) {
+                    if (data.messages && data.messages.length === 0) {
                         chatBody.innerHTML = '<div style="color:#888;">Xin chào! Bạn cần hỗ trợ gì?</div>';
                     }
-                    data.forEach(msg => {
+
+                    // Sử dụng data.messages thay vì data nếu API đã được cập nhật
+                    const messages = data.messages || data;
+
+                    // --- replace message rendering to show admin name above each admin message ---
+                    messages.forEach(msg => {
                         let content = msg.content || '';
                         let hasImage = false;
                         if (msg.files && msg.files.length) {
@@ -467,11 +581,12 @@
                         }
                         if (content === '/strong') {
                             content = `<svg width="36" height="36" viewBox="0 0 24 24" style="vertical-align:middle;">
-                            <path fill="#f9d4b7" d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2
-                            7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09
-                            l-.01-.01L22 10z"/>
-                        </svg>`;
+                                <path fill="#f9d4b7" d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2
+                                7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.09
+                                l-.01-.01L22 10z"/>
+                            </svg>`;
                         }
+
                         let bubbleStyle = hasImage ?
                             'background:transparent;border:none;box-shadow:none;padding:0;' :
                             (msg.is_admin ?
@@ -479,12 +594,34 @@
                                 'background:#007bff;color:#fff;box-shadow:0 2px 8px #0084ff22;border:1px solid #e8e8e8;'
                             );
                         let bubbleClass = "bubble";
-                        chatBody.innerHTML += `
-                        <div style="text-align:${msg.is_admin ? 'left' : 'right'};margin:6px 0;">
-                            <span class="${bubbleClass}" style="border-radius:16px 16px ${msg.is_admin ? '16px 0' : '0 16px'};display:inline-block;${bubbleStyle}">${content}</span>
-                        </div>
-                    `;
+
+                        if (msg.is_admin) {
+                            // show admin name above the bubble (like Facebook)
+                            const adminName = msg.admin_name || 'Hỗ trợ khách hàng';
+                            const adminAvatar = msg.admin_avatar || ''; // optional: add admin_avatar in API if available
+                            const avatarHtml = adminAvatar ? `<img src="${adminAvatar}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;">` : '';
+
+                            chatBody.innerHTML += `
+                                <div style="text-align:left;margin:10px 0;">
+                                    <div style="display:flex;align-items:center;gap:8px;margin-left:6px;margin-bottom:6px;">
+                                        ${avatarHtml}
+                                        <div style="font-size:13px;color:#444;font-weight:600;">${adminName}</div>
+                                    </div>
+                                    <div>
+                                        <span class="${bubbleClass}" style="border-radius:16px 16px 16px 0;display:inline-block;${bubbleStyle}">${content}</span>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // user's message (keep existing style)
+                            chatBody.innerHTML += `
+                                <div style="text-align:right;margin:6px 0;">
+                                    <span class="${bubbleClass}" style="border-radius:16px 16px 0 16px;display:inline-block;${bubbleStyle}">${content}</span>
+                                </div>
+                            `;
+                        }
                     });
+                    // --- end replacement ---
 
                     // Scroll xuống cuối sau khi DOM đã render xong
                     if (forceScrollBottom) {
@@ -498,22 +635,82 @@
         }
 
         // Tự động reload tin nhắn mỗi 2 giây, KHÔNG cuộn xuống cuối
-        setInterval(function() {
+        setInterval(function () {
             loadMessages();
         }, 2000);
 
         // Sự kiện click vào ảnh để mở modal
-        document.getElementById('chat-body').addEventListener('click', function(e) {
+        document.getElementById('chat-body').addEventListener('click', function (e) {
             if (e.target.tagName === 'IMG') {
                 const modal = document.getElementById('clientChatImageModal');
                 const modalImg = document.getElementById('clientChatImageModalImg');
                 modalImg.src = e.target.src;
                 modal.style.display = 'flex';
-                modal.onclick = function() {
+                modal.onclick = function () {
                     modal.style.display = 'none';
                     modalImg.src = '';
                 };
             }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.chat-suggestion-btn').forEach(btn => {
+            btn.onclick = function () {
+                const chatInput = document.getElementById('chat-input');
+                chatInput.value = this.textContent;
+                chatInput.focus();
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatEmojiBtn = document.getElementById('chatEmojiBtn');
+        const emojiPicker = document.getElementById('emojiPicker');
+        const chatInput = document.getElementById('chat-input');
+        const chatBox = document.getElementById('chat-box');
+
+        // Hiển thị/ẩn emoji picker khi click vào nút emoji
+        chatEmojiBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            console.log("Emoji button clicked"); // Để debug
+
+            // Đặt lại vị trí emoji picker mỗi lần click
+            emojiPicker.style.position = 'absolute';
+
+            // Hiển thị trong chatBox nếu có thể
+            if (chatBox) {
+                chatBox.appendChild(emojiPicker);
+            }
+
+            if (emojiPicker.style.display === 'flex' || emojiPicker.style.display === 'block') {
+                emojiPicker.style.display = 'none';
+            } else {
+                emojiPicker.style.display = 'flex';
+            }
+        });
+
+        // Chọn emoji
+        document.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const emoji = this.textContent;
+                chatInput.value += emoji;
+                chatInput.focus();
+            });
+        });
+
+        // Ẩn emoji picker khi click ra ngoài
+        document.addEventListener('click', function () {
+            emojiPicker.style.display = 'none';
+        });
+
+        emojiPicker.addEventListener('click', function (e) {
+            e.stopPropagation();
         });
     });
 </script>

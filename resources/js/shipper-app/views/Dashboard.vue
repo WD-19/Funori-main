@@ -140,72 +140,250 @@
       <div class="hidden md:block px-6 py-4 border-b border-gray-200">
         <div class="flex items-center justify-between gap-3">
           <h3 class="text-lg font-medium text-gray-900 whitespace-nowrap">Tất cả đơn hàng ({{ filteredOrders.length }})</h3>
-          <div class="flex-1 flex items-center justify-end gap-3">
-            <div class="flex items-center bg-gray-100 rounded-lg px-3 w-72">
-              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex-1 flex items-center justify-end gap-3 flex-wrap">
+            <!-- Search Bar -->
+            <div class="flex items-center bg-gray-100 rounded-lg px-3 w-64">
+              <svg class="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
               </svg>
-              <input v-model.trim="searchQuery" type="search" placeholder="Mã đơn/SĐT" class="w-full bg-transparent border-0 focus:ring-0 px-2 py-1 text-sm" />
+              <input v-model.trim="searchQuery" type="search" placeholder="Mã đơn/SĐT" class="w-full bg-transparent border-0 focus:ring-0 px-2 py-2 text-sm" />
             </div>
-            <select v-model="statusFilter" class="px-3 py-2 border rounded-lg text-sm">
+            
+            <!-- Status Filter -->
+            <select v-model="statusFilter" class="px-3 py-2 border rounded-lg text-sm min-w-[120px]">
               <option value="">Tất cả</option>
               <option value="shipped">Đang giao</option>
               <option value="delivered">Thành công</option>
               <option value="failed">Thất bại</option>
             </select>
-            <select v-model="dateFilter" class="px-3 py-2 border rounded-lg text-sm">
+            
+            <!-- Date Filter -->
+            <select v-model="dateFilter" class="px-3 py-2 border rounded-lg text-sm min-w-[120px]">
               <option value="today">Hôm nay</option>
               <option value="yesterday">Hôm qua</option>
               <option value="last7">7 ngày</option>
               <option value="range">Khoảng ngày</option>
             </select>
-            <div v-if="dateFilter === 'range'" class="flex items-center gap-2">
-              <input type="date" v-model="customDateRange.start" class="px-2 py-1 border rounded-lg text-sm" />
-              <span class="text-gray-400">→</span>
-              <input type="date" v-model="customDateRange.end" class="px-2 py-1 border rounded-lg text-sm" />
+            
+            <!-- Custom Date Range -->
+            <div v-if="dateFilter === 'range'" class="flex items-center gap-2 min-w-[200px]">
+              <input type="date" v-model="customDateRange.start" class="px-2 py-2 border rounded-lg text-sm w-24" />
+              <span class="text-gray-400 text-sm">→</span>
+              <input type="date" v-model="customDateRange.end" class="px-2 py-2 border rounded-lg text-sm w-24" />
             </div>
-            <select v-model="areaFilter" class="px-3 py-2 border rounded-lg text-sm w-48">
-              <option value="">Tất cả KV</option>
-              <option v-for="a in areas" :key="a" :value="a">{{ a }}</option>
-            </select>
-            <button @click="applyFilters" class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">Áp dụng</button>
-            <button @click="clearFilters" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">Xóa</button>
+            
+            <!-- Area Filter -->
+            <div class="relative min-w-[180px] area-filter-container">
+              <button 
+                type="button"
+                class="w-full px-3 py-2 border rounded-lg text-sm text-left bg-white flex items-center justify-between"
+                @click="showAreaDropdown = !showAreaDropdown"
+              >
+                <span>{{ areaFilter || 'Tất cả KV Hà Nội' }}</span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              
+              <!-- Area Search Popup -->
+              <div v-if="showAreaDropdown" class="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                <div class="p-3">
+                  <div class="mb-3">
+                    <input 
+                      v-model.trim="areaSearchQuery"
+                      type="text" 
+                      placeholder="Tìm kiếm khu vực Hà Nội..."
+                      class="w-full px-3 py-2 border rounded-lg text-sm"
+                      @click.stop
+                    />
+                  </div>
+                  
+                  <!-- Quick Districts -->
+                  <!-- Thay đổi từ "Quận/Huyện chính" thành "Phường/Xã nổi bật" -->
+                  <div v-if="!areaSearchQuery" class="mb-3">
+                    <div class="text-xs text-gray-600 mb-2 font-medium">Phường/Xã nổi bật:</div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <button
+                        v-for="area in areas.slice(0, 8)" 
+                        :key="area"
+                        @click="areaFilter = area; showAreaDropdown = false"
+                        class="px-2 py-1 text-xs rounded border border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 text-center"
+                      >
+                        {{ area }}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <!-- Search Results -->
+                  <div class="space-y-1">
+                    <div 
+                      v-for="area in filteredAreas.slice(0, 50)" 
+                      :key="area"
+                      @click="areaFilter = area; showAreaDropdown = false"
+                      class="px-3 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
+                    >
+                      {{ area }}
+                    </div>
+                    
+                    <!-- Show more indicator -->
+                    <div v-if="filteredAreas.length > 50" class="px-3 py-2 text-xs text-gray-500 text-center">
+                      Và {{ filteredAreas.length - 50 }} khu vực khác...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-2 flex-shrink-0">
+              <button @click="applyFilters" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                Áp dụng
+              </button>
+              <button @click="clearFilters" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Active Filters Display -->
+        <div v-if="hasActiveFilters" class="mt-4 pt-3 border-t border-gray-200">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm text-gray-600 font-medium">Bộ lọc đang hoạt động:</span>
+            
+            <!-- Status Filter -->
+            <span v-if="statusFilter" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {{ getStatusText(statusFilter) }}
+              <button @click="statusFilter = ''" class="ml-2 text-blue-600 hover:text-blue-800 font-bold">×</button>
+            </span>
+            
+            <!-- Date Filter -->
+            <span v-if="dateFilter && dateFilter !== 'today'" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              {{ getDateFilterText() }}
+              <button @click="dateFilter = 'today'" class="ml-2 text-green-600 hover:text-green-800 font-bold">×</button>
+            </span>
+            
+            <!-- Area Filter -->
+            <span v-if="areaFilter" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              {{ areaFilter }}
+              <button @click="areaFilter = ''" class="ml-2 text-purple-600 hover:text-purple-800 font-bold">×</button>
+            </span>
+            
+            <!-- Search Query -->
+            <span v-if="searchQuery" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+              "{{ searchQuery }}"
+              <button @click="searchQuery = ''" class="ml-2 text-orange-600 hover:text-orange-800 font-bold">×</button>
+            </span>
+            
+            <!-- Clear All Button -->
+            <button @click="clearFilters" class="text-sm text-gray-500 hover:text-gray-700 underline font-medium">
+              Xóa tất cả
+            </button>
           </div>
         </div>
       </div>
       
               <div class="divide-y divide-gray-200">
-           <div v-for="order in paginatedOrders" :key="order.id" class="px-6 py-4 hover:bg-gray-50">
+        <!-- Desktop Order Display -->
+        <div v-for="order in paginatedOrders" :key="order.id" class="px-6 py-4 hover:bg-gray-50 hidden md:block">
           <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4 flex-1">
               <div class="flex-shrink-0">
-                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                   </svg>
                 </div>
               </div>
-              <div>
-                <p class="text-sm font-medium text-gray-900">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-3 mb-1">
+                  <p class="text-lg font-semibold text-gray-900">
                   #{{ order.order_code }}
                 </p>
-                <p class="text-sm text-gray-500">
-                  {{ order.user?.name }} <span v-if="order.user?.phone">• {{ order.user?.phone }}</span>
-                </p>
-                <p class="text-xs text-gray-400 truncate max-w-[260px] md:max-w-none">
-                  {{ order.shipping_address }}
+                  <span :class="getStatusClasses(order.order_status)" class="px-3 py-1 text-xs font-medium rounded-full">
+                    {{ getStatusText(order.order_status) }}
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p class="text-gray-600 mb-1">
+                      <span class="font-medium">Khách hàng:</span> {{ order.shipping_name || order.user?.full_name || 'N/A' }}
+                    </p>
+                    <p class="text-gray-500">
+                      <span class="font-medium">SĐT:</span> {{ order.shipping_phone || order.user?.phone_number || 'N/A' }}
                 </p>
               </div>
+                  <div>
+                    <p class="text-gray-600 mb-1">
+                      <span class="font-medium">Địa chỉ:</span> {{ order.shipping_address || 'N/A' }}
+                    </p>
+                    <p class="text-gray-500">
+                      <span class="font-medium">Tổng tiền:</span> {{ formatCurrency(order.total_amount) }}
+                    </p>
             </div>
-            <div class="flex items-center space-x-4">
-              <span :class="getStatusClasses(order.order_status)" class="px-2 py-1 text-xs font-medium rounded-full">
+                </div>
+                <div class="mt-2 text-xs text-gray-400">
+                  <span class="font-medium">Ngày tạo:</span> {{ formatTime(order.created_at) }}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3 ml-4">
+              <router-link :to="`/orders/${order.id}`" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                Xem chi tiết
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Order Display -->
+        <div v-for="order in paginatedOrders" :key="`mobile-${order.id}`" class="px-4 py-3 hover:bg-gray-50 md:hidden border-b border-gray-100">
+          <div class="space-y-3">
+            <!-- Order Header with Status -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-base font-bold text-gray-900">
+                    #{{ order.order_code }}
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    {{ formatTime(order.created_at) }}
+                  </p>
+                </div>
+              </div>
+              <span :class="getStatusClasses(order.order_status)" class="px-3 py-1 text-xs font-medium rounded-full">
                 {{ getStatusText(order.order_status) }}
               </span>
-              <router-link :to="`/orders/${order.id}`" class="text-blue-600 hover:text-blue-500">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
+            </div>
+
+            <!-- Customer & Order Info -->
+            <div class="bg-gray-50 rounded-lg p-3 space-y-2">
+              <div class="flex items-center space-x-2">
+                <span class="text-blue-600">👤</span>
+                <span class="text-sm font-medium text-gray-900">{{ order.shipping_name || order.user?.full_name || 'N/A' }}</span>
+                <span class="text-gray-400">•</span>
+                <span class="text-sm text-gray-600">{{ order.shipping_phone || order.user?.phone_number || 'N/A' }}</span>
+              </div>
+              
+              <div class="flex items-start space-x-2">
+                <span class="text-green-600 mt-0.5">📍</span>
+                <p class="text-sm text-gray-700 flex-1">{{ order.shipping_address || 'N/A' }}</p>
+              </div>
+              
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-sm text-gray-600">
+                  <span class="font-medium">Tổng tiền:</span> {{ formatCurrency(order.total_amount) }}
+                </span>
+                <router-link :to="`/orders/${order.id}`" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
+                  Chi tiết →
               </router-link>
+              </div>
+            </div>
+          </div>
             </div>
           </div>
         </div>
@@ -249,8 +427,6 @@
               >
                 Sau
               </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -302,11 +478,133 @@
 
         <!-- Area -->
         <div class="mb-4">
-          <div class="text-sm font-medium text-gray-700 mb-2">Khu vực/Tuyến giao</div>
-          <select v-model="areaFilter" class="w-full px-3 py-2 border rounded-lg text-sm">
-            <option value="">Tất cả khu vực</option>
-            <option v-for="a in areas" :key="a" :value="a">{{ a }}</option>
-          </select>
+          <div class="text-sm font-medium text-gray-700 mb-3">Khu vực (Phường xã Hà Nội)</div>
+          
+          <!-- Area Search -->
+          <div class="mb-3">
+            <input 
+              v-model.trim="areaSearchQuery"
+              type="text" 
+              placeholder="🔍 Tìm kiếm phường xã"
+              class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          
+          
+          <!-- Quick District Selection -->
+        <div class="mb-4">
+          <div class="text-xs text-gray-600 mb-2 font-medium">📍 Phường/Xã nổi bật:</div>
+          <div class="grid grid-cols-3 gap-2">
+            <button
+              v-for="area in areas.slice(0, 15)" 
+              :key="area"
+              @click="areaFilter = area"
+              :class="[
+                'px-2 py-2 text-xs rounded-lg border text-center transition-colors font-medium',
+                areaFilter === area 
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50 hover:border-blue-300'
+              ]"
+            >
+              {{ area }}
+            </button>
+          </div>
+  
+  <!-- Show more areas if needed -->
+  <div v-if="areas.length > 15" class="mt-3">
+    <button
+      @click="showAllAreas = !showAllAreas"
+      class="w-full px-3 py-2 text-xs rounded-lg border border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
+    >
+      <span v-if="!showAllAreas">
+        📍 Xem thêm {{ areas.length - 15 }} phường/xã
+      </span>
+      <span v-else>�� Thu gọn</span>
+    </button>
+    
+    <!-- Show all areas when expanded -->
+    <div v-if="showAllAreas" class="mt-3 grid grid-cols-3 gap-2">
+      <button
+        v-for="area in areas.slice(15)" 
+        :key="area"
+        @click="areaFilter = area"
+        :class="[
+          'px-2 py-2 text-xs rounded-lg border text-center transition-colors font-medium',
+          areaFilter === area 
+            ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+            : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50 hover:border-blue-300'
+        ]"
+      >
+        {{ area }}
+      </button>
+    </div>
+  </div>
+</div>
+          
+          <!-- Area Selection List -->
+          <div v-if="areaSearchQuery || areas.length <= 50" class="mb-3">
+            <div class="text-xs text-gray-600 mb-2 font-medium">📋 Danh sách chi tiết:</div>
+            <div class="max-h-32 overflow-y-auto border rounded-lg bg-gray-50">
+              <div class="p-2">
+                <label class="flex items-center p-2 hover:bg-white rounded cursor-pointer transition-colors">
+                  <input 
+                    type="radio" 
+                    :value="''" 
+                    v-model="areaFilter"
+                    class="mr-2 text-blue-600"
+                  />
+                  <span class="text-sm font-medium">🌍 Tất cả khu vực Hà Nội</span>
+                </label>
+                
+                <div v-for="area in filteredAreas.slice(0, 20)" :key="area" class="border-t border-gray-200">
+                  <label class="flex items-center p-2 hover:bg-white rounded cursor-pointer transition-colors">
+                    <input 
+                      type="radio" 
+                      :value="area" 
+                      v-model="areaFilter"
+                      class="mr-2 text-blue-600"
+                    />
+                    <span class="text-sm">{{ area }}</span>
+                  </label>
+                </div>
+                
+                <!-- Show more indicator -->
+                <div v-if="filteredAreas.length > 20" class="p-2 text-center">
+                  <span class="text-xs text-gray-500">
+                    Và {{ filteredAreas.length - 20 }} khu vực khác...
+                  </span>
+                </div>
+                
+                <!-- No results message -->
+                <div v-if="filteredAreas.length === 0 && areaSearchQuery" class="p-3 text-center text-gray-500 text-sm">
+                  🔍 Không tìm thấy khu vực nào phù hợp
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Selected Area Display -->
+          <div v-if="areaFilter" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <span class="text-blue-600 mr-2">📍</span>
+                <span class="text-sm text-blue-800 font-medium">
+                  <strong>Khu vực đã chọn:</strong> {{ areaFilter }}
+                </span>
+              </div>
+              <button 
+                @click="areaFilter = ''" 
+                class="text-blue-600 hover:text-blue-800 text-xs font-medium bg-white px-2 py-1 rounded border border-blue-200 hover:bg-blue-100 transition-colors"
+              >
+                ✕ Bỏ chọn
+              </button>
+            </div>
+          </div>
+          
+          <!-- Area count info -->
+          <div class="mt-2 text-xs text-gray-500 text-center">
+            📊 Hiển thị {{ filteredAreas.length }} / {{ areas.length }} khu vực Hà Nội
+          </div>
         </div>
 
         <div class="flex items-center gap-3 mt-6">
@@ -392,8 +690,15 @@ const dateFilter = ref('today') // today | yesterday | last7 | range
 const customDateRange = ref({ start: '', end: '' })
 const areaFilter = ref('')
 const areas = ref([])
+const districts = ref([]) // Danh sách quận/huyện Hà Nội
 const showFilterSheet = ref(false)
 const websocketStatus = ref('disconnected')
+const areaSearchQuery = ref('') // Tìm kiếm trong danh sách khu vực
+const shipperWorkAreas = ref([]) // Khu vực làm việc của shipper
+const showAllDistricts = ref(false) // Hiển thị tất cả quận/huyện
+const showAreaDropdown = ref(false) // Hiển thị dropdown khu vực
+const showAllAreas = ref(false) // Hiển thị tất cả phường/xã (thêm vào đây)
+
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -415,9 +720,10 @@ const filteredOrders = computed(() => {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(order => 
       order.order_code?.toLowerCase().includes(query) ||
-      order.user?.name?.toLowerCase().includes(query) ||
-      order.user?.phone?.toLowerCase?.()?.includes(query) ||
-      order.shipping_phone?.toLowerCase?.()?.includes(query) ||
+      order.shipping_name?.toLowerCase().includes(query) ||
+      order.user?.full_name?.toLowerCase().includes(query) ||
+      order.shipping_phone?.toLowerCase().includes(query) ||
+      order.user?.phone_number?.toLowerCase().includes(query) ||
       order.shipping_address?.toLowerCase().includes(query)
     )
   }
@@ -463,10 +769,15 @@ const filteredOrders = computed(() => {
   }
   filtered = filtered.filter(isWithinDate)
 
-  // Filter by area
+  // Filter by area (quận/huyện hoặc phường/xã)
   if (areaFilter.value) {
     const areaQuery = areaFilter.value.toLowerCase()
-    filtered = filtered.filter(order => order.shipping_address?.toLowerCase().includes(areaQuery))
+    filtered = filtered.filter(order => {
+      const address = order.shipping_address?.toLowerCase() || ''
+      
+      // Kiểm tra xem địa chỉ có chứa quận/huyện hoặc phường/xã được chọn không
+      return address.includes(areaQuery)
+    })
   }
 
   return filtered
@@ -480,6 +791,42 @@ const paginatedOrders = computed(() => {
 
 const totalPages = computed(() => {
   return Math.ceil(filteredOrders.value.length / itemsPerPage.value)
+})
+
+// Computed areas for filtering (with smart search)
+const filteredAreas = computed(() => {
+  if (!areaSearchQuery.value) return areas.value
+  
+  const query = areaSearchQuery.value.toLowerCase().trim()
+  
+  // Tìm kiếm thông minh: ưu tiên kết quả bắt đầu bằng từ khóa
+  return areas.value
+    .filter(area => area.toLowerCase().includes(query))
+    .sort((a, b) => {
+      const aLower = a.toLowerCase()
+      const bLower = b.toLowerCase()
+      
+      // Ưu tiên kết quả bắt đầu bằng từ khóa
+      const aStartsWith = aLower.startsWith(query)
+      const bStartsWith = bLower.startsWith(query)
+      
+      if (aStartsWith && !bStartsWith) return -1
+      if (!aStartsWith && bStartsWith) return 1
+      
+      // Sau đó sắp xếp theo độ dài (ngắn hơn trước)
+      if (a.length !== b.length) return a.length - b.length
+      
+      // Cuối cùng sắp xếp theo alphabet
+      return a.localeCompare(b, 'vi')
+    })
+})
+
+// Computed properties
+const hasActiveFilters = computed(() => {
+  return statusFilter.value || 
+         (dateFilter.value && dateFilter.value !== 'today') || 
+         areaFilter.value || 
+         searchQuery.value
 })
 
 // Methods
@@ -648,6 +995,22 @@ const getVisiblePages = () => {
   return pages
 }
 
+const getDateFilterText = () => {
+  switch (dateFilter.value) {
+    case 'yesterday':
+      return 'Hôm qua'
+    case 'last7':
+      return '7 ngày gần nhất'
+    case 'range':
+      if (customDateRange.value.start && customDateRange.value.end) {
+        return `${customDateRange.value.start} → ${customDateRange.value.end}`
+      }
+      return 'Khoảng ngày'
+    default:
+      return ''
+  }
+}
+
 // WebSocket handlers
 const handleWebSocketEvent = (eventType, data) => {
     console.log(`WebSocket event received: ${eventType}`, data)
@@ -701,7 +1064,7 @@ const handleOrderStatusUpdate = (data) => {
     
     // Refresh stats if needed
     if (['delivered', 'failed', 'cancelled'].includes(newStatus)) {
-        orderStore.fetchStats()
+            orderStore.fetchOrders()
     }
     
     // Force refresh orders list to show real-time updates
@@ -710,7 +1073,7 @@ const handleOrderStatusUpdate = (data) => {
 
 const handleNewOrder = (data) => {
     // Validate data before processing
-    if (!data || !data.order_id) {+
+    if (!data || !data.order_id) {
         console.error('Invalid new order data:', data)
         return
     }
@@ -736,7 +1099,7 @@ const handleNewOrder = (data) => {
     showNotification(`Đơn hàng mới #${orderCode} từ ${userName}`)
     
     // Refresh stats
-    orderStore.fetchStats()
+        orderStore.fetchOrders()
 }
 
 const handleLocationUpdate = (data) => {
@@ -766,34 +1129,86 @@ const showNotification = (message) => {
     notificationStore.addNotification(notification)
 }
 
+// Enhanced polling with hybrid logic
+const startEnhancedPolling = () => {
+    // Override WebSocket service polling method
+    webSocketService.performPolling = async () => {
+        try {
+            // Fetch orders and stats
+            await orderStore.fetchOrders()
+            
+            return true
+        } catch (error) {
+            console.error('Enhanced polling failed:', error)
+            throw error
+        }
+    }
+}
+
+// Load areas from JSON file (Hà Nội only) - Đúng cấu trúc thực tế
+const loadAreasFromJSON = async () => {
+  try {
+    const res = await fetch('/data/hanoi-districts.json')
+    if (res.ok) {
+      const data = await res.json()
+      
+      // Sử dụng Set để tránh trùng lặp
+      const uniqueAreas = new Set()
+      
+      // Chỉ lấy dữ liệu Hà Nội (object đầu tiên)
+      const hanoiData = data[0]
+      
+      if (hanoiData && hanoiData.phuongxa && Array.isArray(hanoiData.phuongxa)) {
+        // Chỉ lấy các phường/xã có mã số bắt đầu bằng "101" (Hà Nội)
+        hanoiData.phuongxa.forEach(ward => {
+          const wardCode = ward.maphuongxa.toString()
+          const wardName = ward.tenphuongxa
+          
+          // Chỉ thêm phường/xã của Hà Nội (mã 101xxxxx)
+          if (wardCode.startsWith('101') && wardName && wardName.trim()) {
+            uniqueAreas.add(wardName)
+          }
+        })
+        
+        // Chuyển Set thành Array và sắp xếp theo alphabet
+        areas.value = Array.from(uniqueAreas).sort((a, b) => 
+          a.localeCompare(b, 'vi')
+        )
+        
+        // Không còn quận/huyện riêng, chỉ có phường/xã
+        districts.value = []
+        
+        console.log(`Loaded ${areas.value.length} phường/xã từ file JSON Hà Nội`)
+      }
+    }
+  } catch (error) {
+    console.error('Error loading areas from JSON:', error)
+    // Fallback: sử dụng danh sách phường/xã cơ bản của Hà Nội
+    const fallbackAreas = [
+      'Phường Hoàn Kiếm', 'Phường Cửa Nam', 'Phường Ba Đình', 'Phường Ngọc Hà',
+      'Phường Giảng Võ', 'Phường Hai Bà Trưng', 'Phường Vĩnh Tuy', 'Phường Bạch Mai',
+      'Phường Đống Đa', 'Phường Kim Liên', 'Phường Văn Miếu - Quốc Tử Giám',
+      'Phường Láng', 'Phường Ô Chợ Dừa', 'Phường Hồng Hà', 'Phường Lĩnh Nam'
+    ]
+    
+    areas.value = fallbackAreas
+    districts.value = []
+  }
+}
+
+// Simple click outside handler
+const handleClickOutside = (event) => {
+  const areaFilterElement = event.target.closest('.area-filter-container')
+  if (!areaFilterElement) {
+    // Close area dropdown
+    showAreaDropdown.value = false
+  }
+}
+
 // Watchers
 watch([searchQuery, statusFilter, dateFilter, () => customDateRange.value.start, () => customDateRange.value.end, areaFilter], () => {
   currentPage.value = 1 // Reset to first page when filters change
 })
-
-// Simple polling backup for orders list (5s interval)
-const POLL_INTERVAL_MS = 5000
-let pollTimer = null
-let pollInFlight = false
-
-function startPolling() {
-  if (pollTimer) return
-  pollTimer = setInterval(async () => {
-    if (pollInFlight) return
-    pollInFlight = true
-    try {
-      // Chỉ polling khi WebSocket bị ngắt kết nối
-      if (websocketStatus.value !== 'connected') {
-        await orderStore.fetchOrders()
-        await orderStore.fetchStats()
-      }
-    } catch (e) {
-      console.error('Dashboard polling error:', e)
-    } finally {
-      pollInFlight = false
-    }
-  }, POLL_INTERVAL_MS)
-}
 
 // Lifecycle
 onMounted(async () => {
@@ -844,22 +1259,15 @@ onMounted(async () => {
             })
         }
         
-        // Bắt đầu polling backup cho đơn hàng mới
-        startPolling()
+        // Start enhanced hybrid polling
+        startEnhancedPolling()
         
-        // Load areas from static data if available
-        try {
-            const res = await fetch('/data/hanoi-districts.json')
-            if (res.ok) {
-                const data = await res.json()
-                const names = Array.isArray(data)
-                    ? data.map(d => d.name)
-                    : (data?.districts || []).map(d => d.name)
-                areas.value = Array.from(new Set(names.filter(Boolean)))
-            }
-        } catch (e) {
-            // ignore if not available
-        }
+        // Load areas from JSON file
+        await loadAreasFromJSON()
+        
+        // Add click outside listener
+        document.addEventListener('click', handleClickOutside)
+        
     } catch (error) {
         console.error('Dashboard initialization error:', error)
     } finally {
@@ -871,10 +1279,7 @@ onUnmounted(() => {
     // Cleanup WebSocket
     webSocketService.disconnect()
     
-    // Cleanup polling timer
-    if (pollTimer) {
-        clearInterval(pollTimer)
-        pollTimer = null
-    }
+    // Remove click outside listener
+    document.removeEventListener('click', handleClickOutside)
 })
 </script> 

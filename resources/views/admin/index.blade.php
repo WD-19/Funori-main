@@ -463,8 +463,17 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
+        // Hàm tạo gradient cho chart
+        function getGradient(ctx, color1, color2) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(1, color2);
+            return gradient;
+        }
+
         // Doanh thu
-        new Chart(document.getElementById('revenueChart').getContext('2d'), {
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
             type: 'line',
             data: {
                 labels: {!! json_encode($revenueChart->pluck('date')) !!},
@@ -472,27 +481,89 @@
                     label: 'Doanh thu',
                     data: {!! json_encode($revenueChart->pluck('total')) !!},
                     borderColor: '#22C55E',
-                    backgroundColor: 'rgba(34,197,94,0.1)',
+                    backgroundColor: getGradient(revenueCtx, 'rgba(34,197,94,0.18)', 'rgba(34,197,94,0.01)'),
                     fill: true,
+                    tension: 0.65, // tăng độ cong cho gợn sóng
+                    pointRadius: 0, // ẩn điểm
+                    pointHoverRadius: 6,
+                    borderWidth: 4,
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#22C55E',
+                        bodyColor: '#333',
+                        borderColor: '#22C55E',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#e0e0e0', borderDash: [4, 4] },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
+
         // Đơn hàng
-        new Chart(document.getElementById('orderChart').getContext('2d'), {
-            type: 'line',
+        const orderCtx = document.getElementById('orderChart').getContext('2d');
+        new Chart(orderCtx, {
+            type: 'line', // đổi từ 'bar' sang 'line'
             data: {
                 labels: {!! json_encode($orderChart->pluck('date')) !!},
                 datasets: [{
                     label: 'Đơn hàng',
                     data: {!! json_encode($orderChart->pluck('total')) !!},
                     borderColor: '#FF5200',
-                    backgroundColor: 'rgba(255,82,0,0.1)',
+                    backgroundColor: getGradient(orderCtx, 'rgba(255,82,0,0.18)', 'rgba(255,82,0,0.01)'),
                     fill: true,
+                    tension: 0.65, // gợn sóng
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    borderWidth: 4,
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#FF5200',
+                        bodyColor: '#333',
+                        borderColor: '#FF5200',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#e0e0e0', borderDash: [4, 4] },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
+
         // Khách hàng
-        new Chart(document.getElementById('customerChart').getContext('2d'), {
+        const customerCtx = document.getElementById('customerChart').getContext('2d');
+        new Chart(customerCtx, {
             type: 'line',
             data: {
                 labels: {!! json_encode($customerChart->pluck('date')) !!},
@@ -500,23 +571,84 @@
                     label: 'Khách hàng',
                     data: {!! json_encode($customerChart->pluck('total')) !!},
                     borderColor: '#8F77F3',
-                    backgroundColor: 'rgba(143,119,243,0.1)',
+                    backgroundColor: getGradient(customerCtx, 'rgba(143,119,243,0.25)', 'rgba(143,119,243,0.02)'),
                     fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#8F77F3',
+                    pointHoverRadius: 8,
+                    borderWidth: 3,
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#8F77F3',
+                        bodyColor: '#333',
+                        borderColor: '#8F77F3',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#e0e0e0', borderDash: [4, 4] },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
+
         // Đánh giá sản phẩm
-        new Chart(document.getElementById('reviewChart').getContext('2d'), {
-            type: 'line',
+        const reviewCtx = document.getElementById('reviewChart').getContext('2d');
+        new Chart(reviewCtx, {
+            type: 'line', // đổi từ 'bar' sang 'line'
             data: {
                 labels: {!! json_encode($reviewChart->pluck('date')) !!},
                 datasets: [{
                     label: 'Đánh giá',
                     data: {!! json_encode($reviewChart->pluck('total')) !!},
                     borderColor: '#2377FC',
-                    backgroundColor: 'rgba(35,119,252,0.1)',
+                    backgroundColor: getGradient(reviewCtx, 'rgba(35,119,252,0.18)', 'rgba(35,119,252,0.01)'),
                     fill: true,
+                    tension: 0.65, // gợn sóng
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    borderWidth: 4,
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#2377FC',
+                        bodyColor: '#333',
+                        borderColor: '#2377FC',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#e0e0e0', borderDash: [4, 4] },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
     </script>
