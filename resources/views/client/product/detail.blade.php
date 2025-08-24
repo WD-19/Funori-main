@@ -513,8 +513,11 @@
                                         <div class="tf-product-btn-wishlist btn-icon-action">
                                             <button class="wishlist-btn" data-product-id="{{ $product->id }}"
                                                 style="background:none;border:none;padding:0;cursor:pointer;">
-                                                <i style="font-size: 18px; color:{{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
-                                                    class="fa-solid fa-heart" id="heart-Product"></i>
+                                                <i 
+                                                    class="fa-heart {{ in_array($product->id, $wishlistProductIds) ? 'fa-solid active' : 'fa-regular' }}" 
+                                                    id="heart-Product"
+                                                    style="font-size: 18px; color: {{ in_array($product->id, $wishlistProductIds) ? 'red' : '#545353' }};"
+                                                ></i>
                                             </button>
                                             <i class="icon-delete"></i>
                                         </div>

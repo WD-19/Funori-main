@@ -204,11 +204,11 @@
                     <div class="mb-1">
                         <div class="block-legend">
                             <div class="dot t3"></div>
-                            <div class="text-tiny">Revenue</div>
+                            <div class="text-tiny">Doanh thu</div>
                         </div>
                     </div>
                     <div class="flex items-center gap12">
-                        <h4>{{ number_format($totalRevenue, 0, ',', '.') }}₫</h4>
+                        <h4 id="summary-revenue">{{ number_format($totalRevenue, 0, ',', '.') }}₫</h4>
                         {{-- Nếu có % tăng trưởng, thêm ở đây --}}
                     </div>
                 </div>
@@ -216,11 +216,11 @@
                     <div class="mb-1">
                         <div class="block-legend">
                             <div class="dot t5"></div>
-                            <div class="text-tiny">Order</div>
+                            <div class="text-tiny">Đơn hàng</div>
                         </div>
                     </div>
                     <div class="flex items-center gap12">
-                        <h4>{{ $totalOrders }}</h4>
+                        <h4 id="summary-orders">{{ $totalOrders }}</h4>
                     </div>
                 </div>
             </div>
@@ -307,12 +307,21 @@
                             $variant = $item->productVariant;
                             $product = $item->product;
                             $price = ($variant && isset($variant->price_modifier)) ? ($product->regular_price + $variant->price_modifier) : ($product->regular_price ?? 0);
-                            $image = $variant && $variant->image ? $variant->image->image_url : ($product->image_url ?? 'images/products/default.jpg');
+                            $image = null;
+                            if ($variant && $variant->image) {
+                                $image = $variant->image->image_url;
+                            } elseif ($product->thumbnail) {
+                                $image = $product->thumbnail->image_url;
+                            } elseif ($product->images && $product->images->count() > 0) {
+                                $image = $product->images->first()->image_url;
+                            } else {
+                                $image = 'images/products/default.jpg';
+                            }
                         @endphp
                         <li class="wg-product">
                             <div class="name flex-grow">
                                 <div class="image">
-                                    <img src="{{ $image }}" alt="">
+                                    <img src="{{ asset($image) }}" alt="">
                                 </div>
                                 <div>
                                     <div class="title">
@@ -326,7 +335,7 @@
                                     <div class="price text-tiny">{{ number_format($price, 0, ',', '.') }}₫</div>
                                 </div>
                             </div>
-                            <div class="sale body-text">{{ $item->total_sales }} Sales</div>
+                            <div class="sale body-text">{{ $item->total_sales }} đã bán</div>
                         </li>
                     @endforeach
                 </ul>
@@ -337,27 +346,27 @@
     <div class="tf-section-5">
         <div class="wg-box">
             <div class="flex items-center justify-between">
-                <h5>Recent orders</h5>
+                <h5>Đơn hàng gần đây</h5>
             </div>
             <div class="wg-table table-recent-orders">
                 <ul class="table-title flex gap20 mb-14">
                     <li>
-                        <div class="body-title text-main-dark">Product</div>
+                        <div class="body-title text-main-dark">Sản phẩm</div>
                     </li>
                     <li>
-                        <div class="body-title text-main-dark">Customer</div>
+                        <div class="body-title text-main-dark">Khách hàng</div>
                     </li>
                     <li>
-                        <div class="body-title text-main-dark">Product ID</div>
+                        <div class="body-title text-main-dark">Mã SP</div>
                     </li>
                     <li>
-                        <div class="body-title text-main-dark">Quantity</div>
+                        <div class="body-title text-main-dark">Số lượng</div>
                     </li>
                     <li>
-                        <div class="body-title text-main-dark">Price</div>
+                        <div class="body-title text-main-dark">Giá</div>
                     </li>
                     <li>
-                        <div class="body-title text-main-dark">Status</div>
+                        <div class="body-title text-main-dark">Trạng thái</div>
                     </li>
                 </ul>
                 <div class="divider mb-14"></div>
@@ -367,13 +376,17 @@
                             @php
                                 $product = $item->product;
                                 $variant = $item->productVariant;
-                                $image = $variant && $variant->image ? $variant->image->image_url : ($product->image_url ?? 'images/products/default.jpg');
-                                $price = ($variant && isset($variant->price)) ? ($product->price + $variant->price) : ($product->price ?? 0);
+                                $image = $variant && $variant->image
+                                    ? $variant->image->image_url
+                                    : ($product->thumbnail?->image_url ?? $product->images->first()?->image_url ?? 'images/products/default.jpg');
+                                $price = ($variant && isset($variant->price_modifier))
+                                    ? ($product->regular_price + $variant->price_modifier)
+                                    : ($product->regular_price ?? 0);
                             @endphp
                             <li class="item wg-product gap20">
                                 <div class="name">
                                     <div class="image">
-                                        <img src="{{ $image }}" alt="">
+                                        <img src="{{ asset($image) }}" alt="">
                                     </div>
                                     <div class="title mb-0">
                                         <a href="#" class="body-text">
@@ -384,7 +397,7 @@
                                         </a>
                                     </div>
                                 </div>
-                                <div class="body-text text-main-dark mt-4">{{ $order->user->name ?? 'Khách vãng lai' }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $order->user?->full_name ?? $order->customer_name ?? 'Khách vãng lai' }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ $product->id ?? '' }}</div>
                                 <div class="body-text text-main-dark mt-4">x{{ $item->quantity }}</div>
                                 <div class="body-text text-main-dark mt-4">{{ number_format($price, 0, ',', '.') }}₫</div>
@@ -463,8 +476,17 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
+        // Hàm tạo gradient cho chart
+        function getGradient(ctx, color1, color2) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(1, color2);
+            return gradient;
+        }
+
         // Doanh thu
-        new Chart(document.getElementById('revenueChart').getContext('2d'), {
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
             type: 'line',
             data: {
                 labels: {!! json_encode($revenueChart->pluck('date')) !!},
@@ -472,27 +494,89 @@
                     label: 'Doanh thu',
                     data: {!! json_encode($revenueChart->pluck('total')) !!},
                     borderColor: '#22C55E',
-                    backgroundColor: 'rgba(34,197,94,0.1)',
+                    backgroundColor: getGradient(revenueCtx, 'rgba(34,197,94,0.18)', 'rgba(34,197,94,0.01)'),
                     fill: true,
+                    tension: 0.65, // tăng độ cong cho gợn sóng
+                    pointRadius: 0, // ẩn điểm
+                    pointHoverRadius: 6,
+                    borderWidth: 4,
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#22C55E',
+                        bodyColor: '#333',
+                        borderColor: '#22C55E',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#e0e0e0', borderDash: [4, 4] },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
+
         // Đơn hàng
-        new Chart(document.getElementById('orderChart').getContext('2d'), {
-            type: 'line',
+        const orderCtx = document.getElementById('orderChart').getContext('2d');
+        new Chart(orderCtx, {
+            type: 'line', // đổi từ 'bar' sang 'line'
             data: {
                 labels: {!! json_encode($orderChart->pluck('date')) !!},
                 datasets: [{
                     label: 'Đơn hàng',
                     data: {!! json_encode($orderChart->pluck('total')) !!},
                     borderColor: '#FF5200',
-                    backgroundColor: 'rgba(255,82,0,0.1)',
+                    backgroundColor: getGradient(orderCtx, 'rgba(255,82,0,0.18)', 'rgba(255,82,0,0.01)'),
                     fill: true,
+                    tension: 0.65, // gợn sóng
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    borderWidth: 4,
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#FF5200',
+                        bodyColor: '#333',
+                        borderColor: '#FF5200',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#e0e0e0', borderDash: [4, 4] },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
+
         // Khách hàng
-        new Chart(document.getElementById('customerChart').getContext('2d'), {
+        const customerCtx = document.getElementById('customerChart').getContext('2d');
+        new Chart(customerCtx, {
             type: 'line',
             data: {
                 labels: {!! json_encode($customerChart->pluck('date')) !!},
@@ -500,23 +584,84 @@
                     label: 'Khách hàng',
                     data: {!! json_encode($customerChart->pluck('total')) !!},
                     borderColor: '#8F77F3',
-                    backgroundColor: 'rgba(143,119,243,0.1)',
+                    backgroundColor: getGradient(customerCtx, 'rgba(143,119,243,0.25)', 'rgba(143,119,243,0.02)'),
                     fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#8F77F3',
+                    pointHoverRadius: 8,
+                    borderWidth: 3,
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#8F77F3',
+                        bodyColor: '#333',
+                        borderColor: '#8F77F3',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#e0e0e0', borderDash: [4, 4] },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
+
         // Đánh giá sản phẩm
-        new Chart(document.getElementById('reviewChart').getContext('2d'), {
-            type: 'line',
+        const reviewCtx = document.getElementById('reviewChart').getContext('2d');
+        new Chart(reviewCtx, {
+            type: 'line', // đổi từ 'bar' sang 'line'
             data: {
                 labels: {!! json_encode($reviewChart->pluck('date')) !!},
                 datasets: [{
                     label: 'Đánh giá',
                     data: {!! json_encode($reviewChart->pluck('total')) !!},
                     borderColor: '#2377FC',
-                    backgroundColor: 'rgba(35,119,252,0.1)',
+                    backgroundColor: getGradient(reviewCtx, 'rgba(35,119,252,0.18)', 'rgba(35,119,252,0.01)'),
                     fill: true,
+                    tension: 0.65, // gợn sóng
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    borderWidth: 4,
                 }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#fff',
+                        titleColor: '#2377FC',
+                        bodyColor: '#333',
+                        borderColor: '#2377FC',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    },
+                    y: {
+                        grid: { color: '#e0e0e0', borderDash: [4, 4] },
+                        ticks: { color: '#888', font: { weight: 'bold' } }
+                    }
+                }
             }
         });
     </script>
@@ -588,13 +733,16 @@
                 type: 'GET',
                 data: { type },
                 success: function (res) {
-                    // Cập nhật số liệu
+                    // Cập nhật số liệu tổng quan
                     $('#revenue-amount').text(res.totalRevenue + '₫');
                     $('#order-count').text(res.totalOrders);
                     $('#customer-count').text(res.totalCustomers);
                     $('#review-count').text(res.totalReviews);
+                    // Cập nhật số liệu dưới bảng thu nhập
+                    $('#summary-revenue').text(res.totalRevenue + '₫');
+                    $('#summary-orders').text(res.totalOrders);
 
-                    // Hàm cập nhật chart
+                    // Hàm cập nhật chart đơn (1 dataset)
                     const updateChart = (id, data) => {
                         const chart = getChartInstance(id);
                         chart.data.labels = data.map(i => i.date);
@@ -607,11 +755,15 @@
                     updateChart('customerChart', res.customerChart);
                     updateChart('reviewChart', res.reviewChart);
 
-                    // Cập nhật biểu đồ tổng (revenue + order)
+                    // Cập nhật biểu đồ thu nhập tổng hợp (2 dataset: doanh thu + đơn hàng)
                     const chart7 = getChartInstance('line-chart-7');
                     chart7.data.labels = res.revenueChart.map(i => i.date);
-                    chart7.data.datasets[0].data = res.revenueChart.map(i => i.total);
-                    chart7.data.datasets[1].data = res.orderChart.map(i => i.total);
+                    if (chart7.data.datasets.length > 0) {
+                        chart7.data.datasets[0].data = res.revenueChart.map(i => i.total);
+                    }
+                    if (chart7.data.datasets.length > 1) {
+                        chart7.data.datasets[1].data = res.orderChart.map(i => i.total);
+                    }
                     chart7.update();
                 },
                 error: function () {

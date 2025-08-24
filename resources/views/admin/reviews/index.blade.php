@@ -250,7 +250,7 @@
                                             <a href="{{ route('admin.reviews.edit', $value->id) }}"><i
                                                     class="icon-edit-3"></i></a>
                                         </div>
-                                        <div class="item trash">
+                                        {{-- <div class="item trash">
                                             <form action="{{ route('admin.reviews.destroy', $value->id) }}"
                                                 method="POST" style="display:inline;"
                                                 onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');">
@@ -261,7 +261,7 @@
                                                     <i class="icon-trash-2" style="color: red; font-size: 20px;"></i>
                                                 </button>
                                             </form>
-                                        </div>
+                                        </div> --}}
                                     </div>
                             </li>
                         @endforeach

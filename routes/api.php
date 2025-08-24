@@ -55,6 +55,9 @@ Route::prefix('admin')->name('api.admin.')->middleware(['auth:sanctum'])->group(
 
     Route::apiResource('contacts', ContactController::class);
     Route::apiResource('reviews', ReviewController::class);
+
+    Route::get('chat-notifications', [App\Http\Controllers\Admin\MessageController::class, 'getNotifications'])
+    ->name('chat.notifications');
 });
 
 // Route::prefix('/products')->group(function () {

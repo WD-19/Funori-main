@@ -2,29 +2,26 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 class UserFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = User::class;
+
     public function definition(): array
     {
         return [
             'full_name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => bcrypt('password'), // password
-            'phone_number' => $this->faker->unique()->phoneNumber(),
-            'avatar_url' => $this->faker->imageUrl(640, 480, 'people', true),
+            'password' => bcrypt('password'),
+            'phone_number' => $this->faker->phoneNumber(),
+            'avatar_url' => $this->faker->imageUrl(200, 200, 'people'),
             'account_status' => $this->faker->randomElement(['active', 'inactive', 'banned']),
             'role' => $this->faker->randomElement(['user', 'admin']),
             'remember_token' => Str::random(10),
-            'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'updated_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
+            'google_id' => null,
         ];
     }
 }

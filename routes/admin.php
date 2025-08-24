@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\admin\MessageController;
 use App\Http\Controllers\Admin\ShipperController;
 use App\Http\Controllers\admin\RefundController;
+use App\Http\Controllers\Admin\ChatSuggestionController;
 // Middleware
 use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,7 @@ Route::prefix('admin')->name('admin.')
             ->name('dashboard');
 
         Route::get('dashboard/data', [DashboardController::class, 'fetchData'])->name('dashboard.data');
+        Route::resource('chat-suggestions', ChatSuggestionController::class);
 
         // Quản lý thương hiệu
         Route::patch('brands/{brand}/toggle', [BrandController::class, 'toggle'])->name('brands.toggle');

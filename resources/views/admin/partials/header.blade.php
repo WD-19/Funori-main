@@ -8,9 +8,24 @@
         <div class="header-grid">
             @php
                 use Illuminate\Support\Str;
-                use App\Models\ContactSubmission;
-                $newContactCount = ContactSubmission::where('status', 'new')->count();
-                $contacts = ContactSubmission::where('status', 'new')->orderBy('created_at', 'desc')->get();
+                use App\Models\Conversation;
+                use App\Models\Message;
+
+                // Lấy các cuộc trò chuyện có tin nhắn mới
+                $conversations = Conversation::with(['user', 'messages' => function($query) {
+                    $query->orderBy('created_at', 'desc')->take(1);
+                }])
+                ->whereHas('messages', function($query) {
+                    $query->where('is_admin', false);
+                })
+                ->orderBy('last_message_at', 'desc')
+                ->take(5)
+                ->get();
+                
+                // Đếm số lượng cuộc trò chuyện có tin nhắn mới
+                $newMessageCount = Conversation::whereHas('messages', function($query) {
+                    $query->where('is_admin', false);
+                })->count();
             @endphp
             <div class="header-item button-dark-light">
                 <i class="icon-moon"></i>
@@ -20,7 +35,7 @@
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="header-item">
-                            <span class="text-tiny">{{ $newContactCount }}</span>
+                            <span class="text-tiny">{{ $newMessageCount }}</span>
                             <i class="icon-message-square"></i>
                         </span>
                     </button>
@@ -30,29 +45,38 @@
                         </li>
                         <div style="max-height: 320px; overflow-y: auto; padding-right: 4px;">
                             <ul style="margin: 0; padding: 0; list-style: none;">
-                                @foreach ($contacts as $contact)
-                                    <li style="margin-bottom: 14px;">
+                                @forelse ($conversations as $conversation)
+                                    <li style="margin-bottom: 14px;" data-conversation-id="{{ $conversation->id }}">
                                         <div class="noti-item w-full wg-user active">
                                             <div class="image">
-                                                <img src="{{ $contact->avatar_url ? asset('storage/' . $contact->avatar_url) : asset('images/images.jpg') }}"
+                                                <img src="{{ $conversation->user->avatar_url ? asset('storage/' . $conversation->user->avatar_url) : asset('images/images.jpg') }}"
                                                     alt=""
                                                     style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
                                             </div>
                                             <div class="flex-grow">
                                                 <div class="flex items-center justify-between">
-                                                    <a href="{{ route('admin.contacts.edit', $contact->id) }}"
-                                                        class="body-title">{{ $contact->name }}</a>
-                                                    <div class="time">{{ $contact->created_at->format('H:i d/m') }}
-                                                    </div>
+                                                    <a href="{{ route('admin.messages.index', $conversation->id) }}"
+                                                        class="body-title">{{ $conversation->user->full_name ?? $conversation->user->email }}</a>
+                                                    <div class="time">{{ $conversation->last_message_at ? \Carbon\Carbon::parse($conversation->last_message_at)->format('H:i d/m') : '' }}</div>
                                                 </div>
-                                                <div class="text-tiny">{{ Str::limit($contact->message, 30) }}</div>
+                                                <div class="text-tiny">
+                                                    @if($conversation->messages->isNotEmpty())
+                                                        {{ Str::limit($conversation->messages->first()->content, 30) }}
+                                                    @else
+                                                        Không có tin nhắn
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </li>
-                                @endforeach
+                                @empty
+                                    <li>
+                                        <div class="text-center py-3">Không có tin nhắn nào mới</div>
+                                    </li>
+                                @endforelse
                             </ul>
                         </div>
-                        <li><a href="{{ route('admin.contacts.index') }}" class="tf-button w-full">View all</a></li>
+                        <li><a href="{{ route('admin.messages.index') }}" class="tf-button w-full">Xem tất cả tin nhắn</a></li>
                     </ul>
 
                     <style>
@@ -293,7 +317,7 @@
                                     <i class="icon-mail"></i>
                                 </div>
                                 <div class="body-title-2">Inbox</div>
-                                <div class="number">{{ $newContactCount }}</div>
+                                <div class="number">{{ $newMessageCount }}</div>
                             </a>
                         </li>
                         {{-- <li>
@@ -335,3 +359,116 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Biến để lưu trữ ID tin nhắn mới nhất đã xem
+    let lastSeenMessageId = 0;
+    
+    // Hàm để cập nhật UI tin nhắn
+    function updateChatUI(data) {
+        // Cập nhật số lượng tin nhắn mới - Sửa selector để chính xác chọn phần tử đếm tin nhắn
+        const messageCountElement = document.querySelector('.popup-wrap.noti .header-item .text-tiny');
+        if (messageCountElement) {
+            messageCountElement.textContent = data.count;
+        }
+        
+        // Cập nhật số tin nhắn trong dropdown user cũng cần cập nhật
+        const inboxCountElement = document.querySelector('.user.type-header .number');
+        if (inboxCountElement) {
+            inboxCountElement.textContent = data.count;
+        }
+        
+        // Cập nhật danh sách tin nhắn - Sửa selector để đúng với cấu trúc HTML
+        const chatList = document.querySelector('.popup-wrap.noti .dropdown-menu ul');
+        if (!chatList) {
+            console.error('Không tìm thấy phần tử danh sách chat');
+            return;
+        }
+        
+        // Xóa thông báo "không có tin nhắn" nếu có tin nhắn mới
+        if (data.conversations && data.conversations.length > 0) {
+            const emptyMessage = chatList.querySelector('.text-center.py-3');
+            if (emptyMessage) {
+                emptyMessage.parentElement.remove();
+            }
+        }
+        
+        // Cập nhật hoặc thêm các tin nhắn mới
+        if (data.conversations && Array.isArray(data.conversations)) {
+            data.conversations.forEach(conversation => {
+                // Tìm kiếm conversation đã có trong danh sách
+                const existingConversation = document.querySelector(`li[data-conversation-id="${conversation.id}"]`);
+                
+                // HTML cho conversation
+                const messageHtml = `
+                    <li style="margin-bottom: 14px;" data-conversation-id="${conversation.id}">
+                        <div class="noti-item w-full wg-user active">
+                            <div class="image">
+                                <img src="${conversation.user.avatar_url || '/images/images.jpg'}"
+                                    alt=""
+                                    style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex items-center justify-between">
+                                    <a href="/admin/messages/${conversation.id}"
+                                        class="body-title">${conversation.user.full_name || conversation.user.email}</a>
+                                    <div class="time">${conversation.last_message_at || ''}</div>
+                                </div>
+                                <div class="text-tiny">
+                                    ${conversation.last_message ? conversation.last_message.content : 'Không có tin nhắn'}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                `;
+                
+                if (existingConversation) {
+                    // Cập nhật conversation hiện có
+                    existingConversation.outerHTML = messageHtml;
+                } else {
+                    // Thêm conversation mới vào đầu danh sách
+                    chatList.insertAdjacentHTML('afterbegin', messageHtml);
+                }
+            });
+        } else {
+            console.error('Không có dữ liệu conversations hoặc dữ liệu không đúng định dạng', data);
+        }
+    }
+    
+    // Hàm gọi API để lấy tin nhắn mới - Thêm CSRF token và headers
+    function fetchNewMessages() {
+        // Thêm CSRF token
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch('/api/admin/chat-notifications', {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`Network response error: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Chat notifications data:', data); // Log để debug
+            updateChatUI(data);
+        })
+        .catch(err => {
+            console.error('Error fetching chat notifications:', err);
+        });
+    }
+    
+    // Gọi API mỗi 10 giây
+    setInterval(fetchNewMessages, 10000);
+    
+    // Gọi lần đầu khi tải trang
+    fetchNewMessages();
+});
+</script>
