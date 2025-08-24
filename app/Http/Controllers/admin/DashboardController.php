@@ -64,13 +64,13 @@ class DashboardController
             ->groupBy('date')
             ->orderBy('date')
             ->get();
-        $topProducts = OrderItem::select('product_id')
-            ->selectRaw('SUM(quantity) as total_sales')
-            ->with('product')
-            ->groupBy('product_id')
-            ->orderByDesc('total_sales')
-            ->take(6)
-            ->get();
+        // $topProducts = OrderItem::select('product_id')
+        //     ->selectRaw('SUM(quantity) as total_sales')
+        //     ->with('product')
+        //     ->groupBy('product_id')
+        //     ->orderByDesc('total_sales')
+        //     ->take(6)
+        //     ->get();
         $topProducts = OrderItem::select('product_id', 'product_variant_id')
             ->selectRaw('SUM(quantity) as total_sales')
             ->with([

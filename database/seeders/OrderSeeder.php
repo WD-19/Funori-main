@@ -5,116 +5,94 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
-use App\Models\Promotion;
-use App\Models\Cart;
-use App\Models\Review;
 use App\Models\User;
-use Faker\Factory;
-use Illuminate\Support\Str;
-
+use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class OrderSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        $faker = Factory::create('vi_VN');
-        for ($i = 0; $i < 20; $i++) {
+        // Lấy 5 user và 10 sản phẩm mẫu (nếu chưa có thì tạo)
+        $users = User::inRandomOrder()->limit(5)->get();
+        if ($users->count() < 5) {
+            $users = User::factory(5)->create();
+        }
+        $products = Product::inRandomOrder()->limit(10)->get();
+        if ($products->count() < 10) {
+            $products = Product::factory(10)->create();
+        }
+
+        $faker = \Faker\Factory::create();
+        $paymentMethods = [1, 2]; // adjust as needed
+        $shippingMethods = [1, 2]; // adjust as needed
+        $paymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
+        $orderStatuses = [
+            'delivered'
+        ];
+
+    for ($i = 0; $i < 100; $i++) {
+            $user = $users->random();
+            $customerName = $faker->name;
+            $customerEmail = $faker->unique()->safeEmail;
+            $customerPhone = $faker->phoneNumber;
+            $shippingAddress = $faker->address;
+            $shippingName = $faker->name;
+            $shippingEmail = $faker->unique()->safeEmail;
+            $shippingPhone = $faker->phoneNumber;
+            $orderStatus = $faker->randomElement($orderStatuses);
+            $paymentStatus = $faker->randomElement($paymentStatuses);
+            $paymentMethodId = $faker->randomElement($paymentMethods);
+            $shippingMethodId = $faker->randomElement($shippingMethods);
+            $shippingFee = rand(10000, 30000);
+            $subtotal = 0;
+
+            $daysAgo = rand(0, 364);
+            $orderDate = now()->subDays($daysAgo);
             $order = Order::create([
-                'user_id'           => User::inRandomOrder()->value('id'), // hoặc random user_id nếu muốn
-                'order_code'        => 'ORD-' . strtoupper(Str::random(8)),
-                'customer_name'     => $faker->name(),
-                'customer_email'    => $faker->unique()->safeEmail(),
-                'customer_phone'    => '09' . rand(10000000, 99999999),
-                'shipping_address'  => $faker->address(),
-                'buyer_name'      => $faker->name(),
-                'buyer_email'     => $faker->unique()->safeEmail(),
-                'buyer_phone'     => '09' . rand(10000000, 99999999),
-                'buyer_address'   => $faker->address(),
-                'shipping_name'     => $faker->name(),
-                'shipping_phone'    => '09' . rand(10000000, 99999999),
-                'shipping_email'    => $faker->unique()->safeEmail(),
-                'subtotal_amount'   => $faker->randomFloat(2, 100, 500),
-                'shipping_fee'      => 0,
-                'discount_amount'   => $faker->randomFloat(2, 0, 50),
-                'tax_amount'        => $faker->randomFloat(4, 0, 20),
-                'total_amount'      => $faker->randomFloat(4, 100, 600),
-                'payment_method_id' => 1,
-                'payment_status'    => 'paid',
-                'shipping_method_id'=> 1,
-                'order_status'      => 'pending_confirmation', // Trạng thái đơn hàng
-                'customer_note'     => $faker->sentence(),
-                'admin_note'        => $faker->sentence(),
-                'ordered_at'        => $faker->dateTimeBetween('-6 months', 'now'),
-                'delivered_at'      => $faker->dateTimeBetween('-5 months', 'now'),
-                'cancelled_at'      => null,
-                'cancellation_reason' => null,
+                'user_id' => $user->id,
+                'order_code' => 'OD' . now()->format('ymdHis') . rand(100,999) . $i,
+                'customer_name' => $customerName,
+                'customer_email' => $customerEmail,
+                'customer_phone' => $customerPhone,
+                'shipping_address' => $shippingAddress,
+                'shipping_name' => $shippingName,
+                'shipping_email' => $shippingEmail,
+                'shipping_phone' => $shippingPhone,
+                'subtotal_amount' => 0,
+                'shipping_fee' => $shippingFee,
+                'discount_amount' => 0,
+                'tax_amount' => 0,
+                'total_amount' => 0, // will update after items
+                'payment_method_id' => $paymentMethodId,
+                'payment_status' => $paymentStatus,
+                'shipping_method_id' => $shippingMethodId,
+                'order_status' => $orderStatus,
+                'customer_note' => $faker->optional()->sentence,
+                'admin_note' => $faker->optional()->sentence,
+                'ordered_at' => $orderDate,
+                'created_at' => $orderDate,
+                'updated_at' => $orderDate,
             ]);
-            // Mỗi đơn hàng có 1-5 sản phẩm
-            $products = Product::inRandomOrder()->take(rand(1, 5))->get();
-            $totalAmount = 0;
-            $discountApplied = 0;
 
-            foreach ($products as $product) {
-                $variant = $product->variants()->inRandomOrder()->first();
-                $quantity = rand(1, 3);
-                $priceAtPurchase = $product->regular_price + ($variant ? $variant->price_modifier : 0);
-                $itemSubtotal = $priceAtPurchase * $quantity;
-
-                $orderItem = OrderItem::factory()->create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'product_variant_id' => $variant ? $variant->id : null,
-                    'product_name' => $product->name,
-                    'variant_attributes' => $variant ? $variant->attributeValues->mapWithKeys(function($av) {
-                        return [$av->attribute->name => $av->value];
-                    })->toArray() : null,
-                    'quantity' => $quantity,
-                    'subtotal' => $itemSubtotal,
-                ]);
-                $totalAmount += $itemSubtotal;
-
-                // 70% cơ hội tạo review cho order item
-                if (rand(0, 9) < 7 && $order->order_status == 'delivered') {
-                    Review::factory()->create([
-                        'user_id' => $order->user_id,
+            $total = 0;
+            $itemCount = rand(1, 4);
+                for ($j = 0; $j < $itemCount; $j++) {
+                    $product = $products->random();
+                    $qty = rand(1, 3);
+                    $itemSubtotal = $product->regular_price * $qty;
+                    OrderItem::create([
+                        'order_id' => $order->id,
                         'product_id' => $product->id,
-                        'order_item_id' => $orderItem->id,
+                        'product_name' => $product->name,
+                        'quantity' => $qty,
+                        'subtotal' => $itemSubtotal,
                     ]);
-                }
+                    $total += $itemSubtotal;
             }
-
-            // Áp dụng khuyến mãi ngẫu nhiên cho một số đơn hàng
-            if (rand(0, 1)) {
-                $promotion = Promotion::inRandomOrder()->first();
-                if ($promotion) {
-                    $actualDiscount = 0;
-                    if ($promotion->discount_type == 'percentage') {
-                        $actualDiscount = $totalAmount * ($promotion->discount_value / 100);
-                        if ($promotion->max_discount_amount && $actualDiscount > $promotion->max_discount_amount) {
-                            $actualDiscount = $promotion->max_discount_amount;
-                        }
-                    } else {
-                        $actualDiscount = $promotion->discount_value;
-                    }
-                    $actualDiscount = min($actualDiscount, $totalAmount);
-                    $order->promotions()->attach($promotion->id, ['discount_applied' => $actualDiscount]);
-                    $discountApplied = $actualDiscount;
-                    $promotion->increment('times_used');
-                }
-            }
-
-            // Cập nhật tổng tiền và giảm giá sau khi thêm item và khuyến mãi
-            $order->subtotal_amount = $totalAmount;
-            $order->discount_amount = $discountApplied;
-            $order->total_amount = $totalAmount + $order->shipping_fee + $order->tax_amount - $discountApplied;
+            $order->subtotal_amount = $total;
+            $order->total_amount = $total + $order->shipping_fee;
             $order->save();
-
-            // Xóa giỏ hàng tương ứng (nếu có)
-            Cart::where('user_id', $order->user_id)->delete();
         }
     }
 }
