@@ -174,7 +174,60 @@
         <div id="chat-body" style="padding:12px;height:440px;overflow-y:auto;font-size:15px;">
             <div style="color:#888;">Xin chào! Bạn cần hỗ trợ gì?</div>
         </div>
+        <div style="padding:0 12px 0 12px; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:15px; color:#007bff; font-weight:600;">Gợi ý chat</span>
+            <button id="toggle-chat-suggestions" type="button" style="background:none;border:none;color:#007bff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;width:32px;height:32px;">
+                <i id="toggle-chat-suggestions-icon" class="fas fa-chevron-up"></i>
+            </button>
+
+        </div>
         <div id="chat-suggestions" style="padding:8px 12px 0 12px; display:flex; flex-wrap:wrap; gap:8px;">
+            <!-- Gợi ý chat sẽ được ẩn/hiện bằng absolute và visibility để không làm thay đổi layout -->
+    <style>
+
+    #chat-box {
+        position: fixed;
+        bottom: 90px;
+        right: 30px;
+        width: 420px;
+        max-width: 98vw;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+        display: none;
+        flex-direction: column;
+        z-index: 9999;
+    }
+    #chat-body {
+        min-height: 440px;
+        max-height: 440px;
+        height: 440px;
+        overflow-y: auto;
+        font-size: 15px;
+    }
+    #chat-suggestions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 64px;
+        background: #fff;
+        z-index: 10000;
+        transition: visibility 0.2s, opacity 0.2s;
+    }
+    #chat-suggestions.hide-suggestions {
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+    #chat-suggestions:not(.hide-suggestions) {
+        visibility: visible;
+        opacity: 1;
+    }
+    #chat-box > div[style*="padding:0 12px"] {
+        position: relative;
+        z-index: 10001;
+    }
+    </style>
             @foreach(\App\Models\ChatSuggestion::all() as $suggestion)
                 <button type="button" class="btn btn-light btn-sm chat-suggestion-btn"
                     style="border-radius:18px; background:#f1f1f1; color:#222; font-size:15px; padding:6px 18px; margin-bottom:4px; box-shadow:0 1px 4px #0001; border:none;">
@@ -345,6 +398,27 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
+    // Ẩn/hiện phần gợi ý chat bằng icon mũi tên, không bị đè nút
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('toggle-chat-suggestions');
+        const suggestions = document.getElementById('chat-suggestions');
+        const icon = document.getElementById('toggle-chat-suggestions-icon');
+        let visible = true;
+        if (toggleBtn && suggestions && icon) {
+            toggleBtn.onclick = function () {
+                visible = !visible;
+                if (visible) {
+                    suggestions.classList.remove('hide-suggestions');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    suggestions.classList.add('hide-suggestions');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            };
+        }
+    });
     const preload = document.getElementById('preload');
 
     // 1. Xử lý khi load lại do back/forward

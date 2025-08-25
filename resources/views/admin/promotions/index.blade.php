@@ -40,7 +40,7 @@
                 </div>
               
                 <div class="wg-table table-product-list">
-                    <ul style="width: 1440px ;" class=" table-title flex mb-14">
+                    <ul style="width: 100% ;" class=" table-title flex mb-14">
                         <li style="width: 15%">
                             <div class="body-title">Tên</div>
                         </li>

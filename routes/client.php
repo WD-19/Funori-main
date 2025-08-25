@@ -132,6 +132,8 @@ Route::prefix('/')->name('client.')->group(function () {
         Route::get('/order/detail/{id}', [ProfileController::class, 'detailOrder'])->name('my_account.orderdetail');
         Route::post('/order/{order}/cancel', [ProfileController::class, 'cancelOrder'])->name('my_account.order.cancel');
 
+        
+        
         // Routes cho hủy đơn hàng với hoàn tiền
         Route::post('/order/{orderId}/cancel-with-refund', [OrderController::class, 'cancelOrder'])->name('order.cancel-with-refund');
         Route::get('/order/{orderId}/refund-info', [OrderController::class, 'getRefundInfo'])->name('order.refund-info');

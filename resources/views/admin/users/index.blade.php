@@ -201,15 +201,33 @@
                                 <a href="{{ $users->previousPageUrl() }}"><i class="icon-chevron-left"></i></a>
                             @endif
                         </li>
-                        @foreach ($users->getUrlRange(1, $users->lastPage()) as $page => $url)
-                            <li class="{{ $page == $users->currentPage() ? 'active' : '' }}">
-                                @if ($page == $users->currentPage())
-                                    <span>{{ $page }}</span>
+                        @php
+                            $current = $users->currentPage();
+                            $last = $users->lastPage();
+                            $start = max(1, $current - 2);
+                            $end = min($last, $current + 2);
+                        @endphp
+                        @if ($start > 1)
+                            <li><a href="{{ $users->url(1) }}">1</a></li>
+                            @if ($start > 2)
+                                <li><span>...</span></li>
+                            @endif
+                        @endif
+                        @for ($i = $start; $i <= $end; $i++)
+                            <li class="{{ $i == $current ? 'active' : '' }}">
+                                @if ($i == $current)
+                                    <span>{{ $i }}</span>
                                 @else
-                                    <a href="{{ $url }}">{{ $page }}</a>
+                                    <a href="{{ $users->url($i) }}">{{ $i }}</a>
                                 @endif
                             </li>
-                        @endforeach
+                        @endfor
+                        @if ($end < $last)
+                            @if ($end < $last - 1)
+                                <li><span>...</span></li>
+                            @endif
+                            <li><a href="{{ $users->url($last) }}">{{ $last }}</a></li>
+                        @endif
                         <li>
                             @if ($users->hasMorePages())
                                 <a href="{{ $users->nextPageUrl() }}"><i class="icon-chevron-right"></i></a>

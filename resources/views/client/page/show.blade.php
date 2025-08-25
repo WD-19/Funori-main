@@ -317,7 +317,7 @@
         <div class="inspiration-article-container">
             @if ($post->featured_image_url)
                 <div class="inspiration-article-image">
-                    <img src="{{ asset('storage/' . $post->featured_image_url) }}" alt="{{ $post->title }}">
+                    <img width="800px" src="{{ asset('storage/' . $post->featured_image_url) }}" alt="{{ $post->title }}">
                 </div>
             @endif
             <h1 class="inspiration-article-title">{{ $post->title }}</h1>

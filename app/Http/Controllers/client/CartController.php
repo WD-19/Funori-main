@@ -24,7 +24,14 @@ class CartController
         $total = 0;
         $cartCount = 0;
         $removedItems = [];
+        $user = Auth::user();
 
+        if (!$user) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Bạn cần đăng nhập!']);
+            }
+            return redirect()->back()->with('error', 'Bạn cần đăng nhập!');
+        }
         Log::info('Loading cart page. Initial cartItems:', ['cartItems' => $cartItems]);
 
         if (Auth::check()) {
@@ -846,54 +853,41 @@ class CartController
     }
 
   
-    public function miniCart()
+    public function miniCart(Request $request)
     {
+        $user = Auth::user();
+        if (!$user) {
+            // Nếu không có user, không hiển thị miniCart
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Bạn cần đăng nhập!']);
+            }
+            // Có thể trả về view rỗng hoặc redirect, ở đây trả về view rỗng
+            return '';
+        }
         $cartItems = [];
         $cartCount = 0;
 
-        if (Auth::check()) {
-            // Lấy từ database cho user đã đăng nhập
-            $cart = Cart::where('user_id', Auth::id())->first();
-            if ($cart) {
-                $cartItems = CartItem::with([
-                    'product.images',
-                    'productVariant.image',
-                    'productVariant.attributeValues.attribute'
-                ])->where('cart_id', $cart->id)
-                    ->orderByDesc('created_at')
-                    ->limit(3)
-                    ->get()
-                    ->map(function ($item) {
-                        return [
-                            'product' => $item->product,
-                            'image_url' => $item->productVariant && $item->productVariant->image ? $item->productVariant->image->image_url : ($item->product && $item->product->images->first() ? $item->product->images->first()->image_url : 'images/products/no-image.png'),
-                            'price_at_addition' => $item->price_at_addition,
-                            'quantity' => $item->quantity,
-                            'variant' => $item->productVariant,
-                        ];
-                    });
-                $cartCount = $cart->items()->count();
-            }
-        } else {
-            // Lấy từ session cho guest
-            $sessionCart = Session::get('cart', []);
-            $cartItems = collect($sessionCart)->reverse()->take(3)->map(function ($item) {
-                $product = Product::with(['images'])->find($item['product_id']);
-                // Nếu không tìm thấy product, trả về null hoặc giá trị mặc định
-                if (!$product) {
-                    return null;
-                }
-                // Nếu có variant thì lấy, không thì null
-                $variant = !empty($item['product_variant_id']) ? ProductVariant::with(['attributeValues.attribute'])->find($item['product_variant_id']) : null;
-                return [
-                    'product' => $product,
-                    'image_url' => $product->images->first() ? $product->images->first()->image_url : 'images/products/no-image.png',
-                    'price_at_addition' => $item['price_at_addition'] ?? $item['price'] ?? 0,
-                    'quantity' => $item['quantity'],
-                    'variant' => $variant,
-                ];
-            })->filter()->values();
-            $cartCount = count($sessionCart);
+        // Chỉ lấy cart cho user đã đăng nhập
+        $cart = Cart::where('user_id', Auth::id())->first();
+        if ($cart) {
+            $cartItems = CartItem::with([
+                'product.images',
+                'productVariant.image',
+                'productVariant.attributeValues.attribute'
+            ])->where('cart_id', $cart->id)
+                ->orderByDesc('created_at')
+                ->limit(3)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'product' => $item->product,
+                        'image_url' => $item->productVariant && $item->productVariant->image ? $item->productVariant->image->image_url : ($item->product && $item->product->images->first() ? $item->product->images->first()->image_url : 'images/products/no-image.png'),
+                        'price_at_addition' => $item->price_at_addition,
+                        'quantity' => $item->quantity,
+                        'variant' => $item->productVariant,
+                    ];
+                });
+            $cartCount = $cart->items()->count();
         }
 
         return view('client.partials.mini-cart', [

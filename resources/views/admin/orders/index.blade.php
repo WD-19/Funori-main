@@ -293,12 +293,30 @@
                                 <a href="{{ $orders->previousPageUrl() }}"><i class="icon-chevron-left"></i></a>
                             @endif
                         </li>
-                        @foreach ($orders->getUrlRange(1, $orders->lastPage()) as $page => $url)
-                            <li class="{{ $page == $orders->currentPage() ? 'active' : '' }}">
-                                <a
-                                    href="{{ $page == $orders->currentPage() ? 'javascript:void(0);' : $url }}">{{ $page }}</a>
+
+                        {{-- Compact pagination --}}
+                        @php
+                            $start = max($orders->currentPage() - 2, 1);
+                            $end = min($orders->currentPage() + 2, $orders->lastPage());
+                        @endphp
+                        @if ($start > 1)
+                            <li><a href="{{ $orders->url(1) }}">1</a></li>
+                            @if ($start > 2)
+                                <li class="disabled"><span>...</span></li>
+                            @endif
+                        @endif
+                        @for ($i = $start; $i <= $end; $i++)
+                            <li class="{{ $orders->currentPage() == $i ? 'active' : '' }}">
+                                <a href="{{ $orders->url($i) }}">{{ $i }}</a>
                             </li>
-                        @endforeach
+                        @endfor
+                        @if ($end < $orders->lastPage())
+                            @if ($end < $orders->lastPage() - 1)
+                                <li class="disabled"><span>...</span></li>
+                            @endif
+                            <li><a href="{{ $orders->url($orders->lastPage()) }}">{{ $orders->lastPage() }}</a></li>
+                        @endif
+
                         <li>
                             @if ($orders->hasMorePages())
                                 <a href="{{ $orders->nextPageUrl() }}"><i class="icon-chevron-right"></i></a>

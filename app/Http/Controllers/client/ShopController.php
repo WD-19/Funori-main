@@ -28,8 +28,9 @@ class ShopController
         }
 
 
+
         $query = Product::with(['images', 'brand', 'category', 'reviews'])
-        ->where('status', '!=', 'archived');
+            ->where('status', '!=', 'archived');
 
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
@@ -42,25 +43,32 @@ class ShopController
                 $q->where('attribute_value_id', $request->material);
             });
         }
-        switch ($request->sort) {
-            case 'popularity':
-                $query->withCount('reviews')->orderByDesc('reviews_count');
-                break;
-            case 'rating':
-                $query->withAvg('reviews', 'rating')->orderByDesc('reviews_avg_rating');
-                break;
-            case 'latest':
-                $query->orderByDesc('created_at');
-                break;
-            case 'price_asc':
-                $query->orderBy('regular_price', 'asc');
-                break;
-            case 'price_desc':
-                $query->orderBy('regular_price', 'desc');
-                break;
+
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'popularity':
+                    $query->withCount('reviews')->orderByDesc('reviews_count');
+                    break;
+                case 'rating':
+                    $query->withAvg('reviews', 'rating')->orderByDesc('reviews_avg_rating');
+                    break;
+                case 'latest':
+                    $query->orderByDesc('created_at');
+                    break;
+                case 'price_asc':
+                    $query->orderBy('regular_price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('regular_price', 'desc');
+                    break;
+            }
+        } else {
+            // Mặc định: xếp theo trạng thái (published > active > các trạng thái khác), sau đó mới đến created_at
+            $query->orderByRaw("FIELD(status, 'published', 'active') DESC")
+                  ->orderByDesc('created_at');
         }
 
-        $products = $query->latest()->paginate(16);
+        $products = $query->paginate(16);
 
         $featuredProducts = Product::with(['images', 'reviews'])
             ->where('is_featured', 1)
