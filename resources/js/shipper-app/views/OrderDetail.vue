@@ -96,7 +96,7 @@
             </div>
             <div class="flex-1">
               <h4 class="font-medium text-gray-900">{{ item.product?.name }}</h4>
-              <p class="text-sm text-gray-500">{{ item.product?.description }}</p>
+              <p class="text-sm text-gray-500">{{ item.product?.short_description }}</p>
               <!-- Variant attributes -->
               <div v-if="item.variant_attributes" class="text-xs text-gray-400 mt-1">
                 <span v-for="(value, key) in parseVariantAttributes(item.variant_attributes)" :key="key">

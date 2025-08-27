@@ -199,15 +199,32 @@
                             @endif
                         </li>
 
-                        @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
-                            <li class="{{ $page == $products->currentPage() ? 'active' : '' }}">
-                                @if ($page == $products->currentPage())
-                                    <span>{{ $page }}</span>
+                        {{-- Compact pagination --}}
+                        @php
+                            $start = max($products->currentPage() - 2, 1);
+                            $end = min($products->currentPage() + 2, $products->lastPage());
+                        @endphp
+                        @if ($start > 1)
+                            <li><a href="{{ $products->url(1) }}">1</a></li>
+                            @if ($start > 2)
+                                <li class="disabled"><span>...</span></li>
+                            @endif
+                        @endif
+                        @for ($i = $start; $i <= $end; $i++)
+                            <li class="{{ $products->currentPage() == $i ? 'active' : '' }}">
+                                @if ($i == $products->currentPage())
+                                    <span>{{ $i }}</span>
                                 @else
-                                    <a href="{{ $url }}">{{ $page }}</a>
+                                    <a href="{{ $products->url($i) }}">{{ $i }}</a>
                                 @endif
                             </li>
-                        @endforeach
+                        @endfor
+                        @if ($end < $products->lastPage())
+                            @if ($end < $products->lastPage() - 1)
+                                <li class="disabled"><span>...</span></li>
+                            @endif
+                            <li><a href="{{ $products->url($products->lastPage()) }}">{{ $products->lastPage() }}</a></li>
+                        @endif
 
                         <li>
                             @if ($products->hasMorePages())

@@ -282,12 +282,28 @@
                             </a>
                         </li>
 
-                        {{-- Pagination Elements --}}
-                        @for ($i = 1; $i <= $reviews->lastPage(); $i++)
+                        {{-- Pagination Elements (compact style) --}}
+                        @php
+                            $start = max($reviews->currentPage() - 2, 1);
+                            $end = min($reviews->currentPage() + 2, $reviews->lastPage());
+                        @endphp
+                        @if ($start > 1)
+                            <li><a href="{{ $reviews->url(1) }}">1</a></li>
+                            @if ($start > 2)
+                                <li class="disabled"><span>...</span></li>
+                            @endif
+                        @endif
+                        @for ($i = $start; $i <= $end; $i++)
                             <li class="{{ $reviews->currentPage() == $i ? 'active' : '' }}">
                                 <a href="{{ $reviews->url($i) }}">{{ $i }}</a>
                             </li>
                         @endfor
+                        @if ($end < $reviews->lastPage())
+                            @if ($end < $reviews->lastPage() - 1)
+                                <li class="disabled"><span>...</span></li>
+                            @endif
+                            <li><a href="{{ $reviews->url($reviews->lastPage()) }}">{{ $reviews->lastPage() }}</a></li>
+                        @endif
 
                         {{-- Next Page Link --}}
                         <li class="{{ $reviews->hasMorePages() ? '' : 'disabled' }}">

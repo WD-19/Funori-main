@@ -460,7 +460,7 @@
                 <div class="row">
                     <div class="col-lg-7">
                         <!-- Buyer Information Form -->
-                        <h4>Thông tin người đặt hàng (để xuất hóa đơn)</h4>
+                        <h4>Thông tin người đặt hàng </h4>
                         @if (auth()->check() && $addresses->isNotEmpty())
                             <div class="form-group">
                                 <label for="saved_address">Chọn địa chỉ đã lưu</label>

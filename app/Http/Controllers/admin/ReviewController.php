@@ -16,7 +16,7 @@ class ReviewController
      */
     public function index(Request $request)
     {
-        $query = \App\Models\Review::with(['product', 'user', 'orderItem']);
+    $query = Review::with(['product', 'user', 'orderItem'])->orderByDesc('updated_at');
 
         // Tìm kiếm theo tên user hoặc tên sản phẩm
         if ($request->filled('keyword')) {

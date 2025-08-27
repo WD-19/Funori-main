@@ -333,44 +333,47 @@
                     handlePriceInput(priceModifierInput);
                 }
 
+
+                // Sửa: chỉ preview ảnh, không thay đổi input file, không thay đổi DOM input file
                 const imageInput = variantDiv.querySelector('input[type="file"]');
+                const label = variantDiv.querySelector('.variant-image-upload label');
                 const previewDiv = variantDiv.querySelector('.variant-image-preview');
-                
-                // Function để xử lý thay đổi ảnh
-                function handleVariantImageChange(input, label, variantIndex) {
-                    if (input.files && input.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            label.innerHTML = `
-                                <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                                    <img src="${e.target.result}" style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 4px;">
-                                    <button type="button" class="btn btn-danger btn-sm btn-remove-image" style="position:absolute;top:2px;right:2px;padding:2px 6px;line-height:1;font-size:14px;">×</button>
-                                </div>
-                            `;
-                            
-                            // Thêm event listener cho nút xóa ảnh
-                            const removeBtn = label.querySelector('.btn-remove-image');
-                            removeBtn.onclick = function() {
-                                input.value = '';
-                                label.innerHTML = `
-                                    <span class="icon"><i class="icon-upload-cloud"></i></span>
-                                    <span class="text-tiny">Chọn ảnh biến thể</span>
-                                    <input type="file" name="variants[${variantIndex}][image]" accept="image/*" style="display:none;">
-                                `;
-                                // Thêm lại event listener cho input mới
-                                const newInput = label.querySelector('input[type="file"]');
-                                newInput.addEventListener('change', function() {
-                                    handleVariantImageChange(this, label, variantIndex);
-                                });
-                            };
-                        };
-                        reader.readAsDataURL(input.files[0]);
-                    }
-                }
 
                 imageInput.addEventListener('change', function() {
-                    const label = variantDiv.querySelector('.variant-image-upload label');
-                    handleVariantImageChange(this, label, variantIndex);
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            // Xóa preview cũ
+                            let oldPreview = label.querySelector('img');
+                            if (oldPreview) oldPreview.remove();
+                            // Tạo preview mới
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxWidth = '100%';
+                            img.style.maxHeight = '100%';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '4px';
+                            img.style.marginTop = '8px';
+                            label.appendChild(img);
+
+                            // Thêm nút xóa ảnh
+                            let oldBtn = label.querySelector('.btn-remove-image');
+                            if (oldBtn) oldBtn.remove();
+                            const removeBtn = document.createElement('button');
+                            removeBtn.type = 'button';
+                            removeBtn.className = 'btn btn-danger btn-sm btn-remove-image';
+                            removeBtn.innerHTML = '×';
+                            removeBtn.style.cssText = 'position:absolute;top:2px;right:2px;padding:2px 6px;line-height:1;font-size:14px;';
+                            label.style.position = 'relative';
+                            removeBtn.onclick = function() {
+                                imageInput.value = '';
+                                if (img) img.remove();
+                                removeBtn.remove();
+                            };
+                            label.appendChild(removeBtn);
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
                 });
 
                 variantDiv.querySelector('.remove-variant').onclick = function () {
