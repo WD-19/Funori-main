@@ -26,6 +26,7 @@ class CheckoutController
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
+
     public function prepareCheckout(Request $request)
     {
         $selectedItemIds = $request->input('selected_items', []);
@@ -448,6 +449,15 @@ class CheckoutController
         }
         $order = Order::create($orderData);
         foreach ($cart['items'] as $item) {
+            // Prepare variant data for order item
+            $variantData = null;
+            if (!empty($item['variant'])) {
+                $variantData = [
+                    'name_variant' => $item['variant']['name_variant'] ?? null,
+                    'size' => $item['variant']['size'] ?? null,
+                ];
+            }
+            
             OrderItem::create([
                 'order_id'           => $order->id,
                 'product_id'         => $item['product_id'],
@@ -456,6 +466,8 @@ class CheckoutController
                 'price'              => $item['price_at_addition'],
                 'subtotal'           => $item['price_at_addition'] * $item['quantity'],
                 'product_name'       => $item['product']['name'],
+                'variant_attributes' => $item['variant_attributes'] ?? null,
+                'variant'            => $variantData,
             ]);
             // --- START: Cập nhật kho hàng an toàn (chống race condition) ---
             if ($item['product_variant_id']) {
@@ -681,9 +693,18 @@ class CheckoutController
             ->find($request->query('order'));
 
         if ($order && $order->payment_details) {
-            $paymentDetails = is_array($order->payment_details)
-                ? $order->payment_details
-                : json_decode($order->payment_details, true);
+            // Handle payment details safely regardless of type
+            $paymentDetails = [];
+            
+            try {
+                if (is_array($order->payment_details)) {
+                    $paymentDetails = $order->payment_details;
+                } elseif (is_string($order->payment_details)) {
+                    $paymentDetails = json_decode($order->payment_details, true) ?: [];
+                }
+            } catch (\Exception $e) {
+                // Silent catch - default to empty array
+            }
         }
     }
 

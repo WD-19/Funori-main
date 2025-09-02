@@ -46,35 +46,66 @@
                                         <div class="name" style="flex:2; min-width:200px;">
                                             <div class="image">
                                                 @php
-                                                    $imageUrl = optional(optional($item->product)->images->first())
+                                                    // Try to get image from product variant first
+                                                    $variantImageUrl = null;
+                                                    if ($item->product_variant_id && $item->productVariant && $item->productVariant->image) {
+                                                        $variantImageUrl = $item->productVariant->image->image_url;
+                                                    }
+                                                    
+                                                    // Fallback to product image
+                                                    $productImageUrl = optional(optional($item->product)->images->first())
                                                         ->image_url;
+                                                        
+                                                    $finalImageUrl = $variantImageUrl ?? $productImageUrl;
                                                 @endphp
-                                                <img src="{{ $imageUrl ? asset($imageUrl) : asset('images/products/default.jpg') }}"
-                                                    alt="">
+                                                <img src="{{ $finalImageUrl ? asset($finalImageUrl) : asset('images/products/default.jpg') }}"
+                                                    alt="{{ $item->product_name ?? 'Sản phẩm' }}">
                                             </div>
                                             <div>
                                                 <div class="text-tiny">Tên sản phẩm</div>
                                                 <div class="title" style="display:flex; align-items:center; gap:10px;">
                                                     <a href="#"
-                                                        class="body-title-2">{{ $item->product->name ?? 'Không xác định' }}</a>
+                                                        class="body-title-2">{{ $item->product_name ?? ($item->product->name ?? 'Không xác định') }}</a>
                                                     <span class="body-text tf-color-1">
                                                         ({{ number_format($item->price ?? (optional($item->product)->regular_price ?? 0), 0, ',', '.') }}₫)
                                                     </span>
                                                 </div>
-                                                {{-- Hiển thị biến thể nếu có --}}
+                                                {{-- Hiển thị biến thể từ trường variant --}}
                                                 @php
+                                                    $variant = $item->variant;
+                                                    if (is_string($variant)) {
+                                                        $variant = json_decode($variant, true);
+                                                    }
+                                                    
                                                     $variantAttrs = $item->variant_attributes;
                                                     if (is_string($variantAttrs)) {
                                                         $variantAttrs = json_decode($variantAttrs, true);
                                                     }
                                                 @endphp
+                                                
+                                                {{-- Hiển thị thông tin từ trường variant --}}
+                                                @if (!empty($variant) && is_array($variant))
+                                                    <div class="text-tiny" style="color:#888; margin-bottom: 5px;">
+                                                        @if(isset($variant['name_variant']))
+                                                            <span style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">
+                                                                {{ $variant['name_variant'] }}
+                                                            </span>
+                                                        @endif
+                                                        @if(isset($variant['size']))
+                                                            <span style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">
+                                                                Kích thước: {{ $variant['size'] }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                                
+                                                {{-- Hiển thị thông tin từ trường variant_attributes --}}
                                                 @if (!empty($variantAttrs) && is_array($variantAttrs))
                                                     <div class="text-tiny" style="color:#888;">
                                                         @foreach ($variantAttrs as $attr => $val)
-                                                            <span>{{ $attr }}: {{ $val }}</span>
-                                                            @if (!$loop->last)
-                                                                ,
-                                                            @endif
+                                                            <span style="background: #eef2ff; padding: 2px 6px; border-radius: 4px; margin-right: 5px;">
+                                                                {{ is_numeric($attr) ? $val : "$attr: $val" }}
+                                                            </span>
                                                         @endforeach
                                                     </div>
                                                 @elseif($item->product_variant_id && $item->productVariant && isset($item->productVariant->attributeValues))
@@ -99,7 +130,7 @@
                                         <div style="flex:1; min-width:120px; text-align:left; padding-left:13px;">
                                             <div class="text-tiny">Thành tiền</div>
                                             <div class="body-title-2 tf-color-1">
-                                                {{ number_format(($item->price ?? (optional($item->product)->regular_price ?? 0)) * $item->quantity, 0, ',', '.') }}₫
+                                                {{ number_format($item->subtotal ?? (($item->price ?? 0) * $item->quantity), 0, ',', '.') }}₫
                                             </div>
                                         </div>
                                     </li>
@@ -122,8 +153,15 @@
                                 $productTotal = 0;
                                 foreach ($order->items as $item) {
                                     $price = $item->price ?? (optional($item->product)->regular_price ?? 0);
-                                    $productTotal += $price * $item->quantity;
+                                    $subtotal = $item->subtotal ?? ($price * $item->quantity);
+                                    $productTotal += $subtotal;
                                 }
+                                
+                                // Convert decimal values to float to avoid number_format issues
+                                $productTotalFloat = is_numeric($productTotal) ? (float)$productTotal : 0;
+                                $shippingFeeFloat = is_numeric($order->shipping_fee) ? (float)$order->shipping_fee : 0;
+                                $discountAmountFloat = is_numeric($order->discount_amount) ? (float)$order->discount_amount : 0;
+                                $totalAmountFloat = is_numeric($order->total_amount) ? (float)$order->total_amount : 0;
                             @endphp
 
                             <ul class="flex flex-column gap14">
@@ -131,13 +169,13 @@
                                 <li class="cart-totals-item">
                                     <span class="body-text">Tổng tiền sản phẩm:</span>
                                     <span
-                                        class="body-title-2 tf-color-1">{{ number_format($productTotal, 0, ',', '.') }}₫</span>
+                                        class="body-title-2 tf-color-1">{{ number_format($productTotalFloat, 0, ',', '.') }}₫</span>
                                 </li>
                                 <li class="divider"></li>
                                 <li class="cart-totals-item">
                                     <span class="body-text">Phí vận chuyển:</span>
                                     <span
-                                        class="body-title-2">{{ number_format($order->shipping_fee, 0, ',', '.') }}₫</span>
+                                        class="body-title-2">{{ number_format($shippingFeeFloat, 0, ',', '.') }}₫</span>
                                 </li>
                                 @if ($order->discount_code)
                                     <li class="divider"></li>
@@ -151,14 +189,14 @@
                                     <li class="cart-totals-item">
                                         <span class="body-text">Giảm giá:</span>
                                         <span class="body-title-2">-
-                                            {{ number_format($order->discount_amount, 0, ',', '.') }}₫</span>
+                                            {{ number_format($discountAmountFloat, 0, ',', '.') }}₫</span>
                                     </li>
                                 @endif
                                 <li class="divider"></li>
                                 <li class="cart-totals-item">
                                     <span class="body-title">Tổng cộng:</span>
                                     <span
-                                        class="body-title tf-color-1">{{ number_format($order->total_amount, 0, ',', '.') }}₫</span>
+                                        class="body-title tf-color-1">{{ number_format($totalAmountFloat, 0, ',', '.') }}₫</span>
                                 </li>
                             </ul>
                         </div>
@@ -233,7 +271,7 @@
                         </div>
                         <div class="summary-item">
                             <div class="body-text">Tổng cộng</div>
-                            <div class="body-title-2 tf-color-1">{{ number_format($order->total_amount, 0, ',', '.') }}₫
+                            <div class="body-title-2 tf-color-1">{{ number_format($totalAmountFloat, 0, ',', '.') }}₫
                             </div>
                         </div>
                         @if ($order->customer_note)
@@ -414,7 +452,7 @@
                                         <strong>Khách hàng:</strong> {{ $order->customer_name }}
                                     </div>
                                     <div>
-                                        <strong>Số tiền:</strong> <span style="color: #059669; font-weight: 600;">{{ number_format($order->total_amount) }} VNĐ</span>
+                                        <strong>Số tiền:</strong> <span style="color: #059669; font-weight: 600;">{{ number_format($totalAmountFloat) }} VNĐ</span>
                                     </div>
                                     <div>
                                         <strong>Phương thức:</strong> {{ $order->paymentMethod->name ?? 'N/A' }}

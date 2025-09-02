@@ -263,10 +263,21 @@
                             <div class="product-card-item"> {{-- Card for each product --}}
                                 <div class="product-card-thumbnail">
                                     @php
-                                        // Ưu tiên ảnh biến thể, sau đó đến ảnh thumbnail của sản phẩm
-                                        $variantImageUrl = optional($item->productVariant->image)->image_url;
-                                        $productThumbnailUrl = optional($item->product->thumbnail)->image_url;
+                                        $variantImageUrl = null;
+                                        $productThumbnailUrl = null;
+                                        
+                                        if ($item->productVariant && $item->productVariant->image) {
+                                            $variantImageUrl = $item->productVariant->image->image_url;
+                                        }
+                                        
+                                        if ($item->product && $item->product->thumbnail) {
+                                            $productThumbnailUrl = $item->product->thumbnail->image_url;
+                                        } elseif ($item->product && $item->product->images && $item->product->images->first()) {
+                                            $productThumbnailUrl = $item->product->images->first()->image_url;
+                                        }
+                                        
                                         $finalImageUrl = $variantImageUrl ?? $productThumbnailUrl;
+                                        $variantInfo = $item->variant ? (is_array($item->variant) ? $item->variant : json_decode($item->variant, true)) : null;
                                     @endphp
                                     <img src="{{ $finalImageUrl ? asset($finalImageUrl) : 'https://via.placeholder.com/70?text=No+Image' }}"
                                         alt="{{ optional($item->product)->name ?? 'Sản phẩm' }}" class="product-thumb">
@@ -275,40 +286,26 @@
                                     <div class="d-flex justify-content-between align-items-end w-100">
                                         <div class="d-flex flex-column align-items-start flex-grow-1">
                                             <div class="product-card-name fw-semibold text-dark mb-1">
-                                                {{ $item->product->name ?? 'N/A' }}
+                                                {{ $item->product_name ?? 'N/A' }}
                                             </div>
-                                            @php
-                                                $variantAttrs =
-                                                    $item->productVariant && $item->productVariant->attributeValues
-                                                        ? $item->productVariant->attributeValues
-                                                            ->map(function ($v) {
-                                                                return (optional($v->attribute)->name ?? '') .
-                                                                    ': ' .
-                                                                    ($v->value ?? '');
-                                                            })
-                                                            ->filter()
-                                                            ->toArray()
-                                                        : [];
-                                            @endphp
-
-                                            @if (!empty($variantAttrs))
+                                            @if ($variantInfo)
                                                 <div class="product-card-variant text-muted mb-1">
-                                                    @foreach ($variantAttrs as $attr)
-                                                        <span>{{ $attr }}</span>
-                                                        @if (!$loop->last)
-                                                            ,
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                            @else
-                                                <div class="product-card-variant text-muted mb-1">
-                                                    {{ $item->productVariant->name_variant ?? 'N/A' }}
+                                                    <span>{{ $variantInfo['name_variant'] ?? '' }}</span>
+                                                    @if (!empty($variantInfo['size']))
+                                                        <span class="ms-2">| Kích thước: {{ $variantInfo['size'] }}</span>
+                                                    @endif
                                                 </div>
                                             @endif
-
-                                            @if (!empty($item->productVariant->size))
-                                                <div class="product-card-variant text-muted mb-1">
-                                                    Kích thước: {{ $item->productVariant->size }}
+                                            @if ($item->variant_attributes)
+                                                <div class="product-card-attributes text-muted small mb-1">
+                                                    @php
+                                                        $attributes = is_array($item->variant_attributes) ? $item->variant_attributes : json_decode($item->variant_attributes, true);
+                                                    @endphp
+                                                    @if(is_array($attributes))
+                                                        @foreach($attributes as $attribute)
+                                                            <span class="badge bg-light text-dark me-1">{{ $attribute }}</span>
+                                                        @endforeach
+                                                    @endif
                                                 </div>
                                             @endif
                                             <div class="product-card-quantity mb-1">
@@ -316,7 +313,7 @@
                                             </div>
                                             <div class="product-card-price text-primary fw-bold mb-0"
                                                 style="white-space:nowrap;">
-                                                Giá tiền: {{ number_format($item->subtotal ?? 0, 0, ',', '.') }}₫
+                                                Đơn giá: {{ number_format($item->price ?? 0, 0, ',', '.') }}₫ | Tổng: {{ number_format($item->subtotal ?? 0, 0, ',', '.') }}₫
                                             </div>
                                         </div>
                                         <!-- Nút đánh giá với realtime update -->
@@ -330,7 +327,6 @@
                                                 </div>
                                             </div>
                                         </template>
-                                        
                                     </div>
                                 </div>
                             </div>

@@ -14,14 +14,18 @@ class OrderItem extends Model
         'product_id',
         'product_variant_id',
         'product_name',
-        'variant_attributes',
+    'variant_attributes',
+    'variant',
+    'price',
         'quantity',
         'subtotal',
     ];
 
     protected $casts = [
-        'variant_attributes' => 'array',
-        'subtotal' => 'decimal:2',
+    'variant_attributes' => 'array',
+    'variant' => 'array',
+    'subtotal' => 'decimal:2',
+    'price' => 'decimal:2',
     ];
 
     public function order()
@@ -49,6 +53,16 @@ class OrderItem extends Model
      */
     public function getPriceAttribute()
     {
-        return $this->subtotal / $this->quantity;
+        // If a price column was stored at purchase time, return it.
+        if (array_key_exists('price', $this->attributes) && $this->attributes['price'] !== null) {
+            return (float) $this->attributes['price'];
+        }
+
+        // Fallback: derive from subtotal/quantity when price was not persisted.
+        if ($this->quantity && $this->quantity > 0) {
+            return (float) ($this->subtotal / $this->quantity);
+        }
+
+        return 0.0;
     }
 }

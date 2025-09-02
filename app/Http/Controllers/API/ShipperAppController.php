@@ -282,7 +282,7 @@ class ShipperAppController extends Controller
             }
 
             // Debug log để xem dữ liệu paymentMethod
-            \Log::info('Order payment method:', [
+            Log::info('Order payment method:', [
                 'payment_method_id' => $order->payment_method_id,
                 'paymentMethod' => $order->paymentMethod,
                 'payment_method' => $order->payment_method
@@ -331,7 +331,7 @@ class ShipperAppController extends Controller
                 ], 404);
             }
 
-            \Log::info("Order loaded for status update", [
+            Log::info("Order loaded for status update", [
                 'order_id' => $order->id,
                 'order_code' => $order->order_code,
                 'order_items_count' => $order->orderItems->count(),
@@ -350,7 +350,7 @@ class ShipperAppController extends Controller
 
             // Xử lý hoàn trả về kho
             if ($request->status === 'returned') {
-                \Log::info("Processing return to warehouse for order #{$order->order_code}");
+                Log::info("Processing return to warehouse for order #{$order->order_code}");
                 $this->returnItemsToWarehouse($order);
             }
 
@@ -373,7 +373,7 @@ class ShipperAppController extends Controller
 
             // Xử lý upload ảnh
             $imagePath = null;
-            \Log::info('Debug upload image:', [
+            Log::info('Debug upload image:', [
                 'hasFile' => $request->hasFile('image'),
                 'allFiles' => $request->allFiles(),
                 'allData' => $request->all(),
@@ -383,7 +383,7 @@ class ShipperAppController extends Controller
             
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                \Log::info('Image file details:', [
+                Log::info('Image file details:', [
                     'originalName' => $image->getClientOriginalName(),
                     'mimeType' => $image->getMimeType(),
                     'size' => $image->getSize(),
@@ -392,11 +392,11 @@ class ShipperAppController extends Controller
                 
                 $imageName = time() . '_' . $image->getClientOriginalName();
                 $imagePath = $image->storeAs('order_images', $imageName, 'public');
-                \Log::info('Image uploaded:', ['path' => $imagePath]);
+                Log::info('Image uploaded:', ['path' => $imagePath]);
             } else {
-                \Log::info('No image file found');
-                \Log::info('Request files:', $request->allFiles());
-                \Log::info('Request input:', $request->all());
+                Log::info('No image file found');
+                Log::info('Request files:', $request->allFiles());
+                Log::info('Request input:', $request->all());
             }
 
             // Tạo lịch sử status
@@ -442,13 +442,13 @@ class ShipperAppController extends Controller
     private function returnItemsToWarehouse($order)
     {
         try {
-            \Log::info("Starting return to warehouse process for order #{$order->order_code}", [
+            Log::info("Starting return to warehouse process for order #{$order->order_code}", [
                 'order_id' => $order->id,
                 'total_items' => $order->orderItems->count()
             ]);
 
             foreach ($order->orderItems as $item) {
-                \Log::info("Processing order item", [
+                Log::info("Processing order item", [
                     'item_id' => $item->id,
                     'product_id' => $item->product_id,
                     'product_variant_id' => $item->product_variant_id,
@@ -463,7 +463,7 @@ class ShipperAppController extends Controller
                     $item->productVariant->stock_quantity += $item->quantity;
                     $result = $item->productVariant->save();
 
-                    \Log::info("Variant stock update result", [
+                    Log::info("Variant stock update result", [
                         'variant_id' => $item->productVariant->id,
                         'product_id' => $item->productVariant->product_id,
                         'old_stock' => $oldStock,
@@ -472,7 +472,7 @@ class ShipperAppController extends Controller
                         'save_result' => $result
                     ]);
 
-                    \Log::info("Successfully returned {$item->quantity} units of variant to warehouse", [
+                    Log::info("Successfully returned {$item->quantity} units of variant to warehouse", [
                         'order_id' => $order->id,
                         'variant_id' => $item->productVariant->id,
                         'product_id' => $item->productVariant->product_id,
@@ -486,7 +486,7 @@ class ShipperAppController extends Controller
                     $item->product->stock_quantity += $item->quantity;
                     $result = $item->product->save();
 
-                    \Log::info("Product stock update result", [
+                    Log::info("Product stock update result", [
                         'product_id' => $item->product->id,
                         'product_name' => $item->product->name,
                         'old_stock' => $oldStock,
@@ -495,14 +495,14 @@ class ShipperAppController extends Controller
                         'save_result' => $result
                     ]);
 
-                    \Log::info("Successfully returned {$item->quantity} units of product {$item->product->name} to warehouse", [
+                    Log::info("Successfully returned {$item->quantity} units of product {$item->product->name} to warehouse", [
                         'order_id' => $order->id,
                         'product_id' => $item->product->id,
                         'quantity_returned' => $item->quantity,
                         'new_stock' => $item->product->stock_quantity
                     ]);
                 } else {
-                    \Log::warning("Neither product nor variant found for order item", [
+                    Log::warning("Neither product nor variant found for order item", [
                         'item_id' => $item->id,
                         'product_id' => $item->product_id,
                         'product_variant_id' => $item->product_variant_id
@@ -510,9 +510,9 @@ class ShipperAppController extends Controller
                 }
             }
 
-            \Log::info("Completed return to warehouse process for order #{$order->order_code}");
+            Log::info("Completed return to warehouse process for order #{$order->order_code}");
         } catch (\Exception $e) {
-            \Log::error('Error returning items to warehouse: ' . $e->getMessage(), [
+            Log::error('Error returning items to warehouse: ' . $e->getMessage(), [
                 'order_id' => $order->id,
                 'exception' => $e->getTraceAsString()
             ]);

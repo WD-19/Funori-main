@@ -135,6 +135,9 @@
                             <tr class="border-bottom">
                                 <td class="py-3">
                                     <div class="d-flex align-items-center">
+                                        @php
+                                            $variantInfo = $item->variant ? (is_array($item->variant) ? $item->variant : json_decode($item->variant, true)) : null;
+                                        @endphp
                                         @if($item->productVariant && $item->productVariant->image)
                                             <img src="{{ asset($item->productVariant->image->image_url) }}" 
                                                  alt="{{ $item->product_name }}" 
@@ -153,18 +156,31 @@
                                         @endif
                                         <div>
                                             <div class="fw-bold text-dark mb-1">{{ $item->product_name }}</div>
-                                            @if($item->variant_attributes)
+                                            @if($variantInfo)
                                                 <small class="text-muted">
-                                                    @foreach(json_decode($item->variant_attributes, true) as $attr => $value)
-                                                        <span class="badge bg-light text-dark me-1">{{ $attr }}: {{ $value }}</span>
-                                                    @endforeach
+                                                    <span class="badge bg-light text-dark me-1">{{ $variantInfo['name_variant'] ?? '' }}</span>
+                                                    @if(!empty($variantInfo['size']))
+                                                        <span class="badge bg-light text-dark me-1">Kích thước: {{ $variantInfo['size'] }}</span>
+                                                    @endif
                                                 </small>
+                                            @endif
+                                            @if($item->variant_attributes)
+                                                <div class="mt-1">
+                                                    @php
+                                                        $attributes = is_array($item->variant_attributes) ? $item->variant_attributes : json_decode($item->variant_attributes, true);
+                                                    @endphp
+                                                    @if(is_array($attributes))
+                                                        @foreach($attributes as $attribute)
+                                                            <span class="badge bg-light text-dark me-1">{{ $attribute }}</span>
+                                                        @endforeach
+                                                    @endif
+                                                </div>
                                             @endif
                                         </div>
                                     </div>
                                 </td>
                                 <td class="text-center py-3">
-                                    <span class="fw-medium">{{ number_format($item->subtotal / $item->quantity) }} VNĐ</span>
+                                    <span class="fw-medium">{{ number_format($item->price ?? ($item->subtotal / $item->quantity)) }} VNĐ</span>
                                 </td>
                                 <td class="text-center py-3">
                                     <span class="badge bg-primary fs-6">{{ $item->quantity }}</span>

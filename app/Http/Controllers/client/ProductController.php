@@ -77,6 +77,26 @@ class ProductController
         // Lấy tất cả review của sản phẩm, mới nhất trước, kèm user (nếu có)
         $sort = request()->get('sort', 'newest'); // giá trị mặc định: mới nhất
 
+        $badWords = [
+            // Tiếng Việt
+            'địt', 'cặc', 'lồn', 'đéo', 'dm', 'đmm', 'đm', 'dcm', 'dmm', 'djt', 'djtme', 'djt mẹ', 'djt mày', 'đjt', 'đjt mẹ', 'đjt mày',
+            'ngu', 'bố mày', 'mẹ mày', 'bố mày mày', 'mẹ mày mày', 'bố mày đấy', 'mẹ mày đấy',
+            'chó', 'chó má', 'mẹ kiếp', 'vãi', 'vkl', 'vcl', 'vãi l', 'vãi c', 'vãi cả l', 'vãi cả c',
+            'khốn nạn', 'khốn', 'khốn kiếp', 'bẩn thỉu', 'bẩn', 'bựa', 'bựa vãi', 'bựa vl',
+            'thằng ngu', 'con ngu', 'thằng chó', 'con chó', 'thằng khốn', 'con khốn', 'thằng điên', 'con điên',
+            'thằng rồ', 'con rồ', 'thằng dở', 'con dở', 'thằng hâm', 'con hâm',
+            'mẹ cha', 'mẹ cha mày', 'bà nội mày', 'ông nội mày', 'bà ngoại mày', 'ông ngoại mày',
+            'mẹ nó', 'bố nó', 'bố láo', 'láo toét', 'láo', 'láo nháo',
+            'đồ ngu', 'đồ chó', 'đồ khốn', 'đồ điên', 'đồ rồ', 'đồ dở', 'đồ hâm',
+            // Tiếng Anh
+            'fuck', 'shit', 'bitch', 'asshole', 'f*ck', 'suck', 'pussy', 'dick', 'bastard', 'slut', 'whore', 'jerk', 'moron', 'retard', 'loser',
+            'fucking', 'motherfucker', 'son of a bitch', 'douche', 'douchebag', 'cunt', 'prick', 'cock', 'arsehole', 'bollocks', 'bugger', 'wanker',
+            'damn', 'bloody', 'crap', 'arse', 'twat', 'twit', 'git', 'shithead', 'shitface', 'shitbag', 'shitass', 'shitty',
+            // Biến thể viết tắt, lách luật
+            'fuk', 'fukc', 'sh!t', 'b!tch', 'b1tch', 'b!tch', 'p*ssy', 'd!ck', 'd1ck', 'c0ck', 'c*ck', 's0n of a b!tch', 'wtf', 'wth', 'fml', 'omfg',
+            // Ký tự đặc biệt, biến thể unicode
+            'đ*o', 'đ.m', 'đ.mẹ', 'đ.mày', 'đ.mẹ mày', 'đ.mày mẹ', 'đ.mẹ mày', 'đ.mày mẹ',
+        ];
         $reviews = Review::where('product_id', $product->id)
             ->where(function ($q) {
                 $q->where('status', 'approved');
@@ -90,13 +110,49 @@ class ProductController
             ->when($sort === 'oldest', fn($q) => $q->orderBy('created_at', 'asc'))
             ->when($sort !== 'oldest', fn($q) => $q->orderBy('created_at', 'desc'))
             ->with('user')
-            ->get();
+            ->get()
+            ->filter(function($review) use ($badWords) {
+                foreach ($badWords as $word) {
+                    if (stripos($review->comment, $word) !== false) {
+                        return false;
+                    }
+                }
+                return true;
+            });
 
         return view('client.product.detail', compact('product', 'reviews'));
     }
     
     public function store(Request $request, $productId)
     {
+        // Danh sách từ cấm (đồng bộ với hàm show)
+        $badWords = [
+            'địt', 'cặc', 'lồn', 'đéo', 'dm', 'đmm', 'đm', 'dcm', 'dmm', 'djt', 'djtme', 'djt mẹ', 'djt mày', 'đjt', 'đjt mẹ', 'đjt mày',
+            'ngu', 'bố mày', 'mẹ mày', 'bố mày mày', 'mẹ mày mày', 'bố mày đấy', 'mẹ mày đấy',
+            'chó', 'chó má', 'mẹ kiếp', 'vãi', 'vkl', 'vcl', 'vãi l', 'vãi c', 'vãi cả l', 'vãi cả c',
+            'khốn nạn', 'khốn', 'khốn kiếp', 'bẩn thỉu', 'bẩn', 'bựa', 'bựa vãi', 'bựa vl',
+            'thằng ngu', 'con ngu', 'thằng chó', 'con chó', 'thằng khốn', 'con khốn', 'thằng điên', 'con điên',
+            'thằng rồ', 'con rồ', 'thằng dở', 'con dở', 'thằng hâm', 'con hâm',
+            'mẹ cha', 'mẹ cha mày', 'bà nội mày', 'ông nội mày', 'bà ngoại mày', 'ông ngoại mày',
+            'mẹ nó', 'bố nó', 'bố láo', 'láo toét', 'láo', 'láo nháo',
+            'đồ ngu', 'đồ chó', 'đồ khốn', 'đồ điên', 'đồ rồ', 'đồ dở', 'đồ hâm',
+            'fuck', 'shit', 'bitch', 'asshole', 'f*ck', 'suck', 'pussy', 'dick', 'bastard', 'slut', 'whore', 'jerk', 'moron', 'retard', 'loser',
+            'fucking', 'motherfucker', 'son of a bitch', 'douche', 'douchebag', 'cunt', 'prick', 'cock', 'arsehole', 'bollocks', 'bugger', 'wanker',
+            'damn', 'bloody', 'crap', 'arse', 'twat', 'twit', 'git', 'shithead', 'shitface', 'shitbag', 'shitass', 'shitty',
+            'fuk', 'fukc', 'sh!t', 'b!tch', 'b1tch', 'b!tch', 'p*ssy', 'd!ck', 'd1ck', 'c0ck', 'c*ck', 's0n of a b!tch', 'wtf', 'wth', 'fml', 'omfg',
+            'đ*o', 'đ.m', 'đ.mẹ', 'đ.mày', 'đ.mẹ mày', 'đ.mày mẹ', 'đ.mẹ mày', 'đ.mày mẹ',
+        ];
+
+        // Nếu comment có bad word thì trả về thông báo riêng
+        $comment = $request->comment;
+        if ($comment) {
+            foreach ($badWords as $word) {
+                if (stripos($comment, $word) !== false) {
+                    return back()->with('error', 'Nội dung đánh giá của bạn chứa từ ngữ không phù hợp. Vui lòng chỉnh sửa lại!')->with('toastr_error', 'Nội dung đánh giá của bạn chứa từ ngữ không phù hợp.');
+                }
+            }
+        }
+    
         $userId = Auth::id();
 
         // Validate đầu vào
@@ -155,14 +211,13 @@ class ProductController
             return back()->with('error', 'Tất cả đơn hàng của bạn đã được đánh giá.')->with('toastr_warning', 'Tất cả đơn hàng của bạn đã được đánh giá.');
         }
 
-        // Tạo đánh giá
         Review::create([
             'user_id' => $userId,
             'product_id' => $productId,
             'order_item_id' => $unreviewedOrderItem->id,
             'rating' => $request->rating,
             'comment' => $request->comment,
-            'status' => 'pending',
+            'status' => 'approved',
         ]);
 
         return back()->with('success', 'Gửi đánh giá thành công! Đánh giá của bạn sẽ được duyệt sớm.')->with('toastr_success', 'Gửi đánh giá thành công! Đánh giá của bạn sẽ được duyệt sớm.');
