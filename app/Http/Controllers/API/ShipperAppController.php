@@ -344,7 +344,7 @@ class ShipperAppController extends Controller
             );
 
             $updateData = [
-                'order_status' => $request->status,
+                'order_status' => $isRejection ? 'processing' : $request->status, // Giữ trạng thái processing khi từ chối
                 'delivery_notes' => $request->notes,
                 'delivered_at' => $request->status === 'delivered' ? now() : null,
                 'failed_at' => $request->status === 'failed' ? now() : null,
