@@ -137,15 +137,23 @@ export const useOrderStore = defineStore('orders', () => {
       const response = await api.post(`/shipper-app/orders/${orderId}/status`, payload)
       
       if (response.data.success) {
-        // Update order in local state
-        const orderIndex = orders.value.findIndex(order => order.id === orderId)
-        if (orderIndex !== -1) {
-          orders.value[orderIndex] = response.data.data
-        }
-        
-        // Update current order if it's the same
-        if (currentOrder.value && currentOrder.value.id === orderId) {
-          currentOrder.value = response.data.data
+        const updated = response.data.data
+        // Nếu đơn đã bị unassign (shipper_id null) sau khi từ chối, loại khỏi danh sách shipper ngay
+        // Nếu backend trả về shipper_id null => đơn đã được UNASSIGN (shipper từ chối) nên loại bỏ khỏi danh sách
+        if (updated && updated.shipper_id === null) {
+          orders.value = orders.value.filter(o => o.id !== orderId)
+          if (currentOrder.value && currentOrder.value.id === orderId) {
+            currentOrder.value = null
+          }
+        } else {
+          // Cập nhật tại chỗ nếu vẫn còn thuộc shipper
+          const orderIndex = orders.value.findIndex(order => order.id === orderId)
+          if (orderIndex !== -1) {
+            orders.value[orderIndex] = updated
+          }
+          if (currentOrder.value && currentOrder.value.id === orderId) {
+            currentOrder.value = updated
+          }
         }
         
         // Refresh stats
@@ -285,28 +293,31 @@ export const useOrderStore = defineStore('orders', () => {
     return await updateOrderStatus(orderId, 'returned', notes || 'Đã hoàn trả hàng về kho')
   }
 
+  // Map toàn bộ sang tiếng Việt; 'confirmed' hợp nhất vào 'Đang xử lý'
   const getOrderStatusText = (status) => {
     const statusTexts = {
-      'pending': 'Chờ xác nhận',
-      'confirmed': 'Đã xác nhận',
+      'pending': 'Chờ xử lý',
+      'confirmed': 'Đang xử lý',
       'processing': 'Đang xử lý',
       'shipped': 'Đang giao',
       'delivered': 'Đã giao',
       'cancelled': 'Đã hủy',
-      'returned': 'Đã hoàn trả'
+      'returned': 'Đã hoàn trả',
+      'failed': 'Giao hàng thất bại'
     }
-    return statusTexts[status] || status
+    return statusTexts[status] || 'Không xác định'
   }
 
   const getOrderStatusColor = (status) => {
     const statusColors = {
       'pending': 'yellow',
-      'confirmed': 'blue',
+      'confirmed': 'purple', // unified with processing
       'processing': 'purple',
       'shipped': 'indigo',
       'delivered': 'green',
       'cancelled': 'red',
-      'returned': 'orange'
+      'returned': 'orange',
+      'failed': 'red'
     }
     return statusColors[status] || 'gray'
   }

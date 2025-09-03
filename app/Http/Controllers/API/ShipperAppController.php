@@ -10,9 +10,11 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\RateLimiter;
+use App\Mail\ShipperResponseMail;
 
 class ShipperAppController extends Controller
 {
@@ -282,11 +284,7 @@ class ShipperAppController extends Controller
             }
 
             // Debug log để xem dữ liệu paymentMethod
-            Log::info('Order payment method:', [
-                'payment_method_id' => $order->payment_method_id,
-                'paymentMethod' => $order->paymentMethod,
-                'payment_method' => $order->payment_method
-            ]);
+            // (debug removed)
 
             return response()->json([
                 'success' => true,
@@ -331,26 +329,40 @@ class ShipperAppController extends Controller
                 ], 404);
             }
 
-            Log::info("Order loaded for status update", [
-                'order_id' => $order->id,
-                'order_code' => $order->order_code,
-                'order_items_count' => $order->orderItems->count(),
-                'status' => $request->status
-            ]);
+            // (debug removed)
 
             $oldStatus = $order->order_status;
 
-            // Cập nhật trạng thái
-            $order->update([
+            // Xác định thao tác TỪ CHỐI linh hoạt hơn:
+            // - Trước update còn thuộc shipper (shipper_id != null)
+            // - Status gửi lên là 'confirmed' (trả đơn về pool) hoặc 'rejected' (app có thể gửi thẳng rejected)
+            // - Trạng thái cũ là 1 trong các trạng thái giao cho shipper (hiện hỗ trợ 'processing')
+            $isRejection = (
+                $order->shipper_id !== null
+                && in_array($request->status, ['confirmed', 'rejected'])
+                && in_array($oldStatus, ['processing'])
+            );
+
+            $updateData = [
                 'order_status' => $request->status,
                 'delivery_notes' => $request->notes,
                 'delivered_at' => $request->status === 'delivered' ? now() : null,
-                'failed_at' => $request->status === 'failed' ? now() : null
-            ]);
+                'failed_at' => $request->status === 'failed' ? now() : null,
+            ];
+
+            if ($isRejection) {
+                // Unassign đơn hàng khỏi shipper này
+                $updateData['shipper_id'] = null;
+                $updateData['delivery_lat'] = null;
+                $updateData['delivery_lng'] = null;
+                // (debug removed)
+            }
+
+            $order->update($updateData);
 
             // Xử lý hoàn trả về kho
             if ($request->status === 'returned') {
-                Log::info("Processing return to warehouse for order #{$order->order_code}");
+                // (debug removed)
                 $this->returnItemsToWarehouse($order);
             }
 
@@ -373,36 +385,46 @@ class ShipperAppController extends Controller
 
             // Xử lý upload ảnh
             $imagePath = null;
-            Log::info('Debug upload image:', [
-                'hasFile' => $request->hasFile('image'),
-                'allFiles' => $request->allFiles(),
-                'allData' => $request->all(),
-                'contentType' => $request->header('Content-Type'),
-                'contentLength' => $request->header('Content-Length')
-            ]);
+            // (debug removed)
             
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                Log::info('Image file details:', [
-                    'originalName' => $image->getClientOriginalName(),
-                    'mimeType' => $image->getMimeType(),
-                    'size' => $image->getSize(),
-                    'error' => $image->getError()
-                ]);
+                // (debug removed)
                 
                 $imageName = time() . '_' . $image->getClientOriginalName();
                 $imagePath = $image->storeAs('order_images', $imageName, 'public');
-                Log::info('Image uploaded:', ['path' => $imagePath]);
+                // (debug removed)
             } else {
-                Log::info('No image file found');
-                Log::info('Request files:', $request->allFiles());
-                Log::info('Request input:', $request->all());
+                // (debug removed)
             }
 
-            // Tạo lịch sử status
+            // Tạo lịch sử status (ghi rõ nếu là rejection) với mapping sang enum hợp lệ
+            $historyNote = $request->notes;
+            if ($isRejection) {
+                $historyNote = 'Shipper từ chối: ' . ($request->notes ?: 'Không có lý do');
+            }
+
+            // Enum hợp lệ trong bảng order_status_histories
+            $allowedHistoryStatuses = [
+                'pending_confirmation', 'processing', 'shipped', 'delivered', 'cancelled', 'returned', 'pending_cancellation'
+            ];
+            // Mapping từ status API sang status lịch sử hợp lệ
+            $statusMapping = [
+                'pending' => 'pending_confirmation',
+                'confirmed' => 'processing',
+                'failed' => 'processing',
+            ];
+            $candidateStatus = $request->status;
+            if (!in_array($candidateStatus, $allowedHistoryStatuses)) {
+                $candidateStatus = $statusMapping[$candidateStatus] ?? ($order->order_status ?? 'processing');
+                if (!in_array($candidateStatus, $allowedHistoryStatuses)) {
+                    $candidateStatus = 'processing';
+                }
+            }
+
             $order->status_histories()->create([
-                'status' => $request->status,
-                'admin_note' => $request->notes,
+                'status' => $candidateStatus,
+                'admin_note' => $historyNote,
                 'image_path' => $imagePath,
                 'created_at' => now(),
             ]);
@@ -413,6 +435,53 @@ class ShipperAppController extends Controller
             // Dispatch WebSocket event for realtime updates
             if ($oldStatus !== $request->status) {
                 event(new \App\Events\OrderStatusUpdated($order, $oldStatus, $request->status, 'shipper'));
+            }
+
+            // Nếu bị unassign, có thể cân nhắc bắn thêm event riêng (tạm thời bỏ qua)
+
+            // Gửi email cho admin khi shipper từ chối
+            if ($isRejection) {
+                try {
+                    $adminEmail = config('mail.admin_email') ?: env('ADMIN_EMAIL');
+                    if (!$adminEmail) {
+                        // fallback cuối cùng: dùng from address
+                        $adminEmail = config('mail.from.address');
+                    }
+                    if ($adminEmail) {
+                        $shipperModel = Shipper::find($shipper->id);
+                        // Thêm BCC để dễ kiểm tra nhận mail & log chẩn đoán (chỉ môi trường local)
+                        $mailerName = config('mail.default');
+                        $fromAddr = config('mail.from.address');
+                        if (app()->environment('local')) {
+                            Log::info('REJECTION_MAIL_ATTEMPT', [
+                                'order_id' => $order->id,
+                                'old_status' => $oldStatus,
+                                'new_status' => $request->status,
+                                'resolved_admin_email' => $adminEmail,
+                                'mailer' => $mailerName,
+                                'shipper_id' => $shipper->id,
+                                'from' => $fromAddr,
+                            ]);
+                        }
+                        $responseFlag = $request->status === 'accepted' ? 'accepted' : 'rejected';
+                        $mailable = new ShipperResponseMail($order, $shipperModel, $responseFlag, $request->notes);
+                        $mailBuilder = Mail::to($adminEmail);
+                        // BCC vào FROM để kiểm tra nếu admin không nhận được (chỉ local)
+                        if (app()->environment('local') && $fromAddr && $fromAddr !== $adminEmail) {
+                            $mailBuilder->bcc($fromAddr);
+                        }
+                        $mailBuilder->send($mailable);
+                        if (app()->environment('local')) {
+                            Log::info('REJECTION_MAIL_SENT', [
+                                'order_id' => $order->id,
+                                'admin_email' => $adminEmail,
+                            ]);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // vẫn giữ error log để biết nếu gửi thất bại
+                    Log::error('Failed to send rejection email: ' . $e->getMessage());
+                }
             }
 
             return response()->json([

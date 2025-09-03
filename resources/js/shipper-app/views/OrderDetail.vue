@@ -87,7 +87,7 @@
           <div v-for="item in order.items" :key="item.id" class="flex items-center space-x-4">
             <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
               <img v-if="item.product && item.product.images && item.product.images.length > 0" 
-                   :src="'../../' + (typeof item.product.images[0] === 'object' ? item.product.images[0].image_url : item.product.images[0])" 
+                   :src="getImageUrl(item.product.images[0].image_url)" 
                    :alt="item.product.name"
                    class="w-full h-full object-cover">
               <svg v-else class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
             </div>
             <div class="flex-1">
               <h4 class="font-medium text-gray-900">{{ item.product?.name }}</h4>
-              <p class="text-sm text-gray-500">{{ item.product?.short_description }}</p>
+              <p class="text-sm text-gray-500">{{ item.product?.description }}</p>
               <!-- Variant attributes -->
               <div v-if="item.variant_attributes" class="text-xs text-gray-400 mt-1">
                 <span v-for="(value, key) in parseVariantAttributes(item.variant_attributes)" :key="key">
@@ -253,8 +253,27 @@
             Nhận đơn hàng
           </button>
 
+          <!-- Trước khi shipper bấm Nhận: hiển thị Nhận/Từ chối -->
+          <template v-if="order.order_status === 'processing' && !hasAccepted">
+            <button 
+              @click="acceptOrder"
+              :disabled="actionLoading"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              Nhận đơn hàng
+            </button>
+            <button 
+              @click="openRejectModal"
+              :disabled="actionLoading"
+              class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
+            >
+              Từ chối
+            </button>
+          </template>
+
+          <!-- Sau khi shipper bấm Nhận: hiển thị Bắt đầu giao hàng -->
           <button 
-            v-if="order.order_status === 'processing'"
+            v-if="order.order_status === 'processing' && hasAccepted"
             @click="showStartDeliveryModal = true"
             :disabled="actionLoading"
             class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 col-span-2 w-full"
@@ -272,6 +291,41 @@
             Xác nhận đã hoàn về kho
           </button>
 
+        </div>
+      </div>
+    </div>
+
+    <!-- Reject Reason Modal -->
+    <div v-if="showRejectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Lý do từ chối đơn hàng</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Vui lòng nhập lý do <span class="text-red-600">*</span></label>
+            <textarea 
+              v-model="rejectionReason"
+              rows="3"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Nhập lý do từ chối..."
+              required
+            ></textarea>
+            <p v-if="rejectError" class="mt-1 text-red-600 text-xs">{{ rejectError }}</p>
+          </div>
+          <div class="flex space-x-3">
+            <button 
+              @click="closeRejectModal"
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              Hủy
+            </button>
+            <button 
+              @click="confirmReject"
+              :disabled="actionLoading || !rejectionReason.trim()"
+              class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 disabled:opacity-50"
+            >
+              Xác nhận từ chối
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -488,6 +542,9 @@ const orderStore = useOrderStore()
 
 const loading = ref(false)
 const actionLoading = ref(false)
+const showRejectModal = ref(false)
+const rejectionReason = ref('')
+const rejectError = ref('')
 const showCompleteModal = ref(false)
 const showFailedModal = ref(false)
 const showStartDeliveryModal = ref(false)
@@ -508,6 +565,10 @@ const startDeliveryImageInput = ref(null)
 
 const order = computed(() => orderStore.currentOrder)
 
+// Cờ cục bộ: chỉ chuyển sang "Bắt đầu giao hàng" sau khi shipper bấm Nhận trong phiên này
+const acceptedLocal = ref(false)
+const hasAccepted = computed(() => acceptedLocal.value)
+
 // Balanced 3s polling for realtime updates
 const POLL_INTERVAL_MS = 3000
 let pollTimer = null
@@ -526,7 +587,13 @@ function startPolling() {
     pollInFlight = true
     try {
       if (route.params.id) {
-        await orderStore.fetchOrder(route.params.id)
+        const data = await orderStore.fetchOrder(route.params.id)
+        if (!data) {
+          clearInterval(pollTimer)
+          pollTimer = null
+          router.push({ name: 'Dashboard' })
+          return
+        }
         // Dừng polling nếu đơn hàng đã hoàn thành
         if (order.value && isFinalStatus(order.value.order_status)) {
           clearInterval(pollTimer)
@@ -546,7 +613,13 @@ onMounted(async () => {
   if (route.params.id) {
     loading.value = true
     try {
-      await orderStore.fetchOrder(route.params.id)
+      const data = await orderStore.fetchOrder(route.params.id)
+      if (!data) {
+        router.push({ name: 'Dashboard' })
+        return
+      }
+      // Luôn bắt đầu ở trạng thái CHƯA nhận để hiển thị Nhận/Từ chối
+      acceptedLocal.value = false
     } catch (error) {
       console.error('Error fetching order:', error)
     } finally {
@@ -564,17 +637,19 @@ onUnmounted(() => {
   }
 })
 
+// Hiển thị thuần tiếng Việt & ẨN hoàn toàn chữ "confirmed" (map sang Đang xử lý)
 const getStatusText = (status) => {
   const statusMap = {
     'pending': 'Chờ xử lý',
-    'confirmed': 'Đã xác nhận',
+    // Ẩn "confirmed" khỏi UI: coi như vẫn ở giai đoạn đang xử lý chung
+    'confirmed': 'Đang xử lý',
     'processing': 'Đang xử lý',
     'shipped': 'Đang giao hàng',
     'delivered': 'Đã giao hàng',
     'cancelled': 'Đã hủy',
-    'failed': 'Giao hàng thất bại' // Đơn hàng đã được giao nhưng thất bại
+    'failed': 'Giao hàng thất bại'
   }
-  return statusMap[status] || status
+  return statusMap[status] || 'Không xác định'
 }
 
 const getStatusBadgeClass = (status) => {
@@ -636,8 +711,39 @@ const acceptOrder = async () => {
   try {
     await orderStore.acceptOrder(order.value.id)
     await orderStore.fetchOrder(order.value.id)
+    acceptedLocal.value = true
   } catch (error) {
     console.error('Error accepting order:', error)
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+function openRejectModal() {
+  rejectError.value = ''
+  rejectionReason.value = ''
+  showRejectModal.value = true
+}
+
+function closeRejectModal() {
+  showRejectModal.value = false
+}
+
+// Từ chối: gửi status 'confirmed' lên backend để UNASSIGN, nhưng UI sẽ hiển thị là 'Đang xử lý' (không bao giờ hiện chữ confirmed)
+const confirmReject = async () => {
+  if (!rejectionReason.value.trim()) {
+    rejectError.value = 'Vui lòng nhập lý do từ chối.'
+    return
+  }
+  actionLoading.value = true
+  rejectError.value = ''
+  try {
+    await orderStore.updateOrderStatus(order.value.id, 'confirmed', rejectionReason.value.trim())
+    showRejectModal.value = false
+    router.push({ name: 'Dashboard' })
+  } catch (error) {
+    console.error('Error rejecting order:', error)
+    rejectError.value = 'Có lỗi xảy ra. Vui lòng thử lại.'
   } finally {
     actionLoading.value = false
   }

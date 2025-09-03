@@ -115,4 +115,7 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    // Custom: default admin email to receive system notifications
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+
 ];

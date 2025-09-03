@@ -8,6 +8,9 @@ use App\Models\Shipper;
 use App\Models\Order;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewOrderAssignedMail;
+use Illuminate\Support\Facades\Log;
 
 class ShipperController extends Controller
 {
@@ -187,7 +190,7 @@ class ShipperController extends Controller
     public function processAssignOrders(Request $request)
     {
         // Debug: Log incoming request
-        \Log::info('🚀 processAssignOrders called', [
+    Log::info('🚀 processAssignOrders called', [
             'method' => $request->method(),
             'url' => $request->url(),
             'all_data' => $request->all(),
@@ -195,7 +198,7 @@ class ShipperController extends Controller
         ]);
         
         // Debug: Log incoming request
-        \Log::info('🚀 processAssignOrders called', [
+    Log::info('🚀 processAssignOrders called', [
             'method' => $request->method(),
             'url' => $request->url(),
             'all_data' => $request->all(),
@@ -222,18 +225,18 @@ class ShipperController extends Controller
 
             // Validate order và shipper
             if (!$order) {
-                \Log::warning("Order not found", ['order_id' => $assignment['order_id']]);
+                Log::warning("Order not found", ['order_id' => $assignment['order_id']]);
                 continue;
             }
 
             if (!$shipper) {
-                \Log::warning("Shipper not found", ['shipper_id' => $assignment['shipper_id']]);
+                Log::warning("Shipper not found", ['shipper_id' => $assignment['shipper_id']]);
                 continue;
             }
 
             // Kiểm tra xem đơn hàng đã có shipper chưa
             if ($order->shipper_id) {
-                \Log::info("Order already has shipper", [
+                Log::info("Order already has shipper", [
                     'order_id' => $order->id,
                     'order_code' => $order->order_code,
                     'current_shipper_id' => $order->shipper_id
@@ -244,12 +247,20 @@ class ShipperController extends Controller
             try {
                 // Update order với shipper - đơn giản
                 $order->shipper_id = $shipper->id;
+                $order->order_status = 'processing'; // đảm bảo đồng bộ trạng thái khi gán tay
                 $order->save();
+
+                // Gửi email thông báo cho shipper ngay (tránh bỏ sót so với view chi tiết đơn)
+                try {
+                    Mail::to($shipper->email)->send(new NewOrderAssignedMail($order, $shipper));
+                } catch (\Throwable $mailEx) {
+                    // bỏ qua lỗi gửi mail để không chặn phân chia hàng loạt
+                }
 
                 $assignedCount++;
                 
                 // Log thành công
-                \Log::info("✅ Order assigned successfully", [
+                Log::info("✅ Order assigned successfully", [
                     'order_id' => $order->id,
                     'order_code' => $order->order_code,
                     'shipper_id' => $shipper->id,
@@ -257,7 +268,7 @@ class ShipperController extends Controller
                 ]);
 
             } catch (\Exception $e) {
-                \Log::error("❌ Error assigning order", [
+                Log::error("❌ Error assigning order", [
                     'order_id' => $order->id,
                     'shipper_id' => $shipper->id,
                     'error' => $e->getMessage()
@@ -269,7 +280,7 @@ class ShipperController extends Controller
         if ($assignedCount > 0) {
             $message = "✅ Đã phân chia {$assignedCount} đơn hàng thành công!";
             
-            \Log::info("🎯 Assignment completed successfully", [
+            Log::info("🎯 Assignment completed successfully", [
                 'assigned_count' => $assignedCount,
                 'request_data' => $request->all()
             ]);
@@ -279,7 +290,7 @@ class ShipperController extends Controller
         } else {
             $message = "❌ Không có đơn hàng nào được phân chia thành công!";
             
-            \Log::warning("⚠️ No orders assigned", [
+            Log::warning("⚠️ No orders assigned", [
                 'request_data' => $request->all()
             ]);
             
@@ -324,9 +335,14 @@ class ShipperController extends Controller
             
             $order->update([
                 'shipper_id' => $shipper->id,
-                // Đồng bộ: chuyển thẳng sang processing khi đã phân cho shipper
                 'order_status' => 'processing'
             ]);
+
+            try {
+                Mail::to($shipper->email)->send(new NewOrderAssignedMail($order, $shipper));
+            } catch (\Throwable $mailEx) {
+                // ignore
+            }
 
             $assignedCount++;
             $shipperIndex++;

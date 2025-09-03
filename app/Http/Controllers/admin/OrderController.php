@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController
 {
@@ -612,6 +614,14 @@ class OrderController
                 'order_status' => 'processing' // Chuyển sang đang xử lý
             ]);
 
+            // Gửi email cho shipper thông báo có đơn mới
+            try {
+                Mail::to($shipper->email)
+                    ->send(new \App\Mail\NewOrderAssignedMail($order, $shipper));
+            } catch (\Throwable $mailEx) {
+                Log::error('Mail send error on assignShipper: ' . $mailEx->getMessage());
+            }
+
             return redirect()->back()->with('success', "Đã phân chia đơn hàng #{$order->order_code} cho shipper {$shipper->name}!");
 
         } catch (\Exception $e) {
@@ -647,6 +657,14 @@ class OrderController
             $order->update([
                 'shipper_id' => $newShipper->id
             ]);
+
+            // Gửi email cho shipper mới
+            try {
+                Mail::to($newShipper->email)
+                    ->send(new \App\Mail\NewOrderAssignedMail($order, $newShipper));
+            } catch (\Throwable $mailEx) {
+                Log::error('Mail send error on changeShipper: ' . $mailEx->getMessage());
+            }
 
             // Log lý do đổi shipper (có thể lưu vào bảng order_logs sau này)
             if ($request->change_reason) {

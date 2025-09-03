@@ -951,8 +951,8 @@
                                                                     style="color: {{ $i <= $review->rating ? '#FFD700' : '#ccc' }};"></i>
                                                             @endfor
                                                         </div>
-                                                        <p class="text_black-3"><em>Đánh giá của bạn đang chờ
-                                                                duyệt</em><br>{{ $review->comment }}</p>
+                                                        {{-- <p class="text_black-3"><em>Đánh giá của bạn đang chờ
+                                                                duyệt</em><br>{{ $review->comment }}</p> --}}
                                                     </div>
                                                 @endif
                                             @endforeach

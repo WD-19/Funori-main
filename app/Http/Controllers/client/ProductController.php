@@ -141,6 +141,37 @@ class ProductController
             'damn', 'bloody', 'crap', 'arse', 'twat', 'twit', 'git', 'shithead', 'shitface', 'shitbag', 'shitass', 'shitty',
             'fuk', 'fukc', 'sh!t', 'b!tch', 'b1tch', 'b!tch', 'p*ssy', 'd!ck', 'd1ck', 'c0ck', 'c*ck', 's0n of a b!tch', 'wtf', 'wth', 'fml', 'omfg',
             'đ*o', 'đ.m', 'đ.mẹ', 'đ.mày', 'đ.mẹ mày', 'đ.mày mẹ', 'đ.mẹ mày', 'đ.mày mẹ',
+            // Thêm các biến thể tiếng Việt
+            'cl', 'đkmm', 'đkm', 'đcmm', 'đcm', 'cmn', 'cmnl', 'cmm', 'cm', 'c.m', 'đcmnl', 'đkmn', 'đmcn', 'đmct', 
+            'vl', 'vloz', 'vlon', 'vlol', 'v.l', 'dkm', 'đb', 'dkmm', 'đbrr', 'đbrđ', 'đậu má', 'đậu mẹ', 
+            'mịe', 'mịa', 'mie', 'mja', 'mjk', 'mik', 'cmnđ', 'cđ', 'cđm', 'cmđ', 'vc', 'vồn', 'vôn', 'đkl',
+            'buồi', 'buoi', 'bu0i', 'bư0i', 'bư.0i', 'cu', 'cứt', 'cut', 'c.ứ.t', 'c_ứ_t', 'c*t', 'c.u.t', 'cut', 'c ứ t', 'c-ứ-t', 
+            'cức', 'cưc', 'cuc', 'cưt', 'cuwt', 'chịch', 'chjch', 'hentai', 'đấm', 'dám', 'đái', 'dai', 'đ.á.i',
+            // Các từ ngữ khiêu dâm
+            'sex', 'sexy', 'porn', 'p0rn', 'pr0n', 'phim sex', 'phim người lớn', 'xxx', 'xxxxx', 'xxxx', 'x.x.x', 'xx',
+            'khiêu dâm', 'khieu dam', 'kh13u d4m', 'khi3u dam', 'kh1eu d@m', 'dâm', 'dê', 'dâm dê', 'dâm đãng', 'dam dang',
+            // Thêm biến thể tiếng Anh
+            'f u c k', 'f.u.c.k', 'f-u-c-k', 'fvck', 'phuck', 'phuk', 'ph*ck', 'f**k', 'f**king', 'fcuk', 'fcking',
+            'sh1t', 'sh!t', 's.h.i.t', 's h i t', 's-h-i-t', 'bull****', 'bullsh*t', 'bs', 'b.s', 'bullsht',
+            'stfu', 'gtfo', 'stf', 'gtf', 'foad', 'lmfao', 'lmao', 'rofl', 'ffs', 'milf', 'gilf', 'dilf',
+            'a$$', 'a$$hole', '@$$', '@$$hole', 'a**', 'a**hole', '@**', '@**hole', 'a-hole', '@-hole',
+            'scumbag', 'dumbass', 'dumb@ss', 'dumb@$$', 'dumba$$', 'dumb a**', 'dumba**', 'jackass',
+            'b*tch', 'b*tches', 'b!tches', 'b1tches', 'b17ch', 'b17ches', 'b*tchy', 'btch', 'beaches',
+            // Các từ cố tình viết sai để tránh kiểm duyệt
+            'd1t', 'd!t', 'd!tm', 'd1tm', 'd.!.t', 'd.1.t', 'd_i_t', 'dlt', 'd1tm3', 'd!tm3', 'd!t m3',
+            'l0n', 'l0`n', 'l0^n', 'l`ôn', 'l.0.n', 'l_0_n', 'c@c', 'c4c', 'c.a.c', 'c_a_c', 'c@.c',
+            // Các từ công kích, phân biệt đối xử
+            'óc chó', 'não lợn', 'não tôm', 'não cá vàng', 'ăn bám', 'ăn hại', 'phế phẩm', 'vô dụng',
+            'mất dạy', 'vô học', 'thô bỉ', 'thô lỗ', 'mất nết', 'vô văn hóa', 'đê tiện', 'hèn hạ',
+            'tồi tệ', 'lừa đảo', 'lưu manh', 'đểu cáng', 'đểu giả', 'giả dối', 'dối trá',
+            'gay', 'lesbian', 'bê đê', 'pêđê', 'les', 'bóng', 'lbgt', 'lgbt', 'bede', 'béđê', 'bede',
+            // Tục tĩu khác
+            'zú', 'ngực', 'mông', 'đít', 'vú', 'khe', 'kh3', 'cu', 'chym', 'ch1m', 'dz1t',
+            // Các từ liên quan đến chất thải
+            'unchi', 'ỉa', 'ia', 'đi ỉa', 'đi ia', 'đi nặng', 'phân', 'ph4n', 'phaan', 'ph@n', 'ph.a.n',
+            'cứt đái', 'cứt đéo', 'cứt chó', 'đồ cứt', 'như cứt', 'cứt đ', 'cứt mẹ', 'cứt con',
+            'ỉ chảy', 'i chay', 'bỉ ổi', 'bi oi', 'tanh hôi', 'dơ dáy', 'do day', 'thối tha', 'thoi tha',
+            'tè', 'te', 'đái dầm', 'dai dam', 'đái són', 'dai son', 'tè bậy', 'te bay'
         ];
 
         // Nếu comment có bad word thì trả về thông báo riêng
