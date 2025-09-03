@@ -55,7 +55,7 @@
                                         <h6 class="alert-heading mb-2 fw-bold">
                                             @switch($refund->status)
                                                 @case('success') 
-                                                    <i class="fas fa-check-circle me-1"></i>Đã hoàn tiền 
+                                                    Đã hoàn tiền 
                                                 @break
                                                 @case('pending') 
                                                     <i class="fas fa-clock me-1"></i>Đang xử lý 
@@ -71,7 +71,6 @@
                                         </h6>
                                         <p class="mb-0 small">
                                             @switch($refund->status)
-                                                @case('success') Có lỗi xảy ra. Vui lòng liên hệ hỗ trợ @break
                                                 @case('pending') Vui lòng liên hệ nếu có vấn đề @break
                                                 @case('failed') Có lỗi xảy ra. Vui lòng liên hệ hỗ trợ @break
                                                 @case('cancelled') Thời gian giao hàng quá lâu @break

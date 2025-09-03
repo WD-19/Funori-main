@@ -368,6 +368,15 @@ class CartController
 
     public function addToCart(Request $request)
     {
+        // Kiểm tra đăng nhập trước khi thực hiện bất kỳ thao tác nào
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
+                'require_login' => true
+            ], 401);
+        }
+        
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
@@ -391,79 +400,42 @@ class CartController
             }
         }
 
-        if (Auth::check()) {
-            // User đã đăng nhập - lưu vào database
-            $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
-            $cartItem = $cart->items()->where([
-                'product_id' => $product->id,
-                'product_variant_id' => $productVariantId
-            ])->first();
+        // User đã đăng nhập - lưu vào database
+        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        $cartItem = $cart->items()->where([
+            'product_id' => $product->id,
+            'product_variant_id' => $productVariantId
+        ])->first();
 
-            $currentCartQty = $cartItem ? $cartItem->quantity : 0;
-            if ($quantity + $currentCartQty > $stockQuantity) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Số lượng vượt quá tồn kho hiện có!'
-                ], 400);
-            }
+        $currentCartQty = $cartItem ? $cartItem->quantity : 0;
+        if ($quantity + $currentCartQty > $stockQuantity) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Số lượng vượt quá tồn kho hiện có!'
+            ], 400);
+        }
 
-            if ($cartItem) {
-                $cartItem->quantity += $quantity;
-                $cartItem->save();
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Sản phẩm đã có trong giỏ hàng, đã tăng số lượng.',
-                    'cart_count' => $cart->items()->count(),
-                    'already_exists' => true
-                ]);
-            } else {
-                $cart->items()->create([
-                    'product_id' => $product->id,
-                    'product_variant_id' => $productVariantId,
-                    'quantity' => $quantity,
-                    'price_at_addition' => $price
-                ]);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Sản phẩm đã được thêm vào giỏ hàng',
-                    'cart_count' => $cart->items()->count(),
-                    'already_exists' => false
-                ]);
-            }
-        } else {
-            // Guest - vẫn dùng session
-            $cart = Session::get('cart', []);
-            $key = $product->id . '_' . ($productVariantId ?? 'null');
-            $currentCartQty = isset($cart[$key]) ? $cart[$key]['quantity'] : 0;
-
-            if ($quantity + $currentCartQty > $stockQuantity) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Số lượng vượt quá tồn kho hiện có!'
-                ], 400);
-            }
-
-            $isNewItem = !isset($cart[$key]);
-            
-            if (isset($cart[$key])) {
-                // Nếu sản phẩm đã có trong giỏ hàng, cộng dồn số lượng
-                $cart[$key]['quantity'] += $quantity;
-            } else {
-                // Nếu sản phẩm chưa có, tạo mới
-                $cart[$key] = [
-                    'product_id' => $product->id,
-                    'product_variant_id' => $productVariantId,
-                    'quantity' => $quantity,
-                    'price_at_addition' => $price
-                ];
-            }
-
-            Session::put('cart', $cart);
+        if ($cartItem) {
+            $cartItem->quantity += $quantity;
+            $cartItem->save();
             return response()->json([
                 'success' => true,
-                'message' => $isNewItem ? 'Sản phẩm đã được thêm vào giỏ hàng' : 'Sản phẩm đã có trong giỏ hàng, đã tăng số lượng.',
-                'cart_count' => count($cart),
-                'already_exists' => !$isNewItem
+                'message' => 'Sản phẩm đã có trong giỏ hàng, đã tăng số lượng.',
+                'cart_count' => $cart->items()->count(),
+                'already_exists' => true
+            ]);
+        } else {
+            $cart->items()->create([
+                'product_id' => $product->id,
+                'product_variant_id' => $productVariantId,
+                'quantity' => $quantity,
+                'price_at_addition' => $price
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Sản phẩm đã được thêm vào giỏ hàng',
+                'cart_count' => $cart->items()->count(),
+                'already_exists' => false
             ]);
         }
     }
