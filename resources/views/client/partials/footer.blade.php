@@ -2,9 +2,9 @@
     <div class="contact">
         <h2>LIÊN HỆ</h2>
         <div class="in">
-            <div>Địa chỉ: 4 Copley Place, Tầng 7, Boston, MA 6</div>
-            <div>Điện thoại: 866.453.4748</div>
-            <div>Fax nhân sự: 810.222.5439</div>
+            <div>Địa chỉ: 13 P. Trịnh Văn Bô, Xuân Phương, Nam Từ Liêm, Hà Nội</div>
+            <div>Điện thoại: 056.896.8888</div>
+            <div>Fax nhân sự: 079.567.3333</div>
             <div>Email: sales@funorifurniture.com</div>
         </div>
     </div>

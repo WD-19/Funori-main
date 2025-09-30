@@ -128,10 +128,10 @@ class PromotionController
         }
 
         // Gửi email cho tất cả user
-        $users = User::whereNotNull('email')->pluck('email');
-        foreach ($users as $email) {
-            Mail::to($email)->send(new NewPromotionMail($promotion));
-        }
+        // $users = User::whereNotNull('email')->pluck('email');
+        // foreach ($users as $email) {
+        //     Mail::to($email)->send(new NewPromotionMail($promotion));
+        // }
 
         return redirect()->route('admin.promotions.index')->with('success', 'Tạo khuyến mãi thành công!');
     }

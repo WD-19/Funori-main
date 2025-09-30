@@ -7,7 +7,7 @@
             background: #fff;
             border-radius: 18px;
             border: 1px solid #e0e0e0;
-            box-shadow: 0 4px 24px rgba(35,119,252,0.06);
+            box-shadow: 0 4px 24px rgba(35, 119, 252, 0.06);
             padding: 32px 28px 24px 28px;
             margin-bottom: 24px;
             min-width: 260px;
@@ -16,30 +16,37 @@
             flex-direction: column;
             justify-content: space-between;
         }
+
         .wg-chart-default .top {
             margin-bottom: 18px;
         }
+
         .wg-chart-default h4 {
             font-size: 2rem;
             font-weight: 700;
             margin: 0;
         }
+
         .wg-chart-default .body-text {
             font-size: 1.1rem;
         }
+
         .tf-section-4 {
             display: flex;
             gap: 32px;
             flex-wrap: wrap;
         }
+
         .wg-chart-default .wrap-chart {
             padding-top: 10px;
         }
+
         /* Dropdown filter đẹp hơn */
         .dashboard-filter-dropdown {
             min-width: 160px;
             margin-bottom: 24px;
         }
+
         .dashboard-filter-dropdown .dropdown-toggle {
             background: #fff;
             border: 1.5px solid #2377FC;
@@ -48,35 +55,41 @@
             font-weight: 700;
             color: #2377FC;
             font-size: 1.1rem;
-            box-shadow: 0 2px 8px rgba(35,119,252,0.08);
+            box-shadow: 0 2px 8px rgba(35, 119, 252, 0.08);
         }
+
         .dashboard-filter-dropdown .dropdown-menu {
             border-radius: 10px;
             min-width: 160px;
-            box-shadow: 0 4px 16px rgba(35,119,252,0.12);
+            box-shadow: 0 4px 16px rgba(35, 119, 252, 0.12);
         }
+
         .dashboard-filter-dropdown .dropdown-item {
             padding: 12px 24px;
             font-size: 1.05rem;
         }
+
         .dashboard-filter-dropdown .dropdown-item.active,
         .dashboard-filter-dropdown .dropdown-item:active,
         .dashboard-filter-dropdown .dropdown-item:hover {
             background: #2377FC;
             color: #fff;
         }
+
         #current-type-label {
             font-weight: 700;
             color: #2377FC;
             margin-right: 8px;
             font-size: 1.1rem;
         }
+
         /* Responsive cho mobile */
         @media (max-width: 900px) {
             .tf-section-4 {
                 flex-direction: column;
                 gap: 18px;
             }
+
             .wg-chart-default {
                 min-width: unset;
                 padding: 20px 10px 16px 10px;
@@ -194,7 +207,7 @@
     </div>
     <div class="tf-section-2 mb-30">
         <!-- Revenue -->
-        <div class="wg-box">
+        {{-- <div class="wg-box">
             <div class="flex items-center justify-between">
                 <h5>Thu nhập</h5>
 
@@ -209,7 +222,7 @@
                     </div>
                     <div class="flex items-center gap12">
                         <h4 id="summary-revenue">{{ number_format($totalRevenue, 0, ',', '.') }}₫</h4>
-                        {{-- Nếu có % tăng trưởng, thêm ở đây --}}
+
                     </div>
                 </div>
                 <div>
@@ -227,9 +240,96 @@
             <div>
                 <canvas id="line-chart-7"></canvas>
             </div>
+        </div> --}}
+
+    </div>
+    <div class="tf-section-5">
+        <div class="wg-box">
+            <div class="flex items-center justify-between">
+                <h5>Đơn hàng gần đây</h5>
+            </div>
+            <div class="wg-table table-recent-orders">
+                <ul class="table-title flex gap20 mb-14">
+                    <li>
+                        <div class="body-title text-main-dark">Sản phẩm</div>
+                    </li>
+                    <li>
+                        <div class="body-title text-main-dark">Khách hàng</div>
+                    </li>
+                    <li>
+                        <div class="body-title text-main-dark">Mã SP</div>
+                    </li>
+                    <li>
+                        <div class="body-title text-main-dark">Số lượng</div>
+                    </li>
+                    <li>
+                        <div class="body-title text-main-dark">Giá</div>
+                    </li>
+                    <li>
+                        <div class="body-title text-main-dark">Trạng thái</div>
+                    </li>
+                </ul>
+                <div class="divider mb-14"></div>
+                <ul class="flex flex-column has-divider-line has-line-bot">
+                    @foreach($recentOrders as $order)
+                        @foreach($order->orderItems as $item)
+                            @php
+                                $product = $item->product;
+                                $variant = $item->productVariant;
+                                $image = $variant && $variant->image
+                                    ? $variant->image->image_url
+                                    : ($product->thumbnail?->image_url ?? $product->images->first()?->image_url ?? 'images/products/default.jpg');
+                                $price = ($variant && isset($variant->price_modifier))
+                                    ? ($product->regular_price + $variant->price_modifier)
+                                    : ($product->regular_price ?? 0);
+                            @endphp
+                            <li class="item wg-product gap20">
+                                <div class="name">
+                                    <div class="image">
+                                        <img src="{{ asset($image) }}" alt="">
+                                    </div>
+                                    <div class="title mb-0">
+                                        <a href="#" class="body-text">
+                                            {{ $product->name ?? 'N/A' }}
+                                            @if($variant && $variant->name)
+                                                <span class="text-tiny text-grey">({{ $variant->name }})</span>
+                                            @endif
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="body-text text-main-dark mt-4">
+                                    {{ $order->user?->full_name ?? $order->customer_name ?? 'Khách vãng lai' }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ $product->id ?? '' }}</div>
+                                <div class="body-text text-main-dark mt-4">x{{ $item->quantity }}</div>
+                                <div class="body-text text-main-dark mt-4">{{ number_format($price, 0, ',', '.') }}₫</div>
+                                <div>
+                                    @php
+                                        $status = $order->order_status;
+                                        $statusClass = match ($status) {
+                                            'delivered' => 'block-available fw-7',
+                                            'pending' => 'block-pending fw-7',
+                                            'processing' => 'block-published fw-7',
+                                            'cancelled' => 'block-cancel fw-7',
+                                            default => 'block-published fw-7'
+                                        };
+                                    @endphp
+                                    <div class="{{ $statusClass }}">
+                                        {{ ucfirst($status) }}
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    @endforeach
+                </ul>
+            </div>
+            <div class="flex items-center justify-between flex-wrap gap10">
+                <div></div>
+                <div style="float: right" class="mt-3 custom-pagination">
+                    {{ $recentOrders->links('pagination::bootstrap-5') }}
+                </div>
+            </div>
         </div>
         <!-- /Revenue -->
-        <div class="flex gap20 flex-wrap-mobile">
             <!-- top-product -->
             {{-- <div class="wg-box w-half">
                 <div class="flex items-center justify-between">
@@ -283,7 +383,7 @@
             </div> --}}
             <!-- /top-product -->
             <!-- top-countries -->
-            <div class="wg-box w-half">
+            <div class="wg-box">
                 <div class="flex items-center justify-between">
                     <h5>Sản phẩm bán chạy</h5>
                     {{-- <div class="dropdown default style-box">
@@ -341,10 +441,7 @@
                 </ul>
             </div>
             <!-- /top-countries -->
-        </div>
-    </div>
-    <div class="tf-section-5">
-        <div class="wg-box">
+        {{-- <div class="wg-box">
             <div class="flex items-center justify-between">
                 <h5>Đơn hàng gần đây</h5>
             </div>
@@ -372,52 +469,54 @@
                 <div class="divider mb-14"></div>
                 <ul class="flex flex-column has-divider-line has-line-bot">
                     @foreach($recentOrders as $order)
-                        @foreach($order->orderItems as $item)
+                    @foreach($order->orderItems as $item)
+                    @php
+                    $product = $item->product;
+                    $variant = $item->productVariant;
+                    $image = $variant && $variant->image
+                    ? $variant->image->image_url
+                    : ($product->thumbnail?->image_url ?? $product->images->first()?->image_url ??
+                    'images/products/default.jpg');
+                    $price = ($variant && isset($variant->price_modifier))
+                    ? ($product->regular_price + $variant->price_modifier)
+                    : ($product->regular_price ?? 0);
+                    @endphp
+                    <li class="item wg-product gap20">
+                        <div class="name">
+                            <div class="image">
+                                <img src="{{ asset($image) }}" alt="">
+                            </div>
+                            <div class="title mb-0">
+                                <a href="#" class="body-text">
+                                    {{ $product->name ?? 'N/A' }}
+                                    @if($variant && $variant->name)
+                                    <span class="text-tiny text-grey">({{ $variant->name }})</span>
+                                    @endif
+                                </a>
+                            </div>
+                        </div>
+                        <div class="body-text text-main-dark mt-4">{{ $order->user?->full_name ?? $order->customer_name ??
+                            'Khách vãng lai' }}</div>
+                        <div class="body-text text-main-dark mt-4">{{ $product->id ?? '' }}</div>
+                        <div class="body-text text-main-dark mt-4">x{{ $item->quantity }}</div>
+                        <div class="body-text text-main-dark mt-4">{{ number_format($price, 0, ',', '.') }}₫</div>
+                        <div>
                             @php
-                                $product = $item->product;
-                                $variant = $item->productVariant;
-                                $image = $variant && $variant->image
-                                    ? $variant->image->image_url
-                                    : ($product->thumbnail?->image_url ?? $product->images->first()?->image_url ?? 'images/products/default.jpg');
-                                $price = ($variant && isset($variant->price_modifier))
-                                    ? ($product->regular_price + $variant->price_modifier)
-                                    : ($product->regular_price ?? 0);
+                            $status = $order->order_status;
+                            $statusClass = match ($status) {
+                            'delivered' => 'block-available fw-7',
+                            'pending' => 'block-pending fw-7',
+                            'processing' => 'block-published fw-7',
+                            'cancelled' => 'block-cancel fw-7',
+                            default => 'block-published fw-7'
+                            };
                             @endphp
-                            <li class="item wg-product gap20">
-                                <div class="name">
-                                    <div class="image">
-                                        <img src="{{ asset($image) }}" alt="">
-                                    </div>
-                                    <div class="title mb-0">
-                                        <a href="#" class="body-text">
-                                            {{ $product->name ?? 'N/A' }}
-                                            @if($variant && $variant->name)
-                                                <span class="text-tiny text-grey">({{ $variant->name }})</span>
-                                            @endif
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="body-text text-main-dark mt-4">{{ $order->user?->full_name ?? $order->customer_name ?? 'Khách vãng lai' }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ $product->id ?? '' }}</div>
-                                <div class="body-text text-main-dark mt-4">x{{ $item->quantity }}</div>
-                                <div class="body-text text-main-dark mt-4">{{ number_format($price, 0, ',', '.') }}₫</div>
-                                <div>
-                                    @php
-                                        $status = $order->order_status;
-                                        $statusClass = match ($status) {
-                                            'delivered' => 'block-available fw-7',
-                                            'pending' => 'block-pending fw-7',
-                                            'processing' => 'block-published fw-7',
-                                            'cancelled' => 'block-cancel fw-7',
-                                            default => 'block-published fw-7'
-                                        };
-                                    @endphp
-                                    <div class="{{ $statusClass }}">
-                                        {{ ucfirst($status) }}
-                                    </div>
-                                </div>
-                            </li>
-                        @endforeach
+                            <div class="{{ $statusClass }}">
+                                {{ ucfirst($status) }}
+                            </div>
+                        </div>
+                    </li>
+                    @endforeach
                     @endforeach
                 </ul>
             </div>
@@ -427,7 +526,7 @@
                     {{ $recentOrders->links('pagination::bootstrap-5') }}
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         {{-- <div class="wg-box">
             <div class="flex items-center justify-between">

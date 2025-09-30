@@ -10,7 +10,7 @@
     @endif
     <div class="my-account-content account-order">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>{{ $pageTitle }}</h2>
+            {{-- <h2>{{ $pageTitle }}</h2> --}}
             
             <!-- ✅ Đã xóa nút test kết nối VNPay -->
         </div>
@@ -32,9 +32,9 @@
                     class="status-tab {{ request('order_status', 'all') == 'delivered' ? 'active' : '' }}">Đã giao</a>
                 <a href="{{ route('client.profile.my_account.order', ['order_status' => 'cancelled']) }}"
                     class="status-tab {{ request('order_status', 'all') == 'cancelled' ? 'active' : '' }}">Đã hủy</a>
-                <a href="{{ route('client.profile.my_account.order', ['order_status' => 'returned']) }}"
+                {{-- <a href="{{ route('client.profile.my_account.order', ['order_status' => 'returned']) }}"
                     class="status-tab {{ request('order_status', 'all') == 'returned' ? 'active' : '' }}">Trả hàng/Hoàn
-                    tiền</a>
+                    tiền</a> --}}
             </div>
             @php
                 $statusMap = [
@@ -191,10 +191,10 @@
                                                     action="{{ route('client.profile.my_account.orderdetail', ['id' => $order->id]) }}"
                                                     method="POST" style="display:inline;">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-outline-danger">
+                                                    {{-- <button type="submit" class="btn btn-outline-danger">
                                                         <i class="bi bi-arrow-counterclockwise me-2"></i>Hoàn/Trả
                                                         hàng
-                                                    </button>
+                                                    </button> --}}
                                                 </form>
                                             @else
                                                 <form action="{{ route('client.profile.order.repeat', $order->id) }}"

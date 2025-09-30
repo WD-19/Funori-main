@@ -815,7 +815,7 @@
                                             class="d-flex mb_24 gap-20 align-items-center justify-content-between flex-wrap">
                                             <h5 class="">{{ $reviewCount }} Bình luận</h5>
                                             <form method="GET" id="review-sort-form">
-                                                <select name="sort" id="sort-select"
+                                                {{-- <select name="sort" id="sort-select"
                                                     class="form-select d-inline w-auto"
                                                     onchange="document.getElementById('review-sort-form').submit()">
                                                     <option value="newest"
@@ -824,7 +824,7 @@
                                                     <option value="oldest"
                                                         {{ request('sort') === 'oldest' ? 'selected' : '' }}>Cũ nhất
                                                     </option>
-                                                </select>
+                                                </select> --}}
                                             </form>
 
                                         </div>
